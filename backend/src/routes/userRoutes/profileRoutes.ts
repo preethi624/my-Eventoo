@@ -1,0 +1,15 @@
+import express from 'express'
+import { authMiddlewarwSet } from '../../container/middleware.di'
+import { userController } from '../../container/userProfiledi';
+import multer from 'multer';
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + '-' + file.originalname),
+});
+const upload = multer({ storage });
+const router=express.Router()
+router.get('/user/:userId',authMiddlewarwSet.userOnly, userController.getUser.bind(userController));
+router.put('/user/:userId',authMiddlewarwSet.userOnly,upload.single('image'), userController.updateUser.bind(userController))
+export default router

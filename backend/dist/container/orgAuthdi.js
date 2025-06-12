@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authController = void 0;
+const orgAuthController_1 = require("../controllers/orgAuthController");
+const organiserAuthRepository_1 = require("../repositories/organiserAuthRepository");
+const mailService_1 = require("../services/mailService");
+const organiserAuthService_1 = require("../services/organiserAuthService");
+const otpService_1 = require("../services/otpService");
+const passwordService_1 = require("../services/passwordService");
+const setTokenService_1 = require("../services/setTokenService");
+const tokenService_1 = require("../services/tokenService");
+const authRepository = new organiserAuthRepository_1.OrganiserAuthRepository();
+const otpService = new otpService_1.OTPService();
+const mailService = new mailService_1.MailService();
+const tokenService = new tokenService_1.TokenService();
+const passwordService = new passwordService_1.PasswordService();
+const setTokenService = new setTokenService_1.SetTokenService();
+const authService = new organiserAuthService_1.OrganiserAuthService(authRepository, otpService, mailService, tokenService, passwordService);
+exports.authController = new orgAuthController_1.OrgAuthController(authService, setTokenService);
+//# sourceMappingURL=orgAuthdi.js.map

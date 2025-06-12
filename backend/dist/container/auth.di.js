@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authController = void 0;
+const userAuthController_1 = require("../controllers/userAuthController");
+const userAuthRepository_1 = require("../repositories/userAuthRepository");
+const mailService_1 = require("../services/mailService");
+const otpService_1 = require("../services/otpService");
+const passwordService_1 = require("../services/passwordService");
+const setTokenService_1 = require("../services/setTokenService");
+const tokenService_1 = require("../services/tokenService");
+const userAuthServices_1 = require("../services/userAuthServices");
+const authRepository = new userAuthRepository_1.UserAuthRepository();
+const otpService = new otpService_1.OTPService();
+const mailService = new mailService_1.MailService();
+const tokenService = new tokenService_1.TokenService();
+const passwordService = new passwordService_1.PasswordService();
+const setTokenService = new setTokenService_1.SetTokenService();
+const authService = new userAuthServices_1.UserAuthService(authRepository, otpService, mailService, tokenService, passwordService);
+exports.authController = new userAuthController_1.UserAuthController(authService, setTokenService);
+//# sourceMappingURL=auth.di.js.map
