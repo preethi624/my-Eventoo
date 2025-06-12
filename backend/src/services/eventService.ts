@@ -1,0 +1,157 @@
+
+import { IEventService } from "./serviceInterface/IEventService";
+import { IEventRepository } from "../repositories/repositoryInterface/IEventRepository";
+import { CreateEvent, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "../interface/event";
+import { IEventDTO } from "src/interface/IEventDTO";
+
+export class EventService implements IEventService{
+    constructor(private eventRepository:IEventRepository){}
+    async eventGet(filters:IEventFilter):Promise<EventGet>{
+    try {
+        const response=await this.eventRepository.getEvents(filters);
+       
+        
+    if(response){
+        
+        
+        return {response,success:true,message:"Event fetched successfully"}
+    }else {
+        return { success: false, message: "No events found" }; 
+      } 
+        
+    } catch (error) {
+        console.error(error);
+    return { success: false, message: "not getting events" };
+        
+    }
+   
+
+}
+async eventGetById (id:string):Promise<EventById>{
+    try {
+        const result = await this.eventRepository.getEventById(id);
+        if (result) {
+            return { result, success: true ,message:"Event fetched successfully"};
+        }
+        else {
+            return { success: false, message: "No event found" };
+        }
+    }
+    catch (error) {
+        console.error(error);
+        return { success: false, message: "not getting event" };
+    }
+};
+async eventCreate(data:IEventDTO):Promise<CreateEvent>{
+    try {
+        console.log("data",data);
+        
+       
+        
+      
+        
+        
+        const result=await this.eventRepository.createEvent(data);
+        
+        
+        if(result){
+            return{success:true,message:"Event created successfully"}
+        }else{
+            return{success:false,message:"Failed t create event"}
+        }
+        
+    } catch (error) {
+
+        console.error(error);
+        return { success: false, message: "not creating event" };
+    }
+
+
+
+}
+async eventDelete(id:string):Promise<CreateEvent>{
+    try {
+        
+        
+        const result=await this.eventRepository.eventDelete(id);
+    if(result){
+        return {success:true,message:"event deleted successfully"}
+    }else{
+
+return {success:false,message:"event not deleted"}
+    }
+        
+    } catch (error) {
+        console.log(error);
+        
+        return {success:false,message:"failed to delete event"}
+        
+    }
+    
+
+}
+async eventEdit(id:string,data:EventEdit):Promise<CreateEvent>{
+    try {
+        const result=await this.eventRepository.editEvent(id,data);
+        if(result){
+            return {success:true,message:"event edited successfully"}
+        }else{
+            return {success:false,message:"faled to edit"}
+        }
+        
+    } catch (error) {
+        console.log(error);
+        
+         return {success:false,message:"failed to edit event"}
+        
+        
+    }
+}
+async statusCheck(email:object):Promise<StatusCheck>{
+    try {
+        const result=await this.eventRepository.statusCheck(email);
+        if(result){
+            return {result:result,success:true}
+        }else{
+            return {success:false}
+        }
+    } catch (error) {
+        console.error(error);
+        return {success:false}
+        
+    }
+}
+async getEvent (id:string,limit:number,page:number):Promise<EventGet>{
+    try {
+        const response = await this.eventRepository.eventGet(id,limit,page);
+       
+        
+        if (response) {
+            return { response, success: true ,message:"Event fetched successfully"};
+        }
+        else {
+            return { success: false, message: "No event found" };
+        }
+    }
+    catch (error) {
+        console.error(error);
+        return { success: false, message: "not getting event" };
+    }
+};
+async eventCountGet (organiserId:string):Promise<EventCount>{
+    try {
+        const result = await this.eventRepository.getEventCount(organiserId);
+        if (result) {
+            return { count:result, success: true};
+        }
+        else {
+            return { success: false};
+        }
+    }
+    catch (error) {
+        console.error(error);
+        return { success: false };
+    }
+};
+
+}
