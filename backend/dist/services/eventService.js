@@ -52,7 +52,6 @@ class EventService {
     eventCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("data", data);
                 const result = yield this.eventRepository.createEvent(data);
                 if (result) {
                     return { success: true, message: "Event created successfully" };
@@ -118,10 +117,10 @@ class EventService {
             }
         });
     }
-    getEvent(id, limit, page) {
+    getEvent(id, limit, page, searchTerm, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.eventGet(id, limit, page);
+                const response = yield this.eventRepository.eventGet(id, limit, page, searchTerm, date);
                 if (response) {
                     return { response, success: true, message: "Event fetched successfully" };
                 }
@@ -154,6 +153,23 @@ class EventService {
         });
     }
     ;
+    getDashboardEvents(organiserId, timeFrame) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.eventRepository.dashboardEvents(organiserId, timeFrame);
+                if (response) {
+                    return { success: true, events: response.events, message: "event fetched successfully", data: response.data, adminPercentage: response.adminCommissionPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents };
+                }
+                else {
+                    return { success: false, message: "failed to fetch events" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed" };
+            }
+        });
+    }
 }
 exports.EventService = EventService;
 //# sourceMappingURL=eventService.js.map

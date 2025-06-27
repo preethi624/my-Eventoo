@@ -96,8 +96,7 @@ const EventDetail: React.FC = () => {
 </div>
 
 <EventMap
-  latitude={event.latitude}
-  longitude={event.longitude}
+  venueName={event.venue}
   title={event.title}
 />
 

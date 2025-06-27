@@ -1,52 +1,63 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css'; // Make sure you include this
+import 'leaflet/dist/leaflet.css';
 
 type EventMapProps = {
-  latitude?: number;
-  longitude?: number;
+  venueName?: string; // No default
   title?: string;
 };
 
-const EventMap: React.FC<EventMapProps> = ({
-  latitude,
-  longitude ,
-  title = 'Kochi Event',
-}) => {
-  const lat = latitude ?? 9.9312;
-  const lng = longitude ?? 76.2673;
+const EventMap: React.FC<EventMapProps> = ({ venueName, title = "Event Location" }) => {
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+
   useEffect(() => {
-    // Fix leaflet's default icon issue
+    // Skip fetching if venueName is missing
+    if (!venueName) return;
+
+    // Fix Leaflet icon bug
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
       shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
     });
-  }, []);
 
-  if (lat===undefined || lng===undefined) {
-    return <div>Loading map...</div>;
+    const fetchCoordinates = async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(venueName)}`,
+          {
+            headers: {
+              'User-Agent': 'eventManagement/1.0 (your@email.com)', // Required
+              'Referer': window.location.origin,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.length > 0) {
+          setLat(parseFloat(data[0].lat));
+          setLng(parseFloat(data[0].lon));
+        } else {
+          console.warn('No location found for', venueName);
+        }
+      } catch (error) {
+        console.error("Error fetching coordinates", error);
+      }
+    };
+
+    fetchCoordinates();
+  }, [venueName]);
+
+  // If no venueName provided or location not found, don’t render the map
+  if (!venueName || lat === null || lng === null) {
+    return null;
   }
 
   return (
-    <div
-      style={{
-        height: '200px',
-        width: '100%',
-        borderRadius: '10px',
-        overflow: 'hidden',
-        marginTop: '15px',
-      }}
-    >
-      <MapContainer
-        key={`${lat}-${lng}`}
-        center={[lat, lng]}
-        zoom={13}
-        scrollWheelZoom={false}
-        style={{ height: '100%', width: '100%' }}
-      >
+    <div style={{ height: '200px', width: '100%', borderRadius: '10px', overflow: 'hidden', marginTop: '15px' }}>
+      <MapContainer center={[lat, lng]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -1,9 +1,10 @@
 import { GetOrganiser, IOrganiser } from "src/interface/IOrgAuth";
 import { IOrganiserService } from "./serviceInterface/IOrganiserService";
 import { IOrganiserRepository } from "src/repositories/repositoryInterface/IOrganiserRepository";
-import { OrgStatusCheck} from "src/interface/event";
+import { DashboardServiceResponse, OrgStatusCheck} from "src/interface/event";
 import { EditOrganiserResult, ProfileEdit, Reapply } from "src/interface/IUser";
 import { FetchOrders, GetOrder } from "src/interface/IPayment";
+import {  GetVenue,  OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 
 export class OrganiserService implements IOrganiserService{
     constructor(private organiserRepository:IOrganiserRepository){}
@@ -67,9 +68,11 @@ async organiserUpdate(data:ProfileEdit,organiserId:string):Promise<EditOrganiser
         
 
     }
-    async bookingFetch(organiserId:string,limit:number,page:number):Promise<FetchOrders>{
+    async bookingFetch(organiserId:string,limit:number,page:number,searchTerm:string,status:string,date:string):Promise<FetchOrders>{
         try {
-            const result=await this.organiserRepository.fetchBooking(organiserId,limit,page);
+            const result=await this.organiserRepository.fetchBooking(organiserId,limit,page,searchTerm,status,date);
+         
+            
            
             
             if(result){
@@ -115,6 +118,58 @@ async organiserUpdate(data:ProfileEdit,organiserId:string):Promise<EditOrganiser
         } catch (error) {
               console.error(error);
         return { success: false, message: "failed to reapply" };
+            
+        }
+    } 
+      async venuesGet(filters:OrgVenueFilter):Promise<VenueFetch>{
+        try {
+            const result=await this.organiserRepository.getVenues(filters);
+       
+            
+            if(result){
+                return {success:true,message:"venues fetched successfully",venues:result.venues,totalPages:result.totalPages,currentPage:result.currentPage}
+            }else{
+                return {success:false,message:"failed to fetch"}
+            }
+            
+        } catch (error) {
+              console.error(error);
+        return { success: false, message: "failed to fetch orders" };
+            
+        }
+    }  
+    async venueGetById(venueId:string):Promise<GetVenue>{
+        try {
+            const result=await this.organiserRepository.getVenueById(venueId);
+           
+            
+            if(result){
+                return {success:true,message:"orders fetched successfully",venue:result}
+            }else{
+                return {success:false,message:"failed to fetch"}
+            }
+            
+        } catch (error) {
+              console.error(error);
+        return { success: false, message: "failed to fetch venue" };
+            
+        }
+    }  
+
+    async dashboardGet(eventId:string):Promise<DashboardServiceResponse>{
+        try {
+            const result=await this.organiserRepository.getDashboard(eventId);
+           
+            
+            if(result){
+                return {success:true,message:"orders fetched successfully",data:result}
+            }else{
+                return {success:false,message:"failed to fetch"}
+            }
+            
+        } catch (error) {
+              console.error(error);
+        return { success: false, message: "failed to fetch venue" };
             
         }
     }  

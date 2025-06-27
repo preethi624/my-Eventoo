@@ -5,12 +5,12 @@ import { IChatService } from "src/services/serviceInterface/IChatService";
 import { StatusCode } from "../constants/statusCodeEnum";
 export class ChatController implements IChatController{
     constructor(private chatService:IChatService){}
-    async createChat(req:Request<unknown,unknown,string>,res:Response):Promise<void>{
+    async createChat(req:Request<unknown,unknown,{message:string,userId:string}>,res:Response):Promise<void>{
         try {
           
             
-            const message=req.body;
-        const response=await this.chatService.chatCreate(message);
+            const { message,userId}=req.body;
+        const response=await this.chatService.chatCreate(message,userId);
         if(response.success){
             res.json({success:true,message:'chat successfully',response:response.result})
 

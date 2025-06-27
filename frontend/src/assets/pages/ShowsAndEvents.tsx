@@ -60,8 +60,16 @@ const ShowsAndEvents: React.FC = () => {
       if (response.success&&Array.isArray(response.result?.response.events)) {
 
         
-   
-     const latestEvents=response.result.response.events.filter(event=>new Date(event.createdAt)<new Date())
+   const latestEvents = response.result.response.events.filter(event => {
+  const date = new Date(event.date);
+  const dateString = date.toISOString().split('T')[0]; 
+  const combined = new Date(`${dateString}T${event.time}`);
+
+  
+  return !isNaN(combined.getTime()) && combined >= new Date();
+});
+
+    
         
         setEvents(latestEvents);
         setTotalPages(response.result.response.totalPages)

@@ -1,4 +1,4 @@
-import { IPaymentDTO, OrdersGet, UserProfileUpdate } from "src/interface/IPayment";
+import { IPaymentDTO, OrdersGet, Update, UserProfileUpdate } from "src/interface/IPayment";
 import { IOrder } from "src/model/order";
 
 export interface IPaymentRepository{
@@ -8,5 +8,7 @@ export interface IPaymentRepository{
     getOrderById(userId:string,orderId:string):Promise<IOrder|null>;
     failurePayment(payStatus:string,orderId:string,userId:string):Promise<IOrder|null>;
      getOrdersById(userId:string):Promise<UserProfileUpdate>;
+     findOrder(orderId:string):Promise<IOrder|null>;
+     updateRefund(refundId:string,orderId:string):Promise<Update>
    
 }

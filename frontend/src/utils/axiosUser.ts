@@ -25,6 +25,8 @@ function isOrganiserRoute(url: string | undefined): boolean {
     url?.includes('/event')||
     url?.includes('/payment')||
     url?.includes('/orgOrder')||
+    url?.includes('/organiser/venues')||
+
     
     false
   );

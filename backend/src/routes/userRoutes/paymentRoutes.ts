@@ -9,5 +9,6 @@ router.post('/failure',authMiddlewarwSet.userOnly,paymentController.failurePayme
 router.get('/orders/:id',authMiddlewarwSet.userOnly,paymentController.getOrders.bind(paymentController));
 router.get('/order/:userId/:orderId',authMiddlewarwSet.userAndOrganiser,paymentController.getOrderById.bind(paymentController));
 router.get('/order/:userId',authMiddlewarwSet.userOnly,paymentController.getOrdersById.bind(paymentController));
+router.post('/order/:orderId',authMiddlewarwSet.userOnly,paymentController.findOrder.bind(paymentController))
 
 export default router

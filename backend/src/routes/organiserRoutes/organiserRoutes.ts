@@ -17,7 +17,10 @@ router.post('/checkStatus',authMiddlewarwSet.organiserOnly,organiserController.c
 router.put('/organiser/:organiserId',authMiddlewarwSet.organiserOnly,upload.single('image'), organiserController.updateOrganiser.bind(organiserController));
 router.get('/orgOrder/:organiserId',authMiddlewarwSet.organiserOnly,organiserController.fetchBooking.bind(organiserController));
 router.get('/orgOrders/:orderId',authMiddlewarwSet.organiserOnly,organiserController.getOrderDetails.bind(organiserController));
-router.post('/organiserReapply/:orgId',authMiddlewarwSet.organiserOnly,organiserController.orgReapply.bind(organiserController))
+router.post('/organiserReapply/:orgId',authMiddlewarwSet.organiserOnly,organiserController.orgReapply.bind(organiserController));
+router.get('/venues',authMiddlewarwSet.organiserOnly,organiserController.getVenues.bind(organiserController));
+router.get('/venue/:venueId',authMiddlewarwSet.organiserOnly,organiserController.getVenueById.bind(organiserController));
+router.get('/getDashboard/:eventId',authMiddlewarwSet.organiserOnly,organiserController.getDashboard.bind(organiserController))
 
 
 export default router

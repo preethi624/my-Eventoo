@@ -10,6 +10,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 import type { EventFetchResponse, IEventDTO } from '../../interfaces/IEvent';
 import { organiserRepository } from '../../repositories/organiserRepositories';
+import { eventSchema } from '../../validations/eventValidations';
+import * as Yup from 'yup'
+import DataTable from '../components/DataTable';
+import { Link } from 'react-router-dom';
 
 
 
@@ -59,7 +63,9 @@ const OrganiserEvents: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [events, setEvents] = useState<IEventDTO[]>([]);
   const [editModal,setEditModal]=useState(false);
- const [editEventId,setEditEventID]=useState('')
+ const [editEventId,setEditEventID]=useState('');
+ const [searchTerm,setSearchTerm]=useState('');
+   const [selectedDate, setSelectedDate] = useState('');
 
   const [editForm,setEditForm]=useState<EventEdit>({
     id:'',
@@ -101,14 +107,23 @@ const OrganiserEvents: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
-  }, [currentPage]);
+  }, [currentPage,searchTerm,selectedDate]);
   console.log(editEventId);
   
 
   const fetchEvents = async () => {
     try {
+      const params=new URLSearchParams();
+  if(searchTerm){
+  
+   
+    
+    params.append('searchTerm',searchTerm);}
+ 
+    if (selectedDate) params.append('date', selectedDate);
+
       const orgId=organiser?.id
-      const response:EventFetchResponse=await eventRepository.getEvents(orgId,currentPage,limit);
+      const response:EventFetchResponse=await eventRepository.getEvents(orgId,currentPage,limit,params.toString());
       console.log("respooo",response);
       
   
@@ -164,19 +179,54 @@ const handlePrevPage = () => {
     fetchOrganiserDetails();
   }, [organiser]);
 
+const validateCreateForm = () => {
+  const {
+    title,
+    category,
+    description,
+    date,
+    time,
+    venue,
+    capacity,
+    ticketPrice,
+    images,
+  } = eventForm;
+
+  if (!title || !category || !description || !date || !time || !venue) {
+    toast.error("Please fill in all required fields.");
+    return false;
+  }
+
+  if (!images || images.length === 0) {
+    toast.error("Please upload at least one image.");
+    return false;
+  }
+
+  if (Number(capacity) <= 0) {
+    toast.error("Capacity must be greater than 0.");
+    return false;
+  }
+
+  if (Number(ticketPrice) < 0) {
+    toast.error("Ticket price cannot be negative.");
+    return false;
+  }
+
+  return true;
+};
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    //const isValid=validateCreateForm();
+    //if(!isValid)return
+     try {
+    // Validate eventForm against the schema
+    await eventSchema.validate(eventForm, { abortEarly: false });
 
-    const selectedDateTime = new Date(`${eventForm.date}T${eventForm.time}`);
-    const now = new Date();
-
-    if (selectedDateTime < now) {
-      toast.error('You cannot use past date and time');
-      return;
-    }
-
-    try {
-      const formData = new FormData();
+    // ✅ Passed - proceed to create event
+    console.log('Valid event data:', eventForm);
+    // submit to API...
+    const formData = new FormData();
       Object.keys(eventForm).forEach((key) => {
         if (key === 'images') {
           const files = eventForm.images as FileList;
@@ -225,9 +275,20 @@ const handlePrevPage = () => {
         });
         fetchEvents(); 
       }
-    } catch (error) {
-      console.error('Failed to create event:', error);
-    }
+
+   } catch (err) {
+    if (err instanceof Yup.ValidationError) {
+      // Show all validation messages (or show one)
+      err.inner.forEach((error) => {
+        toast.error(error.message); // or store in state and display under each field
+      });
+    
+   }
+  };
+
+    
+
+    
   };
   const handleDelete = async (eventId: string | undefined) => {
     if (!eventId) return;
@@ -286,10 +347,72 @@ const handlePrevPage = () => {
 
 
   }
+  const validateEditForm = () => {
+  const { title, category, description, date, time, venue, capacity, ticketPrice, status } = editForm;
+  if (!title || !category || !description || !date || !time || !venue || !status) {
+    toast.error("All fields are required.");
+    return false;
+  }
+
+  if (!title.trim()) {
+    toast.error("Event title is required");
+    return false;
+  }
+
+  if (!category) {
+    toast.error("Please select a category");
+    return false;
+  }
+
+  if (!description.trim()) {
+    toast.error("Description is required");
+    return false;
+  }
+
+  if (!date) {
+    toast.error("Date is required");
+    return false;
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+  if (date < today) {
+    toast.error("Event date cannot be in the past");
+    return false;
+  }
+
+  if (!time) {
+    toast.error("Time is required");
+    return false;
+  }
+
+  if (!venue.trim()) {
+    toast.error("Venue is required");
+    return false;
+  }
+
+  if (!capacity || capacity < 1) {
+    toast.error("Capacity must be at least 1");
+    return false;
+  }
+
+  if (ticketPrice === null || ticketPrice < 0) {
+    toast.error("Ticket price must be 0 or greater");
+    return false;
+  }
+
+  if (!status) {
+    toast.error("Please select an event status");
+    return false;
+  }
+
+  return true;
+};
   const handleEditSubmit=async(id:string)=>{
     if(!id){
       return
     };
+    const isValid=validateEditForm();
+    if(!isValid)return
     const response=await eventRepository.editEvent(id,editForm);
     if(response.success){
       toast(response.message);
@@ -314,6 +437,53 @@ const handlePrevPage = () => {
 
 
   }
+  const columns = [
+  { header: 'Event Name', accessor: 'title' },
+  {
+    header: 'Date',
+    accessor: 'date',
+    render: (event: any) => new Date(event.date).toLocaleDateString()
+  },
+  { header: 'Venue', accessor: 'venue' },
+  
+  { header: 'Status', accessor: 'status' },
+  {
+    header: 'Actions',
+    accessor: 'actions',
+    render: (event: any) => (
+      <div className="flex gap-2">
+       
+        <button
+          className="text-blue-500 hover:text-blue-700"
+          onClick={() => handleEdit(event._id)}
+        >
+          <FaEdit />
+        </button>
+        <button
+          className="text-red-500 hover:text-red-700"
+          onClick={() => handleDelete(event._id)}
+        >
+          <FaTrash />
+        </button>
+         <Link to={`/organiserEvent/${event._id}`}>
+        <button
+          className="bg-black text-white px-2 py-1 rounded text-sm hover:bg-indigo-700"
+        >
+         Analytics
+        </button>
+      </Link>
+      </div>
+    )
+  }
+];
+
+const handleResetFilters = () => {
+  setSearchTerm('');
+  setSelectedDate('');
+  setCurrentPage(1);
+};
+
+ 
   
 
   return (
@@ -349,39 +519,29 @@ const handlePrevPage = () => {
 
 
       <div className="bg-white shadow-md rounded p-4 overflow-x-auto">
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="p-2">Event Name</th>
-              <th className="p-2">Date</th>
-              <th className="p-2">Venue</th>
-              <th className="p-2">Tickets Sold</th>
-              <th className="p-2">Status</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((event) => (
-              <tr key={event._id} className="border-t">
-                <td className="p-2">{event.title}</td>
-                <td className="p-2">
-                  {new Date(event.date).toLocaleDateString()}
-                </td>
-                <td className="p-2">{event.venue}</td>
-                <td className="p-2">{event.ticketsSold || 0}</td>
-                <td className="p-2">{event.status}</td>
-                <td className="p-2 flex gap-2">
-                  <button className="text-blue-500 hover:text-blue-700" onClick={()=>handleEdit(event._id)}>
-                    <FaEdit />
-                  </button>
-                  <button className="text-red-500 hover:text-red-700" onClick={()=>handleDelete(event._id)}>
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+         <input
+    type="text"
+    placeholder="Search by event "
+    className="border px-3 py-1 rounded w-full sm:w-64"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  <input
+  type="date"
+  className="border px-3 py-1 rounded w-full sm:w-48"
+  value={selectedDate}
+  onChange={(e) => setSelectedDate(e.target.value)}
+/>
+<button
+    onClick={handleResetFilters}
+    className="bg-black text-white px-8 py-1 rounded hover:bg-red-600"
+  >
+    ResetFlters
+  </button>
+        
+        <DataTable data={events} columns={columns} />
+
+        
         {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
   <button
     onClick={handlePrevPage}
@@ -414,7 +574,7 @@ const handlePrevPage = () => {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg w-full max-w-4xl p-6 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Edit Event</h3>
+              <h3 className="text-xl font-semibold">Create a new event</h3>
              
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -428,7 +588,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, title: e.target.value })
                     }
-                    required
+                   
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -440,7 +600,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, category: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   >
                     <option value="">Select Category</option>
@@ -461,7 +621,7 @@ const handlePrevPage = () => {
                   onChange={(e) =>
                     setEventForm({ ...eventForm, description: e.target.value })
                   }
-                  required
+                 
                   className="w-full border px-3 py-2 rounded"
                 />
               </div>
@@ -476,7 +636,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, date: e.target.value })
                     }
-                    required
+                  
                     min={new Date().toISOString().split('T')[0]}
                     className="w-full border px-3 py-2 rounded"
                   />
@@ -490,7 +650,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, time: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -506,34 +666,12 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, venue: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
-                <div>
-                  <label className="block mb-1">Latitude</label>
-                  <input
-                    type="number"
-                    name="latitude"
-                    value={eventForm.latitude}
-                    onChange={(e) =>
-                      setEventForm({ ...eventForm, latitude: e.target.value })
-                    }
-                    className="w-full border px-3 py-2 rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">Longitude</label>
-                  <input
-                    type="number"
-                    name="longitude"
-                    value={eventForm.longitude}
-                    onChange={(e) =>
-                      setEventForm({ ...eventForm, longitude: e.target.value })
-                    }
-                    className="w-full border px-3 py-2 rounded"
-                  />
-                </div>
+                
+                
                 <div>
                   <label className="block mb-1">Capacity</label>
                   <input
@@ -543,7 +681,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, capacity: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -558,7 +696,7 @@ const handlePrevPage = () => {
                   onChange={(e) =>
                     setEventForm({ ...eventForm, ticketPrice: e.target.value })
                   }
-                  required
+                 
                   className="w-full border px-3 py-2 rounded"
                 />
               </div>
@@ -576,7 +714,7 @@ const handlePrevPage = () => {
                       images: e.target.files || [],
                     })
                   }
-                  required
+                 
                 />
               </div>
 
@@ -603,12 +741,16 @@ const handlePrevPage = () => {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg w-full max-w-4xl p-6 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Create New Event</h3>
+              <h3 className="text-xl font-semibold">Edit Event</h3>
               <button onClick={() => setEditModal(false)}>&times;</button>
             </div>
 
             <form onSubmit={(e)=>{e.preventDefault();
-              handleEditSubmit(editForm.id)} 
+            if(validateEditForm()){
+               handleEditSubmit(editForm.id)
+              
+            }
+             } 
             }
             className="space-y-4"
 
@@ -623,7 +765,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEditForm({ ...editForm, title: e.target.value })
                     }
-                    required
+                   
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -635,7 +777,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEditForm({ ...editForm, category: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   >
                     <option value="">Select Category</option>
@@ -656,7 +798,7 @@ const handlePrevPage = () => {
                   onChange={(e) =>
                     setEditForm({ ...editForm, description: e.target.value })
                   }
-                  required
+                 
                   className="w-full border px-3 py-2 rounded"
                 />
               </div>
@@ -671,7 +813,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEditForm({ ...editForm, date: e.target.value })
                     }
-                    required
+                
                     min={new Date().toISOString().split('T')[0]}
                     className="w-full border px-3 py-2 rounded"
                   />
@@ -685,7 +827,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEditForm({ ...editForm, time: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -701,7 +843,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEditForm({ ...editForm, venue: e.target.value })
                     }
-                    required
+                   
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -720,7 +862,7 @@ const handlePrevPage = () => {
                      
                       
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   />
                 </div>
@@ -736,7 +878,7 @@ const handlePrevPage = () => {
                   onChange={(e) =>
                     setEditForm({ ...editForm, ticketPrice: Number(e.target.value )})
                   }
-                  required
+                 
                   className="w-full border px-3 py-2 rounded"
                 />
               </div>
@@ -748,7 +890,7 @@ const handlePrevPage = () => {
                     onChange={(e) =>
                       setEditForm({ ...editForm, status: e.target.value })
                     }
-                    required
+                    
                     className="w-full border px-3 py-2 rounded"
                   >
                     <option value="">Select Status</option>

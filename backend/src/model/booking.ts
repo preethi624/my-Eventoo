@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { ref } from 'process';
+
 export interface IBooking extends Document{
     eventId:mongoose.Types.ObjectId;
     userId:mongoose.Types.ObjectId;

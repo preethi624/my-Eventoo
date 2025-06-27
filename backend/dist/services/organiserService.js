@@ -65,10 +65,10 @@ class OrganiserService {
             }
         });
     }
-    bookingFetch(organiserId, limit, page) {
+    bookingFetch(organiserId, limit, page, searchTerm, status, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.fetchBooking(organiserId, limit, page);
+                const result = yield this.organiserRepository.fetchBooking(organiserId, limit, page, searchTerm, status, date);
                 if (result) {
                     return { success: true, message: "orders fetched successfully", result: result.result, totalPages: result.totalPages, currentPage: result.currentPage };
                 }
@@ -115,6 +115,57 @@ class OrganiserService {
             catch (error) {
                 console.error(error);
                 return { success: false, message: "failed to reapply" };
+            }
+        });
+    }
+    venuesGet(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.organiserRepository.getVenues(filters);
+                if (result) {
+                    return { success: true, message: "venues fetched successfully", venues: result.venues, totalPages: result.totalPages, currentPage: result.currentPage };
+                }
+                else {
+                    return { success: false, message: "failed to fetch" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed to fetch orders" };
+            }
+        });
+    }
+    venueGetById(venueId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.organiserRepository.getVenueById(venueId);
+                if (result) {
+                    return { success: true, message: "orders fetched successfully", venue: result };
+                }
+                else {
+                    return { success: false, message: "failed to fetch" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed to fetch venue" };
+            }
+        });
+    }
+    dashboardGet(eventId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.organiserRepository.getDashboard(eventId);
+                if (result) {
+                    return { success: true, message: "orders fetched successfully", data: result };
+                }
+                else {
+                    return { success: false, message: "failed to fetch" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed to fetch venue" };
             }
         });
     }

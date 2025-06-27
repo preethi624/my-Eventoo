@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Users, CreditCard, Search, Filter, Download, Eye, MoreVertical, AlertCircle, Loader2 } from 'lucide-react';
+import { Calendar, MapPin, Users, CreditCard, Search, Filter, Download, Eye, MoreVertical, AlertCircle, Loader2, XCircle } from 'lucide-react';
 import { paymentRepository } from '../../repositories/paymentRepositories';
 
 import { useSelector } from 'react-redux';
@@ -8,6 +8,9 @@ import UserNavbar from '../components/UseNavbar';
 import { Bookmark } from "lucide-react";
 import type { IGetOrdersResponse, IOrder } from '../../interfaces/IOrder';
 import { Link } from 'react-router-dom';
+import QRCode from 'qrcode';
+import { jsPDF } from "jspdf";
+
 
 
 
@@ -23,7 +26,8 @@ const MyOrderPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [debounceSearch,setDebounceSearch]=useState(searchTerm)
+  const [debounceSearch,setDebounceSearch]=useState(searchTerm);
+  const [refundId,setRefundId]=useState('');
   
   const [currentPage,setCurrentPage]=useState(1);
     const [totalPages,setTotalPages]=useState(1)
@@ -39,7 +43,7 @@ useEffect(()=>{
 
 },[searchTerm])
  
-  // Fetch orders from backend
+ 
 
   useEffect(() => {
 
@@ -58,9 +62,6 @@ useEffect(()=>{
   if(statusFilter!='all')params.append('status',statusFilter)
   
 
-/*useEffect(() => {
-  setCurrentPage(1);
-}, [searchTerm, statusFilter]);*/
 
   const fetchOrders = async () => {
     try {
@@ -121,26 +122,25 @@ const handlePrevPage = () => {
   }
 };
 
- /* const filteredOrders =orders.slice()
-  .sort((a,b)=>new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  .filter(order => {
-   
-    
-    const matchesSearch = order.eventDetails.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.razorpayOrderId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });*/
+ 
 
-  const getStatusColor = (status: string) => {
+  /*const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid': return 'bg-green-100 text-green-800';
       case 'created': return 'bg-yellow-100 text-yellow-800';
       case 'failed': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
+  };*/
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+     
+    }
+  }
+
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
@@ -150,6 +150,15 @@ const handlePrevPage = () => {
       default: return status;
     }
   };
+   const getBookingStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'Confirmed';
+      case 'pending': return 'Pending';
+      case 'cancelled': return 'cancelled';
+      default: return status;
+    }
+  };
+  
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -176,8 +185,27 @@ const handlePrevPage = () => {
     // Default placeholder image
     return `https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format`;
   };
+  const handleCancelBooking=async(orderId:string)=>{
+    try {
+      const response=await paymentRepository.findOrder(orderId);
+      console.log("frontRes",response);
+      setRefundId(response.refund.response.refundId);
+      fetchOrders()
+      
 
-  const handleDownloadTicket = async (orderId: string) => {
+      
+
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+  }
+  console.log("refundid",refundId);
+  
+
+  /*const handleDownloadTicket = async (orderId: string) => {
     try {
       const response = await fetch(`/api/orders/${orderId}/ticket`, {
         headers: {
@@ -199,7 +227,29 @@ const handlePrevPage = () => {
     } catch (err) {
       console.error('Failed to download ticket:', err);
     }
-  };
+  };*/
+  const handleDownloadTicket = async (orderId: string) => {
+  const order = orders.find(o => o._id === orderId);
+  if (!order) return;
+
+  const doc = new jsPDF();
+
+  const qrText = `https://myeventsite.com/verify/${order._id}`; // Or any URL you want
+  const qrImage = await QRCode.toDataURL(qrText);
+
+  doc.text(`Ticket Confirmation`, 10, 10);
+  doc.text(`Event: ${order.eventTitle}`, 10, 20);
+  doc.text(`Date: ${formatDate(order.eventDetails?.date.toString())}`, 10, 30);
+  doc.text(`Venue: ${order.eventDetails?.venue}`, 10, 40);
+  doc.text(`Order ID: ${order.orderId}`, 10, 50);
+  doc.text(`Tickets: ${order.ticketCount}`, 10, 60);
+  doc.text(`Amount Paid: ${formatCurrency(order.amount)}`, 10, 70);
+
+  // Draw QR code
+  doc.addImage(qrImage, 'PNG', 10, 80, 50, 50);
+
+  doc.save(`ticket_${order.eventTitle.replace(/\s+/g, '_')}.pdf`);
+};
 
   if (loading) {
     return (
@@ -229,6 +279,7 @@ const handlePrevPage = () => {
       </div>
     );
   }
+ 
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 ">
@@ -258,9 +309,9 @@ const handlePrevPage = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">All Status</option>
-              <option value="paid">Confirmed</option>
-              <option value="created">Pending</option>
-              <option value="failed">Failed</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
             </select>
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -320,8 +371,8 @@ const handlePrevPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusDisplay(order.status)}
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.bookingStatus||'')}`}>
+                        {getBookingStatusDisplay(order.bookingStatus||'')}
                       </span>
                       <button className="p-2 hover:bg-gray-100 rounded-full">
                         <MoreVertical className="w-5 h-5 text-gray-400" />
@@ -334,7 +385,13 @@ const handlePrevPage = () => {
                     <div>
                       <p className="text-sm text-gray-500">Payment Status</p>
                       <p className="font-medium">{getStatusDisplay(order.status)}</p>
+                      
                     </div>
+                    {order.status === 'refunded' && (
+  <p>Refund ID: {order.refundId}</p>
+)}
+
+                    
                     <div>
                       <p className="text-sm text-gray-500">Tickets</p>
                       <div className="flex items-center gap-1">
@@ -363,6 +420,16 @@ const handlePrevPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
+                     {order.status ==='paid' && (
+        <button
+  onClick={() => handleCancelBooking(order._id)}
+  className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg flex items-center gap-2 text-sm"
+>
+  <XCircle className="w-4 h-4" />
+  Cancel Booking
+</button>
+
+      )} 
   <Link
     to={`/order/${order._id}`}
     className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2 text-sm"

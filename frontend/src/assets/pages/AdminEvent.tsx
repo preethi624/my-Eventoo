@@ -32,6 +32,19 @@ const EventPage: React.FC = () => {
   const [events, setEvents] = useState<IEventDTO[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<IEventDTO| null>(null);
+  const [currentPage,setCurrentPage]=useState(1);
+  const [totalPage,setTotalPage]=useState(1);
+ 
+ const[selectedCategory,setSelectedCategory]=useState('');
+   const [maxPrice,setMaxPrice]=useState<number|null>(null);
+   const [selectedDate,setSelectedDate]=useState('');
+    const [searchTitle,setSearchTitle]=useState('');
+     const [searchLocation, setSearchLocation] = useState('');
+     const [orgName,setOrgName]=useState('')
+  
+   const eventsPerPage=6
+ 
+    
 
   const [expandedEvents,setExpandedEvents]=useState<{[key:string]:boolean}>({})
   const toggleTrunk=(id:string)=>{
@@ -40,6 +53,7 @@ const EventPage: React.FC = () => {
       [id]:!prev[id]
     }))
   }
+ 
   
   const [formData, setFormData] = useState({
       title: '',
@@ -54,13 +68,29 @@ const EventPage: React.FC = () => {
 
    useEffect(() => {
       fetchEvents();
-    }, []);
+    },[ searchLocation,selectedCategory,maxPrice,selectedDate,searchTitle,currentPage,orgName]);
   
     const fetchEvents = async () => {
       try {
-        const response = await adminRepository.getAllEvents();
+          const params=new URLSearchParams();
+  if(searchLocation)params.append('searchLocation',searchLocation);
+  if(searchTitle)params.append('searchTitle',searchTitle)
+  if(selectedCategory)params.append('selectedCategory',selectedCategory);
+  if(maxPrice)params.append('maxPrice',maxPrice.toString());
+  if(selectedDate)params.append('selectedDate',selectedDate);
+  if(orgName)params.append('orgName',orgName)
+  params.append('page',currentPage.toString());
+  params.append('limit',eventsPerPage.toString())
+
+   
+    
+   
+        const response = await adminRepository.getAllEvents(params.toString());
+        console.log("resoo",response);
+        
         if (response.success&&response.result) {
-          setEvents(response.result);
+          setEvents(response.result.response.events);
+          setTotalPage(response.result.response.totalPages)
         }
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -93,6 +123,8 @@ const EventPage: React.FC = () => {
         console.error('Error edititng event:', error);
       }
     };  
+    
+    
     const handleToggleBlock=async(event:IEventDTO)=>{
       const result = await Swal.fire({
               title: 'Are you sure?',
@@ -131,11 +163,130 @@ const EventPage: React.FC = () => {
       setSelectedEvent(null);
       setFormData({ title: '', description: '' ,date:'',venue:'',capacity:0,status:'draft',time:'',ticketPrice:0});
     };
+     const handleNextPage = () => {
+  if (currentPage < totalPage) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+console.log("total",totalPage);
+
+
+const handlePrevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
+
+
+     
   return (
     <AdminLayout>
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Event Management</h1>
+   <div className="p-6">
+    <h1 className="text-2xl font-bold text-gray-800">Event Management</h1>
+      <div className="flex justify-between items-center mb-6 ">
+        
+        
+ <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+  <h2 className="text-xl font-semibold text-gray-800 mb-4">Search & Filter Events</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    
+    {/* Category Filter */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1 round-full">Category</label>
+      <select
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 "
+      >
+        <option value="">All Categories</option>
+        <option value="music">Music</option>
+        <option value="sports">Sports</option>
+        <option value="arts">Arts</option>
+        <option value="technology">Technology</option>
+        <option value="Others">Others</option>
+      </select>
+    </div>
+
+    {/* Max Price Filter */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+      <input
+        type="number"
+        placeholder="Enter max price"
+        value={maxPrice ?? ''}
+        onChange={(e) => setMaxPrice(e.target.value ? parseInt(e.target.value) : null)}
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+
+    {/* Location Filter */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+      <input
+        type="text"
+        placeholder="Search by location"
+        value={searchLocation}
+        onChange={(e) => setSearchLocation(e.target.value)}
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+
+    {/* Title Filter */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Event Name</label>
+      <input
+        type="text"
+        placeholder="Search by event name"
+        value={searchTitle}
+        onChange={(e) => setSearchTitle(e.target.value)}
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Organiser Name</label>
+      <input
+        type="text"
+        placeholder="Search by organiser name"
+        value={orgName}
+        onChange={(e) => setOrgName(e.target.value)}
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+
+
+    {/* Date Filter */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+      <input
+        type="date"
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+
+    {/* Reset Button */}
+    <div className="flex items-end">
+      <button
+        onClick={() => {
+          setSelectedCategory('');
+          setMaxPrice(null);
+          setSelectedDate('');
+          setSearchLocation('');
+          setSearchTitle('');
+          setOrgName('');
+        }}
+        className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
+      >
+        Reset Filters
+      </button>
+    </div>
+  </div>
+</div>
+
+
+        
+  
         
       </div>
 
@@ -333,13 +484,45 @@ const EventPage: React.FC = () => {
           </button>
         </div>
       </form>
+      
+
     </div>
      
         </div>
       )}
+      
     </div>
+    {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
+  <button
+    onClick={handlePrevPage}
+    disabled={currentPage === 1}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+  {Array.from({ length: totalPage }, (_, index) => (
+    <button
+      key={index}
+      onClick={() => setCurrentPage(index + 1)}
+      className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-black text-white' : 'bg-gray-300'}`}
+    >
+      {index + 1}
+    </button>
+  ))}
+  <button
+    onClick={handleNextPage}
+    disabled={currentPage === totalPage}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>)}
+
+
     </AdminLayout>
+    
   );
+  
 };
 
 export default EventPage;

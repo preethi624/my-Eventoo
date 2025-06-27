@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import path from 'path';
 import { config } from 'dotenv';
+import cron from 'node-cron';
 
 
 import userRoutes from './routes/userAuthRoutes';
@@ -18,6 +19,8 @@ import adminOrgRoutes from './routes/adminRoutes/adminOrganiserRoutes';
 import paymentRoutes from './routes/userRoutes/paymentRoutes';
 import chatRoutes from './routes/chatRoutes';
 import userProfileRoutes from './routes/userRoutes/profileRoutes'
+import adminOrderRoutes from './routes/adminRoutes/adminOrderRoutes'
+import adminVenueRoutes from './routes/adminRoutes/adminVenueRoutes'
 
 
 
@@ -28,6 +31,8 @@ import connectDB from './config/db';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { organiserSocketMap, userSocketMap } from './socketMap';
+import { updateCompletedEvents } from './job/updateCompletedEvents';
+
 
 
 
@@ -80,6 +85,8 @@ app.use('/api/admin', adminAuthRoutes);
 app.use('/api/admin',adminUserRoutes);
 app.use('/api/admin',adminEventRoutes);
 app.use('/api/admin',adminOrgRoutes);
+app.use('/api/admin',adminOrderRoutes)
+app.use('/api/admin',adminVenueRoutes)
 app.use('/api/payment',paymentRoutes);
 app.use('/api/chat',chatRoutes);
 io.on('connection', (socket) => {
@@ -119,7 +126,9 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 
 connectDB()
-  .then(() => {
+  .then(async() => {
+    await updateCompletedEvents();
+      cron.schedule('0 0 * * *', updateCompletedEvents);
     httpServer.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);
     });

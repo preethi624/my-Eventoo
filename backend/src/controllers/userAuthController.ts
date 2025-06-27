@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { IUserAuthController } from "./controllerInterface/IUserAuthController";
 import { ISetTokenService } from "../services/serviceInterface/ISetTokenService";
 import { StatusCode } from "../constants/statusCodeEnum";
-import { MESSAGES } from "src/constants/messages";
+import { MESSAGES } from "../constants/messages";
 
 export class UserAuthController implements IUserAuthController{
    constructor(private authService:IUserAuthService,private setTokenService:ISetTokenService){};

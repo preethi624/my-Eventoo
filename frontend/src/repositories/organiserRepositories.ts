@@ -8,6 +8,7 @@ import { AxiosError } from 'axios';
 import type { IOrganiser } from '../interfaces/IOrganiser';
 import axiosInstance from '../utils/axiosUser';
 import type { FetchOrders, OrgOrder } from '../interfaces/IPayment';
+import type { GetVenue, GetVenues } from '../interfaces/IVenue';
 const API_BASE_URL="http://localhost:3000/api/organiser";
 interface GetOrganiserById{
   success?:boolean;
@@ -84,14 +85,20 @@ try {
     throw axiosError.response?.data || axiosError.message;
 }
 }
-export const fetchBookings=async(organiserId:string,page:number,limit:number):Promise<FetchOrders>=>{
+export const fetchBookings=async(organiserId:string,page:number,limit:number,queryParams:string):Promise<FetchOrders>=>{
   try {
+
+    console.log("Query Params:", queryParams);
+
+    
     
     
     
     
 
- const response=await axiosInstance.get(`${API_BASE_URL}/orgOrder/${organiserId}?limit=${limit}&page=${page}`);
+ const response=await axiosInstance.get(`${API_BASE_URL}/orgOrder/${organiserId}?limit=${limit}&page=${page}&${queryParams}`);
+
+ 
  
  
  if(response){
@@ -162,13 +169,100 @@ export const reapply=async(organiserId:string)=>{
 
 
 }
+export const getVenues=async(filters:string)=>{
+  try {
+  
+    
+  
+    
+   
+    
+    
+    
+    
+    
+
+ const response=await axiosInstance.get(`${API_BASE_URL}/venues/?${filters}`);
+ console.log("responseDetails",response);
+ 
+ if(response){
+  return {result:response.data,success:true,message:"venues fetched success",}
+ }else{
+  return{success:false,message:"failed"}
+
+
+ }
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+            throw axiosError.response?.data || axiosError.message; 
+
+    
+  }
+}
+export const getVenueById=async(venueId:string):Promise<GetVenue>=>{
+  try {
+  
+    
+   
+    
+    
+    
+    
+    
+
+ const response=await axiosInstance.get(`${API_BASE_URL}/venue/${venueId}`);
+ console.log("responseDetails",response);
+ 
+ if(response){
+  return {venue:response.data.venue,success:true,message:"venue fetched success"}
+ }else{
+  return{success:false,message:"failed"}
+
+
+ }
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+            throw axiosError.response?.data || axiosError.message; 
+
+    
+  }
+}
+export const getDashboard=async(eventId:string)=>{
+  try {
+
+ const response=await axiosInstance.get(`${API_BASE_URL}/getDashboard/${eventId}`);
+ console.log("resss",response);
+ 
+ if (response && response.data.success) {
+      return {
+        event: response.data.data.event,
+        orders: response.data.data.orders,
+        stats: response.data.data.stats,
+        success: true,
+      };
+    } else {
+      return { success: false };
+    }
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+            throw axiosError.response?.data || axiosError.message; 
+
+    
+  }
+}
 export const organiserRepository={
     getOrganiserById,
     checkStatus,
     updateOrganiser,
     fetchBookings,
     getOrderDetails,
-    reapply
+    reapply,
+    getVenues,
+    getVenueById,
+    getDashboard
 
  
   

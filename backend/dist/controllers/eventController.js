@@ -168,7 +168,9 @@ class EventController {
                 const id = req.params.id;
                 const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
-                const response = yield this.eventService.getEvent(id, limit, page);
+                const searchTerm = req.query.searchTerm;
+                const date = req.query.date;
+                const response = yield this.eventService.getEvent(id, limit, page, searchTerm, date);
                 console.log("response", response);
                 if (response) {
                     res.json({ result: response, success: true });
@@ -215,6 +217,31 @@ class EventController {
         });
     }
     ;
+    getDashboardEvents(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const organiserId = req.params.organiserId || '';
+                const timeFrame = req.query.timeFrame || '30d';
+                const response = yield this.eventService.getDashboardEvents(organiserId, timeFrame);
+                if (response.success) {
+                    res.json({ success: true, events: response.events, data: response.data, adminPercentage: response.adminPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents });
+                }
+                else {
+                    res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
+                        success: false,
+                        message: "No events found",
+                    });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: "Failed to fetch events",
+                });
+            }
+        });
+    }
 }
 exports.EventController = EventController;
 //# sourceMappingURL=eventController.js.map

@@ -61,8 +61,13 @@ const orderSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: ['created', 'paid', 'failed'],
+        enum: ['created', 'paid', 'failed', 'refunded'],
         default: 'created',
+    },
+    bookingStatus: {
+        type: String,
+        enum: ["confirmed", "cancelled", "pending"],
+        default: "pending"
     },
     razorpayOrderId: {
         type: String,
@@ -82,6 +87,7 @@ const orderSchema = new mongoose_1.Schema({
     createdAt: {
         type: Date
     },
+    refundId: { type: String },
 });
 const Order = mongoose_1.default.model('Order', orderSchema);
 exports.default = Order;

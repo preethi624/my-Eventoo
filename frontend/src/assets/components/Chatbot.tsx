@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaTimes, FaPaperPlane, FaUser } from 'react-icons/fa';
 import axios from 'axios';
 import { chatbotRepository } from '../../repositories/chatRepositories';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../redux/stroe';
+import type { CustomJwtPayload } from '../../interfaces/IUser';
 
 interface Message {
   text: string;
@@ -26,6 +29,9 @@ const Chatbot: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+const user = useSelector((state: RootState) => state.auth.user as CustomJwtPayload );
+
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,7 +42,7 @@ const Chatbot: React.FC = () => {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim()) retu
 
     const userMessage: Message = {
       text: inputMessage,
@@ -50,7 +56,7 @@ const Chatbot: React.FC = () => {
 
     try {
      
-      const response=await chatbotRepository.createChat(inputMessage);
+      const response=await chatbotRepository.createChat(inputMessage,user.id);
       if(!response||!response.response){
         throw new Error("Response not get")
       }

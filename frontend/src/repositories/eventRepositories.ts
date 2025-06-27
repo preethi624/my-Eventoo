@@ -162,7 +162,7 @@ export const checkStatus=async(email:string)=>{
     
   }
 }
-export const getEvents=async(id:string,currentPage:number,limit:number):Promise<EventFetchResponse>=>{
+export const getEvents=async(id:string,currentPage:number,limit:number,queryParams:string):Promise<EventFetchResponse>=>{
   try {
    
    
@@ -170,8 +170,9 @@ export const getEvents=async(id:string,currentPage:number,limit:number):Promise<
  
     
     const response=await axiosInstance.get<EventFetchResponse>(
-      `${API_BASE_URL}/events/${id}?limit=${limit}&page=${currentPage}`
+      `${API_BASE_URL}/events/${id}?limit=${limit}&page=${currentPage}&${queryParams}`
     )
+    
     
     
     return response.data
@@ -208,6 +209,35 @@ export const getEventsCreated=async(organiserId:string):Promise<EventCount>=>{
   }
  
 }
+export const getDashboardEvents=async(organiserId:string,timeFrame:string)=>{
+ try {
+   
+   
+    
+ 
+    
+    const response=await axiosInstance.get(
+      `${API_BASE_URL}/dashboardEvents/${organiserId}?timeFrame=${timeFrame}`
+    )
+    
+    
+    
+    
+    
+    
+   
+    
+    
+    return response
+
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+}
 
 
 
@@ -221,7 +251,8 @@ export const eventRepository={
   editEvent,
   checkStatus,
   getEvents,
-  getEventsCreated
+  getEventsCreated,
+  getDashboardEvents
 
 
 }

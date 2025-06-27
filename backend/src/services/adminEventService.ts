@@ -1,18 +1,25 @@
-import { CreateEvent, EditEvent, EventGet } from "src/interface/event";
+import { CreateEvent, EditEvent, EventGet, IEventFilter } from "src/interface/event";
 import { IEvent } from "src/model/event";
 import { IAdminEventService } from "./serviceInterface/IAdminEventService";
 import { IAdminEventRepository } from "src/repositories/repositoryInterface/IAdminEventRepository";
 import { GetUsers } from "src/interface/IUserAuth";
+import { AdminDashboard } from "src/interface/IAdmin";
 
 
 export class AdminEventService implements IAdminEventService{
     constructor(private adminEventRepository:IAdminEventRepository){}
-    async getEvents():Promise<EventGet>{
+    async getEvents(filters:IEventFilter):Promise<EventGet>{
 
 try {
-    const result:IEvent[]=await this.adminEventRepository.getEventsAll();
-    if(result){
-      return {result:result,success:true,message:"Users fetched successfully"}
+  
+  
+    const response=await this.adminEventRepository.getEventsAll(filters);
+  
+    
+
+    
+    if(response){
+      return {response,success:true,message:"Users fetched successfully"}
     }else{
       return{success:false,message:"failed to fetch users"}
     }
@@ -82,6 +89,26 @@ async eventBlock(event:IEvent):Promise<CreateEvent>{
   }
 
 
+}
+async dashboardGet():Promise<AdminDashboard>{
+  try {
+    const response=await this.adminEventRepository.getDashboard();
+  if(response){
+    return{success:true,message:"fetched successfully",monthlyRevenue:response.monthlyRevenue,topEvents:response.topEvents}
+
+  }else{
+    return{success:false,message:"failed to fetch"}
+  }
+    
+  } catch (error) {
+     console.error('Login error:', error);
+    return {
+      success: false,
+      message: 'Internal server error',
+    };
+    
+  }
+  
 }
 
 

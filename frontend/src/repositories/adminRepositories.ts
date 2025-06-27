@@ -9,6 +9,8 @@ import type { IEventDTO } from "../interfaces/IEvent";
 import type { IUser } from "../interfaces/IUser";
 import type { Organiser } from "../assets/pages/AdminOrganiser";
 import type { LoginResponse } from "../redux/thunk/adminAuthThunk";
+import type { VenueUpdate } from "../interfaces/IVenue";
+import type { AdminDashboard } from "../interfaces/IAdmin";
 
 
 const API_BASE_URL = "http://localhost:3000/api/admin";
@@ -221,19 +223,28 @@ export const blockUser=async(user:IUser)=>{
 
 
 }
-export const getAllEvents=async()=>{
+export const getAllEvents=async(filters:string)=>{
   try {
+    
+    
+    
+    
+  
+    
     const token=localStorage.getItem("adminToken");
+
     const response = await axios.get<GetEvents>(
       
       
-      `${API_BASE_URL}/events`,
+      `${API_BASE_URL}/events/?${filters}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
+    console.log("respoo",response);
+    
    
     
     return response.data
@@ -296,6 +307,202 @@ export const blockEvent=async(event:IEventDTO):Promise<EditEvent>=>{
 
 
 }
+export const fetchBookings= async (filters:string) => {
+  console.log('filt',filters);
+  
+  try {
+    
+    
+     const token=localStorage.getItem("adminToken");
+
+    const response = await axios.get(
+      
+      
+      `${API_BASE_URL}/order/?${filters}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  
+    
+    
+    
+    
+    
+   
+   
+    
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+};
+export const createVenue= async (formData:FormData) => {
+
+ 
+  try {
+    console.log("form",formData);
+    
+    
+    
+     const token=localStorage.getItem("adminToken");
+
+    const response = await axios.post(
+      
+      
+      `${API_BASE_URL}/venue`,formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("respo",response);
+    
+  
+    
+    
+    
+    
+    
+   
+   
+    
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+};
+export const fetchVenues= async (filters:string) => {
+  
+  
+  try {
+    
+    
+     const token=localStorage.getItem("adminToken");
+
+    const response = await axios.get(
+      
+      
+      `${API_BASE_URL}/venues/?${filters}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("ressss",response);
+    
+  
+    
+    
+    
+    
+    
+   
+   
+    
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+};
+export const editVenue=async(updateData:VenueUpdate):Promise<EditEvent>=>{
+  try {
+    const token=localStorage.getItem("adminToken");
+  
+    
+    const response = await axios.put<EditEvent>(
+      `${API_BASE_URL}/venue`,updateData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data
+    
+  } catch (error) {
+
+  const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+}
+export const venueDelete=async(venueId:string):Promise<EditEvent>=>{
+  try {
+    
+    
+    const token=localStorage.getItem("adminToken");
+  
+    
+    const response = await axios.delete<EditEvent>(
+      `${API_BASE_URL}/venue/${venueId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+   
+    
+    return response.data
+    
+  } catch (error) {
+
+  const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+}
+const getDashboard=async()=>{
+   try {
+    
+    
+    
+    
+    
+    
+  
+    
+    const token=localStorage.getItem("adminToken");
+
+    const response = await axios.get<AdminDashboard>(
+      
+      
+      `${API_BASE_URL}/dashboardEvents`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  
+    
+   
+    
+    return response.data
+
+   
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+
+}
+
+
+
 export const adminRepository={
   adminLogin,
   getAllOrganisers,
@@ -307,6 +514,12 @@ export const adminRepository={
  blockUser,
  getAllEvents,
  updateEvent,
- blockEvent
+ blockEvent,
+ fetchBookings,
+ createVenue,
+ fetchVenues,
+ editVenue,
+ venueDelete,
+ getDashboard
 
 }

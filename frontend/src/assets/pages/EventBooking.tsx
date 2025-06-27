@@ -124,8 +124,36 @@ const EventBooking: React.FC = () => {
       [name]: value,
     });
   };
+  const validateForm = () => {
+  const { name, email, phone } = bookingData;
+
+  if (!name.trim()) {
+    toast("Name is required");
+    return false;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    toast("Please enter a valid email");
+    return false;
+  }
+
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    toast("Please enter a valid 10-digit phone number");
+    return false;
+  }
+
+  return true;
+};
+
 
   const handleNextStep = () => {
+ if(bookingStep===2){
+  const isValid=validateForm();
+  if(!isValid)return
+ }
+    
     if (bookingStep < 4) {
       setBookingStep(bookingStep + 1);
     }

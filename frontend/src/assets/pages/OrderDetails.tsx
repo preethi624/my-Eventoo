@@ -43,7 +43,7 @@ const OrderDetailsPage: React.FC = () => {
       setLoading(true);
       if (!orderId || !user?.id) throw new Error('Invalid order or user ID');
       const response = await paymentRepository.getOrderDetails(orderId, user.id);
-      console.log("respooo",response);
+    
       
       if (!response.success) throw new Error('Failed to fetch order details');
       setOrder(response.order);

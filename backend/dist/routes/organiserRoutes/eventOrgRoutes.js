@@ -14,5 +14,6 @@ router.delete('/event/:id', middleware_di_1.authMiddlewarwSet.organiserOnly, eve
 router.put('/event/:id', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.editEvent.bind(event_di_1.eventController));
 router.get('/events/:id', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.eventGet.bind(event_di_1.eventController));
 router.get('/eventCount/:organiserId', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getEventCount.bind(event_di_1.eventController));
+router.get('/dashboardEvents/:organiserId', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getDashboardEvents.bind(event_di_1.eventController));
 exports.default = router;
 //# sourceMappingURL=eventOrgRoutes.js.map

@@ -35,6 +35,12 @@ import UserProfile from './assets/pages/userProfile';
 import OrganiserProfile from './assets/pages/organiserProfile';
 import OrganiserBookings from './assets/pages/OrgaiserBooking';
 import OrgOrderDetailsPage from './assets/pages/OrganiserOrderDetails';
+import ProtectedRoute from './assets/components/ProtectedRoute';
+import AdminBookings from './assets/pages/AdminBookings';
+import VenueManagement from './assets/pages/AdminVenue';
+import VenuePage from './assets/pages/OrganiserVenue';
+import VenueDetailsPage from './assets/pages/OrganiserVenueDetails';
+import EventDashboard from './assets/pages/OrganiserEventDashboard';
 
 
 function App() {
@@ -94,27 +100,37 @@ useEffect(() => {
       <Route path='/register' element={<SignupPage/>}/>
       <Route path='/verifyOtpUser' element={<VerifyOtpUser/>}/>
       <Route path='/verifyOtpOrg' element={<VerifyOtpOrg/>}/>
-      <Route path='/home' element={<HomePage/>}/>
-      <Route path='/dashboard' element={<Dashboard/>}/>
+      <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
+
+
+      <Route path='/dashboard' element={<ProtectedRoute element={<Dashboard />} />}/>
       <Route path='/forgotPassword' element={<ForgotPassword/>}/>
       <Route path='/verifyOtp' element={<OTPVerification/>}/>
       <Route path='/resetPassword' element={<ResetPassword/>}/>
-      <Route path='/shows' element={<ShowsAndEvents/>}/>
-      <Route path='/events/:id' element={<EventDetail/>}/>
-      <Route path='/orgEvents' element={<OrganiserEvents/>}/>
+    <Route path="/shows" element={<ProtectedRoute element={<ShowsAndEvents />} />} />
+      <Route path='/events/:id' element={<ProtectedRoute element={<EventDetail />} />}/>
+      <Route path='/orgEvents' element={<ProtectedRoute element={<OrganiserEvents/>} />}/>
       <Route path='/adminLogin' element={<AdminLogin/>}/>
       <Route path='/adminDashboard' element={<AdminDashboard/>}/>
       <Route path='/adminOrganiser' element={<AdminOrganiser/>}/>
       <Route path='/adminUser' element={<AdminUser/>}/>
       <Route path='/admin/events' element={<EventPage/>}/>
+      <Route path='/admin/bookings' element={<AdminBookings/>}/>
+      <Route path='/admin/venues' element={<VenueManagement/>}/>
       
-      <Route path='/eventBooking/:eventId' element={<EventBooking/>}/>
-      <Route path='/my-bookings' element={<MyOrdersPage/>}/>
-      <Route path='/order/:orderId' element={<OrderDetailsPage/>}/>
-      <Route path='/userProfile' element={<UserProfile/>}/>
-      <Route path='/organiserProfile' element={<OrganiserProfile/>}/>
-      <Route path='/organiserBookings' element={<OrganiserBookings/>}/>
-      <Route path='/orgOrderDetails/:orderId' element={<OrgOrderDetailsPage/>}/>
+      <Route path='/eventBooking/:eventId' element={<ProtectedRoute element={<EventBooking/>} />}/>
+      <Route path='/my-bookings' element={<ProtectedRoute element={<MyOrdersPage />} />}/>
+      <Route path='/order/:orderId' element={<ProtectedRoute element={<OrderDetailsPage/>} />}/>
+      <Route path='/userProfile' element={<ProtectedRoute element={<UserProfile />} />}/>
+      <Route path='/organiserProfile' element={<ProtectedRoute element={<OrganiserProfile />} />}/>
+      <Route path='/organiserBookings' element={<ProtectedRoute element={<OrganiserBookings />} />}/>
+      <Route path='/orgOrderDetails/:orderId' element={<ProtectedRoute element={<OrgOrderDetailsPage />} />}/>
+       <Route path='/orgVenues' element={<ProtectedRoute element={<VenuePage/>} />}/>
+        <Route path='/venue/:venueId' element={<ProtectedRoute element={<VenueDetailsPage/>} />}/>
+        <Route path='/organiserEvent/:id' element={<ProtectedRoute element={<EventDashboard/>} />}/>
+
+
+      
     
       
       

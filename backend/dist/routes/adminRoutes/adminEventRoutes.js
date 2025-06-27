@@ -10,5 +10,6 @@ const router = express_1.default.Router();
 router.get('/events', middleware_di_1.authMiddlewarwSet.adminOnly, adminEventdi_1.adminEventController.getAllEvents.bind(adminEventdi_1.adminEventController));
 router.put('/event/:id', middleware_di_1.authMiddlewarwSet.adminOnly, adminEventdi_1.adminEventController.eventEdit.bind(adminEventdi_1.adminEventController));
 router.put('/event', middleware_di_1.authMiddlewarwSet.adminOnly, adminEventdi_1.adminEventController.blockEvent.bind(adminEventdi_1.adminEventController));
+router.get('/dashboardEvents', middleware_di_1.authMiddlewarwSet.adminOnly, adminEventdi_1.adminEventController.getDashboard.bind(adminEventdi_1.adminEventController));
 exports.default = router;
 //# sourceMappingURL=adminEventRoutes.js.map

@@ -61,11 +61,10 @@ const eventSchema = new mongoose_1.Schema({
     },
     availableTickets: { type: Number, default: 0 },
     ticketsSold: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now },
     latitude: { type: Number, default: 9.9312 },
     longitude: { type: Number, default: 76.2673 },
     isBlocked: { type: Boolean, default: false },
-});
+}, { timestamps: true });
 eventSchema.pre('save', function (next) {
     if (this.isNew) {
         this.availableTickets = this.capacity;
