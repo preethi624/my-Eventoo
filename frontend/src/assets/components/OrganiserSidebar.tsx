@@ -15,6 +15,8 @@ const links = [
 
   { to: '/dashboard', icon: <FaCalendarAlt />, label: 'Dashboard' },
   { to: '/orgEvents', icon: <FaCalendarAlt />, label: 'Events' },
+   { to: '/orgVenues', icon: <FaCalendarAlt />, label: 'Venues' },
+
  
   { to: '/tickets', icon: <FaTicketAlt />, label: 'Tickets' },
    { to: '/organiserBookings', icon: <FaTicketAlt />, label: 'Bookings' },

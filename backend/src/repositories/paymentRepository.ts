@@ -1,8 +1,9 @@
 import Order, { IOrder } from "../model/order";
 import { IPaymentRepository } from "./repositoryInterface/IPaymentRepository";
-import {  IPaymentDTO, OrdersGet, UserProfileUpdate } from "../interface/IPayment";
+import {  IPaymentDTO, OrdersGet, Update, UserProfileUpdate } from "../interface/IPayment";
 import { IEventDTO } from "src/interface/IEventDTO";
 import mongoose from "mongoose";
+import EventModel from "../model/event";
 
 
 
@@ -16,12 +17,17 @@ export class PaymentRepository implements IPaymentRepository{
     async updatePaymentDetails(orderId:string,paymentId:string,signature:string,status:string):Promise<IOrder|null>{
      
       
-        return await Order.findOneAndUpdate({razorpayOrderId:orderId},{
+        const updateOrder=await Order.findOneAndUpdate({razorpayOrderId:orderId},{
             razorpayPaymentId:paymentId,
             razorpaySignature:signature,
-            status:status
+            status:status,
+            bookingStatus:"confirmed"
 
         },{new:true})
+        if(updateOrder&&updateOrder.eventId&&updateOrder.ticketCount&&updateOrder.bookingStatus==="confirmed"){
+          await EventModel.findByIdAndUpdate(updateOrder.eventId,{$inc:{ticketsSold:updateOrder.ticketCount}})
+        }
+        return updateOrder
 
     }
     async getOrders(id:string,limit:number,page:number,searchTerm:string,status:string):Promise<OrdersGet>{
@@ -39,7 +45,7 @@ export class PaymentRepository implements IPaymentRepository{
       const orderId=order.orderId?.toLowerCase()||''
       const search=searchTerm?.toLowerCase()||''
       const matchSearch=eventTitle.includes(search)||orderId.includes(search)
-      const matchStatus =!status|| status === 'all' || order.status?.toLowerCase() === status.toLowerCase();
+      const matchStatus =!status|| status === 'all' || order.bookingStatus?.toLowerCase() === status.toLowerCase();
       return matchSearch&&matchStatus
 
      })
@@ -120,6 +126,22 @@ const formatedOrders: IOrder[] = paginatedOrders.map(order => {
       }
       
     }
+    async findOrder(orderId:string):Promise<IOrder|null>{
+      return await Order.findById({_id:orderId})
+    }
+    async updateRefund(refundId:string,orderId:string):Promise<Update>{
+      const order=await Order.findById(orderId)
+       if (!order) throw new Error('Order not found');
+       const eventId=order.eventId;
+       const ticketCount=order.ticketCount;
+
+      await Order.findByIdAndUpdate(orderId,{refundId:refundId,status:"refunded",bookingStatus:"cancelled"});
+      await EventModel.findByIdAndUpdate(eventId,{$inc:{availableTickets:ticketCount}})
+      return {success:true}
+
+
+    }
+    
     
 
 }

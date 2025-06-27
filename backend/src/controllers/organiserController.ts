@@ -3,6 +3,8 @@ import { IOrganiserController } from "./controllerInterface/IOrganiserController
 import { Request, Response } from "express";
 import { StatusCode } from "../constants/statusCodeEnum";
 import { ProfileEdit } from "src/interface/IUser";
+import { ParsedQs } from "qs";
+import { OrgVenueFilter } from "src/interface/IVenue";
 
 export class OrganiserController implements IOrganiserController{
     constructor(private organiserService:IOrganiserService ){}
@@ -106,9 +108,14 @@ async updateOrganiser(req:Request<{organiserId:string},unknown,ProfileEdit>,res:
         
          const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 5;
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+    const searchTerm=req.query.searchTerm as string
+    const status=req.query.status as string;
+    const date=req.query.date as string
+    console.log("date",date);
+    
    
     
-     const response=await this.organiserService.bookingFetch(organiserId,limit,page);
+     const response=await this.organiserService.bookingFetch(organiserId,limit,page,searchTerm as string,status,date);
      
      
         if(response.success){
@@ -131,7 +138,7 @@ async updateOrganiser(req:Request<{organiserId:string},unknown,ProfileEdit>,res:
     }
 
 async getOrderDetails(req:Request,res:Response):Promise<void>{
-  console.log("controller hit");
+  
   
       try {
        
@@ -186,6 +193,126 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
       
 
     }
+  async getVenues(req:Request,res:Response):Promise<void>{
+  
+  
+      try {
+
+       const query=req.query as ParsedQs;
+                       const filters:OrgVenueFilter={
+                         nameSearch:typeof query.nameSearch==='string'?query.nameSearch:'',
+                           locationSearch:typeof query.locationSearch==='string'?query.locationSearch:'',
+                          
+                       page:query.page?Number(query.page):undefined,
+                       limit: query.limit && !isNaN(Number(query.limit)) ? Number(query.limit) : undefined
+                   
+                   
+                       }
+                       
+                       
+        
+        
+     
+        
+       
+   
+    
+     const response=await this.organiserService.venuesGet(filters);
+     
+     
+        if(response.success){
+          res.json({message:response.message,success:true,venues:response.venues,totalPages:response.totalPages,currentPage:response.currentPage})
+        }else{
+          res.json({message:"failed to fetch venues",success:false})
+        }
+
+        
+      } catch (error) {
+        console.error("Error in payment verification :", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+        }); 
+        
+      }
+      
+
+    }  
+   async getVenueById(req:Request,res:Response):Promise<void>{
+  
+  
+      try {
+       
+        
+        const venueId=req.params.venueId;
+       
+        
+     
+        
+       
+   
+    
+     const response=await this.organiserService.venueGetById(venueId);
+     
+     
+        if(response.success){
+          res.json({message:response.message,success:true,venue:response.venue})
+        }else{
+          res.json({message:"failed to fetch orders",success:false})
+        }
+
+        
+      } catch (error) {
+        console.error("Error in payment verification :", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+        }); 
+        
+      }
+      
+      
+
+    } 
+    async getDashboard(req:Request,res:Response):Promise<void>{
+  
+  
+      try {
+       
+        
+        const eventId=req.params.eventId;
+       
+        
+     
+        
+       
+   
+    
+     const response=await this.organiserService.dashboardGet(eventId);
+     
+     
+        if(response.success){
+          res.json({message:response.message,success:true,data:response.data})
+        }else{
+          res.json({message:"failed to fetch orders",success:false})
+        }
+
+        
+      } catch (error) {
+        console.error("Error in payment verification :", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+        }); 
+        
+      }
+      
+      
+
+    } 
+
+ 
+
 
 
     

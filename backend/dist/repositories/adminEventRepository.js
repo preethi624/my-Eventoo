@@ -14,10 +14,68 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminEventRepository = void 0;
 const event_1 = __importDefault(require("../model/event"));
+const platformSettings_1 = __importDefault(require("../model/platformSettings"));
 class AdminEventRepository {
-    getEventsAll() {
+    getEventsAll(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield event_1.default.find();
+            var _a;
+            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, orgName } = filters;
+            const skip = (page - 1) * limit;
+            const query = {};
+            if (searchLocation) {
+                query.venue = { $regex: searchLocation, $options: 'i' };
+            }
+            if (searchTitle) {
+                query.title = { $regex: searchTitle, $options: 'i' };
+            }
+            if (selectedCategory) {
+                query.category = selectedCategory;
+            }
+            if (maxPrice != undefined && maxPrice != null) {
+                query.ticketPrice = { $lte: maxPrice };
+            }
+            if (selectedDate) {
+                const date = new Date(selectedDate);
+                date.setHours(0, 0, 0, 0);
+                const nextDay = new Date(date);
+                nextDay.setDate(date.getDate() + 1);
+                query.date = { $gte: date, $lt: nextDay };
+            }
+            const pipeline = [
+                { $match: query },
+                {
+                    $lookup: {
+                        from: "organisers",
+                        localField: "organiser",
+                        foreignField: "_id",
+                        as: "organiserDetails",
+                    },
+                },
+                { $unwind: "$organiserDetails" },
+            ];
+            if (filters.orgName) {
+                pipeline.push({
+                    $match: {
+                        "organiserDetails.name": {
+                            $regex: filters.orgName,
+                            $options: "i",
+                        },
+                    },
+                });
+            }
+            pipeline.push({ $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit });
+            const events = yield event_1.default.aggregate(pipeline);
+            const countPipeline = pipeline.filter((stage) => !("$skip" in stage) && !("$limit" in stage) && !("$sort" in stage));
+            countPipeline.push({ $count: "total" });
+            const countData = yield event_1.default.aggregate(countPipeline);
+            const total = ((_a = countData[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
+            // const totalCount=await EventModel.countDocuments(query)
+            //const events=await EventModel.find(query).skip(skip).limit(limit).sort({createdAt:-1});
+            return {
+                totalPages: Math.ceil(total / limit),
+                events,
+                currentPage: page
+            };
         });
     }
     eventEdit(id, formData) {
@@ -34,6 +92,49 @@ class AdminEventRepository {
             else {
                 return yield event_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
             }
+        });
+    }
+    getDashboard() {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const settings = yield platformSettings_1.default.findOne();
+            const commissionRate = ((_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10) / 100;
+            const monthlyRevenue = yield event_1.default.aggregate([
+                {
+                    $match: {
+                        status: 'completed'
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $month: '$date' },
+                        revenue: { $sum: { $multiply: [{ $multiply: ['$ticketPrice', '$ticketsSold'] }, commissionRate] } },
+                        events: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        month: '$_id',
+                        revenue: 1,
+                        events: 1,
+                        _id: 0
+                    }
+                },
+                {
+                    $sort: { month: 1 }
+                }
+            ]);
+            const topEvents = yield event_1.default.aggregate([
+                { $project: { title: 1, ticketsSold: 1, revenue: { $multiply: ["$ticketsSold", "$ticketPrice"] } } },
+                { $sort: { revenue: -1 } },
+                { $limit: 5 }
+            ]);
+            return {
+                monthlyRevenue,
+                message: 'Dashboard data fetched successfully',
+                success: true,
+                topEvents
+            };
         });
     }
 }

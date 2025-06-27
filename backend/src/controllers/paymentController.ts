@@ -147,5 +147,23 @@ export class PaymentController implements IPaymentController{
       }
 
     }
+    async findOrder(req:Request,res:Response):Promise<void>{
+      try {
+        const orderId=req.params.orderId;
+      const response=await this.paymentService.orderFind(orderId);
+      if(response){
+        res.json({response})
+      } 
+        
+      } catch (error) {
+        console.error("Error in payment verification :", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+        }); 
+        
+      }
+     
+    }
    
 }

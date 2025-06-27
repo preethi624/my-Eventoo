@@ -14,10 +14,10 @@ class ChatService {
     constructor(chatRepository) {
         this.chatRepository = chatRepository;
     }
-    chatCreate(message) {
+    chatCreate(message, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.chatRepository.createChat(message);
+                const result = yield this.chatRepository.createChat(message, userId);
                 if (result) {
                     return { success: true, message: "successfully chat", result: result.text };
                 }

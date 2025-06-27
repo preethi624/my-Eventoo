@@ -24,7 +24,7 @@ const AdminUser: React.FC = () => {
     name: '',
     email: '',
   });
-
+  
   useEffect(() => {
     fetchUsers();
   }, []);

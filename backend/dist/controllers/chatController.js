@@ -18,8 +18,8 @@ class ChatController {
     createChat(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const message = req.body;
-                const response = yield this.chatService.chatCreate(message);
+                const { message, userId } = req.body;
+                const response = yield this.chatService.chatCreate(message, userId);
                 if (response.success) {
                     res.json({ success: true, message: 'chat successfully', response: response.result });
                 }

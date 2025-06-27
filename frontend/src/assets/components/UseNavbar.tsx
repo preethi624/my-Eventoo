@@ -41,24 +41,29 @@ const UserNavbar: React.FC = () => {
           🧭 EVENTOO
         </Link>
         <div className="flex items-center gap-4">
-          <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium">
-            Home
-          </Link>
+          
           <Link to="/about" className="text-gray-700 hover:text-blue-600 font-medium">
             About Us
           </Link>
-          <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 font-medium">
+          
+          
+          
+
+          {isLoggedin && (
+            <>
+            <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 font-medium">
             MyOrders
           </Link>
           <Link to="/shows" className="text-gray-700 hover:text-blue-600 font-medium">
             Shows & Events
           </Link>
+          <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium">
+            Home
+          </Link>
           <Link to="/tickets" className="text-gray-700 hover:text-blue-600 font-medium">
             Tickets
           </Link>
 
-          {isLoggedin && (
-            <>
             <Link to={`/userProfile`}>
               <span className="text-sm font-semibold text-gray-800">👤 {username}</span>
               </Link>

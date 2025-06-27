@@ -21,7 +21,11 @@ class UserController {
                 const response = yield this.userService.userGet(userId);
                 console.log("respo", response);
                 if (response) {
-                    res.json({ user: response, success: true, message: "fetched user successfully" });
+                    res.json({
+                        user: response,
+                        success: true,
+                        message: "fetched user successfully",
+                    });
                 }
                 else {
                     res.json({ success: false, message: "failed to fetch user" });
@@ -50,7 +54,11 @@ class UserController {
                 };
                 const response = yield this.userService.userUpdate(data, userId);
                 if (response.success) {
-                    res.json({ result: response.result, success: true, message: "user updated " });
+                    res.json({
+                        result: response.result,
+                        success: true,
+                        message: "user updated ",
+                    });
                 }
                 else {
                     res.json({ success: false, message: "failed to update" });

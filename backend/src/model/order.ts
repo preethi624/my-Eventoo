@@ -13,6 +13,10 @@ export interface IOrder extends Document{
     ticketCount:number;
     createdAt:Date;
     orderId:string;
+    bookingStatus:string;
+   
+    refundId:string;
+   
    
 }
 const orderSchema:Schema<IOrder>=new Schema<IOrder>({
@@ -45,8 +49,13 @@ const orderSchema:Schema<IOrder>=new Schema<IOrder>({
   },
   status: {
     type: String,
-    enum: ['created', 'paid', 'failed'],
+    enum: ['created', 'paid', 'failed','refunded'],
     default: 'created',
+  },
+  bookingStatus:{
+    type:String,
+    enum:["confirmed","cancelled","pending"],
+    default:"pending"
   },
   razorpayOrderId: {
     type: String,
@@ -66,7 +75,9 @@ const orderSchema:Schema<IOrder>=new Schema<IOrder>({
   createdAt:{
     type:Date
   },
-  
+ 
+  refundId: {type:String},
+ 
 
 })
 const Order=mongoose.model<IOrder>('Order',orderSchema);

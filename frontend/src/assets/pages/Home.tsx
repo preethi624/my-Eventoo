@@ -51,34 +51,7 @@ const HomePage: FC = () => {
       y: 0
     }
   };
-  /*const fetchEvents=async()=>{
-    try {
-       const response=await eventRepository.getOrganiserEvents();
-         if (response.success&&Array.isArray(response.result?.result)) {
-          const unblockedEvents = response.result.result.filter(event => event.isBlocked !== true);
-          setEvents(unblockedEvents);
-        
-
-         }else {
-        console.error('Unexpected API result format:', response);
-        setEvents([]);
-      }
-       
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setEvents([])
-      
-    }
-    
-   
-    
-
-  }
-  useEffect(()=>{
-    fetchEvents()
-
-  },[])*/
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
      <UserNavbar/>

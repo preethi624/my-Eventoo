@@ -70,3 +70,8 @@ export interface FetchOrders{
     success?:boolean,
     message?:string
 }
+export interface Update{
+    success:boolean,
+    refundId?:string,
+    message?:string
+}

@@ -130,6 +130,28 @@ export const getEventBooked=async(userId:string):Promise<UserProfile>=>{
     
   }
 }
+export const findOrder=async(orderId:string)=>{
+  try {
+
+     const response=await axiosInstance.post(`${API_BASE_URL}/order/${orderId}`);
+     console.log("responseeee",response);
+     
+     
+     
+      if(response.data){
+    return {success:true,message:"status updated successfully",refund:response.data}
+  }else{
+    return {success:false,message:"Payment status updation  fails"}
+  }
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message; 
+
+    
+  }
+
+}
+
 
 
 export const paymentRepository={
@@ -139,5 +161,6 @@ export const paymentRepository={
   getOrderDetails,
   failurePayment,
   getEventBooked,
+  findOrder
 
 }

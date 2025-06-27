@@ -128,6 +128,7 @@ class PaymentService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this.paymentRepository.getOrders(id, limit, page, searchTerm, status);
+                console.log("result", result);
                 if (result) {
                     return { success: true, message: "orders fetched successfully", order: result };
                 }
@@ -172,6 +173,33 @@ class PaymentService {
             catch (error) {
                 console.error(error);
                 return { success: false, message: "failed to fetch orders" };
+            }
+        });
+    }
+    orderFind(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.paymentRepository.findOrder(orderId);
+                if (result) {
+                    const paymentId = result.razorpayPaymentId;
+                    const amount = result.amount;
+                    const refund = yield razorpay.payments.refund(paymentId, { amount: amount });
+                    const refundId = refund.id;
+                    const response = yield this.paymentRepository.updateRefund(refundId, orderId);
+                    if (response.success) {
+                        return { success: true, refundId: refundId, message: "successfully updated" };
+                    }
+                    else {
+                        return { success: false, message: "failed to update" };
+                    }
+                }
+                else {
+                    return { success: false, message: "failed to update" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed to update" };
             }
         });
     }

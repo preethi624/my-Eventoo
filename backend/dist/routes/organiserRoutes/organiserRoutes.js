@@ -19,5 +19,8 @@ router.put('/organiser/:organiserId', middleware_di_1.authMiddlewarwSet.organise
 router.get('/orgOrder/:organiserId', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.fetchBooking.bind(organiser_di_1.organiserController));
 router.get('/orgOrders/:orderId', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.getOrderDetails.bind(organiser_di_1.organiserController));
 router.post('/organiserReapply/:orgId', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.orgReapply.bind(organiser_di_1.organiserController));
+router.get('/venues', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.getVenues.bind(organiser_di_1.organiserController));
+router.get('/venue/:venueId', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.getVenueById.bind(organiser_di_1.organiserController));
+router.get('/getDashboard/:eventId', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.getDashboard.bind(organiser_di_1.organiserController));
 exports.default = router;
 //# sourceMappingURL=organiserRoutes.js.map

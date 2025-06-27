@@ -1,7 +1,7 @@
 
 import { IEventService } from "./serviceInterface/IEventService";
 import { IEventRepository } from "../repositories/repositoryInterface/IEventRepository";
-import { CreateEvent, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "../interface/event";
+import { CreateEvent, DashboardEvents, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "../interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
 
 export class EventService implements IEventService{
@@ -44,7 +44,7 @@ async eventGetById (id:string):Promise<EventById>{
 };
 async eventCreate(data:IEventDTO):Promise<CreateEvent>{
     try {
-        console.log("data",data);
+        
         
        
         
@@ -121,9 +121,13 @@ async statusCheck(email:object):Promise<StatusCheck>{
         
     }
 }
-async getEvent (id:string,limit:number,page:number):Promise<EventGet>{
+async getEvent (id:string,limit:number,page:number,searchTerm:string,date:string):Promise<EventGet>{
     try {
-        const response = await this.eventRepository.eventGet(id,limit,page);
+        const response = await this.eventRepository.eventGet(id,limit,page,searchTerm,date);
+      
+        
+       
+        
        
         
         if (response) {
@@ -153,5 +157,20 @@ async eventCountGet (organiserId:string):Promise<EventCount>{
         return { success: false };
     }
 };
+async getDashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d'):Promise<DashboardEvents>{
+    try {
+        const response=await this.eventRepository.dashboardEvents(organiserId,timeFrame);
+        if(response){
+            return {success:true,events:response.events,message:"event fetched successfully",data:response.data,adminPercentage:response.adminCommissionPercentage,organiserEarning:response.organiserEarning,totalEvents:response.totalEvents,totalAttendees:response.totalAttendees,topEvents:response.topEvents,upcomingEvents:response.upcomingEvents}
+        }else{
+            return {success:false,message:"failed to fetch events"}
+        }
+        
+    } catch (error) {
+         console.error(error);
+        return { success: false ,message:"failed"};
+        
+    }
+}
 
 }

@@ -2,6 +2,8 @@ import { IEvent } from "src/model/event";
 
 import { IUser } from "./IUserAuth";
 import { IOrganiser } from "./IOrgAuth";
+import { IOrder } from "src/model/order";
+import { IAdminOrder } from "./IAdmin";
 
 export interface EventGet{
     message:string;
@@ -84,14 +86,87 @@ export interface IEventFilter {
   maxPrice?: number;
   selectedDate?: string;
   page?:number;
-  limit?:number
+  limit?:number;
+  orgName?:string
   
 }
 export interface EventCount{
   count?:number;
   success:boolean;
 
+};
+export interface IOrderFilter{
+   searchTerm?: string;
+    statusFilter?: string;
+    selectedDate?: string;
+    page?: number;
+    limit?: number;
+    organiser?:string;
+    user?:string
+
 }
+
+export interface GetOrder{
+  message?:string;
+  success?:boolean;
+  result?:IAdminOrder
+
+}
+export interface DashboardOrder {
+  orderId: string;
+  amount: number;
+  ticketCount: number;
+  status: 'created' | 'paid' | 'failed' | 'refunded';
+  bookingStatus: 'confirmed' | 'pending' | 'cancelled';
+  createdAt: Date;
+  userInfo: {
+    name: string;
+    email: string;
+  };
+ 
+}
+
+export interface DashboardStats {
+  confirmed: number;
+  pending: number;
+  cancelled: number;
+  salesTrend: {
+    date: string;
+    sales: number;
+  }[];
+}
+
+export type DashboardResponse = {
+  event: IEvent | null;
+  orders: DashboardOrder[];
+  stats: DashboardStats;
+};
+export interface DashboardServiceResponse {
+  success: boolean;
+  message: string;
+  data?: DashboardResponse;
+}
+export interface DashboardDatas{
+   month: number,
+    revenue: number,
+    events: number
+
+
+}
+export interface DashboardEvents{
+  success:boolean;
+  message:string;
+  events?:IEvent[];
+  data?:DashboardDatas[];
+  adminPercentage?:number;
+  organiserEarning?:number,
+  totalEvents?:number,
+  totalAttendees?:number,
+  topEvents?:IEvent[],
+  upcomingEvents?:IEvent[],
+ 
+}
+
 
 
 

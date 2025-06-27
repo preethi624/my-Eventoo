@@ -5,12 +5,12 @@ import { AxiosError } from 'axios';
 import axiosInstance from "../utils/axiosUser";
 
 
-export const createChat=async(message:string)=>{
+export const createChat=async(message:string,userId:string)=>{
     try {
         
        
         
-        const response:AxiosResponse<ChatbotResponse>=await axiosInstance.post(`${API_BASE_URL}/chat`,{message}
+        const response:AxiosResponse<ChatbotResponse>=await axiosInstance.post(`${API_BASE_URL}/chat`,{message,userId}
         )
        
         

@@ -15,6 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrganiserRepository = void 0;
 const organiser_1 = __importDefault(require("../model/organiser"));
 const order_1 = __importDefault(require("../model/order"));
+const event_1 = __importDefault(require("../model/event"));
+const venue_1 = __importDefault(require("../model/venue"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const analyticHelper_1 = require("../utils/analyticHelper");
 class OrganiserRepository {
     getOrganiserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -34,16 +38,33 @@ class OrganiserRepository {
             return yield organiser_1.default.findByIdAndUpdate(organiserId, { name, phone, location, aboutMe: aboutMe, profileImage }, { new: true });
         });
     }
-    fetchBooking(organiserId, limit, page) {
+    fetchBooking(organiserId, limit, page, searchTerm, status, date) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
             const allOrders = yield order_1.default.find().populate({
                 path: 'eventId',
                 select: 'title organiser ticketPrice'
-            });
+            }).populate({ path: "userId" }).sort({ createdAt: -1 });
             const filteredOrder = allOrders.filter((order) => {
+                var _a, _b, _c, _d;
                 const event = order.eventId;
-                return event && event.organiser && event.organiser.toString() === organiserId;
+                const organiserMatch = event && event.organiser && event.organiser.toString() === organiserId;
+                const search = (searchTerm === null || searchTerm === void 0 ? void 0 : searchTerm.toLowerCase()) || '';
+                const eventTitle = ((_a = event === null || event === void 0 ? void 0 : event.title) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || '';
+                const orderId = ((_b = order === null || order === void 0 ? void 0 : order.orderId) === null || _b === void 0 ? void 0 : _b.toLowerCase()) || '';
+                const eventCategory = ((_c = event === null || event === void 0 ? void 0 : event.category) === null || _c === void 0 ? void 0 : _c.toLowerCase()) || '';
+                const searchMatch = eventTitle.includes(search) || orderId.includes(search) || eventCategory.includes(search);
+                const statusMatch = !status || status === 'all' || ((_d = order.bookingStatus) === null || _d === void 0 ? void 0 : _d.toLowerCase()) === status.toLowerCase();
+                let dateMatch = true;
+                if (date) {
+                    const filterDate = new Date(date);
+                    const orderDate = new Date(order.createdAt);
+                    dateMatch =
+                        filterDate.getFullYear() === orderDate.getFullYear() &&
+                            filterDate.getMonth() === orderDate.getMonth() &&
+                            filterDate.getDate() === orderDate.getDate();
+                }
+                return organiserMatch && searchMatch && statusMatch && dateMatch;
             });
             const totalOrders = filteredOrder.length;
             const paginatedOrders = filteredOrder.slice(skip, skip + limit);
@@ -59,12 +80,72 @@ class OrganiserRepository {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("orderId", orderId);
             const cleanOrderId = orderId.replace(/^:/, '');
-            return yield order_1.default.findOne({ _id: cleanOrderId }).populate('eventId');
+            return yield order_1.default.findOne({ _id: cleanOrderId }).populate('eventId').populate({ path: "userId" });
         });
     }
     orgReapply(organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield organiser_1.default.findByIdAndUpdate(organiserId, { status: "pending" }, { new: true });
+        });
+    }
+    getVenues(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const skip = filters.limit && filters.page ? (filters.page - 1) * filters.limit : 0;
+            const query = {};
+            if (filters.nameSearch) {
+                query.name = { $regex: filters.nameSearch, $options: 'i' };
+            }
+            if (filters.locationSearch) {
+                query.city = { $regex: filters.locationSearch, $options: 'i' };
+            }
+            const venues = yield venue_1.default.find(query).skip(skip).limit(Number(filters.limit));
+            const total = yield venue_1.default.countDocuments(query);
+            return { venues, totalPages: filters.limit ? Math.ceil(total / filters.limit) : 0,
+                currentPage: filters.page, };
+        });
+    }
+    getVenueById(venueId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield venue_1.default.findById(venueId);
+        });
+    }
+    getDashboard(eventId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const objectId = new mongoose_1.default.Types.ObjectId(eventId);
+            const event = yield event_1.default.findById(objectId).lean();
+            const orders = yield order_1.default.aggregate([
+                { $match: { eventId: objectId } },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                { $unwind: '$user' },
+                {
+                    $project: {
+                        orderId: 1,
+                        amount: 1,
+                        ticketCount: 1,
+                        status: 1,
+                        bookingStatus: 1,
+                        createdAt: 1,
+                        userId: {
+                            name: '$user.name',
+                            email: '$user.email'
+                        },
+                    }
+                }
+            ]);
+            const stats = {
+                confirmed: orders.filter(o => o.bookingStatus === 'confirmed').length,
+                pending: orders.filter(o => o.bookingStatus === 'pending').length,
+                cancelled: orders.filter(o => o.bookingStatus === 'cancelled').length,
+                salesTrend: (0, analyticHelper_1.generateSalesTrend)(orders)
+            };
+            return { event, orders, stats };
         });
     }
 }

@@ -1,4 +1,4 @@
-import {  GetOrder, GetOrders, OrderCreate, OrderCreateInput, RazorpayPaymentResponse, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
+import {  GetOrder, GetOrders, OrderCreate, OrderCreateInput, RazorpayPaymentResponse, Update, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
 import { IPaymentService } from "./serviceInterface/IPaymentService";
 import crypto from 'crypto';
 import dotenv from 'dotenv';
@@ -7,6 +7,7 @@ import Razorpay from "razorpay";
 import { IPaymentRepository } from "src/repositories/repositoryInterface/IPaymentRepository";
 import { IEventRepository } from "src/repositories/repositoryInterface/IEventRepository";
 import { generateOrderId } from "../utils/generateOrderId";
+
 
 const razorpay=new Razorpay({
     key_id:process.env.RAZORPAY_KEY_ID,
@@ -146,6 +147,8 @@ export class PaymentService implements IPaymentService{
     async ordersGet(id:string,limit:number,page:number,searchTerm:string,status:string):Promise<GetOrders>{
         try {
             const result=await this.paymentRepository.getOrders(id,limit,page,searchTerm,status);
+            console.log("result",result);
+            
            
             
             if(result){
@@ -193,6 +196,34 @@ export class PaymentService implements IPaymentService{
         }
             
         }  
+        async orderFind(orderId:string):Promise<Update>{
+            try {
+                const result=await this.paymentRepository.findOrder(orderId);
+                if(result){
+                    const paymentId=result.razorpayPaymentId;
+                    const amount=result.amount;
+                    const refund=await razorpay.payments.refund(paymentId,{amount:amount});
+                    const refundId=refund.id
+                    const response=await this.paymentRepository.updateRefund(refundId,orderId);
+                    if(response.success){
+                         return{success:true,refundId:refundId,message:"successfully updated"}
+
+                    }else{
+
+                      return {success:false,message:"failed to update"}
+                    }
+                   
+                }else{
+                    return {success:false,message:"failed to update"}
+                }
+                
+            } catch (error) {
+                console.error(error);
+        return { success: false, message: "failed to update" };
+            
+
+            }
+        }
      
     
 }

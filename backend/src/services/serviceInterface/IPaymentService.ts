@@ -1,4 +1,4 @@
-import { GetOrder, GetOrders, OrderCreate, OrderCreateInput, RazorpayPaymentResponse, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
+import { GetOrder, GetOrders, OrderCreate, OrderCreateInput, RazorpayPaymentResponse, Update, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
 export interface IPaymentService{
     orderCreate(data:OrderCreateInput):Promise<OrderCreate>;
     paymentVerify(data:RazorpayPaymentResponse):Promise<VerifyResponse>;
@@ -6,6 +6,7 @@ export interface IPaymentService{
   orderGetById(userId:string,orderId:string):Promise<GetOrder>;
   paymentFailure(payStatus:string,orderId:string,userId:string):Promise<VerifyResponse>;
   ordersGetById(userId:string):Promise<UserProfileUpdate>;
+  orderFind(orderId:string):Promise<Update>
  
 
 

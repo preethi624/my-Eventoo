@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Users, CreditCard, AlertCircle } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { Calendar, MapPin, Users, CreditCard, AlertCircle, User, Mail, Phone } from 'lucide-react';
+
 
 import type { IOrder } from '../../interfaces/IOrder';
-import type { RootState } from '../../redux/stroe';
+
 import { organiserRepository } from '../../repositories/organiserRepositories';
 import OrganiserLayout from '../components/OrganiserLayout';
 
@@ -15,7 +15,7 @@ const OrgOrderDetailsPage: React.FC = () => {
   const [order, setOrder] = useState<IOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const user = useSelector((state: RootState) => state.auth.user);
+
 
   useEffect(() => {
     fetchOrderDetails();
@@ -104,8 +104,69 @@ const OrgOrderDetailsPage: React.FC = () => {
             
             
         </div>
+        <div className="max-w-3xl mx-auto">
+        
+
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+     
+          
+
+          
+          <div className="p-6 border-b">
+            <div className="flex items-start">
+              
+              <div className="ml-6">
+                <div className="ml-6">
+                    <h3 className="text-2xl font-bold text-gray-900">Purchased By...</h3>
+
+  <div className="flex items-center text-gray-600">
+  
+    <User className="w-10 h-10 mr-2" />
+    <p className="text-gray-900">{(typeof order.userId !== 'string') ? order.userId.name : ''}</p>
+  </div>
+
+  <div className="mt-2 space-y-2">
+    <div className="flex items-center text-gray-600">
+      <Mail className="w-10 h-10 mr-2" />
+      <p>{(typeof order.userId !== 'string') ? order.userId.email : ''}</p>
+    </div>
+
+    <div className="flex items-center text-gray-600">
+      <MapPin className="w-10 h-10 mr-2" />
+      <span>{(typeof order.userId !== 'string') ? order.userId.location : ''}</span>
+    </div>
+
+    <div className="flex items-center text-gray-600">
+      <Phone className="w-10 h-10 mr-2" />
+      <span>{(typeof order.userId !== 'string') ? order.userId.phone : ''}</span>
+    </div>
+
+    
+
+    
+  </div>
+</div>
+
+                
+                
+                
+              </div>
+            
+
+            </div>
+          </div>
+
+          
+         
+            
+            
+        </div>
+      </div>
       </div>
     </div>
+    
+      
+   
     </OrganiserLayout>
   );
 };

@@ -17,6 +17,8 @@ export interface IOrder{
     eventDetails:IEventDTO;
     orders?:IOrder;
     orderId:string;
+    bookingStatus?:string|undefined;
+    refundId?:string
    
 }
 export interface IGetOrdersResponse {

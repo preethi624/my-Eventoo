@@ -13,5 +13,6 @@ router.post('/failure', middleware_di_1.authMiddlewarwSet.userOnly, userPaymentd
 router.get('/orders/:id', middleware_di_1.authMiddlewarwSet.userOnly, userPaymentdi_1.paymentController.getOrders.bind(userPaymentdi_1.paymentController));
 router.get('/order/:userId/:orderId', middleware_di_1.authMiddlewarwSet.userAndOrganiser, userPaymentdi_1.paymentController.getOrderById.bind(userPaymentdi_1.paymentController));
 router.get('/order/:userId', middleware_di_1.authMiddlewarwSet.userOnly, userPaymentdi_1.paymentController.getOrdersById.bind(userPaymentdi_1.paymentController));
+router.post('/order/:orderId', middleware_di_1.authMiddlewarwSet.userOnly, userPaymentdi_1.paymentController.findOrder.bind(userPaymentdi_1.paymentController));
 exports.default = router;
 //# sourceMappingURL=paymentRoutes.js.map

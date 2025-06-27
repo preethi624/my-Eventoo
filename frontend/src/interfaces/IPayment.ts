@@ -30,6 +30,7 @@ export interface OrderDetails{
   ticketCount:number;
   status:string;
   _id:string;
+  bookingStatus:string;
 
 
 

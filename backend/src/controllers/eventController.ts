@@ -195,8 +195,11 @@ async eventGet(req:Request, res:Response):Promise<void> {
         const id = req.params.id;
    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 5;
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+    const searchTerm=req.query.searchTerm as string;
+    const date=req.query.date as string
 
-        const response = await  this.eventService.getEvent(id,limit,page);
+
+        const response = await  this.eventService.getEvent(id,limit,page,searchTerm,date);
         console.log("response",response);
         
         if (response) {
@@ -239,5 +242,33 @@ async getEventCount(req:Request, res:Response):Promise<void> {
         });
     }
 };
+async getDashboardEvents(req:Request,res:Response):Promise<void>{
+  try {
+    const organiserId=req.params.organiserId as string||'';
+    const timeFrame = req.query.timeFrame as '7d' | '30d' | '90d' || '30d';
+  const response=await this.eventService.getDashboardEvents(organiserId,timeFrame);
+
+  
+  if(response.success){
+    res.json({success:true,events:response.events,data:response.data,adminPercentage:response.adminPercentage,organiserEarning:response.organiserEarning,totalEvents:response.totalEvents,totalAttendees:response.totalAttendees,topEvents:response.topEvents,upcomingEvents:response.upcomingEvents})
+  }
+  else{
+     res.status(StatusCode.NOT_FOUND).json({
+                success: false,
+                message: "No events found",
+            });
+  }
+    
+  } catch (error) {
+   console.error(error);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to fetch events",
+        });
+    } 
+    
+  }
+  
+
 
 }

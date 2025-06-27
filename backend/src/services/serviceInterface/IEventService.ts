@@ -1,5 +1,5 @@
 
-import { CreateEvent, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "src/interface/event";
+import { CreateEvent, DashboardEvents, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "src/interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
 
 
@@ -10,7 +10,8 @@ export interface IEventService{
        eventDelete(id:string):Promise<CreateEvent>;
        eventEdit(id:string,data:EventEdit):Promise<CreateEvent>;
        statusCheck(email:object):Promise<StatusCheck>;
-        getEvent (id:string,limit:number,page:number):Promise<EventGet>
-        eventCountGet (organiserId:string):Promise<EventCount>
+        getEvent (id:string,limit:number,page:number,searchTerm:string,date:string):Promise<EventGet>
+        eventCountGet (organiserId:string):Promise<EventCount>;
+        getDashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d'):Promise<DashboardEvents>
     
 }

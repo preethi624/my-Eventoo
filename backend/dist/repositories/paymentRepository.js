@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentRepository = void 0;
 const order_1 = __importDefault(require("../model/order"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const event_1 = __importDefault(require("../model/event"));
 class PaymentRepository {
     createOrder(data) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,11 +25,16 @@ class PaymentRepository {
     }
     updatePaymentDetails(orderId, paymentId, signature, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield order_1.default.findOneAndUpdate({ razorpayOrderId: orderId }, {
+            const updateOrder = yield order_1.default.findOneAndUpdate({ razorpayOrderId: orderId }, {
                 razorpayPaymentId: paymentId,
                 razorpaySignature: signature,
-                status: status
+                status: status,
+                bookingStatus: "confirmed"
             }, { new: true });
+            if (updateOrder && updateOrder.eventId && updateOrder.ticketCount && updateOrder.bookingStatus === "confirmed") {
+                yield event_1.default.findByIdAndUpdate(updateOrder.eventId, { $inc: { ticketsSold: updateOrder.ticketCount } });
+            }
+            return updateOrder;
         });
     }
     getOrders(id, limit, page, searchTerm, status) {
@@ -46,7 +52,7 @@ class PaymentRepository {
                 const orderId = ((_b = order.orderId) === null || _b === void 0 ? void 0 : _b.toLowerCase()) || '';
                 const search = (searchTerm === null || searchTerm === void 0 ? void 0 : searchTerm.toLowerCase()) || '';
                 const matchSearch = eventTitle.includes(search) || orderId.includes(search);
-                const matchStatus = !status || status === 'all' || ((_c = order.status) === null || _c === void 0 ? void 0 : _c.toLowerCase()) === status.toLowerCase();
+                const matchStatus = !status || status === 'all' || ((_c = order.bookingStatus) === null || _c === void 0 ? void 0 : _c.toLowerCase()) === status.toLowerCase();
                 return matchSearch && matchStatus;
             });
             const totalPages = Math.ceil(filteredOrder.length / limit);
@@ -95,6 +101,23 @@ class PaymentRepository {
                 console.error('Error fetching user stats:', error);
                 return { success: false, message: 'Failed to fetch stats' };
             }
+        });
+    }
+    findOrder(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield order_1.default.findById({ _id: orderId });
+        });
+    }
+    updateRefund(refundId, orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const order = yield order_1.default.findById(orderId);
+            if (!order)
+                throw new Error('Order not found');
+            const eventId = order.eventId;
+            const ticketCount = order.ticketCount;
+            yield order_1.default.findByIdAndUpdate(orderId, { refundId: refundId, status: "refunded", bookingStatus: "cancelled" });
+            yield event_1.default.findByIdAndUpdate(eventId, { $inc: { availableTickets: ticketCount } });
+            return { success: true };
         });
     }
 }

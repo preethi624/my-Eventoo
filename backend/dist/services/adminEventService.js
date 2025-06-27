@@ -14,12 +14,12 @@ class AdminEventService {
     constructor(adminEventRepository) {
         this.adminEventRepository = adminEventRepository;
     }
-    getEvents() {
+    getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminEventRepository.getEventsAll();
-                if (result) {
-                    return { result: result, success: true, message: "Users fetched successfully" };
+                const response = yield this.adminEventRepository.getEventsAll(filters);
+                if (response) {
+                    return { response, success: true, message: "Users fetched successfully" };
                 }
                 else {
                     return { success: false, message: "failed to fetch users" };
@@ -68,6 +68,26 @@ class AdminEventService {
                 }
                 else {
                     return { success: false, message: "failed to block" };
+                }
+            }
+            catch (error) {
+                console.error('Login error:', error);
+                return {
+                    success: false,
+                    message: 'Internal server error',
+                };
+            }
+        });
+    }
+    dashboardGet() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminEventRepository.getDashboard();
+                if (response) {
+                    return { success: true, message: "fetched successfully", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents };
+                }
+                else {
+                    return { success: false, message: "failed to fetch" };
                 }
             }
             catch (error) {

@@ -23,6 +23,7 @@ export interface IEvent extends Document {
   isBlocked:boolean;
   
   
+  
 }
 
 const eventSchema: Schema<IEvent> = new Schema<IEvent>({
@@ -50,15 +51,16 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>({
     enum: ['draft', 'published', 'completed','cancelled'],
     default: 'draft',
   },
+   
  
 
   availableTickets:{type:Number,default:0},
   ticketsSold: { type: Number, default: 0 },
-  createdAt: { type: Date, default: Date.now },
+
   latitude: { type: Number, default: 9.9312 },
   longitude: { type: Number, default: 76.2673 },
   isBlocked: { type: Boolean, default: false },
-});
+},{timestamps:true});
 eventSchema.pre<IEvent>('save', function (next) {
   if (this.isNew) {
     this.availableTickets = this.capacity;
