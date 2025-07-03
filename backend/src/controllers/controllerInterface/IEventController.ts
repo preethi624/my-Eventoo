@@ -9,6 +9,7 @@ export interface IEventController{
     editEvent(req: Request<{id:string}, unknown, EventEdit>, res: Response):Promise<void>;
      eventGet(req:Request, res:Response):Promise<void>;
       getDashboardEvents(req:Request,res:Response):Promise<void>
+      getOrgEvents(req:Request,res:Response):Promise<void>
     
 
 }

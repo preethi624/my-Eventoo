@@ -168,7 +168,10 @@ class EventRepository extends baseRepository_1.BaseRepository {
             const topEvents = [...events].sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, 5);
             let organiserEarning = 0;
             completedEvents.forEach((event) => {
-                organiserEarning += event.ticketPrice - (event.ticketPrice * adminCommissionPercentage) / 100;
+                const ticketRevenue = event.ticketPrice * event.ticketsSold;
+                const adminCutPerTicket = (event.ticketPrice * adminCommissionPercentage) / 100;
+                const totalAdminCut = adminCutPerTicket * event.ticketsSold;
+                organiserEarning += ticketRevenue - totalAdminCut;
             });
             const totalEvents = events.length;
             const totalAttendees = completedEvents.reduce((sum, event) => sum + event.ticketsSold, 0);
@@ -177,6 +180,11 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                 .slice(0, 5);
             return { events, data: adjustedData, adminCommissionPercentage, organiserEarning, totalEvents, totalAttendees, topEvents, upcomingEvents };
+        });
+    }
+    getOrgEvents(organiserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield event_1.default.find({ organiser: organiserId });
         });
     }
 }

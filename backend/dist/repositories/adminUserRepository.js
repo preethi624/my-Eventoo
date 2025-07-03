@@ -36,6 +36,17 @@ class AdminUserRepository {
             }
         });
     }
+    getDashboardUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield user_1.default.aggregate([
+                { $group: { _id: { $month: "$createdAt" }, totalUsers: { $sum: 1 } } },
+                { $project: { month: "$_id", totalUsers: 1, _id: 0 } },
+                { $sort: { month: 1 } }
+            ]);
+            const totalUsers = yield user_1.default.find({ isBlocked: false });
+            return { data, totalUsers: totalUsers.length };
+        });
+    }
 }
 exports.AdminUserRepository = AdminUserRepository;
 //# sourceMappingURL=adminUserRepository.js.map

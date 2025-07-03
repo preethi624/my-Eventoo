@@ -84,7 +84,7 @@ class AdminEventService {
             try {
                 const response = yield this.adminEventRepository.getDashboard();
                 if (response) {
-                    return { success: true, message: "fetched successfully", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents };
+                    return { success: true, message: "fetched successfully", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents, eventCategories: response.eventCategories, totalRevenue: response.totalRevenue, activeEvents: response.activeEvents };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };

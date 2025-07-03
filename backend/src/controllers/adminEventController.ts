@@ -96,7 +96,7 @@ async getDashboard(req:Request,res:Response):Promise<void>{
   try {
     const response=await this.adminEventService.dashboardGet();
     if(response.success){
-      res.json({success:true,message:"successfully fetch",monthlyRevenue:response.monthlyRevenue,topEvents:response.topEvents})
+      res.json({success:true,message:"successfully fetch",monthlyRevenue:response.monthlyRevenue,topEvents:response.topEvents,eventCategories:response.eventCategories,totalRevenue:response.totalRevenue,activeEvents:response.activeEvents})
     }
     
   } catch (error) {

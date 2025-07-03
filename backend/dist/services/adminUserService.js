@@ -75,6 +75,26 @@ class AdminUserService {
             }
         });
     }
+    dashboardUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminUserRepository.getDashboardUsers();
+                if (response) {
+                    return { success: true, data: response.data, totalUsers: response.totalUsers };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.error('Login error:', error);
+                return {
+                    success: false,
+                    message: 'Internal server error',
+                };
+            }
+        });
+    }
 }
 exports.AdminUserService = AdminUserService;
 //# sourceMappingURL=adminUserService.js.map

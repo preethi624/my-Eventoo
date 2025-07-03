@@ -1,12 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type FC } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { Users, Calendar, DollarSign, TrendingUp, Activity, Eye, UserCheck, AlertTriangle } from 'lucide-react';
+import { Users, Calendar, DollarSign, TrendingUp, Activity, IndianRupee} from 'lucide-react';
 import { adminRepository } from '../../repositories/adminRepositories';
 import AdminLayout from '../components/AdminLayout';
+import type { IconType } from 'react-icons/lib';
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: IconType
+}
 
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [activeEvents,setActiveEvents]=useState(0);
+  const [totalUsers,setTotalUsers]=useState(0)
+  const[userGrowth,setUserGrowth]=useState<{totalUsers:number;month:number}[]>([]);
+  const [revenue,setRevenue]=useState(0)
+  const [recentTransactions,setRecentTransactions]=useState<{amount:number;eventStatus:string;event:string;id:string;status:string;user:string;date:Date}[]>([])
   const [monthlyRevenue,setMonthlyRevenue]=useState<{
   month: number;
   revenue: number;
@@ -15,26 +27,61 @@ const AdminDashboard = () => {
 const [topEvents,setTopEvents]=useState<{title:string;
   revenue:number;
   ticketsSold:number
-}[]>([])
+}[]>([]);
+const [eventCategories,setEventCategories]=useState<{name:string;
+value:number,color:string}[]>([])
   useEffect(()=>{
     fetchEvents()
+    fetchUsers()
+    fetchOrders()
 
   },[])
   const fetchEvents=async()=>{
-    const response=await adminRepository.getDashboard();
-    if(!response||!response.monthlyRevenue||!response.topEvents){
-      throw new Error("monthly revenue not present")
+    try {
+       const response=await adminRepository.getDashboard();
+    if(!response||!response.monthlyRevenue||!response.topEvents||!response.eventCategories||!response.totalRevenue||!response.activeEvents){
+      throw new Error("credentials missing")
     }
-    console.log("reee",response);
+  
     
 
    
     setMonthlyRevenue(response.monthlyRevenue);
-    setTopEvents(response.topEvents
+    setTopEvents(response.topEvents)
+    setEventCategories(response.eventCategories);
+    setRevenue(response.totalRevenue);
+    setActiveEvents(response.activeEvents)
+    
+      
+    } catch (error) {
+      if (error instanceof Error) {
+    console.error("Known error:", error.message);
+  } else {
+    console.error("Unknown error:", error);
+  }
+      
+    }
+   
 
-    )
+    
   
     
+    
+  }
+  const fetchUsers=async()=>{
+    const response=await adminRepository.fetchUsers();
+    console.log("user",response);
+    setUserGrowth(response.data);
+    setTotalUsers(response.totalUsers)
+    
+
+
+  }
+  const fetchOrders=async()=>{
+    const response=await adminRepository.getDashboardOrders();
+    console.log("resss",response);
+    setRecentTransactions(response.result)
+
     
   }
 
@@ -42,54 +89,24 @@ const [topEvents,setTopEvents]=useState<{title:string;
  
   
 
-  const eventCategories = [
-    { name: 'Music', value: 35, color: '#8B5CF6' },
-    { name: 'Sports', value: 25, color: '#06B6D4' },
-    { name: 'Technology', value: 20, color: '#10B981' },
-    { name: 'Food', value: 12, color: '#F59E0B' },
-    { name: 'Arts', value: 8, color: '#EF4444' }
-  ];
+  
+ 
 
-  const userGrowth = [
-    { month: 'Jan', users: 1200 },
-    { month: 'Feb', users: 1500 },
-    { month: 'Mar', users: 1800 },
-    { month: 'Apr', users: 2200 },
-    { month: 'May', users: 2800 },
-    { month: 'Jun', users: 3200 }
-  ];
+ 
+  
 
-  const recentTransactions = [
-    { id: '001', user: 'John Doe', event: 'Tech Conference 2024', amount: 150, status: 'Completed' },
-    { id: '002', user: 'Sarah Smith', event: 'Music Festival', amount: 85, status: 'Pending' },
-    { id: '003', user: 'Mike Johnson', event: 'Food Fair', amount: 45, status: 'Completed' },
-    { id: '004', user: 'Emily Brown', event: 'Art Exhibition', amount: 25, status: 'Failed' },
-    { id: '005', user: 'David Wilson', event: 'Sports Tournament', amount: 120, status: 'Completed' }
-  ];
-
-  /*const topEvents = [
-    { name: 'Tech Conference 2024', tickets: 450, revenue: 67500 },
-    { name: 'Summer Music Festival', tickets: 320, revenue: 27200 },
-    { name: 'Food & Wine Expo', tickets: 280, revenue: 12600 },
-    { name: 'Digital Marketing Summit', tickets: 195, revenue: 29250 },
-    { name: 'Startup Pitch Night', tickets: 150, revenue: 7500 }
-  ];*/
-
-  const StatCard = ({ title, value, icon: Icon, trend, color = "blue" }) => (
+  const StatCard :FC<StatCardProps> = ({ title, value,  icon: Icon }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
           <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          {trend && (
-            <p className={`text-sm mt-1 ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% from last month
-            </p>
-          )}
+          
         </div>
-        <div className={`p-3 rounded-lg bg-${color}-50`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
+        <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 rounded-2xl">
+          <Icon className="text-white" size={24} />
         </div>
+        
       </div>
     </div>
   );
@@ -98,10 +115,10 @@ const [topEvents,setTopEvents]=useState<{title:string;
     <div className="space-y-6">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value="$123,500" icon={DollarSign} trend={12.5} color="green" />
-        <StatCard title="Active Events" value="156" icon={Calendar} trend={8.2} color="blue" />
-        <StatCard title="Total Users" value="3,247" icon={Users} trend={15.3} color="purple" />
-        <StatCard title="Monthly Growth" value="24.8%" icon={TrendingUp} trend={5.1} color="orange" />
+        <StatCard title="Total Revenue" value={`₹${(revenue).toFixed(1)}`} icon={IndianRupee}   />
+        <StatCard title="Active Events" value={`${activeEvents}`} icon={Calendar}  />
+        <StatCard title="Total Users" value={totalUsers} icon={Users}  />
+       
       </div>
 
       {/* Charts Row */}
@@ -171,7 +188,7 @@ const [topEvents,setTopEvents]=useState<{title:string;
                   borderRadius: '8px'
                 }} 
               />
-              <Line type="monotone" dataKey="users" stroke="#10B981" strokeWidth={3} dot={{ fill: '#10B981', strokeWidth: 2 }} />
+              <Line type="monotone" dataKey="totalUsers" stroke="#10B981" strokeWidth={3} dot={{ fill: '#10B981', strokeWidth: 2 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -189,19 +206,24 @@ const [topEvents,setTopEvents]=useState<{title:string;
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CreatedAt</th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PaymentStatus</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {recentTransactions.map((transaction) => (
               <tr key={transaction.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{transaction.id}</td>
+               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{transaction.date.toString().split('T')[0]}</td>
+                 
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{transaction.user}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{transaction.event}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.amount}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{transaction.amount/100}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     transaction.status === 'Completed' ? 'bg-green-100 text-green-800' :
@@ -237,12 +259,12 @@ const [topEvents,setTopEvents]=useState<{title:string;
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900">{event.name}</h4>
-                    <p className="text-sm text-gray-500">{event.tickets} tickets sold</p>
+                    <h4 className="text-sm font-medium text-gray-900">{event.title}</h4>
+                    <p className="text-sm text-gray-500">{event.ticketsSold} tickets sold</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">${event.revenue.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-900">₹{event.revenue.toLocaleString()}</p>
                   <p className="text-sm text-gray-500">Revenue</p>
                 </div>
               </div>
@@ -258,7 +280,7 @@ const [topEvents,setTopEvents]=useState<{title:string;
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topEvents}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="name" stroke="#6b7280" angle={-45} textAnchor="end" height={80} />
+              <XAxis dataKey="title" stroke="#6b7280" angle={-45} textAnchor="end" height={80} />
               <YAxis stroke="#6b7280" />
               <Tooltip 
                 contentStyle={{ 
@@ -267,7 +289,7 @@ const [topEvents,setTopEvents]=useState<{title:string;
                   borderRadius: '8px'
                 }} 
               />
-              <Bar dataKey="tickets" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="ticketsSold" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

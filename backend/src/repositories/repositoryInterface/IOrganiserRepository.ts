@@ -1,7 +1,7 @@
 import { DashboardResponse } from "src/interface/event";
 import { IOrganiser } from "src/interface/IOrgAuth";
 import { FetchOrders } from "src/interface/IPayment";
-import { ProfileEdit } from "src/interface/IUser";
+import { Attendees, ProfileEdit } from "src/interface/IUser";
 import { OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 import { IOrder } from "src/model/order";
 import { IVenue } from "src/model/venue";
@@ -15,6 +15,7 @@ export interface IOrganiserRepository{
      orgReapply(organiserId:string):Promise<IOrganiser|null>;
      getVenues(filters:OrgVenueFilter):Promise<VenueFetch>;
      getVenueById(venueId:string):Promise<IVenue|null>;
-     getDashboard(eventId: string):Promise<DashboardResponse>
+     getDashboard(eventId: string):Promise<DashboardResponse>;
+     fetchAttendees(eventId:string,organiserId:string,searchTerm:string,filterStatus:string):Promise<Attendees>
     
 }

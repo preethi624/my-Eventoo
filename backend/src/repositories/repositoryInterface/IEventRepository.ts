@@ -22,5 +22,6 @@ export interface IEventRepository{
     events: number
   }[],adminCommissionPercentage:number,organiserEarning:number,totalEvents:number,totalAttendees:number,topEvents:IEvent[],upcomingEvents:IEvent[]
 }>
+getOrgEvents(organiserId:string):Promise<IEvent[]>
     
 }

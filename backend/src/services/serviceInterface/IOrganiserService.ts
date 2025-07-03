@@ -1,7 +1,7 @@
 import { DashboardServiceResponse, OrgStatusCheck } from "src/interface/event";
 import { GetOrganiser } from "src/interface/IOrgAuth";
 import { FetchOrders, GetOrder } from "src/interface/IPayment";
-import { EditOrganiserResult, ProfileEdit, Reapply } from "src/interface/IUser";
+import { Attendees, EditOrganiserResult, ProfileEdit, Reapply } from "src/interface/IUser";
 import { GetVenue, OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 
 export interface IOrganiserService{
@@ -13,5 +13,6 @@ export interface IOrganiserService{
      reapplyOrg(organiserId:string):Promise<Reapply>;
      venuesGet(filters:OrgVenueFilter):Promise<VenueFetch>;
      venueGetById(venueId:string):Promise<GetVenue>;
-     dashboardGet(eventId:string):Promise<DashboardServiceResponse>
+     dashboardGet(eventId:string):Promise<DashboardServiceResponse>;
+      attendeesFetch(eventId:string,organiserId:string,filters:string,filterStatus:string):Promise<Attendees>
 }

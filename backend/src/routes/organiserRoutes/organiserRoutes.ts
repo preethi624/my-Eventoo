@@ -20,7 +20,8 @@ router.get('/orgOrders/:orderId',authMiddlewarwSet.organiserOnly,organiserContro
 router.post('/organiserReapply/:orgId',authMiddlewarwSet.organiserOnly,organiserController.orgReapply.bind(organiserController));
 router.get('/venues',authMiddlewarwSet.organiserOnly,organiserController.getVenues.bind(organiserController));
 router.get('/venue/:venueId',authMiddlewarwSet.organiserOnly,organiserController.getVenueById.bind(organiserController));
-router.get('/getDashboard/:eventId',authMiddlewarwSet.organiserOnly,organiserController.getDashboard.bind(organiserController))
+router.get('/getDashboard/:eventId',authMiddlewarwSet.organiserOnly,organiserController.getDashboard.bind(organiserController));
+router.get('/order/:eventId/:organiserId',authMiddlewarwSet.organiserOnly,organiserController.fetchAttendees.bind(organiserController))
 
 
 export default router

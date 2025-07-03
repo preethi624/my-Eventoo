@@ -2,7 +2,7 @@ import { GetOrganiser, IOrganiser } from "src/interface/IOrgAuth";
 import { IOrganiserService } from "./serviceInterface/IOrganiserService";
 import { IOrganiserRepository } from "src/repositories/repositoryInterface/IOrganiserRepository";
 import { DashboardServiceResponse, OrgStatusCheck} from "src/interface/event";
-import { EditOrganiserResult, ProfileEdit, Reapply } from "src/interface/IUser";
+import { Attendees, EditOrganiserResult, ProfileEdit, Reapply } from "src/interface/IUser";
 import { FetchOrders, GetOrder } from "src/interface/IPayment";
 import {  GetVenue,  OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 
@@ -173,6 +173,22 @@ async organiserUpdate(data:ProfileEdit,organiserId:string):Promise<EditOrganiser
             
         }
     }  
+    async attendeesFetch(eventId:string,organiserId:string,filters:string,filterStatus:string):Promise<Attendees>{
+        try {
+            const response=await this.organiserRepository.fetchAttendees(eventId,organiserId,filters,filterStatus);
+            if(response){
+                return{success:true,message:"fetched successfully",attendees:response.attendees,revenue:response.revenue}
+            }else{
+                return{success:false,message:"failed"}
+            }
+            
+        } catch (error) {
+              console.error(error);
+        return { success: false, message: "failed to fetch attendees" }
+            
+        }
+
+    }
 
 
 }

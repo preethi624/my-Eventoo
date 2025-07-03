@@ -1,3 +1,5 @@
+
+
 export interface IUser{
   _id: string;
     
@@ -9,7 +11,9 @@ export interface IUser{
   
    phone?:number;
    location?:string;
-   bio?:string
+   bio?:string;
+   createdAt?: Date;
+  updatedAt?: Date;
 
 
 

@@ -97,6 +97,13 @@ class AdminEventRepository {
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
+            const categoryColors = {
+                music: '#8B5CF6',
+                sports: '#06B6D4',
+                technology: '#10B981',
+                Others: '#F59E0B',
+                arts: '#EF4444'
+            };
             const settings = yield platformSettings_1.default.findOne();
             const commissionRate = ((_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10) / 100;
             const monthlyRevenue = yield event_1.default.aggregate([
@@ -129,11 +136,28 @@ class AdminEventRepository {
                 { $sort: { revenue: -1 } },
                 { $limit: 5 }
             ]);
+            const eventCategories = yield event_1.default.aggregate([
+                { $group: { _id: "$category", value: { $sum: 1 } } },
+                { $project: { name: "$_id", value: 1, _id: 0 } }
+            ]);
+            const categories = eventCategories.map(cat => (Object.assign(Object.assign({}, cat), { color: categoryColors[cat.name] || '#9CA3AF' })));
+            const completedEvents = yield event_1.default.find({ status: "completed" });
+            let adminEarning = 0;
+            completedEvents.forEach((event) => {
+                const totalTickets = event.ticketsSold;
+                const adminPerTicket = event.ticketPrice * commissionRate;
+                const totalAdmin = adminPerTicket * totalTickets;
+                adminEarning += totalAdmin;
+            });
+            const activeEvents = yield event_1.default.find({ status: "published", isBlocked: false });
             return {
                 monthlyRevenue,
                 message: 'Dashboard data fetched successfully',
                 success: true,
-                topEvents
+                topEvents,
+                eventCategories: categories,
+                totalRevenue: adminEarning,
+                activeEvents: activeEvents.length,
             };
         });
     }

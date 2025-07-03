@@ -42,6 +42,23 @@ class AdminOrderController {
             }
         });
     }
+    getDashboardOrders(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.adminOrderService.getDashboard();
+                if (result.success) {
+                    res.json({ result: result.recentTransactions, message: result.message, success: true });
+                }
+                else {
+                    res.json({ message: result.message, success: false });
+                }
+            }
+            catch (error) {
+                console.log(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+            }
+        });
+    }
 }
 exports.AdminOrderController = AdminOrderController;
 //# sourceMappingURL=adminOrderController.js.map

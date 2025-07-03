@@ -22,7 +22,7 @@ const links = [
    { to: '/organiserBookings', icon: <FaTicketAlt />, label: 'Bookings' },
 
   { to: '/analytics', icon: <FaChartBar />, label: 'Analytics' },
-  { to: '/attendees', icon: <FaUsers />, label: 'Attendees' },
+  { to: '/organiserAttendees', icon: <FaUsers />, label: 'Attendees' },
   { to: '/settings', icon: <FaCog />, label: 'Settings' },
 ];
 

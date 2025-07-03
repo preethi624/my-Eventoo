@@ -193,8 +193,11 @@ export class EventRepository extends BaseRepository<IEvent> implements IEventRep
         const topEvents=[...events].sort((a,b)=>b.ticketsSold-a.ticketsSold).slice(0,5)
         let  organiserEarning=0
         completedEvents.forEach((event)=>{
-          organiserEarning+=event.ticketPrice-(event.ticketPrice*adminCommissionPercentage)/100
+          const ticketRevenue = event.ticketPrice * event.ticketsSold;
+  const adminCutPerTicket = (event.ticketPrice * adminCommissionPercentage) / 100;
+  const totalAdminCut = adminCutPerTicket * event.ticketsSold;
 
+  organiserEarning += ticketRevenue - totalAdminCut;
           
 
         });
@@ -208,6 +211,10 @@ export class EventRepository extends BaseRepository<IEvent> implements IEventRep
        
         
         return {events,data:adjustedData,adminCommissionPercentage,organiserEarning,totalEvents,totalAttendees,topEvents,upcomingEvents}
+    }
+    async getOrgEvents(organiserId:string):Promise<IEvent[]>{
+      return await EventModel.find({organiser:organiserId})
+
     }
     
 }

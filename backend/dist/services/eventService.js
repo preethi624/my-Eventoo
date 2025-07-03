@@ -170,6 +170,23 @@ class EventService {
             }
         });
     }
+    getEvents(organiserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.eventRepository.getOrgEvents(organiserId);
+                if (response) {
+                    return { success: true, result: response, message: "event fetched successfully" };
+                }
+                else {
+                    return { success: false, message: "failed" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed" };
+            }
+        });
+    }
 }
 exports.EventService = EventService;
 //# sourceMappingURL=eventService.js.map

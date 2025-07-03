@@ -1,4 +1,5 @@
 import { IAdminOrder } from "src/interface/IAdmin";
+import { OrderDashboard } from "src/interface/IUser";
 
 export interface IAdminOrderRepository{
    
@@ -9,4 +10,6 @@ getOrdersAll(filters: {
     page?: number;
     limit?: number;
   }):Promise<IAdminOrder>;
+  getDashboardOrders():Promise<OrderDashboard>
 }
+ 

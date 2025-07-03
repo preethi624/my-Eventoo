@@ -172,5 +172,21 @@ async getDashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d'):Prom
         
     }
 }
+async getEvents(organiserId:string):Promise<EventGet>{
+    try {
+        const response=await this.eventRepository.getOrgEvents(organiserId);
+        if(response){
+            return {success:true,result:response,message:"event fetched successfully"}
+        }else{
+            return {success:false,message:"failed"}
+        }
+
+        
+    } catch (error) {
+         console.error(error);
+        return { success: false ,message:"failed"};
+        
+    }
+}
 
 }

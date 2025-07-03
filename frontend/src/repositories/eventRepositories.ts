@@ -238,6 +238,30 @@ export const getDashboardEvents=async(organiserId:string,timeFrame:string)=>{
   }
 
 }
+export const fetchEvents=async(id:string)=>{
+  try {
+   
+   
+    
+ 
+    
+    const response=await axiosInstance.get(
+      `${API_BASE_URL}/orgEvents/${id}`
+    )
+    
+    
+    
+    return response.data
+
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+ 
+}
+
 
 
 
@@ -252,7 +276,8 @@ export const eventRepository={
   checkStatus,
   getEvents,
   getEventsCreated,
-  getDashboardEvents
+  getDashboardEvents,
+  fetchEvents
 
 
 }

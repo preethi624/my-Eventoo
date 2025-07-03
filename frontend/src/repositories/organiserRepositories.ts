@@ -253,6 +253,31 @@ export const getDashboard=async(eventId:string)=>{
     
   }
 }
+export const fetchAttendees=async(eventId:string,organiserId:string,searchTerm:string,filterStatus:string)=>{
+  try {
+    
+ 
+    
+
+     const response=await axiosInstance.get(`${API_BASE_URL}/order/${eventId}/${organiserId}`,{params:{searchTerm,filterStatus}});
+     console.log("responseeee",response);
+     
+     
+     
+      if(response.data){
+    return {success:true,message:"status updated successfully",attendees:response.data}
+  }else{
+    return {success:false,message:"Payment status updation  fails"}
+  }
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message; 
+
+    
+  }
+
+}
+
 export const organiserRepository={
     getOrganiserById,
     checkStatus,
@@ -262,7 +287,8 @@ export const organiserRepository={
     reapply,
     getVenues,
     getVenueById,
-    getDashboard
+    getDashboard,
+    fetchAttendees
 
  
   

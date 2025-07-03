@@ -268,6 +268,33 @@ async getDashboardEvents(req:Request,res:Response):Promise<void>{
     } 
     
   }
+  async getOrgEvents(req:Request,res:Response):Promise<void>{
+    try {
+      const organiserId=req.params.orgId as string||'';
+      const response=await this.eventService.getEvents(organiserId);
+      if (response) {
+            res.json({ events: response.result, success: true });
+        }
+        else {
+            res.status(StatusCode.NOT_FOUND).json({
+                success: false,
+                message: "No events found",
+            });
+        }
+
+
+      
+    } catch (error) {
+
+      console.error(error);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to fetch events",
+        });
+    }
+    
+
+  }
   
 
 
