@@ -484,8 +484,11 @@ const getDashboard=async()=>{
         },
       }
     );
+    
+    
   
     
+   console.log("respooop",response);
    
     
     return response.data
@@ -499,6 +502,55 @@ const getDashboard=async()=>{
   }
 
 
+}
+const fetchUsers=async()=>{
+  try {
+     const token=localStorage.getItem("adminToken");
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboardUsers`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  
+   
+    
+   
+    
+    return response.data
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+}
+const getDashboardOrders=async()=>{
+  try {
+     const token=localStorage.getItem("adminToken");
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboardOrders`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("orderResponse",response);
+    
+   
+    
+   
+    
+    return response.data
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
 }
 
 
@@ -520,6 +572,8 @@ export const adminRepository={
  fetchVenues,
  editVenue,
  venueDelete,
- getDashboard
+ getDashboard,
+ fetchUsers,
+ getDashboardOrders
 
 }

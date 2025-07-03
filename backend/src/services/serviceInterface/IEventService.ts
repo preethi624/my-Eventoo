@@ -13,5 +13,6 @@ export interface IEventService{
         getEvent (id:string,limit:number,page:number,searchTerm:string,date:string):Promise<EventGet>
         eventCountGet (organiserId:string):Promise<EventCount>;
         getDashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d'):Promise<DashboardEvents>
+        getEvents(organiserId:string):Promise<EventGet>
     
 }

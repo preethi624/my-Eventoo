@@ -7,5 +7,6 @@ export interface IOrganiserController{
     fetchBooking(req:Request,res:Response):Promise<void>;
     getOrderDetails(req:Request,res:Response):Promise<void>;
     getVenues(req:Request,res:Response):Promise<void>;
-    getVenueById(req:Request,res:Response):Promise<void>
+    getVenueById(req:Request,res:Response):Promise<void>;
+    fetchAttendees(req:Request,res:Response):Promise<void>
 }

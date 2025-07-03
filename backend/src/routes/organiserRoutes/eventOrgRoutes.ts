@@ -11,4 +11,5 @@ router.put('/event/:id',authMiddlewarwSet.organiserOnly,eventController.editEven
 router.get('/events/:id',authMiddlewarwSet.organiserOnly,eventController.eventGet.bind(eventController));
 router.get('/eventCount/:organiserId',authMiddlewarwSet.organiserOnly,eventController.getEventCount.bind(eventController));
 router.get('/dashboardEvents/:organiserId',authMiddlewarwSet.organiserOnly,eventController.getDashboardEvents.bind(eventController))
+router.get('/orgEvents/:orgId',authMiddlewarwSet.organiserOnly,eventController.getOrgEvents.bind(eventController))
 export default router

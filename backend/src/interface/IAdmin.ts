@@ -26,4 +26,12 @@ export interface AdminDashboard{
     ticketsSold:number;
     revenue:number
   }[];
+  eventCategories?:{
+    value:number;
+    name:string;
+    color:string;
+  }[];
+  totalRevenue?:number;
+  activeEvents?:number;
+ 
 }

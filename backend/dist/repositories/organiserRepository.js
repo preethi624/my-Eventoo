@@ -19,6 +19,7 @@ const event_1 = __importDefault(require("../model/event"));
 const venue_1 = __importDefault(require("../model/venue"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const analyticHelper_1 = require("../utils/analyticHelper");
+const platformSettings_1 = __importDefault(require("../model/platformSettings"));
 class OrganiserRepository {
     getOrganiserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -146,6 +147,79 @@ class OrganiserRepository {
                 salesTrend: (0, analyticHelper_1.generateSalesTrend)(orders)
             };
             return { event, orders, stats };
+        });
+    }
+    fetchAttendees(eventId, organiserId, searchTerm, filterStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const settings = yield platformSettings_1.default.findOne();
+            const adminCommissionPercentage = (_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10;
+            const matchStage = {
+                eventId: new mongoose_1.default.Types.ObjectId(eventId),
+            };
+            if (filterStatus && filterStatus !== 'all') {
+                matchStage.bookingStatus = filterStatus;
+            }
+            // If searchTerm is provided, add case-insensitive search on name or email
+            const pipeline = [
+                { $match: matchStage },
+                {
+                    $lookup: {
+                        from: 'events',
+                        localField: 'eventId',
+                        foreignField: '_id',
+                        as: 'eventDetails'
+                    }
+                },
+                { $unwind: '$eventDetails' },
+                {
+                    $match: {
+                        'eventDetails.organiser': new mongoose_1.default.Types.ObjectId(organiserId),
+                        'eventDetails.status': 'completed'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: 'userId',
+                        foreignField: "_id",
+                        as: "userDetails"
+                    }
+                },
+                { $unwind: "$userDetails" }
+            ];
+            if (searchTerm) {
+                pipeline.push({
+                    $match: {
+                        $or: [
+                            { "userDetails.name": { $regex: searchTerm, $options: 'i' } },
+                            { "userDetails.email": { $regex: searchTerm, $options: 'i' } },
+                        ]
+                    }
+                });
+            }
+            pipeline.push({
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    name: '$userDetails.name',
+                    email: '$userDetails.email',
+                    ticketCount: 1,
+                    createdAt: 1,
+                    bookingStatus: 1,
+                    orderId: 1,
+                    amount: 1
+                }
+            });
+            const attendee = yield order_1.default.aggregate(pipeline);
+            const totalRevenue = attendee.reduce((acc, curr) => {
+                if ((curr === null || curr === void 0 ? void 0 : curr.bookingStatus) === "confirmed") {
+                    acc += curr.amount / 100;
+                }
+                return acc;
+            }, 0);
+            const actualRevenue = totalRevenue * (1 - adminCommissionPercentage / 100);
+            return { attendees: attendee, revenue: actualRevenue };
         });
     }
 }

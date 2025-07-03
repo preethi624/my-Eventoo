@@ -92,4 +92,27 @@ async blockUser(req: Request<unknown, unknown,IUser>,  res: Response):Promise<vo
 }
   
 }
+async getDashboardUsers(req:Request,res:Response):Promise<void>{
+  try {
+    const result=await this.adminUserService.dashboardUsers();
+  if(result.success){
+    
+ 
+    res.json({data:result.data,message:result.message,success:true,totalUsers:result.totalUsers})
+  }else{
+    res.json({message:result.message,success:false})
+
+  } 
+
+    
+  } catch (error) {
+    console.log(error);
+    
+
+     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+  }
+
+
+}
+
 }

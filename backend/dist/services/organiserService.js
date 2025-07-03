@@ -169,6 +169,23 @@ class OrganiserService {
             }
         });
     }
+    attendeesFetch(eventId, organiserId, filters, filterStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.organiserRepository.fetchAttendees(eventId, organiserId, filters, filterStatus);
+                if (response) {
+                    return { success: true, message: "fetched successfully", attendees: response.attendees, revenue: response.revenue };
+                }
+                else {
+                    return { success: false, message: "failed" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed to fetch attendees" };
+            }
+        });
+    }
 }
 exports.OrganiserService = OrganiserService;
 //# sourceMappingURL=organiserService.js.map

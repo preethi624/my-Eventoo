@@ -105,6 +105,14 @@ export class AdminEventRepository implements IAdminEventRepository{
 
 }
 async getDashboard():Promise<AdminDashboard>{
+  const categoryColors: Record<string, string> = {
+  music: '#8B5CF6',
+  sports: '#06B6D4',
+  technology: '#10B981',
+  Others: '#F59E0B',
+  arts: '#EF4444'
+};
+
   const settings=await PlatformSettings.findOne();
   const commissionRate=(settings?.adminCommissionPercentage??10)/100
   const monthlyRevenue = await EventModel.aggregate([
@@ -132,6 +140,7 @@ async getDashboard():Promise<AdminDashboard>{
     $sort: { month: 1 }
   }
 ]);
+
 const topEvents=await EventModel.aggregate([
   
    {$project:{title:1,ticketsSold:1,revenue:{$multiply:["$ticketsSold","$ticketPrice"]}}},
@@ -140,6 +149,32 @@ const topEvents=await EventModel.aggregate([
 
    
 ])
+const eventCategories=await EventModel.aggregate([
+  {$group:{_id:"$category",value:{$sum:1}}},
+  {$project:{name:"$_id",value:1,_id:0}}
+
+])
+
+const categories = eventCategories.map(cat => ({
+  ...cat,
+  color: categoryColors[cat.name] || '#9CA3AF' 
+}));
+const completedEvents=await EventModel.find({status:"completed"});
+let  adminEarning=0;
+completedEvents.forEach((event)=>{
+ const totalTickets = event.ticketsSold;
+  const adminPerTicket = event.ticketPrice * commissionRate;
+  const totalAdmin = adminPerTicket * totalTickets;
+
+  adminEarning += totalAdmin;
+  
+
+})
+const activeEvents=await EventModel.find({status:"published",isBlocked:false});
+
+
+
+
 
 
 
@@ -148,7 +183,11 @@ return {
     monthlyRevenue,
     message: 'Dashboard data fetched successfully',
     success: true,
-    topEvents
+    topEvents,
+    eventCategories:categories,
+    totalRevenue:adminEarning,
+    activeEvents:activeEvents.length,
+    
   };
 
 

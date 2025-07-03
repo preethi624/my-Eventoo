@@ -1,6 +1,7 @@
 import { EditUser, GetUsers, IUser } from "src/interface/IUserAuth";
 import { IAdminUserService } from "./serviceInterface/IAdminUserService";
 import { IAdminUserRepository } from "src/repositories/repositoryInterface/IAdminUserRepository";
+import { DashboardUsers } from "src/interface/IUser";
 
 
 export class AdminUserService implements IAdminUserService{
@@ -71,6 +72,24 @@ async userBlock(user:IUser):Promise<GetUsers>{
   }
 
 
+}
+async dashboardUsers():Promise<DashboardUsers>{
+  try {
+    const response=await this.adminUserRepository.getDashboardUsers();
+    if(response){
+      return{success:true,data:response.data,totalUsers:response.totalUsers}
+    }else{
+      return {success:false}
+    }
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    return {
+      success: false,
+      message: 'Internal server error',
+    };
+    
+  }
 }
 
 

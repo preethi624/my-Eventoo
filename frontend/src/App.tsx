@@ -41,6 +41,7 @@ import VenueManagement from './assets/pages/AdminVenue';
 import VenuePage from './assets/pages/OrganiserVenue';
 import VenueDetailsPage from './assets/pages/OrganiserVenueDetails';
 import EventDashboard from './assets/pages/OrganiserEventDashboard';
+import AttendeesPage from './assets/pages/OrganiserAttendees';
 
 
 function App() {
@@ -128,6 +129,8 @@ useEffect(() => {
        <Route path='/orgVenues' element={<ProtectedRoute element={<VenuePage/>} />}/>
         <Route path='/venue/:venueId' element={<ProtectedRoute element={<VenueDetailsPage/>} />}/>
         <Route path='/organiserEvent/:id' element={<ProtectedRoute element={<EventDashboard/>} />}/>
+        <Route path='/organiserAttendees' element={<ProtectedRoute element={<AttendeesPage/>} />}/>
+
 
 
       

@@ -87,7 +87,7 @@ class AdminEventController {
             try {
                 const response = yield this.adminEventService.dashboardGet();
                 if (response.success) {
-                    res.json({ success: true, message: "successfully fetch", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents });
+                    res.json({ success: true, message: "successfully fetch", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents, eventCategories: response.eventCategories, totalRevenue: response.totalRevenue, activeEvents: response.activeEvents });
                 }
             }
             catch (error) {

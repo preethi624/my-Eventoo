@@ -310,6 +310,30 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
       
 
     } 
+    async fetchAttendees(req:Request,res:Response):Promise<void>{
+      try {
+        const eventId=req.params.eventId;
+        const organiserId=req.params.organiserId;
+      const searchTerm = typeof req.query.searchTerm === 'string' ? req.query.searchTerm : '';
+      const filterStatus=typeof req.query.filterStatus==='string'?req.query.filterStatus:'';
+        const response=await this.organiserService.attendeesFetch(eventId,organiserId,searchTerm,filterStatus);
+        if(response.success){
+          res.json({success:true,message:"fetched succeessfully",attendee:response.attendees,revenue:response.revenue})
+        }else{
+          res.json({success:false,message:"failed"})
+        }
+        
+      } catch (error) {
+       console.error("Error in payment verification :", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+        }); 
+         
+        
+      }
+
+    }
 
  
 

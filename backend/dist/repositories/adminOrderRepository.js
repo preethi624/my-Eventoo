@@ -95,6 +95,29 @@ class AdminOrderRepository {
             };
         });
     }
+    getDashboardOrders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orders = yield order_1.default.find().sort({ createdAt: -1 }).limit(5).populate('userId', 'name').populate('eventId', 'title status').lean();
+            const recentTransactions = orders.map(order => {
+                var _a, _b, _c;
+                return ({
+                    date: order.createdAt,
+                    id: order.orderId,
+                    user: ((_a = order.userId) === null || _a === void 0 ? void 0 : _a.name) || '',
+                    event: ((_b = order.eventId) === null || _b === void 0 ? void 0 : _b.title) || '',
+                    eventStatus: ((_c = order.eventId) === null || _c === void 0 ? void 0 : _c.status) || '',
+                    amount: order.amount,
+                    status: order.bookingStatus === 'confirmed'
+                        ? 'Completed'
+                        : order.bookingStatus === 'cancelled'
+                            ? 'Failed'
+                            : 'Pending'
+                });
+            });
+            console.log("recent", recentTransactions);
+            return { recentTransactions };
+        });
+    }
 }
 exports.AdminOrderRepository = AdminOrderRepository;
 //# sourceMappingURL=adminOrderRepository.js.map

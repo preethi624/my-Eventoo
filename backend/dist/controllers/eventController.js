@@ -242,6 +242,30 @@ class EventController {
             }
         });
     }
+    getOrgEvents(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const organiserId = req.params.orgId || '';
+                const response = yield this.eventService.getEvents(organiserId);
+                if (response) {
+                    res.json({ events: response.result, success: true });
+                }
+                else {
+                    res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
+                        success: false,
+                        message: "No events found",
+                    });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: "Failed to fetch events",
+                });
+            }
+        });
+    }
 }
 exports.EventController = EventController;
 //# sourceMappingURL=eventController.js.map

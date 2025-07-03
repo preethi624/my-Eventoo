@@ -82,6 +82,23 @@ class AdminUserController {
             }
         });
     }
+    getDashboardUsers(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.adminUserService.dashboardUsers();
+                if (result.success) {
+                    res.json({ data: result.data, message: result.message, success: true, totalUsers: result.totalUsers });
+                }
+                else {
+                    res.json({ message: result.message, success: false });
+                }
+            }
+            catch (error) {
+                console.log(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+            }
+        });
+    }
 }
 exports.AdminUserController = AdminUserController;
 //# sourceMappingURL=adminUserController.js.map

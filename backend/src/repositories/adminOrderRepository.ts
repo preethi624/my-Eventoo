@@ -2,6 +2,7 @@ import { FilterQuery, PipelineStage } from "mongoose";
 import { IAdminOrder } from "src/interface/IAdmin";
 import Order, { IOrder } from "../model/order";
 import { IAdminOrderRepository } from "./repositoryInterface/IAdminOrderRepository";
+import { OrderDashboard } from "src/interface/IUser";
 
 export class AdminOrderRepository implements IAdminOrderRepository {
   async getOrdersAll(filters: {
@@ -111,5 +112,29 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       currentPage: page,
       orders,
     };
+  }
+  async getDashboardOrders():Promise<OrderDashboard>{
+    const orders=await Order.find().sort({createdAt:-1}).limit(5).populate('userId','name').populate('eventId','title status').lean();
+    const recentTransactions=orders.map(order=>({
+      date:order.createdAt,
+      id: order.orderId,
+  user: (order.userId as unknown as {name:string})?.name||'',
+  event: (order.eventId as unknown as {title:string})?.title||'',
+  eventStatus: (order.eventId as unknown as {status:string})?.status||'',
+  amount: order.amount,
+  status:
+    order.bookingStatus === 'confirmed'
+      ? 'Completed'
+      : order.bookingStatus === 'cancelled'
+      ? 'Failed'
+      : 'Pending'
+    }))
+    console.log("recent",recentTransactions);
+    
+    
+    return {recentTransactions}
+
+
+    
   }
 }

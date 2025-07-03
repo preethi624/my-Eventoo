@@ -1,6 +1,7 @@
 import { GetOrder, IOrderFilter } from "src/interface/event";
 import { IAdminOrderService } from "./serviceInterface/IAdminOrderService";
 import { IAdminOrderRepository } from "src/repositories/repositoryInterface/IAdminOrderRepository";
+import { OrderDashboard } from "src/interface/IUser";
 
 export class AdminOrderService implements IAdminOrderService{
     constructor(private adminOrderRepository:IAdminOrderRepository){};
@@ -30,6 +31,33 @@ export class AdminOrderService implements IAdminOrderService{
       }
     
     }
+    async getDashboard():Promise<OrderDashboard>{
+    
+    try {
+      
+      
+        const response=await this.adminOrderRepository.getDashboardOrders();
+      
+        
+    
+        
+        if(response){
+          return {recentTransactions:response.recentTransactions,success:true,message:"Users fetched successfully"}
+        }else{
+          return{success:false,message:"failed to fetch users"}
+        }
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        return {
+          success: false,
+          message: 'Internal server error',
+        };
+        
+      }
+    
+    }
+
     
 
 

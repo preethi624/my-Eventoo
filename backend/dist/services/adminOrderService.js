@@ -35,6 +35,26 @@ class AdminOrderService {
             }
         });
     }
+    getDashboard() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminOrderRepository.getDashboardOrders();
+                if (response) {
+                    return { recentTransactions: response.recentTransactions, success: true, message: "Users fetched successfully" };
+                }
+                else {
+                    return { success: false, message: "failed to fetch users" };
+                }
+            }
+            catch (error) {
+                console.error('Login error:', error);
+                return {
+                    success: false,
+                    message: 'Internal server error',
+                };
+            }
+        });
+    }
 }
 exports.AdminOrderService = AdminOrderService;
 //# sourceMappingURL=adminOrderService.js.map

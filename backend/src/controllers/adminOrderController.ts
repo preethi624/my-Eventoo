@@ -42,5 +42,34 @@ export class AdminOrderController implements IAdminOrderController{
 
 
 }
+async getDashboardOrders(req:Request,res:Response):Promise<void>{
+  try {
+ 
+      
+      
+
+        
+    const result=await this.adminOrderService.getDashboard();
+
+    
+  if(result.success){
+    res.json({result:result.recentTransactions,message:result.message,success:true})
+  }else{
+    res.json({message:result.message,success:false})
+
+  } 
+
+    
+  } catch (error) {
+    console.log(error);
+    
+
+     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+  }
+
+
+
+}
+
 
 }

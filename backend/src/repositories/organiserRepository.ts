@@ -1,7 +1,7 @@
 import { IOrganiser } from "src/interface/IOrgAuth";
 import { IOrganiserRepository } from "./repositoryInterface/IOrganiserRepository";
 import Organiser from "../model/organiser";
-import { ProfileEdit } from "src/interface/IUser";
+import { Attendees, ProfileEdit } from "src/interface/IUser";
 import { FetchOrders } from "src/interface/IPayment";
 import Order, { IOrder } from "../model/order";
 import EventModel, { IEvent } from "../model/event";
@@ -10,6 +10,7 @@ import { OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 import mongoose, { FilterQuery } from "mongoose";
 import { generateSalesTrend } from "../utils/analyticHelper";
 import { DashboardResponse } from "src/interface/event";
+import PlatformSettings from "../model/platformSettings";
 
 
 export class OrganiserRepository implements IOrganiserRepository{
@@ -160,5 +161,92 @@ export class OrganiserRepository implements IOrganiserRepository{
 
   return { event, orders, stats };
 }
+async fetchAttendees(eventId: string,organiserId:string, searchTerm: string,filterStatus:string): Promise<Attendees> {
+  const settings = await PlatformSettings.findOne();
+const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
+  
+  
+  
+  const matchStage: {eventId:mongoose.Types.ObjectId;bookingStatus?:string} = {
+    eventId: new mongoose.Types.ObjectId(eventId),
+   
+  };
+  if (filterStatus && filterStatus !== 'all') {
+    matchStage.bookingStatus = filterStatus;
+  }
+
+ 
+  const pipeline:mongoose.PipelineStage[] = [
+    { $match: matchStage },
+    {
+      $lookup: {
+        from: 'events',              
+        localField: 'eventId',
+        foreignField: '_id',
+        as: 'eventDetails'
+      }
+    },
+    { $unwind: '$eventDetails' },
+
+    
+    {
+      $match: {
+        'eventDetails.organiser': new mongoose.Types.ObjectId(organiserId),
+        'eventDetails.status':'completed'
+      }
+    },
+
+    {
+      $lookup: {
+        from: "users",
+        localField: 'userId',
+        foreignField: "_id",
+        as: "userDetails"
+      }
+    },
+    { $unwind: "$userDetails" }
+  ];
+
+  if (searchTerm) {
+    pipeline.push({
+      $match: {
+        $or: [
+          { "userDetails.name": { $regex: searchTerm, $options: 'i' } },
+          { "userDetails.email": { $regex: searchTerm, $options: 'i' } },
+
+        ]
+      }
+    });
+  }
+
+  pipeline.push({
+    $project: {
+      _id: 0,
+      id: '$_id',
+      name: '$userDetails.name',
+      email: '$userDetails.email',
+      ticketCount: 1,
+      createdAt: 1,
+      bookingStatus: 1,
+      orderId: 1,
+      amount: 1
+    }
+  });
+
+  const attendee = await Order.aggregate(pipeline);
+  const totalRevenue=attendee.reduce((acc,curr)=>{
+    if(curr?.bookingStatus==="confirmed"){
+      acc+=curr.amount/100
+    }
+    return acc
+
+  },0)
+const actualRevenue=totalRevenue * (1 - adminCommissionPercentage / 100);
+  
+  
+  
+  return { attendees: attendee,revenue:actualRevenue };
+}
+
 
 }

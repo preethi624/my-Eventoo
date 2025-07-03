@@ -15,5 +15,6 @@ router.put('/event/:id', middleware_di_1.authMiddlewarwSet.organiserOnly, event_
 router.get('/events/:id', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.eventGet.bind(event_di_1.eventController));
 router.get('/eventCount/:organiserId', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getEventCount.bind(event_di_1.eventController));
 router.get('/dashboardEvents/:organiserId', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getDashboardEvents.bind(event_di_1.eventController));
+router.get('/orgEvents/:orgId', middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getOrgEvents.bind(event_di_1.eventController));
 exports.default = router;
 //# sourceMappingURL=eventOrgRoutes.js.map
