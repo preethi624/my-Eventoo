@@ -35,12 +35,12 @@ class AdminOrderService {
             }
         });
     }
-    getDashboard() {
+    getDashboard(timeFrame, startDate, endDate, category, month, year) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminOrderRepository.getDashboardOrders();
+                const response = yield this.adminOrderRepository.getDashboardOrders(timeFrame, startDate, endDate, category, month, year);
                 if (response) {
-                    return { recentTransactions: response.recentTransactions, success: true, message: "Users fetched successfully" };
+                    return { orders: response.orders, success: true, message: "Users fetched successfully", salesReport: response.salesReport, totalAdminEarning: response.totalAdminEarning };
                 }
                 else {
                     return { success: false, message: "failed to fetch users" };

@@ -1,4 +1,4 @@
-import {  GetOrder, GetOrders, OrderCreate, OrderCreateInput, RazorpayPaymentResponse, Update, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
+import {  GetOrder, GetOrders, GetTickets, Order, OrderCreate, OrderCreateInput, OrderFree, RazorpayPaymentResponse, Ticket, TicketDetails, Update, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
 import { IPaymentService } from "./serviceInterface/IPaymentService";
 import crypto from 'crypto';
 import dotenv from 'dotenv';
@@ -7,6 +7,19 @@ import Razorpay from "razorpay";
 import { IPaymentRepository } from "src/repositories/repositoryInterface/IPaymentRepository";
 import { IEventRepository } from "src/repositories/repositoryInterface/IEventRepository";
 import { generateOrderId } from "../utils/generateOrderId";
+import nodemailer from 'nodemailer'
+import PDFDocument from 'pdfkit'
+import bwipjs from 'bwip-js';
+import { ITicket } from "src/model/ticket";
+import { IEvent } from "src/model/event";
+import { IOrder } from "src/model/order";
+const  transporter = nodemailer.createTransport({
+        service: 'gmail', 
+        auth: {
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASSWORD 
+        }
+    });
 
 
 const razorpay=new Razorpay({
@@ -14,9 +27,55 @@ const razorpay=new Razorpay({
     key_secret:process.env.RAZORPAY_KEY_SECRET
 });
 
+async function generateTicketPDF(order: Order, tickets: ITicket[]): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50 });
+    const buffers: Buffer[] = [];
+
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject); 
+
+    (async () => {
+      
+      doc.fontSize(20).text(order.eventTitle, { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(14).text(`Order ID: ${order.orderId}`);
+      
+      doc.text(`Tickets Booked: ${order.ticketCount}`);
+    
+    
+      doc.moveDown();
+
+     
+      for (let i = 0; i < tickets.length; i++) {
+        const ticket = tickets[i];
+
+        const barcodeBuffer = await bwipjs.toBuffer({
+          bcid: 'qrcode',
+          text: ticket.qrToken,
+          scale: 3,
+          height: 12,
+        
+          includetext: true,
+        });
+
+        doc.fontSize(12).text(`Ticket ${i + 1} - ID: ${ticket._id}`);
+        const x = doc.x;
+        const y = doc.y + 10;
+        doc.image(barcodeBuffer, x, y, { width: 250 });
+
+        doc.moveDown(3);
+      }
+
+      doc.end();
+    })();
+  });
+}
 
 export class PaymentService implements IPaymentService{
     constructor(private paymentRepository:IPaymentRepository,private eventRepository:IEventRepository ){}
+
     async orderCreate(data:OrderCreateInput):Promise<OrderCreate>{
         const orderId=generateOrderId()
         try {
@@ -28,6 +87,7 @@ export class PaymentService implements IPaymentService{
         const userId=data.userId;
         const eventId=data.eventId;
         const eventTitle=data.eventTitle;
+        const email=data.email
         const createdAt=new Date();
         
         const options={
@@ -50,7 +110,8 @@ export class PaymentService implements IPaymentService{
             eventId,
             eventTitle,
             createdAt,
-            orderId:orderId
+            orderId:orderId,
+            email
 
         });
         if(response){
@@ -75,6 +136,43 @@ export class PaymentService implements IPaymentService{
         }
        
     }
+    async orderCreateFree(data:OrderCreateInput):Promise<{success?:boolean}>{
+         const orderId=generateOrderId();
+         try {
+             
+        const ticketCount=data.ticketCount;
+        const userId=data.userId;
+        const eventId=data.eventId;
+        const eventTitle=data.eventTitle;
+        const createdAt=new Date();
+        const response=await this.paymentRepository.createOrderFree( {ticketCount,
+            userId,
+            eventId,
+            eventTitle,
+            createdAt,
+            orderId:orderId,
+            status:"Not required",
+            bookingStatus:"confirmed"
+           
+        })
+        if (response) {
+      return {
+       
+       success:true
+      };
+    }
+
+    return { success: false };
+            
+         } catch (error) {
+              console.error(error);
+        return { success: false};
+
+            
+         }
+
+
+    }
     async paymentVerify(data:RazorpayPaymentResponse):Promise<VerifyResponse>{
         try {
             const razorpay_payment_id=data.razorpay_payment_id;
@@ -90,11 +188,46 @@ export class PaymentService implements IPaymentService{
     if(generatedSignature===razorpay_signature){
         const updatedOrder=await this.paymentRepository.updatePaymentDetails(razorpay_order_id,razorpay_payment_id,razorpay_signature,'paid')
         if(updatedOrder){
-            await this.eventRepository.decrementAvailableTickets(updatedOrder.eventId.toString(),updatedOrder.ticketCount)
+            console.log("updatedOrder",updatedOrder);
+            const event=updatedOrder.eventId as  unknown as IEvent
+            
+            await this.eventRepository.decrementAvailableTickets(updatedOrder.eventId._id.toString(),updatedOrder.ticketCount);
+           
+            const tickets = await this.paymentRepository.getTickets(updatedOrder._id);
+            const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
+             const  mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: updatedOrder?.email,
+        subject: `Your ticket for ${updatedOrder.eventTitle}`,
+        text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(tickets, null, 2)}`,
+        html: `<h3>Thank you for booking!</h3>
+        <p>Event: <b>${updatedOrder.eventTitle}</b></p>
+        <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
+        <p>Order ID: ${updatedOrder.orderId}</p>
+        <p>Venue:${event.venue}</p>
+        <p>Date:${event.date}
+        
+        `,
+      
+        attachments: [
+    {
+      filename: 'ticket.pdf',
+      content: pdfBuffer
+    }
+  ]
+       
+
+    };
+    
+
+    await transporter.sendMail(mailOptions)
+      return { success: true, message: "Payment verified and ticket sent to email" };
             
         }else{
             console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
         }
+        
+           
         return {success:true,message:"Payment verified successfully"}
     }else{
         await this.paymentRepository.updatePaymentDetails(
@@ -203,6 +336,8 @@ export class PaymentService implements IPaymentService{
                     const paymentId=result.razorpayPaymentId;
                     const amount=result.amount;
                     const refund=await razorpay.payments.refund(paymentId,{amount:amount});
+                    
+                    
                     const refundId=refund.id
                     const response=await this.paymentRepository.updateRefund(refundId,orderId);
                     if(response.success){
@@ -210,7 +345,7 @@ export class PaymentService implements IPaymentService{
 
                     }else{
 
-                      return {success:false,message:"failed to update"}
+                      return {success:false,message:response.message}
                     }
                    
                 }else{
@@ -224,6 +359,40 @@ export class PaymentService implements IPaymentService{
 
             }
         }
+        async ticketsGet(orderId:string):Promise<GetTickets>{
+            try {
+          const result=await this.paymentRepository.getTickets(orderId);
+        if(result){
+                return {success:true,result:result}
+            }else{
+                return {success:false}
+            }  
+
+        } catch (error) {
+              console.error(error);
+        return { success: false };
+            
+        } 
+
+        }
+        async ticketDetailsGet(userId:string,searchTerm:string,status:string):Promise<TicketDetails>{
+            try {
+          const result=await this.paymentRepository.getTicketDetails(userId,searchTerm,status);
+        if(result){
+                return {success:true,tickets:result}
+            }else{
+                return {success:false}
+            }  
+
+        } catch (error) {
+              console.error(error);
+        return { success: false };
+            
+        } 
+
+        }
+     
+    
      
     
 }

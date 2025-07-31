@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
+const messages_1 = require("../constants/messages");
 class PaymentController {
     constructor(paymentService) {
         this.paymentService = paymentService;
@@ -31,7 +32,28 @@ class PaymentController {
                 console.error("Error in createOrder:", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                });
+            }
+        });
+    }
+    createFreeOrder(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.body;
+                const response = yield this.paymentService.orderCreateFree(data);
+                if (response.success) {
+                    res.json({ message: "order created", success: true });
+                }
+                else {
+                    res.json({ success: false, message: "failed to create order" });
+                }
+            }
+            catch (error) {
+                console.error("Error in createOrder:", error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -52,7 +74,7 @@ class PaymentController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -73,7 +95,7 @@ class PaymentController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -81,12 +103,15 @@ class PaymentController {
     getOrders(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const id = req.params.id;
+                const userId = req.params.userId;
                 const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = req.query.searchTerm;
                 const status = req.query.status;
-                const response = yield this.paymentService.ordersGet(id, limit, page, searchTerm, status);
+                if (!userId) {
+                    throw new Error("id not get");
+                }
+                const response = yield this.paymentService.ordersGet(userId, limit, page, searchTerm, status);
                 if (response.success) {
                     res.json({ message: response.message, success: true, order: response.order });
                 }
@@ -98,7 +123,7 @@ class PaymentController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -119,15 +144,20 @@ class PaymentController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
     }
     getOrdersById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const userId = req.params.userId;
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                console.log("tuserIs", userId);
+                if (!userId) {
+                    throw new Error("userId not get");
+                }
                 const response = yield this.paymentService.ordersGetById(userId);
                 if (response) {
                     res.json({ totalSpent: response.totalSpent, eventsBooked: response.eventsBooked });
@@ -155,7 +185,51 @@ class PaymentController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                });
+            }
+        });
+    }
+    getTickets(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const orderId = req.params.orderId;
+                const response = yield this.paymentService.ticketsGet(orderId);
+                if (response) {
+                    res.json({ result: response.result, success: true });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error("Error in payment verification :", error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                });
+            }
+        });
+    }
+    getTicketDetails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.params.userId;
+                const searchTerm = req.query.searchTerm;
+                const status = req.query.status;
+                const response = yield this.paymentService.ticketDetailsGet(userId, searchTerm, status);
+                if (response) {
+                    res.json({ result: response.tickets, success: true });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error("Error in payment verification :", error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });

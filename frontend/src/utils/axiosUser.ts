@@ -27,6 +27,9 @@ function isOrganiserRoute(url: string | undefined): boolean {
     url?.includes('/orgOrder')||
     url?.includes('/organiser/venues')||
     url?.includes('/organiser/order')||
+    url?.includes('/categories')||
+      url?.includes('/organiser/checkin')||
+
 
     
     false

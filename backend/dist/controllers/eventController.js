@@ -194,8 +194,12 @@ class EventController {
     ;
     getEventCount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const organiserId = req.params.organiserId;
+                const organiserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!organiserId) {
+                    throw new Error("organiserId not get");
+                }
                 const response = yield this.eventService.eventCountGet(organiserId);
                 if (response) {
                     res.json({ result: response, success: true });
@@ -255,6 +259,48 @@ class EventController {
                         success: false,
                         message: "No events found",
                     });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: "Failed to fetch events",
+                });
+            }
+        });
+    }
+    findEvent(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const eventName = req.query.name;
+            try {
+                const response = yield this.eventService.eventFind(eventName);
+                if (response.success) {
+                    res.json({ result: response.result });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: "Failed to fetch events",
+                });
+            }
+        });
+    }
+    findEventsByCat(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const category = req.query.name;
+            try {
+                const response = yield this.eventService.eventsFindByCat(category);
+                if (response.success) {
+                    res.json({ result: response.result });
+                }
+                else {
+                    res.json({ success: false });
                 }
             }
             catch (error) {

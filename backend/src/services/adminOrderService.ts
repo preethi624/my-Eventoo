@@ -31,18 +31,18 @@ export class AdminOrderService implements IAdminOrderService{
       }
     
     }
-    async getDashboard():Promise<OrderDashboard>{
+    async getDashboard(timeFrame:'7d' | '30d' | '90d',startDate?:string,endDate?:string,category?:string,month?:string,year?:string):Promise<OrderDashboard>{
     
     try {
       
       
-        const response=await this.adminOrderRepository.getDashboardOrders();
+        const response=await this.adminOrderRepository.getDashboardOrders(timeFrame,startDate,endDate,category,month,year);
       
         
     
         
         if(response){
-          return {recentTransactions:response.recentTransactions,success:true,message:"Users fetched successfully"}
+          return {orders:response.orders,success:true,message:"Users fetched successfully",salesReport:response.salesReport,totalAdminEarning:response.totalAdminEarning}
         }else{
           return{success:false,message:"failed to fetch users"}
         }

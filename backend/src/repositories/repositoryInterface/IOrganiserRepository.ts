@@ -3,6 +3,7 @@ import { IOrganiser } from "src/interface/IOrgAuth";
 import { FetchOrders } from "src/interface/IPayment";
 import { Attendees, ProfileEdit } from "src/interface/IUser";
 import { OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
+import { IEvent } from "src/model/event";
 import { IOrder } from "src/model/order";
 import { IVenue } from "src/model/venue";
 
@@ -16,6 +17,24 @@ export interface IOrganiserRepository{
      getVenues(filters:OrgVenueFilter):Promise<VenueFetch>;
      getVenueById(venueId:string):Promise<IVenue|null>;
      getDashboard(eventId: string):Promise<DashboardResponse>;
-     fetchAttendees(eventId:string,organiserId:string,searchTerm:string,filterStatus:string):Promise<Attendees>
-    
+     fetchAttendees(eventId:string,organiserId:string,searchTerm:string,filterStatus:string,page:number,limit:number):Promise<Attendees>;
+     dashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d',startDate?:string,endDate?:string,category?:string,month?:string,year?:string):Promise<{
+       events: IEvent[],
+       data: {
+         month: number,
+         revenue: number,
+         events: number
+       }[],adminCommissionPercentage:number,organiserEarning:number,totalEvents:number,totalAttendees:number,topEvents:IEvent[],upcomingEvents:IEvent[],orderDetails: {
+    name: string;
+    email: string;
+    eventTitle: string;
+    eventDate: Date;
+    orderDate: Date;
+    amount: number;
+    ticketCount: number;
+  }[];
+     
+     }>
+
+     updateTicket(qrToken:string):Promise<{message:string}>
 }

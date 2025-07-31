@@ -187,6 +187,20 @@ class EventRepository extends baseRepository_1.BaseRepository {
             return yield event_1.default.find({ organiser: organiserId });
         });
     }
+    findEvent(eventName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const trimmedName = eventName.trim().replace(/\s+/g, '');
+            const regex = new RegExp(trimmedName.split('').join('\\s*'), 'i');
+            return yield event_1.default.findOne({
+                title: { $regex: regex }
+            });
+        });
+    }
+    findEventsByCat(category) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield event_1.default.find({ category: { $regex: new RegExp(`^${category}$`, 'i') } });
+        });
+    }
 }
 exports.EventRepository = EventRepository;
 //# sourceMappingURL=eventRepository.js.map

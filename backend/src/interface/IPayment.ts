@@ -1,5 +1,9 @@
+import { Document, ObjectId, Types } from "mongoose";
 import { IEvent } from "src/model/event";
 import { IOrder } from "src/model/order";
+import { ITicket } from "src/model/ticket";
+
+
 
 export interface OrderCreate{
     message:string;
@@ -11,7 +15,9 @@ export interface OrderCreateInput{
     ticketCount:number;
     userId:string;
     eventId:string;
-    eventTitle:string
+    eventTitle:string;
+    email?:string;
+
 }
 export interface IPaymentDTO{
      razorpayOrderId:string;
@@ -26,6 +32,8 @@ export interface IPaymentDTO{
             eventTitle:string;
             createdAt:Date;
             orderId:string;
+            email?:string
+          
 
 }
 export interface RazorpayPaymentResponse {
@@ -75,3 +83,34 @@ export interface Update{
     refundId?:string,
     message?:string
 }
+export interface GetTickets{
+    result?:ITicket[];
+    success?:boolean;
+}
+export interface TicketDetails{
+    tickets?:ITicket[];
+    success?:boolean
+}
+export interface OrderFree{
+    ticketCount:number;
+            userId:string;
+            eventId:string;
+            eventTitle:string
+            createdAt:Date
+            orderId:string;
+            status?:string;
+            bookingStatus?:string;
+}
+export interface Ticket {
+  _id: string|Types.ObjectId;
+  qrToken: string;
+}
+
+export interface Order {
+  orderId: string;
+  eventTitle: string;
+ 
+ 
+  ticketCount: number;
+}
+

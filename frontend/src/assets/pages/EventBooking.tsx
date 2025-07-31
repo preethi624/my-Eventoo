@@ -74,6 +74,19 @@ const EventBooking: React.FC = () => {
       setTotalPrice(ticketCount * (event.ticketPrice || 0));
     }
   }, [ticketCount, event]);
+  useEffect(()=>{
+    if(user){
+      console.log("user",user);
+      
+      setBookingData({
+        name:user.name||"",
+        email:user.email||"",
+        phone:user.phone||""
+
+      })
+    }
+
+  },[user])
 
   // Load Razorpay script
   useEffect(() => {
@@ -125,8 +138,8 @@ const EventBooking: React.FC = () => {
     });
   };
   const validateForm = () => {
-  const { name, email, phone } = bookingData;
-
+  const { name, email } = bookingData;
+  
   if (!name.trim()) {
     toast("Name is required");
     return false;
@@ -138,20 +151,41 @@ const EventBooking: React.FC = () => {
     return false;
   }
 
-  const phoneRegex = /^[0-9]{10}$/;
-  if (!phoneRegex.test(phone)) {
-    toast("Please enter a valid 10-digit phone number");
-    return false;
-  }
+  
 
   return true;
 };
+const handleFreebooking=async()=>{
+  try {
+    setIsLoading(true)
+    if(!eventId||!userId||!event){
+      throw new Error("all args required")
+    }
+    const response=await paymentRepository.createFreeBooking({
+    totalPrice:totalPrice,ticketCount:ticketCount,eventId,userId,eventTitle:event?.title
+    })
+    if(response&&response.success){
+      console.log("freeRes",response)
+      setPaymentStatus("Not required")
+     
+    }
+  } catch (error) {
+    console.log(error)
+    
+  }
+
+}
 
 
-  const handleNextStep = () => {
+  const handleNextStep =async () => {
  if(bookingStep===2){
   const isValid=validateForm();
   if(!isValid)return
+ }
+ if(totalPrice===0){
+  await handleFreebooking();
+  setBookingStep(4)
+  return 
  }
     
     if (bookingStep < 4) {
@@ -186,7 +220,7 @@ const EventBooking: React.FC = () => {
       if(!userId){
         throw new Error("UserId not present")
       }
-      const orderData=await paymentRepository.createOrder({totalPrice:totalPrice,ticketCount:ticketCount,eventId,userId,eventTitle});
+      const orderData=await paymentRepository.createOrder({totalPrice:totalPrice,ticketCount:ticketCount,eventId,userId,eventTitle,email:user.email});
       setOrderData(orderData);
       
       return orderData
@@ -454,6 +488,8 @@ const EventBooking: React.FC = () => {
             id="name"
             name="name"
             value={bookingData.name}
+            placeholder={user?.name||"Enter full name"}
+
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
@@ -469,6 +505,7 @@ const EventBooking: React.FC = () => {
             id="email"
             name="email"
             value={bookingData.email}
+            placeholder={user?.email||"Enter email"}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
@@ -476,20 +513,7 @@ const EventBooking: React.FC = () => {
           <p className="text-xs text-gray-500 mt-1">Your tickets will be sent to this email</p>
         </div>
         
-        <div className="mb-6">
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={bookingData.phone}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+        
 
         <div className="bg-gray-50 p-4 rounded mb-6">
           <div className="flex items-center mb-2">
@@ -514,7 +538,7 @@ const EventBooking: React.FC = () => {
             type="button"
             onClick={handleNextStep}
             className="bg-black hover:bg-blue-700 text-white px-6 py-2 rounded"
-            disabled={!bookingData.name || !bookingData.email || !bookingData.phone}
+            disabled={!bookingData.name || !bookingData.email }
           >
             Proceed to Payment
           </button>
@@ -616,6 +640,32 @@ const EventBooking: React.FC = () => {
       </div>
     );
   }
+  if (paymentStatus === 'Not required') {
+  return (
+    <div className="bg-white rounded-lg shadow p-6 text-center">
+      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <FaTicketAlt className="text-green-600 text-xl" />
+      </div>
+      <h2 className="text-2xl font-bold mb-2">Booking Confirmed (Free Event)!</h2>
+      <p className="text-gray-600 mb-6">
+        Your tickets have been sent to {bookingData.email}
+      </p>
+      <button
+        onClick={() => navigate('/my-bookings')}
+        className="bg-black hover:bg-blue text-white px-6 py-2 rounded"
+      >
+        View My Bookings
+      </button>
+      <button
+        onClick={() => navigate('/')}
+        className="ml-4 text-blue-600 hover:text-blue-800"
+      >
+        Back to Events
+      </button>
+    </div>
+  );
+}
+
 
   return (
     <div className="bg-white rounded-lg shadow p-6 text-center">

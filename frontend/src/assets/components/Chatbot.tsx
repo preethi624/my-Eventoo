@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaTimes, FaPaperPlane, FaUser } from 'react-icons/fa';
-import axios from 'axios';
+
 import { chatbotRepository } from '../../repositories/chatRepositories';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux/stroe';
@@ -42,7 +42,7 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) retu
+    if (!inputMessage.trim()) return;
 
     const userMessage: Message = {
       text: inputMessage,

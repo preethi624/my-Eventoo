@@ -3,6 +3,7 @@ import { IAdminOrderService } from "src/services/serviceInterface/IAdminOrderSer
 import { Request, Response } from "express";
 import { IAdminOrderController } from "./controllerInterface/IAdminOrderController";
 import { IOrderFilter } from "src/interface/event";
+import { MESSAGES } from "../constants/messages";
 
 export class AdminOrderController implements IAdminOrderController{
     constructor(private adminOrderService:IAdminOrderService){};
@@ -36,7 +37,7 @@ export class AdminOrderController implements IAdminOrderController{
     console.log(error);
     
 
-     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
   }
 
 
@@ -44,16 +45,30 @@ export class AdminOrderController implements IAdminOrderController{
 }
 async getDashboardOrders(req:Request,res:Response):Promise<void>{
   try {
- 
+
+  const { timeframe = '30d', startDate, endDate,selectedCategory,selectedMonth,selectedYear } = req.query;
+
+
+const validTimeFrame = ['7d', '30d', '90d'].includes(timeframe as string)
+  ? (timeframe as '7d' | '30d' | '90d')
+  : '30d';
+   const start = typeof startDate === 'string' ? startDate : undefined;
+
+const end = typeof endDate === 'string' ? endDate: undefined;
+
+const category= typeof selectedCategory === 'string' ? selectedCategory: undefined;
+const month=typeof selectedMonth==='string'?selectedMonth:undefined;
+const year=typeof selectedYear==='string'?selectedYear:undefined;
+
       
       
 
         
-    const result=await this.adminOrderService.getDashboard();
+    const result=await this.adminOrderService.getDashboard(validTimeFrame,start,end,category,month,year);
 
     
   if(result.success){
-    res.json({result:result.recentTransactions,message:result.message,success:true})
+    res.json({result:result.orders,message:result.message,success:true,salesReport:result.salesReport,totalAdminEarning:result.totalAdminEarning})
   }else{
     res.json({message:result.message,success:false})
 
@@ -64,7 +79,7 @@ async getDashboardOrders(req:Request,res:Response):Promise<void>{
     console.log(error);
     
 
-     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
   }
 
 

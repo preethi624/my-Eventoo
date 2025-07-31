@@ -42,6 +42,8 @@ import VenuePage from './assets/pages/OrganiserVenue';
 import VenueDetailsPage from './assets/pages/OrganiserVenueDetails';
 import EventDashboard from './assets/pages/OrganiserEventDashboard';
 import AttendeesPage from './assets/pages/OrganiserAttendees';
+import TicketsPage from './assets/pages/UserTickets';
+import CheckInPage from './assets/pages/OrganiserCheckin';
 
 
 function App() {
@@ -102,6 +104,8 @@ useEffect(() => {
       <Route path='/verifyOtpUser' element={<VerifyOtpUser/>}/>
       <Route path='/verifyOtpOrg' element={<VerifyOtpOrg/>}/>
       <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
+      <Route path="/" element={ <HomePage/> } />
+      
 
 
       <Route path='/dashboard' element={<ProtectedRoute element={<Dashboard />} />}/>
@@ -123,6 +127,7 @@ useEffect(() => {
       <Route path='/my-bookings' element={<ProtectedRoute element={<MyOrdersPage />} />}/>
       <Route path='/order/:orderId' element={<ProtectedRoute element={<OrderDetailsPage/>} />}/>
       <Route path='/userProfile' element={<ProtectedRoute element={<UserProfile />} />}/>
+      <Route path='/userTickets' element={<ProtectedRoute element={<TicketsPage/>} />}/>
       <Route path='/organiserProfile' element={<ProtectedRoute element={<OrganiserProfile />} />}/>
       <Route path='/organiserBookings' element={<ProtectedRoute element={<OrganiserBookings />} />}/>
       <Route path='/orgOrderDetails/:orderId' element={<ProtectedRoute element={<OrgOrderDetailsPage />} />}/>
@@ -130,6 +135,8 @@ useEffect(() => {
         <Route path='/venue/:venueId' element={<ProtectedRoute element={<VenueDetailsPage/>} />}/>
         <Route path='/organiserEvent/:id' element={<ProtectedRoute element={<EventDashboard/>} />}/>
         <Route path='/organiserAttendees' element={<ProtectedRoute element={<AttendeesPage/>} />}/>
+         <Route path='/checkin' element={<ProtectedRoute element={<CheckInPage/>} />}/>
+
 
 
 

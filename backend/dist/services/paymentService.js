@@ -18,10 +18,54 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const razorpay_1 = __importDefault(require("razorpay"));
 const generateOrderId_1 = require("../utils/generateOrderId");
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const pdfkit_1 = __importDefault(require("pdfkit"));
+const bwip_js_1 = __importDefault(require("bwip-js"));
+const transporter = nodemailer_1.default.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
 const razorpay = new razorpay_1.default({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
+function generateTicketPDF(order, tickets) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            const doc = new pdfkit_1.default({ margin: 50 });
+            const buffers = [];
+            doc.on('data', buffers.push.bind(buffers));
+            doc.on('end', () => resolve(Buffer.concat(buffers)));
+            doc.on('error', reject);
+            (() => __awaiter(this, void 0, void 0, function* () {
+                doc.fontSize(20).text(order.eventTitle, { align: 'center' });
+                doc.moveDown();
+                doc.fontSize(14).text(`Order ID: ${order.orderId}`);
+                doc.text(`Tickets Booked: ${order.ticketCount}`);
+                doc.moveDown();
+                for (let i = 0; i < tickets.length; i++) {
+                    const ticket = tickets[i];
+                    const barcodeBuffer = yield bwip_js_1.default.toBuffer({
+                        bcid: 'qrcode',
+                        text: ticket.qrToken,
+                        scale: 3,
+                        height: 12,
+                        includetext: true,
+                    });
+                    doc.fontSize(12).text(`Ticket ${i + 1} - ID: ${ticket._id}`);
+                    const x = doc.x;
+                    const y = doc.y + 10;
+                    doc.image(barcodeBuffer, x, y, { width: 250 });
+                    doc.moveDown(3);
+                }
+                doc.end();
+            }))();
+        });
+    });
+}
 class PaymentService {
     constructor(paymentRepository, eventRepository) {
         this.paymentRepository = paymentRepository;
@@ -37,6 +81,7 @@ class PaymentService {
                 const userId = data.userId;
                 const eventId = data.eventId;
                 const eventTitle = data.eventTitle;
+                const email = data.email;
                 const createdAt = new Date();
                 const options = {
                     amount: totalPrice * 100,
@@ -55,7 +100,8 @@ class PaymentService {
                     eventId,
                     eventTitle,
                     createdAt,
-                    orderId: orderId
+                    orderId: orderId,
+                    email
                 });
                 if (response) {
                     return ({ success: true, message: "order created successfully", order: response });
@@ -67,6 +113,37 @@ class PaymentService {
             catch (error) {
                 console.error(error);
                 return { success: false, message: "not creating order" };
+            }
+        });
+    }
+    orderCreateFree(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orderId = (0, generateOrderId_1.generateOrderId)();
+            try {
+                const ticketCount = data.ticketCount;
+                const userId = data.userId;
+                const eventId = data.eventId;
+                const eventTitle = data.eventTitle;
+                const createdAt = new Date();
+                const response = yield this.paymentRepository.createOrderFree({ ticketCount,
+                    userId,
+                    eventId,
+                    eventTitle,
+                    createdAt,
+                    orderId: orderId,
+                    status: "Not required",
+                    bookingStatus: "confirmed"
+                });
+                if (response) {
+                    return {
+                        success: true
+                    };
+                }
+                return { success: false };
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false };
             }
         });
     }
@@ -86,7 +163,33 @@ class PaymentService {
                 if (generatedSignature === razorpay_signature) {
                     const updatedOrder = yield this.paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'paid');
                     if (updatedOrder) {
-                        yield this.eventRepository.decrementAvailableTickets(updatedOrder.eventId.toString(), updatedOrder.ticketCount);
+                        console.log("updatedOrder", updatedOrder);
+                        const event = updatedOrder.eventId;
+                        yield this.eventRepository.decrementAvailableTickets(updatedOrder.eventId._id.toString(), updatedOrder.ticketCount);
+                        const tickets = yield this.paymentRepository.getTickets(updatedOrder._id);
+                        const pdfBuffer = yield generateTicketPDF(updatedOrder, tickets);
+                        const mailOptions = {
+                            from: process.env.EMAIL_USER,
+                            to: updatedOrder === null || updatedOrder === void 0 ? void 0 : updatedOrder.email,
+                            subject: `Your ticket for ${updatedOrder.eventTitle}`,
+                            text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(tickets, null, 2)}`,
+                            html: `<h3>Thank you for booking!</h3>
+        <p>Event: <b>${updatedOrder.eventTitle}</b></p>
+        <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
+        <p>Order ID: ${updatedOrder.orderId}</p>
+        <p>Venue:${event.venue}</p>
+        <p>Date:${event.date}
+        
+        `,
+                            attachments: [
+                                {
+                                    filename: 'ticket.pdf',
+                                    content: pdfBuffer
+                                }
+                            ]
+                        };
+                        yield transporter.sendMail(mailOptions);
+                        return { success: true, message: "Payment verified and ticket sent to email" };
                     }
                     else {
                         console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
@@ -190,7 +293,7 @@ class PaymentService {
                         return { success: true, refundId: refundId, message: "successfully updated" };
                     }
                     else {
-                        return { success: false, message: "failed to update" };
+                        return { success: false, message: response.message };
                     }
                 }
                 else {
@@ -200,6 +303,40 @@ class PaymentService {
             catch (error) {
                 console.error(error);
                 return { success: false, message: "failed to update" };
+            }
+        });
+    }
+    ticketsGet(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.paymentRepository.getTickets(orderId);
+                if (result) {
+                    return { success: true, result: result };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false };
+            }
+        });
+    }
+    ticketDetailsGet(userId, searchTerm, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.paymentRepository.getTicketDetails(userId, searchTerm, status);
+                if (result) {
+                    return { success: true, tickets: result };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false };
             }
         });
     }

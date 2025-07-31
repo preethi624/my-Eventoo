@@ -1,11 +1,17 @@
 import { EditOrg } from "src/interface/event";
-import { IOrganiser } from "../interface/IOrgAuth";
+import { GetOrganisers, IOrganiser } from "../interface/IOrgAuth";
 import Organiser from "../model/organiser";
 import { IAdminOrgRepository } from "./repositoryInterface/IAdminOrgRepository";
 
 export class AdminOrgRepository implements IAdminOrgRepository{
-    async getOrganiserAll():Promise<IOrganiser[]>{
-        return await Organiser.find()
+    async getOrganiserAll(limit:number,page:number):Promise<GetOrganisers>{
+        const skip=(page-1)*limit
+        const organisers=await Organiser.find().skip(skip).limit(limit);
+        const totalOrganisers=await Organiser.countDocuments();
+        const total=totalOrganisers/limit
+        return {result:organisers,total}
+
+
     }
     async editOrganiser(id:string,formData:EditOrg):Promise<IOrganiser|null>{
         return await Organiser.findByIdAndUpdate(id,formData,{new:true})

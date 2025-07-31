@@ -21,7 +21,10 @@ router.post('/organiserReapply/:orgId',authMiddlewarwSet.organiserOnly,organiser
 router.get('/venues',authMiddlewarwSet.organiserOnly,organiserController.getVenues.bind(organiserController));
 router.get('/venue/:venueId',authMiddlewarwSet.organiserOnly,organiserController.getVenueById.bind(organiserController));
 router.get('/getDashboard/:eventId',authMiddlewarwSet.organiserOnly,organiserController.getDashboard.bind(organiserController));
-router.get('/order/:eventId/:organiserId',authMiddlewarwSet.organiserOnly,organiserController.fetchAttendees.bind(organiserController))
+router.get('/order/:eventId/:organiserId',authMiddlewarwSet.organiserOnly,organiserController.fetchAttendees.bind(organiserController));
+router.get('/dashboardEvents/:organiserId',authMiddlewarwSet.organiserOnly,organiserController.getDashboardEvents.bind(organiserController));
+router.put('/checkin',authMiddlewarwSet.organiserOnly,organiserController.updateTicket.bind(organiserController))
+
 
 
 export default router

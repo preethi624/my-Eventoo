@@ -1,5 +1,5 @@
 
-import { CreateEvent, DashboardEvents, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "src/interface/event";
+import { CreateEvent, DashboardEvents, EventByCat, EventById, EventCount, EventEdit, EventFind, EventGet, IEventFilter, StatusCheck } from "src/interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
 
 
@@ -14,5 +14,7 @@ export interface IEventService{
         eventCountGet (organiserId:string):Promise<EventCount>;
         getDashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d'):Promise<DashboardEvents>
         getEvents(organiserId:string):Promise<EventGet>
+        eventFind(eventName:string):Promise<EventFind>
+        eventsFindByCat(category:string):Promise<EventByCat>
     
 }

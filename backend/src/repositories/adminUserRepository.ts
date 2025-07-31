@@ -1,4 +1,4 @@
-import { DashboardUsers } from "src/interface/IUser";
+import { DashboardUsers, GetUser } from "src/interface/IUser";
 import { EditUser, IUser } from "../interface/IUserAuth";
 import User from "../model/user";
 
@@ -8,8 +8,13 @@ import { IAdminUserRepository } from "./repositoryInterface/IAdminUserRepository
 
 
 export class AdminUserRepository implements IAdminUserRepository{
-    async getUserAll():Promise<IUser[]>{
-    return await User.find()
+    async getUserAll(limit:number,page:number):Promise<GetUser>{
+        const skip=(page-1)*limit
+    const users= await User.find().skip(skip).limit(limit).lean();
+    const totalUser=await User.countDocuments();
+    const total=totalUser/limit;
+
+    return {users,total}
     }
      async editUser(id:string,formData:EditUser):Promise<IUser|null>{
         return await User.findByIdAndUpdate(id,formData,{new:true})

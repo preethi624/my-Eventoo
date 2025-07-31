@@ -1,5 +1,6 @@
 import mongoose ,{Document,Schema}from "mongoose";
 export interface IOrder extends Document{
+  _id:string;
 
     userId:mongoose.Types.ObjectId;
     eventId:mongoose.Types.ObjectId;
@@ -16,6 +17,7 @@ export interface IOrder extends Document{
     bookingStatus:string;
    
     refundId:string;
+    email:string
    
    
 }
@@ -41,7 +43,9 @@ const orderSchema:Schema<IOrder>=new Schema<IOrder>({
   ,
   amount: {
     type: Number,
-    required: true,
+    required: function () {
+      return this.status !== "Not required";
+    },
   },
   currency: {
     type: String,
@@ -49,7 +53,7 @@ const orderSchema:Schema<IOrder>=new Schema<IOrder>({
   },
   status: {
     type: String,
-    enum: ['created', 'paid', 'failed','refunded'],
+    enum: ['created', 'paid', 'failed','refunded','Not required'],
     default: 'created',
   },
   bookingStatus:{
@@ -59,7 +63,9 @@ const orderSchema:Schema<IOrder>=new Schema<IOrder>({
   },
   razorpayOrderId: {
     type: String,
-    required: true,
+    required:  function () {
+    return this.amount > 0; 
+  },
   },
   razorpayPaymentId: {
     type: String,
@@ -77,6 +83,7 @@ const orderSchema:Schema<IOrder>=new Schema<IOrder>({
   },
  
   refundId: {type:String},
+  email:{type:String}
  
 
 })

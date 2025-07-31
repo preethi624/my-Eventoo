@@ -5,7 +5,8 @@ export interface IPaymentController{
     getOrders(req:Request,res:Response):Promise<void>;
     getOrderById(req:Request,res:Response):Promise<void>;
     failurePayment(req:Request,res:Response):Promise<void>;
-    findOrder(req:Request,res:Response):Promise<void>
+    findOrder(req:Request,res:Response):Promise<void>;
+    getTickets(req:Request,res:Response):Promise<void>
    
    
 }

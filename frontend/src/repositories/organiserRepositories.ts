@@ -253,19 +253,19 @@ export const getDashboard=async(eventId:string)=>{
     
   }
 }
-export const fetchAttendees=async(eventId:string,organiserId:string,searchTerm:string,filterStatus:string)=>{
+export const fetchAttendees=async(eventId:string,organiserId:string,searchTerm:string,filterStatus:string,currentPage:number,limit:number)=>{
   try {
     
  
     
 
-     const response=await axiosInstance.get(`${API_BASE_URL}/order/${eventId}/${organiserId}`,{params:{searchTerm,filterStatus}});
+     const response=await axiosInstance.get(`${API_BASE_URL}/order/${eventId}/${organiserId}`,{params:{searchTerm,filterStatus,currentPage,limit}});
      console.log("responseeee",response);
      
      
      
       if(response.data){
-    return {success:true,message:"status updated successfully",attendees:response.data}
+    return {success:true,message:"status updated successfully",attendee:response.data}
   }else{
     return {success:false,message:"Payment status updation  fails"}
   }
@@ -277,6 +277,60 @@ export const fetchAttendees=async(eventId:string,organiserId:string,searchTerm:s
   }
 
 }
+export const getDashboardEvents=async(organiserId:string,params: Record<string, string>)=>{
+
+ try {
+  console.log("params",params);
+  
+  
+   
+    
+ 
+    
+    const response=await axiosInstance.get(
+      `${API_BASE_URL}/dashboardEvents/${organiserId}`,{params}
+    )
+    
+    
+    
+    
+    
+    
+   
+    console.log("dash",response);
+    
+    
+    return response
+
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+}
+export const updateTicket=async(qrToken:string)=>{
+   try {
+   
+  const response=await axiosInstance.put(`${API_BASE_URL}/checkin`,{qrToken:qrToken})
+  if(response&&response.data){
+    return {message:response.data.message}
+  }else{
+    return {message:"scanning failed"}
+  }
+    
+  } catch (error) {
+      const axiosError = error as AxiosError;
+            throw axiosError.response?.data || axiosError.message; 
+
+    
+  }
+
+
+}
+
+
 
 export const organiserRepository={
     getOrganiserById,
@@ -288,7 +342,9 @@ export const organiserRepository={
     getVenues,
     getVenueById,
     getDashboard,
-    fetchAttendees
+    fetchAttendees,
+    getDashboardEvents,
+    updateTicket
 
  
   

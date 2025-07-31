@@ -1,8 +1,9 @@
 
 import { IEventService } from "./serviceInterface/IEventService";
 import { IEventRepository } from "../repositories/repositoryInterface/IEventRepository";
-import { CreateEvent, DashboardEvents, EventById, EventCount, EventEdit, EventGet, IEventFilter, StatusCheck } from "../interface/event";
+import { CreateEvent, DashboardEvents, EventByCat, EventById, EventCount, EventEdit, EventFind, EventGet, IEventFilter, StatusCheck } from "../interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
+import { IEvent } from "src/model/event";
 
 export class EventService implements IEventService{
     constructor(private eventRepository:IEventRepository){}
@@ -187,6 +188,42 @@ async getEvents(organiserId:string):Promise<EventGet>{
         return { success: false ,message:"failed"};
         
     }
+}
+async eventFind(eventName:string):Promise<EventFind>{
+    try {
+        const response=await this.eventRepository.findEvent(eventName);
+        if(response){
+            return {success:true,result:response}
+        }else{
+            return{success:false}
+        }
+        
+    } catch (error) {
+          console.error(error);
+        return { success: false }; 
+
+
+        
+    }
+}
+async eventsFindByCat(category:string):Promise<EventByCat>{
+    try {
+        const response=await this.eventRepository.findEventsByCat(category);
+        if(response){
+            return {success:true,result:response}
+        }else{
+            return{success:false}
+        }
+        
+    } catch (error) {
+          console.error(error);
+        return { success: false }; 
+
+
+        
+    }
+
+
 }
 
 }

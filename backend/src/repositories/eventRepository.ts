@@ -215,6 +215,22 @@ export class EventRepository extends BaseRepository<IEvent> implements IEventRep
     async getOrgEvents(organiserId:string):Promise<IEvent[]>{
       return await EventModel.find({organiser:organiserId})
 
+     
     }
+     async findEvent(eventName:string):Promise<IEvent|null>{
+     const trimmedName = eventName.trim().replace(/\s+/g, ''); 
+  const regex = new RegExp(trimmedName.split('').join('\\s*'), 'i');
+
+  return await EventModel.findOne({
+    title: { $regex: regex }
+  })
+        
+      }
+      async findEventsByCat(category:string):Promise<IEvent[]>{
+       
+        
+        return await EventModel.find({category: { $regex: new RegExp(`^${category}$`, 'i') }})
+
+      }
     
 }

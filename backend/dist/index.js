@@ -33,6 +33,7 @@ const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 const profileRoutes_1 = __importDefault(require("./routes/userRoutes/profileRoutes"));
 const adminOrderRoutes_1 = __importDefault(require("./routes/adminRoutes/adminOrderRoutes"));
 const adminVenueRoutes_1 = __importDefault(require("./routes/adminRoutes/adminVenueRoutes"));
+const categoryRoutes_1 = __importDefault(require("./routes/categoryRoutes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const db_1 = __importDefault(require("./config/db"));
 const http_1 = require("http");
@@ -67,6 +68,7 @@ app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../
 app.use('/api/auth', userAuthRoutes_1.default);
 app.use('/api/auth', organiserAuthRoutes_1.default);
 app.use('/api/auth', authRoutes_1.default);
+app.use('/api/category', categoryRoutes_1.default);
 app.use('/api/event', eventRoutes_1.default);
 app.use('/api/event', eventOrgRoutes_1.default);
 app.use('/api/organiser', organiserRoutes_1.default);

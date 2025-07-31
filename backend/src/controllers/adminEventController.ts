@@ -5,6 +5,7 @@ import { EditEvent, IEventFilter } from "src/interface/event";
 import { IEvent } from "src/model/event";
 import { StatusCode } from "../constants/statusCodeEnum";
 import { ParsedQs } from "qs";
+import { MESSAGES } from "../constants/messages";
 export class AdminEventController implements IAdminEventController{
     constructor(private adminEventService:IAdminEventService){};
     async getAllEvents(req:Request,res:Response):Promise<void>{
@@ -39,7 +40,7 @@ export class AdminEventController implements IAdminEventController{
     console.log(error);
     
 
-     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
   }
 
 
@@ -60,7 +61,7 @@ async eventEdit(req: Request<{id:string}, unknown,EditEvent>,  res: Response):Pr
   } catch (error) {
     console.log(error);
     
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR}); 
     
   }
   
@@ -85,7 +86,7 @@ async blockEvent(req: Request<unknown, unknown,IEvent>,  res: Response):Promise<
     console.log(error);
     
     
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
  
   
 
@@ -103,7 +104,7 @@ async getDashboard(req:Request,res:Response):Promise<void>{
     console.log(error);
     
     
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
  
     
   }

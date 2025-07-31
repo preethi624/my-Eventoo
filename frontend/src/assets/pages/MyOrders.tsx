@@ -10,6 +10,12 @@ import type { IGetOrdersResponse, IOrder } from '../../interfaces/IOrder';
 import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { jsPDF } from "jspdf";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
+
+
 
 
 
@@ -18,7 +24,7 @@ import { jsPDF } from "jspdf";
 
 
 const MyOrderPage: React.FC = () => {
-  console.log("myorder page renderd");
+
   
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +52,7 @@ useEffect(()=>{
  
 
   useEffect(() => {
+   
 
        fetchOrders();
 
@@ -60,11 +67,15 @@ useEffect(()=>{
     
     params.append('searchTerm',searchTerm);}
   if(statusFilter!='all')params.append('status',statusFilter)
+    
   
 
 
   const fetchOrders = async () => {
     try {
+   
+      
+    
 
       
  
@@ -75,6 +86,8 @@ useEffect(()=>{
       if(!userId){
         throw new Error("userId not present")
       }
+     
+      
       
       const response:IGetOrdersResponse=await paymentRepository.getOrders(userId,currentPage,limit,params.toString());
       console.log("response",response);
@@ -124,14 +137,7 @@ const handlePrevPage = () => {
 
  
 
-  /*const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800';
-      case 'created': return 'bg-yellow-100 text-yellow-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };*/
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-100 text-green-800';
@@ -185,59 +191,64 @@ const handlePrevPage = () => {
     // Default placeholder image
     return `https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format`;
   };
-  const handleCancelBooking=async(orderId:string)=>{
-    try {
-      const response=await paymentRepository.findOrder(orderId);
-      console.log("frontRes",response);
-      setRefundId(response.refund.response.refundId);
-      fetchOrders()
-      
+ 
+ const handleCancelBooking = async (orderId: string) => {
+  try {
+    const result = await MySwal.fire({
+      title: <p>Are you sure?</p>,
+      html: <p>Do you really want to cancel this booking?</p>,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, cancel it!',
+      cancelButtonText: 'No, keep it'
+    });
 
-      
+    if (result.isConfirmed) {
+      const response = await paymentRepository.findOrder(orderId);
+     if(response.success){
+       setRefundId(response.refund.response.refundId);
+      fetchOrders();
 
-      
-    } catch (error) {
-      console.log(error);
-      
-      
+      MySwal.fire(<p>Cancelled!</p>, <p>Your booking has been cancelled.</p>, 'success');
+
+     }else{
+       MySwal.fire(<p>Failed</p>, <p>{response.message}</p>, 'success');
+
+     }
+
+     
+    } else {
+      MySwal.fire(<p>Safe!</p>, <p>Your booking is not cancelled.</p>, 'info');
     }
+  } catch (error) {
+    console.log(error);
+    MySwal.fire(<p>Error</p>, <p>Something went wrong while cancelling the booking.</p>, 'error');
   }
+};
   console.log("refundid",refundId);
   
 
+  
   /*const handleDownloadTicket = async (orderId: string) => {
-    try {
-      const response = await fetch(`/api/orders/${orderId}/ticket`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `ticket-${orderId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }
-    } catch (err) {
-      console.error('Failed to download ticket:', err);
-    }
-  };*/
-  const handleDownloadTicket = async (orderId: string) => {
+    
+const response=await paymentRepository.getTickets(orderId);
+const tickets=response.result;
+if (!tickets || tickets.length === 0) return;
+
   const order = orders.find(o => o._id === orderId);
   if (!order) return;
 
   const doc = new jsPDF();
-
-  const qrText = `https://myeventsite.com/verify/${order._id}`; // Or any URL you want
-  const qrImage = await QRCode.toDataURL(qrText);
-
-  doc.text(`Ticket Confirmation`, 10, 10);
+   for (let i = 0; i < tickets.length; i++) {
+    doc.setFontSize(28);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(44, 62, 80);
+    doc.text("🧭 EVENTOO", 105, 25, { align: "center" });
+    const qrText = `https://myeventsite.com/verify/${response.result.qrToken}`; 
+    const qrImage = await QRCode.toDataURL(qrText);
+   doc.text(`Ticket Confirmation`, 10, 10);
   doc.text(`Event: ${order.eventTitle}`, 10, 20);
   doc.text(`Date: ${formatDate(order.eventDetails?.date.toString())}`, 10, 30);
   doc.text(`Venue: ${order.eventDetails?.venue}`, 10, 40);
@@ -245,11 +256,57 @@ const handlePrevPage = () => {
   doc.text(`Tickets: ${order.ticketCount}`, 10, 60);
   doc.text(`Amount Paid: ${formatCurrency(order.amount)}`, 10, 70);
 
-  // Draw QR code
+  
   doc.addImage(qrImage, 'PNG', 10, 80, 50, 50);
+   if (i !== tickets.length - 1) {
+      doc.addPage();
+    }
+  }
 
   doc.save(`ticket_${order.eventTitle.replace(/\s+/g, '_')}.pdf`);
+};*/
+const handleDownloadTicket = async (orderId: string) => {
+  const response = await paymentRepository.getTickets(orderId);
+  const tickets = response.result;
+  if (!tickets || tickets.length === 0) return;
+
+  const order = orders.find(o => o._id === orderId);
+  if (!order) return;
+
+  const doc = new jsPDF();
+
+  for (let i = 0; i < tickets.length; i++) {
+   
+    doc.setFontSize(16);
+    doc.setTextColor(0);
+    doc.text(" Ticket Confirmation ", 105, 45, { align: "center" });
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.rect(10, 55, 190, 65); 
+    doc.setFontSize(12);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Event: ${order.eventTitle}`, 20, 65);
+    doc.text(`Date: ${formatDate(order.eventDetails?.date.toString())}`, 20, 75);
+    doc.text(`Venue: ${order.eventDetails?.venue}`, 20, 85);
+    doc.text(`Order ID: ${order.orderId}`, 20, 95);
+    doc.text(`Tickets: ${order.ticketCount}`, 20, 105);
+    doc.text(`Amount Paid: ${formatCurrency(order.amount)}`, 20, 115);
+    const qrText = `https://myeventsite.com/verify/${tickets[i].qrToken}`;
+    const qrImage = await QRCode.toDataURL(qrText);
+    doc.addImage(qrImage, "PNG", 150, 70, 40, 40);
+    doc.setFontSize(11);
+    doc.setTextColor(80);
+    doc.text("✨ Thank you for booking with EVENTOO ✨", 105, 130, { align: "center" });
+
+    if (i !== tickets.length - 1) {
+      doc.addPage();
+    }
+  }
+
+  doc.save(`ticket_${order.eventTitle.replace(/\s+/g, "_")}.pdf`);
 };
+
 
   if (loading) {
     return (
@@ -365,7 +422,7 @@ const handlePrevPage = () => {
                         )}
                         <div className="flex items-center gap-1">
                          <Bookmark className="w-4 h-4" />
-                           {formatDate(order.eventDetails.createdAt.toString())}
+                           {formatDate(order.createdAt.toString())}
                         </div>
 
                       </div>

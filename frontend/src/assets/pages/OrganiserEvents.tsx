@@ -14,6 +14,7 @@ import { eventSchema } from '../../validations/eventValidations';
 import * as Yup from 'yup'
 import DataTable from '../components/DataTable';
 import { Link } from 'react-router-dom';
+import { categoryRepository } from '../../repositories/categoryRepository';
 
 
 
@@ -66,6 +67,7 @@ const OrganiserEvents: React.FC = () => {
  const [editEventId,setEditEventID]=useState('');
  const [searchTerm,setSearchTerm]=useState('');
    const [selectedDate, setSelectedDate] = useState('');
+   const [categories,setCategories]=useState<{_id:string;name:string}[]>([])
 
   const [editForm,setEditForm]=useState<EventEdit>({
     id:'',
@@ -107,8 +109,16 @@ const OrganiserEvents: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
+    fetchCategories();
+    
   }, [currentPage,searchTerm,selectedDate]);
-  console.log(editEventId);
+const fetchCategories=async()=>{
+  const response=await categoryRepository.getCategories();
+
+  
+
+  setCategories(response.cat)
+}
   
 
   const fetchEvents = async () => {
@@ -223,7 +233,7 @@ const validateCreateForm = () => {
     // Validate eventForm against the schema
     await eventSchema.validate(eventForm, { abortEarly: false });
 
-    // ✅ Passed - proceed to create event
+    
     console.log('Valid event data:', eventForm);
     // submit to API...
     const formData = new FormData();
@@ -604,11 +614,14 @@ const handleResetFilters = () => {
                     className="w-full border px-3 py-2 rounded"
                   >
                     <option value="">Select Category</option>
-                    <option value="music">Music</option>
-                    <option value="sports">Sports</option>
-                    <option value="arts">Arts</option>
-                    <option value="technology">Technology</option>
-                    <option value="Others">Others</option>
+                    {categories.map((category) => (
+  <option key={category._id} value={category.name}>
+    {category.name}
+  </option>
+))}
+
+  
+                    
                   </select>
                 </div>
               </div>

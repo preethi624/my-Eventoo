@@ -57,7 +57,7 @@ const fetchEventCreated=async()=>{
   if(!organiser?.id){
     throw new Error("organiserId not get")
   }
-  const response=await eventRepository.getEventsCreated(organiser?.id);
+  const response=await eventRepository.getEventsCreated();
   console.log("count",response);
   
   setOrganiserStats(response.result)

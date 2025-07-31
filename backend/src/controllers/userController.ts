@@ -2,13 +2,23 @@ import { Request, Response } from "express";
 import { IUserController } from "./controllerInterface/IUserController";
 import { IUserService } from "src/services/serviceInterface/IUserService";
 import { ProfileEdit } from "src/interface/IUser";
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 export class UserController implements IUserController {
   constructor(private userService: IUserService) {}
-  async getUser(req: Request, res: Response): Promise<void> {
+  async getUser(req:AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId;
+     
+      const userId=req.user?.id
+      if(!userId){
+        throw new Error("userId not get")
+      }
+     
       const response = await this.userService.userGet(userId);
-      console.log("respo", response);
+    
 
       if (response) {
         res.json({
@@ -24,12 +34,12 @@ export class UserController implements IUserController {
     }
   }
   async updateUser(
-    req: Request<{ userId: string }, unknown, ProfileEdit>,
+    req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
     try {
       const { name, email, phone, location, aboutMe } = req.body;
-      const userId = req.params.userId;
+      const userId = req.user?.id;
       const image = req.file?.filename;
       console.log("image", image);
 
@@ -41,6 +51,9 @@ export class UserController implements IUserController {
         aboutMe,
         profileImage: image,
       };
+      if(!userId){
+        throw new Error("userId not get")
+      }
       const response = await this.userService.userUpdate(data, userId);
       if (response.success) {
         res.json({

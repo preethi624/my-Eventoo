@@ -53,7 +53,9 @@ const orderSchema = new mongoose_1.Schema({
     },
     amount: {
         type: Number,
-        required: true,
+        required: function () {
+            return this.status !== "Not required";
+        },
     },
     currency: {
         type: String,
@@ -61,7 +63,7 @@ const orderSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: ['created', 'paid', 'failed', 'refunded'],
+        enum: ['created', 'paid', 'failed', 'refunded', 'Not required'],
         default: 'created',
     },
     bookingStatus: {
@@ -71,7 +73,9 @@ const orderSchema = new mongoose_1.Schema({
     },
     razorpayOrderId: {
         type: String,
-        required: true,
+        required: function () {
+            return this.amount > 0;
+        },
     },
     razorpayPaymentId: {
         type: String,
@@ -88,6 +92,7 @@ const orderSchema = new mongoose_1.Schema({
         type: Date
     },
     refundId: { type: String },
+    email: { type: String }
 });
 const Order = mongoose_1.default.model('Order', orderSchema);
 exports.default = Order;

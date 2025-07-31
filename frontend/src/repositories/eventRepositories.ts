@@ -185,7 +185,7 @@ export const getEvents=async(id:string,currentPage:number,limit:number,queryPara
   }
  
 }
-export const getEventsCreated=async(organiserId:string):Promise<EventCount>=>{
+export const getEventsCreated=async():Promise<EventCount>=>{
   try {
    
     
@@ -194,8 +194,8 @@ export const getEventsCreated=async(organiserId:string):Promise<EventCount>=>{
     
  
     
-    const response=await axiosInstance.get<EventCount>(
-      `${API_BASE_URL}/eventCount/${organiserId}`
+    const response=await axiosInstance.get(
+      `${API_BASE_URL}/eventCount`
     )
     
     
@@ -261,6 +261,36 @@ export const fetchEvents=async(id:string)=>{
   }
  
 }
+export const findEvent=async(eventName:string)=>{
+  const response=await axiosInstance.get(`${API_BASE_URL}/event?name=${encodeURIComponent(eventName)}`);
+  if(response){
+    return response.data
+  }
+}
+export const fetchEventsByCategory=async(category:string)=>{
+  try {
+   
+   
+    
+ 
+    
+    const response=await axiosInstance.get(
+      `${API_BASE_URL}/eventsByCat?name=${category}`
+    )
+    
+    
+    
+    
+    return response.data
+
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+}
 
 
 
@@ -277,7 +307,9 @@ export const eventRepository={
   getEvents,
   getEventsCreated,
   getDashboardEvents,
-  fetchEvents
+  fetchEvents,
+  findEvent,
+  fetchEventsByCategory
 
 
 }

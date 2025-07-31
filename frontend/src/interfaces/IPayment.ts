@@ -5,7 +5,8 @@ export interface OrderCreateInput{
     ticketCount:number;
     userId:string;
     eventId:string;
-    eventTitle:string
+    eventTitle:string;
+    email?:string
 }
 export interface RazorpayPaymentResponse {
   razorpay_payment_id: string;

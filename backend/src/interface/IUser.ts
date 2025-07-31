@@ -39,17 +39,34 @@ export interface DashboardUsers{
 
 }
 export interface OrderDashboard{
-  recentTransactions?:{
+  orders?:{
     date?:Date;
   id?:string;
   user?:string;
   event?:string;
   amount?:number;
   eventStatus?:string;
-  status?:string
+  status?:string;
+  organiserName?:string;
+  organiserEmail?:string;
+  eventDate?:Date;
+
   }[];
   success?:boolean;
   message?:string;
+  salesReport?:{
+    event: string;
+    eventDate: Date;
+    revenue: number,
+    ticketPrice: number,
+    user: string,
+    organiserName:string,
+    organiserEmail: string,
+  
+    adminEarning:number
+
+  }[];
+  totalAdminEarning?:number
 
 }
 export interface Attendees{
@@ -65,4 +82,11 @@ export interface Attendees{
       success?:boolean;
       message?:string;
       revenue?:number;
+      currentPage?:number;
+      totalPages?:number;
+      totalAttendees?:number
+}
+export interface GetUser{
+  users:IUser[];
+  total?:number
 }

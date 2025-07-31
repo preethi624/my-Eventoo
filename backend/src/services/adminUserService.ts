@@ -6,11 +6,12 @@ import { DashboardUsers } from "src/interface/IUser";
 
 export class AdminUserService implements IAdminUserService{
     constructor(private adminUserRepository:IAdminUserRepository){}
-    async getUsers():Promise<GetUsers>{
+    async getUsers(limit:number,page:number):Promise<GetUsers>{
+
   try {
-    const result:IUser[]=await this.adminUserRepository.getUserAll();
+    const result=await this.adminUserRepository.getUserAll(limit,page);
     if(result){
-      return {result:result,success:true,message:"Users fetched successfully"}
+      return {result:result.users,success:true,message:"Users fetched successfully",total:result.total}
     }else{
       return{success:false,message:"failed to fetch users"}
     }

@@ -8,9 +8,9 @@ import type { GetUser, ProfileEdit, UserUpdate } from '../interfaces/IUser';
 
 const API_BASE_URL="http://localhost:3000/api/user";
 
-export const getUserById=async(userId:string)=>{
+export const getUserById=async()=>{
   try {
-    const response=await axiosInstance.get<GetUser>(`${API_BASE_URL}/user/${userId}`);
+    const response=await axiosInstance.get(`${API_BASE_URL}/user`);
     return response.data
     
   } catch (error) {
@@ -23,9 +23,9 @@ export const getUserById=async(userId:string)=>{
 
 
 }
-export const updateUser=async(FormData:FormData,userId:string):Promise<UserUpdate>=>{
+export const updateUser=async(FormData:FormData):Promise<UserUpdate>=>{
     try {
-        const response=await axiosInstance.put(`${API_BASE_URL}/user/${userId}`,FormData);
+        const response=await axiosInstance.put(`${API_BASE_URL}/user`,FormData);
         console.log("repRes",response);
         
         if(response.data.success){

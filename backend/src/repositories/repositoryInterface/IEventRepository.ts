@@ -23,5 +23,8 @@ export interface IEventRepository{
   }[],adminCommissionPercentage:number,organiserEarning:number,totalEvents:number,totalAttendees:number,topEvents:IEvent[],upcomingEvents:IEvent[]
 }>
 getOrgEvents(organiserId:string):Promise<IEvent[]>
+findEvent(eventName:string):Promise<IEvent|null>
+findEventsByCat(category:string):Promise<IEvent[]>
+
     
 }

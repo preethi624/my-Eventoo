@@ -187,6 +187,40 @@ class EventService {
             }
         });
     }
+    eventFind(eventName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.eventRepository.findEvent(eventName);
+                if (response) {
+                    return { success: true, result: response };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false };
+            }
+        });
+    }
+    eventsFindByCat(category) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.eventRepository.findEventsByCat(category);
+                if (response) {
+                    return { success: true, result: response };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false };
+            }
+        });
+    }
 }
 exports.EventService = EventService;
 //# sourceMappingURL=eventService.js.map
