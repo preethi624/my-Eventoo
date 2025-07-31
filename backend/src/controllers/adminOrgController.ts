@@ -7,14 +7,19 @@ import { StatusCode } from "../constants/statusCodeEnum";
 import { mapOrganiserToDTO } from "../utils/mapOrganiserToDTO";
 import { organiserSocketMap } from "../socketMap";
 import {io} from '../index'
+import { MESSAGES } from "../constants/messages";
 export class AdminOrgController implements IAdminOrgController{
     constructor(private adminOrgService:IAdminOrgService){}
     async getAllOrganisers(req:Request,res:Response):Promise<void>{
   try {
-    const result=await this.adminOrgService.getOrganiser();
+     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 5;
+    const page = req.query.page ? parseInt(req.query.page as string, 10) : 1; 
+
+
+    const result=await this.adminOrgService.getOrganiser(limit,page);
   if(result.success&&result.result){
      const mappedOrganisers: IOrganiserDTO[] = result.result.map(mapOrganiserToDTO);
-    res.json({result:mappedOrganisers,message:result.message,success:true})
+    res.json({result:mappedOrganisers,message:result.message,success:true,total:result.total})
   }else{
     res.json({message:result.message,success:false})
 
@@ -25,7 +30,7 @@ export class AdminOrgController implements IAdminOrgController{
     console.log(error);
     
 
-     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+     res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
   }
 
 
@@ -45,7 +50,7 @@ async updateOrganiser(req: Request<{id:string}, unknown,EditOrg>,  res: Response
   } catch (error) {
     console.log(error);
     
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
     
   }
   
@@ -78,7 +83,7 @@ async blockOrganiser(req: Request<unknown, unknown,IOrganiser>,  res: Response):
     console.log(error);
     
     
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR}); 
  
   
 

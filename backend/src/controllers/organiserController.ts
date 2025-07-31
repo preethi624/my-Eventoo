@@ -5,6 +5,7 @@ import { StatusCode } from "../constants/statusCodeEnum";
 import { ProfileEdit } from "src/interface/IUser";
 import { ParsedQs } from "qs";
 import { OrgVenueFilter } from "src/interface/IVenue";
+import { MESSAGES } from "../constants/messages";
 
 export class OrganiserController implements IOrganiserController{
     constructor(private organiserService:IOrganiserService ){}
@@ -111,7 +112,7 @@ async updateOrganiser(req:Request<{organiserId:string},unknown,ProfileEdit>,res:
     const searchTerm=req.query.searchTerm as string
     const status=req.query.status as string;
     const date=req.query.date as string
-    console.log("date",date);
+   
     
    
     
@@ -129,7 +130,7 @@ async updateOrganiser(req:Request<{organiserId:string},unknown,ProfileEdit>,res:
         console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message: MESSAGES.COMMON.SERVER_ERROR,
         }); 
         
       }
@@ -165,7 +166,7 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
         console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message: MESSAGES.COMMON.SERVER_ERROR,
         }); 
         
       }
@@ -187,7 +188,7 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
         console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message: MESSAGES.COMMON.SERVER_ERROR,
         }); 
       }
       
@@ -231,7 +232,7 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
         console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message: MESSAGES.COMMON.SERVER_ERROR,
         }); 
         
       }
@@ -266,7 +267,7 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
         console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message:MESSAGES.COMMON.SERVER_ERROR,
         }); 
         
       }
@@ -302,7 +303,7 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
         console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message: MESSAGES.COMMON.SERVER_ERROR,
         }); 
         
       }
@@ -316,9 +317,13 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
         const organiserId=req.params.organiserId;
       const searchTerm = typeof req.query.searchTerm === 'string' ? req.query.searchTerm : '';
       const filterStatus=typeof req.query.filterStatus==='string'?req.query.filterStatus:'';
-        const response=await this.organiserService.attendeesFetch(eventId,organiserId,searchTerm,filterStatus);
+     
+      
+      const page=req.query.currentPage?parseInt(req.query.currentPage as string,10):1;
+      const limit=req.query.limit?parseInt(req.query.limit as string,10):6;
+        const response=await this.organiserService.attendeesFetch(eventId,organiserId,searchTerm,filterStatus,page,limit);
         if(response.success){
-          res.json({success:true,message:"fetched succeessfully",attendee:response.attendees,revenue:response.revenue})
+          res.json({success:true,message:"fetched succeessfully",attendee:response.attendees,revenue:response.revenue,currentPage:response.currentPage,totalPages:response.totalPages,totalAttendees:response.totalAttendees})
         }else{
           res.json({success:false,message:"failed"})
         }
@@ -327,7 +332,7 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
        console.error("Error in payment verification :", error);
       res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message:MESSAGES.COMMON.SERVER_ERROR,
         }); 
          
         
@@ -335,6 +340,67 @@ async getOrderDetails(req:Request,res:Response):Promise<void>{
 
     }
 
+async getDashboardEvents(req:Request,res:Response):Promise<void>{
+  try {
+    const organiserId=req.params.organiserId as string||'';
+      const { timeframe = '30d', startDate, endDate,selectedCategory ,selectedMonth,selectedYear} = req.query;
+
+
+const validTimeFrame = ['7d', '30d', '90d'].includes(timeframe as string)
+  ? (timeframe as '7d' | '30d' | '90d')
+  : '30d';
+   const start = typeof startDate === 'string' ? startDate : undefined;
+
+const end = typeof endDate === 'string' ? endDate: undefined;
+
+const category= typeof selectedCategory === 'string' ? selectedCategory: undefined;
+
+const month= typeof selectedMonth === 'string' ? selectedMonth: undefined;
+const year= typeof selectedYear === 'string' ? selectedYear: undefined;
+
+
+
+
+
+  const response=await this.organiserService.getDashboardEvents(organiserId,validTimeFrame,start,end,category,month,year);
+
+  
+  if(response.success){
+    res.json({success:true,events:response.events,data:response.data,adminPercentage:response.adminPercentage,organiserEarning:response.organiserEarning,totalEvents:response.totalEvents,totalAttendees:response.totalAttendees,topEvents:response.topEvents,upcomingEvents:response.upcomingEvents,orderDetails:response.orderDetails})
+  }
+  else{
+     res.status(StatusCode.NOT_FOUND).json({
+                success: false,
+                message: "No events found",
+            });
+  }
+    
+  } catch (error) {
+   console.error(error);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to fetch events",
+        });
+    } 
+    
+  }
+  async updateTicket(req:Request,res:Response):Promise<void>{
+    try {
+       const {qrToken}=req.body;
+    const response=await this.organiserService.ticketUpdate(qrToken);
+    res.json({message:response.message})
+
+      
+    } catch (error) {
+      console.log(error);
+      
+
+      
+    }
+   
+
+
+  }
  
 
 

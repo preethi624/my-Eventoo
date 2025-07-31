@@ -22,5 +22,6 @@ export interface OrganiserDetails{
 export interface OrganiserProfile{
   count?:number;
   success?:boolean;
+  
 }
   

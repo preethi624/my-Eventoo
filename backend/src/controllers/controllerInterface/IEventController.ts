@@ -10,6 +10,8 @@ export interface IEventController{
      eventGet(req:Request, res:Response):Promise<void>;
       getDashboardEvents(req:Request,res:Response):Promise<void>
       getOrgEvents(req:Request,res:Response):Promise<void>
+       findEvent(req:Request,res:Response):Promise<void>
+        findEventsByCat(req:Request,res:Response):Promise<void>
     
 
 }

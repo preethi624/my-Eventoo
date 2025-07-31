@@ -1,8 +1,8 @@
 import { EditOrg } from "src/interface/event";
-import { IOrganiser } from "src/interface/IOrgAuth";
+import { GetOrganisers, IOrganiser } from "src/interface/IOrgAuth";
 
 export interface IAdminOrgRepository{
-     getOrganiserAll():Promise<IOrganiser[]>;
+     getOrganiserAll(limit:number,page:number):Promise<GetOrganisers>;
      editOrganiser(id:string,formData:EditOrg):Promise<IOrganiser|null>;
       blockOrganiser(organiser:IOrganiser):Promise<IOrganiser|null>
 }

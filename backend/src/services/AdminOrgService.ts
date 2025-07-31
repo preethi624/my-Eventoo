@@ -7,11 +7,11 @@ import { GetOrganisers, GetOrgs, IOrganiser } from "src/interface/IOrgAuth";
 
 export class AdminOrgService implements IAdminOrgService{
     constructor(private adminOrgRepository:IAdminOrgRepository,private mailService:IMailService){}
-     async getOrganiser():Promise<GetOrganisers>{
+     async getOrganiser(limit:number,page:number):Promise<GetOrganisers>{
       try {
-        const result:IOrganiser[]=await this.adminOrgRepository.getOrganiserAll();
+        const result=await this.adminOrgRepository.getOrganiserAll(limit,page);
         if(result){
-          return {result:result,success:true,message:"Users fetched successfully"}
+          return {result:result.result,success:true,message:"Users fetched successfully",total:result.total}
         }else{
           return{success:false,message:"failed to fetch users"}
         }

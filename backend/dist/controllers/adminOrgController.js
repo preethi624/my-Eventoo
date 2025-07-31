@@ -14,6 +14,7 @@ const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 const mapOrganiserToDTO_1 = require("../utils/mapOrganiserToDTO");
 const socketMap_1 = require("../socketMap");
 const index_1 = require("../index");
+const messages_1 = require("../constants/messages");
 class AdminOrgController {
     constructor(adminOrgService) {
         this.adminOrgService = adminOrgService;
@@ -21,10 +22,12 @@ class AdminOrgController {
     getAllOrganisers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminOrgService.getOrganiser();
+                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+                const page = req.query.page ? parseInt(req.query.page, 10) : 1;
+                const result = yield this.adminOrgService.getOrganiser(limit, page);
                 if (result.success && result.result) {
                     const mappedOrganisers = result.result.map(mapOrganiserToDTO_1.mapOrganiserToDTO);
-                    res.json({ result: mappedOrganisers, message: result.message, success: true });
+                    res.json({ result: mappedOrganisers, message: result.message, success: true, total: result.total });
                 }
                 else {
                     res.json({ message: result.message, success: false });
@@ -32,7 +35,7 @@ class AdminOrgController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -52,7 +55,7 @@ class AdminOrgController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -78,7 +81,7 @@ class AdminOrgController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

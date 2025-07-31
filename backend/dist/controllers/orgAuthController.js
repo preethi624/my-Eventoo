@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrgAuthController = void 0;
+const messages_1 = require("../constants/messages");
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 class OrgAuthController {
     constructor(authService, setTokenService) {
@@ -27,20 +28,13 @@ class OrgAuthController {
                     return;
                 }
                 if (result.refreshToken) {
-                    /*res.cookie("refreshToken", result.refreshToken, {
-                      httpOnly: true,
-                      secure: process.env.NODE_ENV === "production",
-                      sameSite: "strict",
-                      path: "/refresh-token",
-                      maxAge: 7 * 24 * 60 * 60 * 1000,
-                    });*/
                     this.setTokenService.setRefreshToken(res, result.refreshToken);
                 }
                 res.json(result);
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

@@ -16,10 +16,13 @@ class UserController {
     }
     getUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const userId = req.params.userId;
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!userId) {
+                    throw new Error("userId not get");
+                }
                 const response = yield this.userService.userGet(userId);
-                console.log("respo", response);
                 if (response) {
                     res.json({
                         user: response,
@@ -38,11 +41,11 @@ class UserController {
     }
     updateUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             try {
                 const { name, email, phone, location, aboutMe } = req.body;
-                const userId = req.params.userId;
-                const image = (_a = req.file) === null || _a === void 0 ? void 0 : _a.filename;
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                const image = (_b = req.file) === null || _b === void 0 ? void 0 : _b.filename;
                 console.log("image", image);
                 const data = {
                     name,
@@ -52,6 +55,9 @@ class UserController {
                     aboutMe,
                     profileImage: image,
                 };
+                if (!userId) {
+                    throw new Error("userId not get");
+                }
                 const response = yield this.userService.userUpdate(data, userId);
                 if (response.success) {
                     res.json({

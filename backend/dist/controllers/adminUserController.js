@@ -14,6 +14,7 @@ const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 const mapUserToDTO_1 = require("../utils/mapUserToDTO");
 const socketMap_1 = require("../socketMap");
 const index_1 = require("../index");
+const messages_1 = require("../constants/messages");
 class AdminUserController {
     constructor(adminUserService) {
         this.adminUserService = adminUserService;
@@ -21,10 +22,12 @@ class AdminUserController {
     getAllUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminUserService.getUsers();
+                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+                const page = req.query.page ? parseInt(req.query.page, 10) : 1;
+                const result = yield this.adminUserService.getUsers(limit, page);
                 if (result.success && result.result) {
                     const mappedUsers = result.result.map(mapUserToDTO_1.mapUserToDTO);
-                    res.json({ result: mappedUsers, message: result.message, success: true });
+                    res.json({ result: mappedUsers, message: result.message, success: true, total: result.total });
                 }
                 else {
                     res.json({ message: result.message, success: false });
@@ -32,7 +35,7 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -52,7 +55,7 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -78,7 +81,7 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -95,7 +98,7 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

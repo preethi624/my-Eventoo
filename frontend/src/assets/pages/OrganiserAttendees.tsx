@@ -7,21 +7,29 @@ import type { CustomJwtPayload } from '../../interfaces/IUser';
 import { eventRepository } from '../../repositories/eventRepositories';
 
 import { organiserRepository } from '../../repositories/organiserRepositories';
+import OrganiserLayout from '../components/OrganiserLayout';
 
 
 
 export const AttendeesPage = () => {
  const [attendees,setAttendees]=useState<{amount:number,createdAt:Date,email:string,id:string,name:string,ticketCount:number,bookingStatus:string,orderId:string}[]>([])
-  const[events,setEvents]=useState<{_id:string,title:string,date:Date}[]>([])
+  const[events,setEvents]=useState<{_id:string,title:string,date:Date}[]>([]);
+  const [totalRevenue,setTotalRevenue]=useState(0)
   const [selectedEvent, setSelectedEvent] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterTicketType, setFilterTicketType] = useState('all');
+  const[attendeesLength,setAttendeesLength]=useState(0)
+  const limit=6;
+  const [currentPage,setCurrentPage]=useState(1);
+  const[totalPage,setTotalPage]=useState(1)
+
  const organiser= useSelector((state: RootState) => state.auth.organiser as CustomJwtPayload);
  const fetchEvents=async()=>{
   const response=await eventRepository.fetchEvents(organiser.id);
   const fetchedEvents=response.events
   console.log("response",response);
+  
 
 if (!selectedEvent && fetchedEvents.length > 0) {
       setSelectedEvent(fetchedEvents[0]._id);
@@ -32,9 +40,12 @@ if (!selectedEvent && fetchedEvents.length > 0) {
  const fetchAttendees=async()=>{
   if(!selectedEvent)return
   
-  const response=await organiserRepository.fetchAttendees(selectedEvent,organiser.id,searchTerm.trim(),filterStatus);
-  console.log("resss",response.attendees);
-  setAttendees(response.attendees.attendee)
+  const response=await organiserRepository.fetchAttendees(selectedEvent,organiser.id,searchTerm.trim(),filterStatus,currentPage,limit);
+  console.log("resss",response);
+ setAttendees(response.attendee.attendee||[]);
+ setTotalPage(response.attendee.totalPages)
+setTotalRevenue(response.attendee.revenue);
+setAttendeesLength(response.attendee.totalAttendees)
   
  }
  
@@ -45,7 +56,7 @@ if (!selectedEvent && fetchedEvents.length > 0) {
  },[])
  useEffect(() => {
     fetchAttendees();
-  }, [selectedEvent,searchTerm,filterStatus]);
+  }, [selectedEvent,searchTerm,filterStatus,currentPage]);
 
  
 
@@ -55,21 +66,30 @@ if (!selectedEvent && fetchedEvents.length > 0) {
   const stats = useMemo(() => {
     const total = attendees.length;
     
-    const totalRevenue = attendees.reduce((sum, a) => sum + a.amount/100, 0);
+    
     const totalTickets = attendees.reduce((sum, a) => sum + a.ticketCount, 0);
     
     return { total, totalRevenue, totalTickets };
   }, [attendees]);
 
+ const handleNextPage = () => {
+  if (currentPage < totalPage) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+const handlePrevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
   
 
-  const exportData = () => {
-    // In real app, this would generate and download CSV
-    console.log('Exporting attendee data...');
-  };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+    <OrganiserLayout>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -103,7 +123,7 @@ if (!selectedEvent && fetchedEvents.length > 0) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Attendees</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-2xl font-bold text-gray-900">{attendeesLength}</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-xl">
                 <Users className="w-6 h-6 text-blue-600" />
@@ -252,10 +272,40 @@ if (!selectedEvent && fetchedEvents.length > 0) {
                 ))}
               </tbody>
             </table>
-          </div>
+            {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
+  <button
+    onClick={handlePrevPage}
+    disabled={currentPage === 1}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+  {Array.from({ length: totalPage }, (_, index) => (
+    <button
+      key={index}
+      onClick={() => setCurrentPage(index + 1)}
+      className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}
+    >
+      {index + 1}
+    </button>
+  ))}
+  <button
+    onClick={handleNextPage}
+    disabled={currentPage === totalPage}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>)}
+            
 
           </div>
+          
+
+          </div>
+          
       </div>
+      </OrganiserLayout>
     </div>
   );
 };

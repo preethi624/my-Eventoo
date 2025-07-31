@@ -15,9 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminOrgRepository = void 0;
 const organiser_1 = __importDefault(require("../model/organiser"));
 class AdminOrgRepository {
-    getOrganiserAll() {
+    getOrganiserAll(limit, page) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield organiser_1.default.find();
+            const skip = (page - 1) * limit;
+            const organisers = yield organiser_1.default.find().skip(skip).limit(limit);
+            const totalOrganisers = yield organiser_1.default.countDocuments();
+            const total = totalOrganisers / limit;
+            return { result: organisers, total };
         });
     }
     editOrganiser(id, formData) {

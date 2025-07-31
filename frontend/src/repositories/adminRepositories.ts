@@ -82,17 +82,19 @@ export const adminLogin = async (
   }
 };
 
-export const getAllOrganisers=async():Promise<GetOrganisers>=>{
+export const getAllOrganisers=async(limit:number,currentPage:number):Promise<GetOrganisers>=>{
   try {
     const token=localStorage.getItem("adminToken");
-    const response = await axios.get<GetOrganisers>(
-      `${API_BASE_URL}/organisers`,
+    const response = await axios.get(
+      `${API_BASE_URL}/organisers?limit=${limit}&&page=${currentPage}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
+    console.log("resooo",response);
+    
     return response.data
 
    
@@ -153,19 +155,19 @@ export const organiserBlock=async(organiser:Organiser):Promise<EditOrganiser>=>{
 
 
 }
-export const getAllUsers=async()=>{
+export const getAllUsers=async(limit:number,currentPage:number)=>{
   try {
     const token=localStorage.getItem("adminToken");
-    const response = await axios.get<GetUsers>(
-      `${API_BASE_URL}/users`,
+    const response = await axios.get(
+      `${API_BASE_URL}/users?limit=${limit}&&page=${currentPage}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-   
-    
+   console.log("reee",response);
+       
     return response.data
 
    
@@ -527,12 +529,12 @@ const fetchUsers=async()=>{
     
   }
 }
-const getDashboardOrders=async()=>{
+const getDashboardOrders=async(params: Record<string, string>)=>{
   try {
      const token=localStorage.getItem("adminToken");
     const response = await axios.get(
       `${API_BASE_URL}/dashboardOrders`,
-      {
+      {params,
         headers: {
           Authorization: `Bearer ${token}`,
         },

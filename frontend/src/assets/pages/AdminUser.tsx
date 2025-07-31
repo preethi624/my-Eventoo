@@ -18,24 +18,32 @@ export interface User {
 
 const AdminUser: React.FC = () => {
   const [users, setUsers] = useState<IUser[]>([]);
+  const [totalPage,setTotalPage]=useState(1)
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IUser| null>(null);
+    const [currentPage,setCurrentPage]=useState(1);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
   });
+  const limit=10;
   
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [currentPage]);
 
   const fetchUsers = async () => {
     try {
-      const response = await adminRepository.getAllUsers();
+      const response = await adminRepository.getAllUsers(limit,currentPage);
       console.log("response",response);
+      
+   
       
       if (response.success&&response.result) {
         setUsers(response.result);
+        setTotalPage(response.total)
+       
+
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -129,6 +137,17 @@ const AdminUser: React.FC = () => {
     setSelectedUser(null);
     setFormData({ name: '', email: '' });
   };
+   const handleNextPage = () => {
+  if (currentPage < totalPage) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+const handlePrevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
 
   return (
     <AdminLayout>
@@ -240,6 +259,33 @@ const AdminUser: React.FC = () => {
           </div>
         </div>
       )}
+       
+        {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
+  <button
+    onClick={handlePrevPage}
+    disabled={currentPage === 1}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+  {Array.from({ length: totalPage }, (_, index) => (
+    <button
+      key={index}
+      onClick={() => setCurrentPage(index + 1)}
+      className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}
+    >
+      {index + 1}
+    </button>
+  ))}
+  <button
+    onClick={handleNextPage}
+    disabled={currentPage === totalPage}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>)}
+      
     </AdminLayout>
   );
 };

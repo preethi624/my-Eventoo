@@ -45,6 +45,10 @@ const UserNavbar: React.FC = () => {
           <Link to="/about" className="text-gray-700 hover:text-blue-600 font-medium">
             About Us
           </Link>
+           <Link to="/login" className="text-gray-700 hover:text-blue-600 font-medium">
+            Login
+          </Link>
+
           
           
           
@@ -60,7 +64,7 @@ const UserNavbar: React.FC = () => {
           <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium">
             Home
           </Link>
-          <Link to="/tickets" className="text-gray-700 hover:text-blue-600 font-medium">
+          <Link to="/userTickets" className="text-gray-700 hover:text-blue-600 font-medium">
             Tickets
           </Link>
 

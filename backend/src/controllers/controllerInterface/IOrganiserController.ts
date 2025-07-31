@@ -8,5 +8,7 @@ export interface IOrganiserController{
     getOrderDetails(req:Request,res:Response):Promise<void>;
     getVenues(req:Request,res:Response):Promise<void>;
     getVenueById(req:Request,res:Response):Promise<void>;
-    fetchAttendees(req:Request,res:Response):Promise<void>
+    fetchAttendees(req:Request,res:Response):Promise<void>;
+    getDashboardEvents(req:Request,res:Response):Promise<void>;
+     updateTicket(req:Request,res:Response):Promise<void>
 }

@@ -21,6 +21,7 @@ import chatRoutes from './routes/chatRoutes';
 import userProfileRoutes from './routes/userRoutes/profileRoutes'
 import adminOrderRoutes from './routes/adminRoutes/adminOrderRoutes'
 import adminVenueRoutes from './routes/adminRoutes/adminVenueRoutes'
+import categoryRoutes from './routes/categoryRoutes'
 
 
 
@@ -73,6 +74,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/auth',userRoutes );
 app.use('/api/auth',organiserRoutes );
 app.use('/api/auth',authRoutes)
+app.use('/api/category',categoryRoutes)
 
 
 app.use('/api/event',eventRoutes);

@@ -6,6 +6,11 @@ import { EventEdit, IEventFilter } from "src/interface/event";
 import {ParsedQs} from 'qs'
 
 import { StatusCode } from "../constants/statusCodeEnum";
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 
 
 export class EventController implements IEventController{
@@ -220,9 +225,12 @@ async eventGet(req:Request, res:Response):Promise<void> {
         });
     }
 };
-async getEventCount(req:Request, res:Response):Promise<void> {
+async getEventCount(req:AuthenticatedRequest, res:Response):Promise<void> {
     try {
-        const organiserId = req.params.organiserId;
+        const organiserId = req.user?.id;
+        if(!organiserId){
+          throw new Error("organiserId not get")
+        }
         const response = await  this.eventService.eventCountGet(organiserId);
         if (response) {
             res.json({ result: response, success: true });
@@ -294,6 +302,44 @@ async getDashboardEvents(req:Request,res:Response):Promise<void>{
     }
     
 
+  }
+  async findEvent(req:Request,res:Response):Promise<void>{
+    const eventName=req.query.name as string;
+    try {
+      const response=await this.eventService.eventFind(eventName);
+      if(response.success){
+        res.json({result:response.result})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error(error);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to fetch events",
+        });
+      
+    }
+  }
+  async findEventsByCat(req:Request,res:Response):Promise<void>{
+   const category=req.query.name as string;
+    try {
+      const response=await this.eventService.eventsFindByCat(category);
+      if(response.success){
+        res.json({result:response.result})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error(error);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to fetch events",
+        });
+      
+    }
   }
   
 

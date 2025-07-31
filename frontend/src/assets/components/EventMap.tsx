@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 type EventMapProps = {
-  venueName?: string; // No default
+  venueName?: string; 
   title?: string;
 };
 
@@ -13,10 +13,10 @@ const EventMap: React.FC<EventMapProps> = ({ venueName, title = "Event Location"
   const [lng, setLng] = useState<number | null>(null);
 
   useEffect(() => {
-    // Skip fetching if venueName is missing
+    
     if (!venueName) return;
 
-    // Fix Leaflet icon bug
+    
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
@@ -30,7 +30,7 @@ const EventMap: React.FC<EventMapProps> = ({ venueName, title = "Event Location"
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(venueName)}`,
           {
             headers: {
-              'User-Agent': 'eventManagement/1.0 (your@email.com)', // Required
+              'User-Agent': 'eventManagement/1.0 (your@email.com)', 
               'Referer': window.location.origin,
             },
           }
@@ -50,7 +50,7 @@ const EventMap: React.FC<EventMapProps> = ({ venueName, title = "Event Location"
     fetchCoordinates();
   }, [venueName]);
 
-  // If no venueName provided or location not found, don’t render the map
+  
   if (!venueName || lat === null || lng === null) {
     return null;
   }

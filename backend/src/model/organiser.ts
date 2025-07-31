@@ -1,6 +1,7 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model, ObjectId } from 'mongoose';
 
 export interface IOrganiser extends Document {
+  _id:string;
   name: string;
   email: string;
   password: string;

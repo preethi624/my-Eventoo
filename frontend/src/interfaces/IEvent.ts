@@ -34,6 +34,7 @@ export interface EventFetchResponse {
 export interface EventCount{
   count?:number;
   success:boolean;
+  
 
 }
 

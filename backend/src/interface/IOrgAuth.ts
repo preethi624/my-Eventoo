@@ -47,7 +47,8 @@ export interface IOrganiserDTO{
 }
 export interface GetOrganisers{
     result?:IOrganiser[];
-    message:string;
-    success:boolean;
+    message?:string;
+    success?:boolean;
+    total?:number
 
   }

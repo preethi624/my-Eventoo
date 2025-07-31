@@ -70,7 +70,7 @@ const VenueDetailsPage: React.FC = () => {
   };
 
   const handleBooking = () => {
-    // Navigate to booking page or handle booking logic
+    
     navigate(`/book-venue/${venue?._id}`);
   };
 
@@ -264,18 +264,7 @@ const VenueDetailsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-4 mb-6">
-                  <button
-                    onClick={handleBooking}
-                    disabled={venue.status !== 'active'}
-                    className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
-                      venue.status === 'active'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    {venue.status === 'active' ? 'Book Now' : 'Currently Unavailable'}
-                  </button>
-
+                  
                   <button
                     onClick={() => setShowContactModal(true)}
                     className="w-full py-3 px-6 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all"

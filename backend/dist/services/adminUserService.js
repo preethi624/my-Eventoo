@@ -14,12 +14,12 @@ class AdminUserService {
     constructor(adminUserRepository) {
         this.adminUserRepository = adminUserRepository;
     }
-    getUsers() {
+    getUsers(limit, page) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminUserRepository.getUserAll();
+                const result = yield this.adminUserRepository.getUserAll(limit, page);
                 if (result) {
-                    return { result: result, success: true, message: "Users fetched successfully" };
+                    return { result: result.users, success: true, message: "Users fetched successfully", total: result.total };
                 }
                 else {
                     return { success: false, message: "failed to fetch users" };

@@ -15,12 +15,12 @@ class AdminOrgService {
         this.adminOrgRepository = adminOrgRepository;
         this.mailService = mailService;
     }
-    getOrganiser() {
+    getOrganiser(limit, page) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminOrgRepository.getOrganiserAll();
+                const result = yield this.adminOrgRepository.getOrganiserAll(limit, page);
                 if (result) {
-                    return { result: result, success: true, message: "Users fetched successfully" };
+                    return { result: result.result, success: true, message: "Users fetched successfully", total: result.total };
                 }
                 else {
                     return { success: false, message: "failed to fetch users" };

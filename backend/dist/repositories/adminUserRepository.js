@@ -15,9 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminUserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
 class AdminUserRepository {
-    getUserAll() {
+    getUserAll(limit, page) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield user_1.default.find();
+            const skip = (page - 1) * limit;
+            const users = yield user_1.default.find().skip(skip).limit(limit).lean();
+            const totalUser = yield user_1.default.countDocuments();
+            const total = totalUser / limit;
+            return { users, total };
         });
     }
     editUser(id, formData) {

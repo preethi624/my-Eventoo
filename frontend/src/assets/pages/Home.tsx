@@ -1,10 +1,11 @@
 import {  useState, useEffect } from 'react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import type {FC} from 'react'
 import { motion } from 'framer-motion';
 
-import { FaCalendar, FaTicketAlt,  FaSearch, FaMapMarkerAlt, FaClock} from 'react-icons/fa';
+import { FaCalendar,   FaSearch, FaMapMarkerAlt, FaClock} from 'react-icons/fa';
 
 
 
@@ -13,23 +14,48 @@ import type { IEventDTO } from '../../interfaces/IEvent';
 import { eventRepository } from '../../repositories/eventRepositories';
 
 import Chatbot from '../components/Chatbot';
+import { categoryRepository } from '../../repositories/categoryRepository';
 
 
 
-const categories = [
-  "All", "Music", "Technology", "Sports", "Food", "Art", "Business", "Lifestyle"
-];
+
+
 
 const HomePage: FC = () => {
+  const [searchTerm,setSearchTerm]=useState("")
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [events, setEvents] = useState<IEventDTO[]>([]);
+    const navigate = useNavigate();
+    const [categories,setCategories]=useState<{_id:string;name:string}[]>([])
 
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
+    fetchCategories()
+    fetchEventsByCategory("Music");
+  setSelectedCategory("Music");
+
   }, []);
-  console.log(isVisible);
+  const fetchCategories=async()=>{
+    const response=await categoryRepository.getCategories();
+    setCategories(response.cat)
+   
+  }
+  const fetchEventsByCategory=async(category:string)=>{
+  
+    
+    const response=await eventRepository.fetchEventsByCategory(category);
+    
+    setEvents(response.result)
+  
+    
+
+  }
+    const handleEventClick = (id: string) => {
+    navigate(`/events/${id}`);
+  };
+ 
   
 
   const containerVariants = {
@@ -51,6 +77,12 @@ const HomePage: FC = () => {
       y: 0
     }
   };
+  const handleSearch=async()=>{
+    const response=await eventRepository.findEvent(searchTerm);
+  
+      navigate(`/events/${response.result._id}`);
+    
+  }
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -98,6 +130,12 @@ const HomePage: FC = () => {
                 <input
                   type="text"
                   placeholder="Search for events..."
+                  onChange={(e)=>setSearchTerm(e.target.value)}
+                  onKeyDown={(e)=>{
+                    if(e.key==='Enter'){
+                      handleSearch()
+                    }
+                  }}
                   className="w-full px-6 py-4 rounded-full text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 group-hover:bg-white"
                 />
                 <FaSearch className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
@@ -105,6 +143,7 @@ const HomePage: FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={handleSearch}
                 className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg transition-all duration-300 whitespace-nowrap"
               >
                 Explore Events
@@ -144,22 +183,28 @@ const HomePage: FC = () => {
           >
             {categories.map((category) => (
               <motion.button
-                key={category}
+                key={category._id}
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => {
+                  setSelectedCategory(category.name)
+                  fetchEventsByCategory(category.name)
+                }}
                 className={`px-6 py-2 rounded-full transition-all duration-300 ${
-                  selectedCategory === category
+                  selectedCategory === category.name
                     ? 'bg-black text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 } shadow-md`}
               >
-                {category}
+                {category.name}
               </motion.button>
             ))}
           </motion.div>
         </div>
+       
+      
+
       </section>
 
       {/* Featured Events Grid */}
@@ -205,10 +250,7 @@ const HomePage: FC = () => {
                         <div className="text-[#004d4d]-600 font-semibold text-lg">
                           ₹{event.ticketPrice}
                         </div>
-                        <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded hover:bg-purple-700 transition">
-                          <FaTicketAlt />
-                          Book Now
-                        </button>
+                        
                       </div>
                     </div>
                   </div>

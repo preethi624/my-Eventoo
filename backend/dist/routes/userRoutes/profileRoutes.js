@@ -13,7 +13,7 @@ const storage = multer_1.default.diskStorage({
 });
 const upload = (0, multer_1.default)({ storage });
 const router = express_1.default.Router();
-router.get('/user/:userId', middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.getUser.bind(userProfiledi_1.userController));
-router.put('/user/:userId', middleware_di_1.authMiddlewarwSet.userOnly, upload.single('image'), userProfiledi_1.userController.updateUser.bind(userProfiledi_1.userController));
+router.get('/user', middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.getUser.bind(userProfiledi_1.userController));
+router.put('/user', middleware_di_1.authMiddlewarwSet.userOnly, upload.single('image'), userProfiledi_1.userController.updateUser.bind(userProfiledi_1.userController));
 exports.default = router;
 //# sourceMappingURL=profileRoutes.js.map

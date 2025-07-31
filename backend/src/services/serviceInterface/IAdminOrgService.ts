@@ -3,7 +3,7 @@ import { GetOrganisers, GetOrgs, IOrganiser } from "src/interface/IOrgAuth";
 
 
 export interface IAdminOrgService{
-     getOrganiser():Promise<GetOrganisers>;
+     getOrganiser(limit:number,page:number):Promise<GetOrganisers>;
      organiserUpdate(id:string,formData:EditOrg):Promise<GetOrgs>
       organiserBlock(organiser:IOrganiser):Promise<GetOrgs>
 }

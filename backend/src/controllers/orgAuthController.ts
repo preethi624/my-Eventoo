@@ -1,3 +1,4 @@
+import { MESSAGES } from "../constants/messages";
 import { StatusCode } from "../constants/statusCodeEnum";
 import { CredentialResponse, LoginBody, LoginResult, RegisterBody, RegisterResult, Resend, VerifyBody } from "../interface/IUserAuth";
 import { IOrgAuthService } from "../services/serviceInterface/IOrgAuthService";
@@ -21,13 +22,7 @@ export class OrgAuthController implements IOrgAuthController{
 
       }
       if (result.refreshToken) {
-      /*res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/refresh-token",
-        maxAge: 7 * 24 * 60 * 60 * 1000,  
-      });*/
+      
        this.setTokenService.setRefreshToken(res,result.refreshToken)
 
     }
@@ -39,7 +34,7 @@ export class OrgAuthController implements IOrgAuthController{
     } catch (error) {
       console.log(error);
       
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
       
     }
    

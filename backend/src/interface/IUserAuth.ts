@@ -93,6 +93,7 @@ export interface IOtp {
   }
   export interface GetUsers{
     result?:IUser[];
+    total?:number
     message:string;
     success:boolean;
     user?:IUser

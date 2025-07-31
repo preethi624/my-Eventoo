@@ -8,6 +8,7 @@ import {
   FaChartBar,
   FaUsers,
   FaCog,
+  FaSignInAlt,
 } from 'react-icons/fa';
 
 const links = [
@@ -24,6 +25,8 @@ const links = [
   { to: '/analytics', icon: <FaChartBar />, label: 'Analytics' },
   { to: '/organiserAttendees', icon: <FaUsers />, label: 'Attendees' },
   { to: '/settings', icon: <FaCog />, label: 'Settings' },
+  { to: '/checkin', icon: <	FaSignInAlt/>, label: 'Checkin' },
+
 ];
 
 const OrganiserSidebar: React.FC = () => {

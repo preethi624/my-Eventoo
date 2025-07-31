@@ -20,55 +20,12 @@ const user_1 = __importDefault(require("../model/user"));
 const order_1 = __importDefault(require("../model/order"));
 dotenv_1.default.config();
 const ai = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-/*export class ChatRepository implements IChatRepository{
-    async createChat(prompt:string|object,userId:string):Promise<GeminiResponse>{
-        try {
-          
-          
-          
-          const promptString = typeof prompt === "string" ? prompt : JSON.stringify(prompt);
-            
-           
-            const model=ai.getGenerativeModel({model:"gemini-1.5-flash"});
-            const result=await model.generateContent({contents:[
-                 {
-          role: "user",
-          parts: [
-            { text: promptString }
-          ]
-        }
-            ]});
-            const responseText =result?.response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-            
-            
-            return {
-                text:responseText
-            }
-            
-        } catch (error) {
-            console.error("Error generating Gemini response:", error);
-            if (typeof error === "object" && error !== null && "status" in error) {
-            if (error.status === 429) {
-      console.warn("Gemini API quota exceeded. Please try again later.");
-      return { text: "I'm currently experiencing a high volume of requests. Please try again in a minute!" };
-    }
-  }
-           throw new Error("Failed to generate response");
-            
-        }
-
-    }
-
-
-
-}*/
 class ChatRepository {
     createChat(userMessage, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c, _d, _e, _f;
             try {
                 let relevantData = "No system data needed for this question.";
-                // Tickets sold logic
                 if (userMessage.toLowerCase().includes("tickets")) {
                     const match = userMessage.match(/for (.+)/i);
                     const eventName = match ? match[1].trim() : "";
@@ -141,7 +98,6 @@ class ChatRepository {
                                 : `No ${foundCategory ? foundCategory + " " : ""}events found on ${dateStr}.`;
                     }
                 }
-                // Build prompt
                 const prompt = `
 You are an assistant for an Event Management System.
 

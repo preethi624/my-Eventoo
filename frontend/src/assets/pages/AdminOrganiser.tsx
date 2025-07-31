@@ -24,6 +24,10 @@ const AdminOrganiser: React.FC = () => {
   const [organisers, setOrganisers] = useState<Organiser[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedOrganiser, setSelectedOrganiser] = useState<Organiser | null>(null);
+  const [currentPage,setCurrentPage]=useState(1);
+    const [totalPage,setTotalPage]=useState(1);
+    const  limit=10;
+
   const [formData, setFormData] = useState<Omit<Organiser, '_id'>>({
     name: '',
     email: '',
@@ -36,15 +40,16 @@ const AdminOrganiser: React.FC = () => {
 
   useEffect(() => {
     fetchOrganisers();
-  }, []);
+  }, [currentPage]);
 
   const fetchOrganisers = async () => {
     try {
-      const response = await adminRepository.getAllOrganisers();
+      const response = await adminRepository.getAllOrganisers(limit,currentPage);
     
       
       if (response.success&&response.result) {
         setOrganisers(response.result);
+        setTotalPage(response.total)
       }
     } catch (error: any) {
       console.error('Error fetching organisers:', error);
@@ -152,6 +157,17 @@ const AdminOrganiser: React.FC = () => {
         return <span className={`${base} bg-yellow-100 text-yellow-800`}>Pending</span>;
     }
   };
+   const handleNextPage = () => {
+  if (currentPage < totalPage) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+const handlePrevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
 
   return (
     <AdminLayout>
@@ -281,6 +297,31 @@ const AdminOrganiser: React.FC = () => {
           </div>
         </div>
       )}
+       {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
+  <button
+    onClick={handlePrevPage}
+    disabled={currentPage === 1}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+  {Array.from({ length: totalPage }, (_, index) => (
+    <button
+      key={index}
+      onClick={() => setCurrentPage(index + 1)}
+      className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}
+    >
+      {index + 1}
+    </button>
+  ))}
+  <button
+    onClick={handleNextPage}
+    disabled={currentPage === totalPage}
+    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>)}
     </AdminLayout>
   );
 };

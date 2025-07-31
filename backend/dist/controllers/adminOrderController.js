@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminOrderController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
+const messages_1 = require("../constants/messages");
 class AdminOrderController {
     constructor(adminOrderService) {
         this.adminOrderService = adminOrderService;
@@ -38,16 +39,25 @@ class AdminOrderController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
     getDashboardOrders(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminOrderService.getDashboard();
+                const { timeframe = '30d', startDate, endDate, selectedCategory, selectedMonth, selectedYear } = req.query;
+                const validTimeFrame = ['7d', '30d', '90d'].includes(timeframe)
+                    ? timeframe
+                    : '30d';
+                const start = typeof startDate === 'string' ? startDate : undefined;
+                const end = typeof endDate === 'string' ? endDate : undefined;
+                const category = typeof selectedCategory === 'string' ? selectedCategory : undefined;
+                const month = typeof selectedMonth === 'string' ? selectedMonth : undefined;
+                const year = typeof selectedYear === 'string' ? selectedYear : undefined;
+                const result = yield this.adminOrderService.getDashboard(validTimeFrame, start, end, category, month, year);
                 if (result.success) {
-                    res.json({ result: result.recentTransactions, message: result.message, success: true });
+                    res.json({ result: result.orders, message: result.message, success: true, salesReport: result.salesReport, totalAdminEarning: result.totalAdminEarning });
                 }
                 else {
                     res.json({ message: result.message, success: false });
@@ -55,7 +65,7 @@ class AdminOrderController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

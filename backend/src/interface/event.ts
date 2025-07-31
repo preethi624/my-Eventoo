@@ -2,7 +2,7 @@ import { IEvent } from "src/model/event";
 
 import { IUser } from "./IUserAuth";
 import { IOrganiser } from "./IOrgAuth";
-import { IOrder } from "src/model/order";
+
 import { IAdminOrder } from "./IAdmin";
 
 export interface EventGet{
@@ -164,7 +164,24 @@ export interface DashboardEvents{
   totalAttendees?:number,
   topEvents?:IEvent[],
   upcomingEvents?:IEvent[],
+  orderDetails?: {
+    name: string;
+    email: string;
+    eventTitle: string;
+    eventDate: Date;
+    orderDate: Date;
+    amount: number;
+    ticketCount: number;
+  }[];
  
+}
+export interface EventFind{
+  result?:IEvent;
+  success:boolean;
+}
+export interface EventByCat{
+  result?:IEvent[];
+  success?:boolean
 }
 
 

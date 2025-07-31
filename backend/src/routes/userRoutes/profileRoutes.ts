@@ -10,6 +10,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 const router=express.Router()
-router.get('/user/:userId',authMiddlewarwSet.userOnly, userController.getUser.bind(userController));
-router.put('/user/:userId',authMiddlewarwSet.userOnly,upload.single('image'), userController.updateUser.bind(userController))
+router.get('/user',authMiddlewarwSet.userOnly, userController.getUser.bind(userController));
+router.put('/user',authMiddlewarwSet.userOnly,upload.single('image'), userController.updateUser.bind(userController))
 export default router

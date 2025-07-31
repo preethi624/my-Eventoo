@@ -4,6 +4,7 @@ import { LoginBody, LoginResult } from "src/interface/IUserAuth";
 import { IAdminAuthController } from "./controllerInterface/IAdminAuthController";
 import { IAdminAuthService } from "src/services/serviceInterface/IAdminAuthService";
 import { StatusCode } from "../constants/statusCodeEnum";
+import { MESSAGES } from "../constants/messages";
 
 
 
@@ -32,7 +33,7 @@ export class AdminAuthController implements IAdminAuthController{
       console.log(error);
       
 
-         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" }); 
+         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
       
         
     }

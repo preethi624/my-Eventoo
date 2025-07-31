@@ -56,7 +56,7 @@ const fetchEventBooked=async()=>{
   if(!user?.id){
     throw new Error("userId not get")
   }
-  const response=await paymentRepository.getEventBooked(user?.id);
+  const response=await paymentRepository.getEventBooked();
   setUserStats(response)
  
   
@@ -83,7 +83,7 @@ const fetchEventBooked=async()=>{
       if(!user?.id){
         throw new Error("not any user found")
       }
-      const response = await userRepository.getUserById(user?.id);
+      const response = await userRepository.getUserById();
       console.log("responseee",response);
       
     
@@ -125,7 +125,7 @@ const fetchEventBooked=async()=>{
       formDataToSend.append('image', selectedImageFile); 
     }
       
-      const response = await userRepository.updateUser(formDataToSend,user?.id)
+      const response = await userRepository.updateUser(formDataToSend)
      
       if (response) {
         setIsEditing(false);
@@ -223,10 +223,7 @@ const fetchEventBooked=async()=>{
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-blue-50 rounded-xl p-4">
-                <div className="text-blue-600 text-sm font-medium">Events Attended</div>
-                <div className="text-2xl font-bold text-blue-900">{userStats.eventsAttended}</div>
-              </div>
+             
               <div className="bg-purple-50 rounded-xl p-4">
                 <div className="text-purple-600 text-sm font-medium">Events Booked</div>
                 <div className="text-2xl font-bold text-purple-900">{userStats.eventsBooked}</div>

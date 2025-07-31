@@ -169,12 +169,12 @@ class OrganiserService {
             }
         });
     }
-    attendeesFetch(eventId, organiserId, filters, filterStatus) {
+    attendeesFetch(eventId, organiserId, filters, filterStatus, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.organiserRepository.fetchAttendees(eventId, organiserId, filters, filterStatus);
+                const response = yield this.organiserRepository.fetchAttendees(eventId, organiserId, filters, filterStatus, page, limit);
                 if (response) {
-                    return { success: true, message: "fetched successfully", attendees: response.attendees, revenue: response.revenue };
+                    return { success: true, message: "fetched successfully", attendees: response.attendees, revenue: response.revenue, currentPage: response.currentPage, totalPages: response.totalPages, totalAttendees: response.totalAttendees };
                 }
                 else {
                     return { success: false, message: "failed" };
@@ -183,6 +183,36 @@ class OrganiserService {
             catch (error) {
                 console.error(error);
                 return { success: false, message: "failed to fetch attendees" };
+            }
+        });
+    }
+    getDashboardEvents(organiserId, timeFrame, startDate, endDate, category, month, year) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log("serviceStart", startDate);
+                const response = yield this.organiserRepository.dashboardEvents(organiserId, timeFrame, startDate, endDate, category, month, year);
+                if (response) {
+                    return { success: true, events: response.events, message: "event fetched successfully", data: response.data, adminPercentage: response.adminCommissionPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents, orderDetails: response.orderDetails };
+                }
+                else {
+                    return { success: false, message: "failed to fetch events" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed" };
+            }
+        });
+    }
+    ticketUpdate(qrToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.organiserRepository.updateTicket(qrToken);
+                return { message: response.message };
+            }
+            catch (error) {
+                console.log(error);
+                return { message: "failed" };
             }
         });
     }

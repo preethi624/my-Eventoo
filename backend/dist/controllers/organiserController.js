@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrganiserController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
+const messages_1 = require("../constants/messages");
 class OrganiserController {
     constructor(organiserService) {
         this.organiserService = organiserService;
@@ -97,7 +98,6 @@ class OrganiserController {
                 const searchTerm = req.query.searchTerm;
                 const status = req.query.status;
                 const date = req.query.date;
-                console.log("date", date);
                 const response = yield this.organiserService.bookingFetch(organiserId, limit, page, searchTerm, status, date);
                 if (response.success) {
                     res.json({ message: response.message, success: true, result: response.result, totalPages: response.totalPages, currentPage: response.currentPage });
@@ -110,7 +110,7 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -132,7 +132,7 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -153,7 +153,7 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -180,7 +180,7 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -201,7 +201,7 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -222,7 +222,7 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -234,9 +234,11 @@ class OrganiserController {
                 const organiserId = req.params.organiserId;
                 const searchTerm = typeof req.query.searchTerm === 'string' ? req.query.searchTerm : '';
                 const filterStatus = typeof req.query.filterStatus === 'string' ? req.query.filterStatus : '';
-                const response = yield this.organiserService.attendeesFetch(eventId, organiserId, searchTerm, filterStatus);
+                const page = req.query.currentPage ? parseInt(req.query.currentPage, 10) : 1;
+                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 6;
+                const response = yield this.organiserService.attendeesFetch(eventId, organiserId, searchTerm, filterStatus, page, limit);
                 if (response.success) {
-                    res.json({ success: true, message: "fetched succeessfully", attendee: response.attendees, revenue: response.revenue });
+                    res.json({ success: true, message: "fetched succeessfully", attendee: response.attendees, revenue: response.revenue, currentPage: response.currentPage, totalPages: response.totalPages, totalAttendees: response.totalAttendees });
                 }
                 else {
                     res.json({ success: false, message: "failed" });
@@ -246,8 +248,53 @@ class OrganiserController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
+            }
+        });
+    }
+    getDashboardEvents(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const organiserId = req.params.organiserId || '';
+                const { timeframe = '30d', startDate, endDate, selectedCategory, selectedMonth, selectedYear } = req.query;
+                const validTimeFrame = ['7d', '30d', '90d'].includes(timeframe)
+                    ? timeframe
+                    : '30d';
+                const start = typeof startDate === 'string' ? startDate : undefined;
+                const end = typeof endDate === 'string' ? endDate : undefined;
+                const category = typeof selectedCategory === 'string' ? selectedCategory : undefined;
+                const month = typeof selectedMonth === 'string' ? selectedMonth : undefined;
+                const year = typeof selectedYear === 'string' ? selectedYear : undefined;
+                const response = yield this.organiserService.getDashboardEvents(organiserId, validTimeFrame, start, end, category, month, year);
+                if (response.success) {
+                    res.json({ success: true, events: response.events, data: response.data, adminPercentage: response.adminPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents, orderDetails: response.orderDetails });
+                }
+                else {
+                    res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
+                        success: false,
+                        message: "No events found",
+                    });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: "Failed to fetch events",
+                });
+            }
+        });
+    }
+    updateTicket(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { qrToken } = req.body;
+                const response = yield this.organiserService.ticketUpdate(qrToken);
+                res.json({ message: response.message });
+            }
+            catch (error) {
+                console.log(error);
             }
         });
     }
