@@ -10,27 +10,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminOrgService = void 0;
+const messages_1 = require("../constants/messages");
 class AdminOrgService {
-    constructor(adminOrgRepository, mailService) {
-        this.adminOrgRepository = adminOrgRepository;
+    constructor(_adminOrgRepository, mailService) {
+        this._adminOrgRepository = _adminOrgRepository;
         this.mailService = mailService;
     }
-    getOrganiser(limit, page) {
+    getOrganiser(limit, page, searchTerm, filterStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminOrgRepository.getOrganiserAll(limit, page);
+                const result = yield this._adminOrgRepository.getOrganiserAll(limit, page, searchTerm, filterStatus);
                 if (result) {
-                    return { result: result.result, success: true, message: "Users fetched successfully", total: result.total };
+                    return {
+                        result: result.result,
+                        success: true,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                        total: result.total,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch users" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -38,14 +44,14 @@ class AdminOrgService {
     organiserUpdate(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminOrgRepository.editOrganiser(id, formData);
+                const response = yield this._adminOrgRepository.editOrganiser(id, formData);
                 console.log("resee", formData);
                 if (response) {
                     const mailOptions = {
                         from: process.env.EMAIL_USER,
                         to: formData.email,
-                        subject: 'Eventoo account status updated by admin',
-                        text: ` Your Eventoo account ${formData.status} by admin`
+                        subject: "Eventoo account status updated by admin",
+                        text: ` Your Eventoo account ${formData.status} by admin`,
                     };
                     this.mailService.sendMail(mailOptions);
                     //await transporter.sendMail(mailOptions);
@@ -56,10 +62,10 @@ class AdminOrgService {
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -67,19 +73,23 @@ class AdminOrgService {
     organiserBlock(organiser) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminOrgRepository.blockOrganiser(organiser);
+                const response = yield this._adminOrgRepository.blockOrganiser(organiser);
                 if (response) {
-                    return { organiser: response, success: true, message: "Organiser blocked successfully" };
+                    return {
+                        organiser: response,
+                        success: true,
+                        message: "Organiser blocked successfully",
+                    };
                 }
                 else {
                     return { success: false, message: "failed to block" };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });

@@ -44,7 +44,7 @@ const eventSchema = new mongoose_1.Schema({
             validator: function (value) {
                 return value >= new Date(new Date().setHours(0, 0, 0, 0));
             },
-            message: 'Event date must be today or in the future.',
+            message: "Event date must be today or in the future.",
         },
     },
     time: { type: String, required: true },
@@ -53,11 +53,11 @@ const eventSchema = new mongoose_1.Schema({
     ticketPrice: { type: Number, required: true },
     capacity: { type: Number, required: true },
     images: { type: [String], default: [] },
-    organiser: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'organiser' },
+    organiser: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "organiser" },
     status: {
         type: String,
-        enum: ['draft', 'published', 'completed', 'cancelled'],
-        default: 'draft',
+        enum: ["draft", "published", "completed", "cancelled"],
+        default: "draft",
     },
     availableTickets: { type: Number, default: 0 },
     ticketsSold: { type: Number, default: 0 },
@@ -65,12 +65,12 @@ const eventSchema = new mongoose_1.Schema({
     longitude: { type: Number, default: 76.2673 },
     isBlocked: { type: Boolean, default: false },
 }, { timestamps: true });
-eventSchema.pre('save', function (next) {
+eventSchema.pre("save", function (next) {
     if (this.isNew) {
         this.availableTickets = this.capacity;
     }
     next();
 });
-const EventModel = mongoose_1.default.model('Event', eventSchema);
+const EventModel = mongoose_1.default.model("Event", eventSchema);
 exports.default = EventModel;
 //# sourceMappingURL=event.js.map

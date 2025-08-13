@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import type { ChangeEvent,FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import React, { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
-import  type { AppDispatch } from '../../redux/stroe';
-import { loginAdmin } from '../../redux/thunk/adminAuthThunk';
+import type { AppDispatch } from "../../redux/stroe";
+import { loginAdmin } from "../../redux/thunk/adminAuthThunk";
 
 interface FormData {
   email: string;
@@ -16,11 +16,11 @@ const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,27 +30,26 @@ const AdminLogin: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const result = await dispatch(loginAdmin(formData))
-      console.log("res",result);
-      
+      const result = await dispatch(loginAdmin(formData));
+      console.log("res", result);
 
-      if (result.success&&result.token) {
-        localStorage.setItem('adminToken', result.token);
+      if (result.success && result.token) {
+        localStorage.setItem("adminToken", result.token);
         console.log("login success");
-        
-      
-        
-        navigate('/adminDashboard');
+
+        navigate("/adminDashboard");
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message || "Login failed");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-blue-700">
       <div className="bg-white shadow-md rounded-xl w-full max-w-md p-8">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Admin Login
+        </h2>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">

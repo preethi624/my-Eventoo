@@ -11,13 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 class UserService {
-    constructor(userRepository) {
-        this.userRepository = userRepository;
+    constructor(_userRepository) {
+        this._userRepository = _userRepository;
     }
     userGet(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.userRepository.getUser(userId);
+                const result = yield this._userRepository.getUser(userId);
                 if (result) {
                     return { user: result, success: true, message: "fetched success" };
                 }
@@ -34,10 +34,14 @@ class UserService {
     userUpdate(data, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.userRepository.updateUser(data, userId);
+                const result = yield this._userRepository.updateUser(data, userId);
                 console.log("resu;lt", result);
                 if (result) {
-                    return { result: result, success: true, message: "user updated successfully" };
+                    return {
+                        result: result,
+                        success: true,
+                        message: "user updated successfully",
+                    };
                 }
                 else {
                     return { success: false, message: "failed to update" };
@@ -46,6 +50,23 @@ class UserService {
             catch (error) {
                 console.log(error);
                 return { success: false, message: "failed to update" };
+            }
+        });
+    }
+    orgsGet() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._userRepository.getOrgs();
+                if (response) {
+                    return { organisers: response, success: true };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                throw error;
             }
         });
     }

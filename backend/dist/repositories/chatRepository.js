@@ -19,7 +19,7 @@ const event_1 = __importDefault(require("../model/event"));
 const user_1 = __importDefault(require("../model/user"));
 const order_1 = __importDefault(require("../model/order"));
 dotenv_1.default.config();
-const ai = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const ai = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 class ChatRepository {
     createChat(userMessage, userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -31,7 +31,7 @@ class ChatRepository {
                     const eventName = match ? match[1].trim() : "";
                     if (eventName) {
                         const event = yield event_1.default.findOne({
-                            title: { $regex: new RegExp(`^${eventName}$`, 'i') }
+                            title: { $regex: new RegExp(`^${eventName}$`, "i") },
                         });
                         if (event) {
                             const ticketsSold = event.ticketsSold;
@@ -47,10 +47,14 @@ class ChatRepository {
                     const match = userMessage.match(/in (.+)/i);
                     let city = match ? match[1].trim() : "";
                     city = city.replace(/[?.!,]+$/, "");
-                    const events = yield event_1.default.find({ venue: { $regex: new RegExp(city, "i") } });
+                    const events = yield event_1.default.find({
+                        venue: { $regex: new RegExp(city, "i") },
+                    });
                     relevantData =
                         events.length > 0
-                            ? `Found events in ${city}: ${events.map((v) => v.title).join(", ")}.`
+                            ? `Found events in ${city}: ${events
+                                .map((v) => v.title)
+                                .join(", ")}.`
                             : `No events found in ${city}.`;
                 }
                 // User profile
@@ -80,16 +84,22 @@ class ChatRepository {
                         const date = new Date(dateStr);
                         const nextDay = new Date(date);
                         nextDay.setDate(date.getDate() + 1);
-                        const categories = ["music", "sports", "arts", "technology", "others"];
-                        const foundCategory = categories.find(cat => userMessage.toLowerCase().includes(cat));
+                        const categories = [
+                            "music",
+                            "sports",
+                            "arts",
+                            "technology",
+                            "others",
+                        ];
+                        const foundCategory = categories.find((cat) => userMessage.toLowerCase().includes(cat));
                         const query = {
-                            date: { $gte: date, $lt: nextDay }
+                            date: { $gte: date, $lt: nextDay },
                         };
                         if (foundCategory) {
                             query.category = { $regex: new RegExp(`^${foundCategory}$`, "i") };
                         }
                         const events = yield event_1.default.find(query);
-                        const uniqueTitles = [...new Set(events.map(e => e.title))];
+                        const uniqueTitles = [...new Set(events.map((e) => e.title))];
                         relevantData =
                             events.length > 0
                                 ? foundCategory
@@ -117,7 +127,9 @@ Respond clearly, helpfully, and friendly.
             }
             catch (error) {
                 console.error("Gemini error:", error);
-                return { text: "Oops! Something went wrong while generating the response." };
+                return {
+                    text: "Oops! Something went wrong while generating the response.",
+                };
             }
         });
     }

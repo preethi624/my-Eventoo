@@ -15,10 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminUserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
 class AdminUserRepository {
-    getUserAll(limit, page) {
+    getUserAll(limit, page, searchTerm, filterStatus) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = {};
+            if (searchTerm) {
+                query.$or = [
+                    { name: { $regex: searchTerm, $options: "i" } },
+                    { email: { $regex: searchTerm, $options: "i" } }
+                ];
+            }
+            if (filterStatus === "blocked") {
+                query.isBlocked = true;
+            }
+            else if (filterStatus === "unblocked") {
+                query.isBlocked = false;
+            }
             const skip = (page - 1) * limit;
-            const users = yield user_1.default.find().skip(skip).limit(limit).lean();
+            const users = yield user_1.default.find(query).skip(skip).limit(limit).lean();
             const totalUser = yield user_1.default.countDocuments();
             const total = totalUser / limit;
             return { users, total };
@@ -45,7 +58,7 @@ class AdminUserRepository {
             const data = yield user_1.default.aggregate([
                 { $group: { _id: { $month: "$createdAt" }, totalUsers: { $sum: 1 } } },
                 { $project: { month: "$_id", totalUsers: 1, _id: 0 } },
-                { $sort: { month: 1 } }
+                { $sort: { month: 1 } },
             ]);
             const totalUsers = yield user_1.default.find({ isBlocked: false });
             return { data, totalUsers: totalUsers.length };

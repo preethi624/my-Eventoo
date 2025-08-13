@@ -26,19 +26,27 @@ class AdminVenueRepository {
             const skip = filters.limit && filters.page ? (filters.page - 1) * filters.limit : 0;
             const query = {
                 $or: [
-                    { name: { $regex: filters.searchTerm, $options: 'i' } },
-                    { city: { $regex: filters.searchTerm, $options: 'i' } },
-                    { state: { $regex: filters.searchTerm, $options: 'i' } },
-                ]
+                    { name: { $regex: filters.searchTerm, $options: "i" } },
+                    { city: { $regex: filters.searchTerm, $options: "i" } },
+                    { state: { $regex: filters.searchTerm, $options: "i" } },
+                ],
             };
-            const venues = yield venue_1.default.find(query).skip(skip).limit(Number(filters.limit));
+            const venues = yield venue_1.default.find(query)
+                .skip(skip)
+                .limit(Number(filters.limit));
             const total = yield venue_1.default.countDocuments(query);
-            return { venues, totalPages: filters.limit ? Math.ceil(total / filters.limit) : 0, currentPage: filters.page };
+            return {
+                venues,
+                totalPages: filters.limit ? Math.ceil(total / filters.limit) : 0,
+                currentPage: filters.page,
+            };
         });
     }
     editVenue(updateData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield venue_1.default.findByIdAndUpdate(updateData._id, updateData, { new: true });
+            return yield venue_1.default.findByIdAndUpdate(updateData._id, updateData, {
+                new: true,
+            });
         });
     }
     deleteVenue(venueId) {

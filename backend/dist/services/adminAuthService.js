@@ -10,38 +10,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminAuthService = void 0;
+const messages_1 = require("../constants/messages");
 class AdminAuthService {
-    constructor(authRepository, tokenService, passwordService) {
-        this.authRepository = authRepository;
-        this.tokenService = tokenService;
-        this.passwordService = passwordService;
+    constructor(_authRepository, _tokenService, _passwordService) {
+        this._authRepository = _authRepository;
+        this._tokenService = _tokenService;
+        this._passwordService = _passwordService;
     }
     loginAdmin(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, password }) {
             try {
-                const admin = yield this.authRepository.findAdminByEmail(email);
+                const admin = yield this._authRepository.findAdminByEmail(email);
                 if (!admin) {
-                    return { message: "email not found", success: false };
+                    return { message: messages_1.MESSAGES.COMMON.NOT_FOUND, success: false };
                 }
-                const isMatch = this.passwordService.comparePassword(password, admin.password);
+                const isMatch = this._passwordService.comparePassword(password, admin.password);
                 if (!isMatch) {
                     return { success: false, message: "Password not matching" };
                 }
                 const payload = { id: admin._id, role: "admin", email: admin.email };
-                const accessToken = this.tokenService.generateAccessToken(payload);
-                const refreshToken = this.tokenService.generateRefreshToken(payload);
+                const accessToken = this._tokenService.generateAccessToken(payload);
+                const refreshToken = this._tokenService.generateRefreshToken(payload);
                 return {
                     success: true,
                     accessToken,
                     refreshToken,
-                    message: "Login successfully"
+                    message: "Login successfully",
                 };
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });

@@ -10,16 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventService = void 0;
+const messages_1 = require("../constants/messages");
 class EventService {
-    constructor(eventRepository) {
-        this.eventRepository = eventRepository;
+    constructor(_eventRepository) {
+        this._eventRepository = _eventRepository;
     }
     eventGet(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.getEvents(filters);
+                const response = yield this._eventRepository.getEvents(filters);
                 if (response) {
-                    return { response, success: true, message: "Event fetched successfully" };
+                    return {
+                        response,
+                        success: true,
+                        message: "Event fetched successfully",
+                    };
                 }
                 else {
                     return { success: false, message: "No events found" };
@@ -34,47 +39,50 @@ class EventService {
     eventGetById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.eventRepository.getEventById(id);
+                const result = yield this._eventRepository.getEventById(id);
                 if (result) {
-                    return { result, success: true, message: "Event fetched successfully" };
+                    return {
+                        result,
+                        success: true,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                    };
                 }
                 else {
-                    return { success: false, message: "No event found" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "not getting event" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
             }
         });
     }
-    ;
     eventCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.eventRepository.createEvent(data);
+                const result = yield this._eventRepository.createEvent(data);
                 if (result) {
-                    return { success: true, message: "Event created successfully" };
+                    return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE };
                 }
                 else {
-                    return { success: false, message: "Failed t create event" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE };
                 }
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "not creating event" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE };
             }
         });
     }
     eventDelete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.eventRepository.eventDelete(id);
+                const result = yield this._eventRepository.eventDelete(id);
                 if (result) {
-                    return { success: true, message: "event deleted successfully" };
+                    return { success: true, message: messages_1.MESSAGES.EVENT.FAILED_TO_DELETE };
                 }
                 else {
-                    return { success: false, message: "event not deleted" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_DELETE };
                 }
             }
             catch (error) {
@@ -86,12 +94,12 @@ class EventService {
     eventEdit(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.eventRepository.editEvent(id, data);
+                const result = yield this._eventRepository.editEvent(id, data);
                 if (result) {
-                    return { success: true, message: "event edited successfully" };
+                    return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE };
                 }
                 else {
-                    return { success: false, message: "faled to edit" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE };
                 }
             }
             catch (error) {
@@ -103,7 +111,7 @@ class EventService {
     statusCheck(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.eventRepository.statusCheck(email);
+                const result = yield this._eventRepository.statusCheck(email);
                 if (result) {
                     return { result: result, success: true };
                 }
@@ -120,9 +128,13 @@ class EventService {
     getEvent(id, limit, page, searchTerm, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.eventGet(id, limit, page, searchTerm, date);
+                const response = yield this._eventRepository.eventGet(id, limit, page, searchTerm, date);
                 if (response) {
-                    return { response, success: true, message: "Event fetched successfully" };
+                    return {
+                        response,
+                        success: true,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                    };
                 }
                 else {
                     return { success: false, message: "No event found" };
@@ -134,11 +146,10 @@ class EventService {
             }
         });
     }
-    ;
     eventCountGet(organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.eventRepository.getEventCount(organiserId);
+                const result = yield this._eventRepository.getEventCount(organiserId);
                 if (result) {
                     return { count: result, success: true };
                 }
@@ -152,16 +163,26 @@ class EventService {
             }
         });
     }
-    ;
     getDashboardEvents(organiserId, timeFrame) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.dashboardEvents(organiserId, timeFrame);
+                const response = yield this._eventRepository.dashboardEvents(organiserId, timeFrame);
                 if (response) {
-                    return { success: true, events: response.events, message: "event fetched successfully", data: response.data, adminPercentage: response.adminCommissionPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents };
+                    return {
+                        success: true,
+                        events: response.events,
+                        message: "event fetched successfully",
+                        data: response.data,
+                        adminPercentage: response.adminCommissionPercentage,
+                        organiserEarning: response.organiserEarning,
+                        totalEvents: response.totalEvents,
+                        totalAttendees: response.totalAttendees,
+                        topEvents: response.topEvents,
+                        upcomingEvents: response.upcomingEvents,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch events" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
@@ -173,9 +194,13 @@ class EventService {
     getEvents(organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.getOrgEvents(organiserId);
+                const response = yield this._eventRepository.getOrgEvents(organiserId);
                 if (response) {
-                    return { success: true, result: response, message: "event fetched successfully" };
+                    return {
+                        success: true,
+                        result: response,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                    };
                 }
                 else {
                     return { success: false, message: "failed" };
@@ -190,7 +215,7 @@ class EventService {
     eventFind(eventName) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.findEvent(eventName);
+                const response = yield this._eventRepository.findEvent(eventName);
                 if (response) {
                     return { success: true, result: response };
                 }
@@ -207,7 +232,7 @@ class EventService {
     eventsFindByCat(category) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.eventRepository.findEventsByCat(category);
+                const response = yield this._eventRepository.findEventsByCat(category);
                 if (response) {
                     return { success: true, result: response };
                 }

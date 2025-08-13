@@ -10,26 +10,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminEventService = void 0;
+const messages_1 = require("../constants/messages");
 class AdminEventService {
-    constructor(adminEventRepository) {
-        this.adminEventRepository = adminEventRepository;
+    constructor(_adminEventRepository) {
+        this._adminEventRepository = _adminEventRepository;
     }
     getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminEventRepository.getEventsAll(filters);
+                const response = yield this._adminEventRepository.getEventsAll(filters);
                 if (response) {
-                    return { response, success: true, message: "Users fetched successfully" };
+                    return {
+                        response,
+                        success: true,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch users" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -37,19 +42,19 @@ class AdminEventService {
     editEvent(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminEventRepository.eventEdit(id, formData);
+                const response = yield this._adminEventRepository.eventEdit(id, formData);
                 if (response) {
-                    return { success: true, message: "Organiser edit successfully" };
+                    return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE };
                 }
                 else {
-                    return { success: false, message: "failed to edit organiser" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -57,7 +62,7 @@ class AdminEventService {
     eventBlock(event) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminEventRepository.blockEvent(event);
+                const response = yield this._adminEventRepository.blockEvent(event);
                 if (response) {
                     if (response.isBlocked) {
                         return { success: true, message: "Event blocked successfully" };
@@ -71,10 +76,10 @@ class AdminEventService {
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -82,19 +87,27 @@ class AdminEventService {
     dashboardGet() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminEventRepository.getDashboard();
+                const response = yield this._adminEventRepository.getDashboard();
                 if (response) {
-                    return { success: true, message: "fetched successfully", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents, eventCategories: response.eventCategories, totalRevenue: response.totalRevenue, activeEvents: response.activeEvents };
+                    return {
+                        success: true,
+                        message: "fetched successfully",
+                        monthlyRevenue: response.monthlyRevenue,
+                        topEvents: response.topEvents,
+                        eventCategories: response.eventCategories,
+                        totalRevenue: response.totalRevenue,
+                        activeEvents: response.activeEvents,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });

@@ -1,8 +1,7 @@
 // components/QrScanner.tsx
-import { useEffect } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import React from 'react';
-
+import { useEffect } from "react";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import React from "react";
 
 interface Props {
   onScanSuccess: (scannedToken: string) => void;
@@ -10,21 +9,22 @@ interface Props {
 
 const QrScanner: React.FC<Props> = ({ onScanSuccess }) => {
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner('qr-reader', {
-      fps: 10,
-      qrbox: 250,
-     
-      
-    },false);
+    const scanner = new Html5QrcodeScanner(
+      "qr-reader",
+      {
+        fps: 10,
+        qrbox: 250,
+      },
+      false
+    );
 
     scanner.render(
       (decodedText) => {
         onScanSuccess(decodedText);
-        scanner.clear(); 
+        scanner.clear();
       },
       (error) => {
-       console.log(error);
-       
+        console.log(error);
       }
     );
 

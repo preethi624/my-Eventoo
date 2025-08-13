@@ -39,16 +39,16 @@ const orderSchema = new mongoose_1.Schema({
         type: String,
     },
     orderId: {
-        type: String
+        type: String,
     },
     userId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true,
     },
     eventId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Event',
+        ref: "Event",
         required: true,
     },
     amount: {
@@ -59,17 +59,17 @@ const orderSchema = new mongoose_1.Schema({
     },
     currency: {
         type: String,
-        default: 'INR',
+        default: "INR",
     },
     status: {
         type: String,
-        enum: ['created', 'paid', 'failed', 'refunded', 'Not required'],
-        default: 'created',
+        enum: ["created", "paid", "failed", "refunded", "Not required"],
+        default: "created",
     },
     bookingStatus: {
         type: String,
         enum: ["confirmed", "cancelled", "pending"],
-        default: "pending"
+        default: "pending",
     },
     razorpayOrderId: {
         type: String,
@@ -86,14 +86,14 @@ const orderSchema = new mongoose_1.Schema({
         default: null,
     },
     ticketCount: {
-        type: Number
+        type: Number,
     },
     createdAt: {
-        type: Date
+        type: Date,
     },
     refundId: { type: String },
-    email: { type: String }
+    email: { type: String },
 });
-const Order = mongoose_1.default.model('Order', orderSchema);
+const Order = mongoose_1.default.model("Order", orderSchema);
 exports.default = Order;
 //# sourceMappingURL=order.js.map

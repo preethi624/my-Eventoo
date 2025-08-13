@@ -16,18 +16,27 @@ const socketMap_1 = require("../socketMap");
 const index_1 = require("../index");
 const messages_1 = require("../constants/messages");
 class AdminUserController {
-    constructor(adminUserService) {
-        this.adminUserService = adminUserService;
+    constructor(_adminUserService) {
+        this._adminUserService = _adminUserService;
     }
     getAllUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+                const limit = req.query.limit
+                    ? parseInt(req.query.limit, 10)
+                    : 5;
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
-                const result = yield this.adminUserService.getUsers(limit, page);
+                const searchTerm = typeof req.query.searchTerm === "string" ? req.query.searchTerm : "";
+                const filterStatus = typeof req.query.filterStatus === "string" ? req.query.filterStatus : "";
+                const result = yield this._adminUserService.getUsers(limit, page, searchTerm, filterStatus);
                 if (result.success && result.result) {
                     const mappedUsers = result.result.map(mapUserToDTO_1.mapUserToDTO);
-                    res.json({ result: mappedUsers, message: result.message, success: true, total: result.total });
+                    res.json({
+                        result: mappedUsers,
+                        message: result.message,
+                        success: true,
+                        total: result.total,
+                    });
                 }
                 else {
                     res.json({ message: result.message, success: false });
@@ -35,7 +44,9 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -44,7 +55,7 @@ class AdminUserController {
             try {
                 const id = req.params.id;
                 const formData = req.body;
-                const result = yield this.adminUserService.userUpdate(id, formData);
+                const result = yield this._adminUserService.userUpdate(id, formData);
                 if (result.success) {
                     res.json({ success: true, message: "edited successfully" });
                     return;
@@ -55,7 +66,9 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -64,12 +77,12 @@ class AdminUserController {
             try {
                 const user = req.body;
                 const userId = user._id;
-                const result = yield this.adminUserService.userBlock(user);
+                const result = yield this._adminUserService.userBlock(user);
                 if (result.success && result.user) {
                     if (result.user.isBlocked) {
                         const socketId = socketMap_1.userSocketMap.get(userId.toString());
                         if (socketId) {
-                            index_1.io.to(socketId).emit('logout');
+                            index_1.io.to(socketId).emit("logout");
                             console.log(`Forced logout emitted for user ${userId}`);
                         }
                     }
@@ -81,16 +94,23 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
     getDashboardUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminUserService.dashboardUsers();
+                const result = yield this._adminUserService.dashboardUsers();
                 if (result.success) {
-                    res.json({ data: result.data, message: result.message, success: true, totalUsers: result.totalUsers });
+                    res.json({
+                        data: result.data,
+                        message: result.message,
+                        success: true,
+                        totalUsers: result.totalUsers,
+                    });
                 }
                 else {
                     res.json({ message: result.message, success: false });
@@ -98,7 +118,9 @@ class AdminUserController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

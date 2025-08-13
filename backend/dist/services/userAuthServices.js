@@ -29,27 +29,30 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 class UserAuthService {
-    constructor(authRepository, otpService, mailService, tokenService, passwordService) {
-        this.authRepository = authRepository;
-        this.otpService = otpService;
-        this.mailService = mailService;
-        this.tokenService = tokenService;
-        this.passwordService = passwordService;
+    constructor(_authRepository, _otpService, _mailService, _tokenService, _passwordService) {
+        this._authRepository = _authRepository;
+        this._otpService = _otpService;
+        this._mailService = _mailService;
+        this._tokenService = _tokenService;
+        this._passwordService = _passwordService;
     }
     loginUser(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.authRepository.findUserByEmail(email);
+            const user = yield this._authRepository.findUserByEmail(email);
             if (!user)
                 return { success: false, message: "User not found" };
-            const isMatch = yield this.passwordService.comparePassword(password, user.password);
+            const isMatch = yield this._passwordService.comparePassword(password, user.password);
             if (!isMatch)
                 return { success: false, message: "password not matching" };
             if (user.isBlocked) {
-                return { success: false, message: "Your account has been blocked.Please contact support" };
+                return {
+                    success: false,
+                    message: "Your account has been blocked.Please contact support",
+                };
             }
             const payload = { id: user._id, role: "user", email: user.email };
-            const accessToken = this.tokenService.generateAccessToken(payload);
-            const refreshToken = this.tokenService.generateRefreshToken(payload);
+            const accessToken = this._tokenService.generateAccessToken(payload);
+            const refreshToken = this._tokenService.generateRefreshToken(payload);
             return {
                 success: true,
                 message: "Login successful",
@@ -61,18 +64,18 @@ class UserAuthService {
     registerUser(name, email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const existingUser = yield this.authRepository.findUserByEmail(email);
+                const existingUser = yield this._authRepository.findUserByEmail(email);
                 if (existingUser)
                     return { success: false, message: "User already exists" };
-                const otp = this.otpService.generateOTP();
-                yield this.authRepository.createOTP(otp, email);
+                const otp = this._otpService.generateOTP();
+                yield this._authRepository.createOTP(otp, email);
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: email,
-                    subject: 'Password Reset OTP',
-                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`
+                    subject: "Password Reset OTP",
+                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
                 };
-                yield this.mailService.sendMail(mailOptions);
+                yield this._mailService.sendMail(mailOptions);
                 return { success: true, message: "OTP sent to your email" };
             }
             catch (error) {
@@ -82,17 +85,24 @@ class UserAuthService {
         });
     }
     userVerify(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ name, email, password, otp }) {
+        return __awaiter(this, arguments, void 0, function* ({ name, email, password, otp, }) {
             try {
-                const OTP = yield this.authRepository.findOtpByEmail(email);
+                const OTP = yield this._authRepository.findOtpByEmail(email);
                 if (!OTP) {
                     return { success: false, message: "OTP not found, please try again" };
                 }
                 if (OTP.otp != otp) {
-                    return { success: false, message: "otp verification failed,please try again" };
+                    return {
+                        success: false,
+                        message: "otp verification failed,please try again",
+                    };
                 }
-                const hashedPassword = yield this.passwordService.hashPassword(password);
-                yield this.authRepository.createUser({ name, email, password: hashedPassword });
+                const hashedPassword = yield this._passwordService.hashPassword(password);
+                yield this._authRepository.createUser({
+                    name,
+                    email,
+                    password: hashedPassword,
+                });
                 return { success: true, message: "User registered successfully" };
             }
             catch (error) {
@@ -104,16 +114,16 @@ class UserAuthService {
     resendUser(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email }) {
             try {
-                const otp = this.otpService.generateOTP();
-                yield this.authRepository.createOTP(otp, email);
+                const otp = this._otpService.generateOTP();
+                yield this._authRepository.createOTP(otp, email);
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: email,
-                    subject: 'Password Reset OTP',
-                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`
+                    subject: "Password Reset OTP",
+                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
                 };
-                yield this.mailService.sendMail(mailOptions);
-                return ({ success: true, message: "otp send successfully" });
+                yield this._mailService.sendMail(mailOptions);
+                return { success: true, message: "otp send successfully" };
             }
             catch (error) {
                 console.log(error);
@@ -141,22 +151,25 @@ class UserAuthService {
                 if (!name || !email || !picture || !googleId) {
                     throw new Error("Missing required user information from Google payload");
                 }
-                let user = yield this.authRepository.findUserByEmail(email);
+                let user = yield this._authRepository.findUserByEmail(email);
                 if (!user) {
-                    user = yield this.authRepository.createUser({
+                    user = yield this._authRepository.createUser({
                         name,
                         email,
                         picture,
                         googleId,
-                        authMethod: 'google'
+                        authMethod: "google",
                     });
                 }
                 if (user.isBlocked) {
-                    return { success: false, message: "Your account has been blocked. Please contact support." };
+                    return {
+                        success: false,
+                        message: "Your account has been blocked. Please contact support.",
+                    };
                 }
                 const { exp, iat } = payload, cleanPayload = __rest(payload, ["exp", "iat"]);
-                const accessToken = this.tokenService.generateAccessToken(Object.assign(Object.assign({}, cleanPayload), { role: 'user', id: user._id }));
-                const refreshToken = this.tokenService.generateRefreshToken(Object.assign(Object.assign({}, cleanPayload), { role: 'user', id: user._id }));
+                const accessToken = this._tokenService.generateAccessToken(Object.assign(Object.assign({}, cleanPayload), { role: "user", id: user._id }));
+                const refreshToken = this._tokenService.generateRefreshToken(Object.assign(Object.assign({}, cleanPayload), { role: "user", id: user._id }));
                 return { success: true, accessToken, refreshToken, message: "success" };
             }
             catch (error) {
@@ -165,29 +178,29 @@ class UserAuthService {
             }
         });
     }
-    ;
     refreshTokens(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const decoded = this.tokenService.verifyRefreshToken(refreshToken);
-                if (typeof decoded === "string" || !decoded || typeof decoded !== 'object') {
+                const decoded = this._tokenService.verifyRefreshToken(refreshToken);
+                if (typeof decoded === "string" ||
+                    !decoded ||
+                    typeof decoded !== "object") {
                     throw new Error("Invalid token payload");
                 }
                 const payload = {
                     id: decoded.id,
                     role: decoded.role,
-                    email: decoded.email
+                    email: decoded.email,
                 };
-                const newAccessToken = this.tokenService.generateAccessToken(payload);
+                const newAccessToken = this._tokenService.generateAccessToken(payload);
                 return { accessToken: newAccessToken };
             }
             catch (error) {
-                console.error('Token refresh error:', error);
+                console.error("Token refresh error:", error);
                 return { accessToken: null };
             }
         });
     }
-    ;
 }
 exports.UserAuthService = UserAuthService;
 //# sourceMappingURL=userAuthServices.js.map

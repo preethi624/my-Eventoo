@@ -40,6 +40,6 @@ const adminSchema = new mongoose_1.Schema({
     password: { type: String, required: true },
     role: { type: String },
 });
-const Admin = mongoose_1.default.model('Admin', adminSchema);
+const Admin = mongoose_1.default.model("Admin", adminSchema);
 exports.default = Admin;
 //# sourceMappingURL=admin.js.map

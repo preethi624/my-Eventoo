@@ -11,13 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoryController = void 0;
 class CategoryController {
-    constructor(categoryService) {
-        this.categoryService = categoryService;
+    constructor(_categoryService) {
+        this._categoryService = _categoryService;
     }
     getCategories(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.categoryService.categoriesGet();
+                const result = yield this._categoryService.categoriesGet();
                 if (result.success) {
                     res.json({ cat: result.cat });
                 }

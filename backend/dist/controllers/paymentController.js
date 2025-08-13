@@ -13,26 +13,30 @@ exports.PaymentController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 const messages_1 = require("../constants/messages");
 class PaymentController {
-    constructor(paymentService) {
-        this.paymentService = paymentService;
+    constructor(_paymentService) {
+        this._paymentService = _paymentService;
     }
     createOrder(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.body;
-                const response = yield this.paymentService.orderCreate(data);
+                const response = yield this._paymentService.orderCreate(data);
                 if (response.success && response.order) {
-                    res.json({ message: "order created", success: true, order: response.order });
+                    res.json({
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE,
+                        success: true,
+                        order: response.order,
+                    });
                 }
                 else {
-                    res.json({ success: false, message: "failed to create order" });
+                    res.json({ success: false, message: response.message || messages_1.MESSAGES.EVENT.FAILED_TO_CREATE });
                 }
             }
             catch (error) {
                 console.error("Error in createOrder:", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                    message: error.message || messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -41,12 +45,12 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.body;
-                const response = yield this.paymentService.orderCreateFree(data);
+                const response = yield this._paymentService.orderCreateFree(data);
                 if (response.success) {
-                    res.json({ message: "order created", success: true });
+                    res.json({ message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE, success: true });
                 }
                 else {
-                    res.json({ success: false, message: "failed to create order" });
+                    res.json({ success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE });
                 }
             }
             catch (error) {
@@ -62,7 +66,7 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.body;
-                const response = yield this.paymentService.paymentVerify(data);
+                const response = yield this._paymentService.paymentVerify(data);
                 if (response.success) {
                     res.json({ message: "Payment verified successfully", success: true });
                 }
@@ -74,7 +78,7 @@ class PaymentController {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                    message: error.message,
                 });
             }
         });
@@ -83,9 +87,12 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { payStatus, orderId, userId } = req.body;
-                const response = yield this.paymentService.paymentFailure(payStatus, orderId, userId);
+                const response = yield this._paymentService.paymentFailure(payStatus, orderId, userId);
                 if (response.success) {
-                    res.json({ message: "failure status updated successfully", success: true });
+                    res.json({
+                        message: "failure status updated successfully",
+                        success: true,
+                    });
                 }
                 else {
                     res.json({ success: false, message: "status updation failed failed" });
@@ -104,19 +111,25 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.params.userId;
-                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+                const limit = req.query.limit
+                    ? parseInt(req.query.limit, 10)
+                    : 5;
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = req.query.searchTerm;
                 const status = req.query.status;
                 if (!userId) {
                     throw new Error("id not get");
                 }
-                const response = yield this.paymentService.ordersGet(userId, limit, page, searchTerm, status);
+                const response = yield this._paymentService.ordersGet(userId, limit, page, searchTerm, status);
                 if (response.success) {
-                    res.json({ message: response.message, success: true, order: response.order });
+                    res.json({
+                        message: response.message,
+                        success: true,
+                        order: response.order,
+                    });
                 }
                 else {
-                    res.json({ message: "failed to fetch orders", success: false });
+                    res.json({ message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH, success: false });
                 }
             }
             catch (error) {
@@ -132,12 +145,16 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, orderId } = req.params;
-                const response = yield this.paymentService.orderGetById(userId, orderId);
+                const response = yield this._paymentService.orderGetById(userId, orderId);
                 if (response.success) {
-                    res.json({ message: response.message, success: true, order: response.order });
+                    res.json({
+                        message: response.message,
+                        success: true,
+                        order: response.order,
+                    });
                 }
                 else {
-                    res.json({ message: "failed to fetch orders", success: false });
+                    res.json({ message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH, success: false });
                 }
             }
             catch (error) {
@@ -158,16 +175,19 @@ class PaymentController {
                 if (!userId) {
                     throw new Error("userId not get");
                 }
-                const response = yield this.paymentService.ordersGetById(userId);
+                const response = yield this._paymentService.ordersGetById(userId);
                 if (response) {
-                    res.json({ totalSpent: response.totalSpent, eventsBooked: response.eventsBooked });
+                    res.json({
+                        totalSpent: response.totalSpent,
+                        eventsBooked: response.eventsBooked,
+                    });
                 }
             }
             catch (error) {
                 console.error("Error in payment verification :", error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Internal server error",
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 });
             }
         });
@@ -176,7 +196,7 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const orderId = req.params.orderId;
-                const response = yield this.paymentService.orderFind(orderId);
+                const response = yield this._paymentService.orderFind(orderId);
                 if (response) {
                     res.json({ response });
                 }
@@ -194,7 +214,7 @@ class PaymentController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const orderId = req.params.orderId;
-                const response = yield this.paymentService.ticketsGet(orderId);
+                const response = yield this._paymentService.ticketsGet(orderId);
                 if (response) {
                     res.json({ result: response.result, success: true });
                 }
@@ -217,7 +237,7 @@ class PaymentController {
                 const userId = req.params.userId;
                 const searchTerm = req.query.searchTerm;
                 const status = req.query.status;
-                const response = yield this.paymentService.ticketDetailsGet(userId, searchTerm, status);
+                const response = yield this._paymentService.ticketDetailsGet(userId, searchTerm, status);
                 if (response) {
                     res.json({ result: response.tickets, success: true });
                 }

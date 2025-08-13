@@ -13,16 +13,15 @@ exports.OrgAuthController = void 0;
 const messages_1 = require("../constants/messages");
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 class OrgAuthController {
-    constructor(authService, setTokenService) {
-        this.authService = authService;
+    constructor(_authService, setTokenService) {
+        this._authService = _authService;
         this.setTokenService = setTokenService;
     }
-    ;
     organiserLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
-                const result = yield this.authService.loginOrganiser(email, password);
+                const result = yield this._authService.loginOrganiser(email, password);
                 if (!result.success) {
                     res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message });
                     return;
@@ -34,25 +33,32 @@ class OrgAuthController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
-    ;
     organiserRegister(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { name, email, password } = req.body;
-                const result = yield this.authService.registerOrganiser(name, email, password);
+                const result = yield this._authService.registerOrganiser(name, email, password);
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.CREATED).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.CREATED)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -60,16 +66,27 @@ class OrgAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { name, email, password, otp } = req.body;
-                const result = yield this.authService.organiserVerify({ name, email, password, otp });
+                const result = yield this._authService.organiserVerify({
+                    name,
+                    email,
+                    password,
+                    otp,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -77,16 +94,24 @@ class OrgAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email } = req.body;
-                const result = yield this.authService.resendOrganiser({ email });
+                const result = yield this._authService.resendOrganiser({
+                    email,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.error(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -94,7 +119,7 @@ class OrgAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { credential } = req.body;
-                const result = yield this.authService.loginOrganiserWithGoogle(credential);
+                const result = yield this._authService.loginOrganiserWithGoogle(credential);
                 if (!result.success) {
                     res.status(statusCodeEnum_1.StatusCode.BAD_REQUEST).json({ message: result.message });
                     return;
@@ -106,7 +131,9 @@ class OrgAuthController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

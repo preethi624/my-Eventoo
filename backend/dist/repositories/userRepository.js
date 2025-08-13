@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
+const organiser_1 = __importDefault(require("../model/organiser"));
 class UserRepository {
     getUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,6 +25,17 @@ class UserRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, email, phone, location, aboutMe, profileImage } = data;
             return yield user_1.default.findByIdAndUpdate(userId, { name, phone, location, aboutMe: aboutMe, profileImage }, { new: true });
+        });
+    }
+    getOrgs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield organiser_1.default.find();
+            }
+            catch (error) {
+                console.log(error);
+                throw error;
+            }
         });
     }
 }

@@ -13,25 +13,28 @@ exports.AdminEventController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 const messages_1 = require("../constants/messages");
 class AdminEventController {
-    constructor(adminEventService) {
-        this.adminEventService = adminEventService;
+    constructor(_adminEventService) {
+        this._adminEventService = _adminEventService;
     }
-    ;
     getAllEvents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const query = req.query;
                 const filters = {
-                    searchLocation: typeof query.searchLocation === 'string' ? query.searchLocation : '',
-                    searchTitle: typeof query.searchTitle === 'string' ? query.searchTitle : '',
-                    orgName: typeof query.orgName === 'string' ? query.orgName : '',
-                    selectedCategory: typeof query.selectedCategory === 'string' ? query.selectedCategory : '',
+                    searchLocation: typeof query.searchLocation === "string" ? query.searchLocation : "",
+                    searchTitle: typeof query.searchTitle === "string" ? query.searchTitle : "",
+                    orgName: typeof query.orgName === "string" ? query.orgName : "",
+                    selectedCategory: typeof query.selectedCategory === "string"
+                        ? query.selectedCategory
+                        : "",
                     maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
-                    selectedDate: typeof query.selectedDate === 'string' ? query.selectedDate : '',
+                    selectedDate: typeof query.selectedDate === "string" ? query.selectedDate : "",
                     page: query.page ? Number(query.page) : undefined,
-                    limit: query.limit && !isNaN(Number(query.limit)) ? Number(query.limit) : undefined
+                    limit: query.limit && !isNaN(Number(query.limit))
+                        ? Number(query.limit)
+                        : undefined,
                 };
-                const result = yield this.adminEventService.getEvents(filters);
+                const result = yield this._adminEventService.getEvents(filters);
                 if (result.success) {
                     res.json({ result: result, message: result.message, success: true });
                 }
@@ -41,7 +44,9 @@ class AdminEventController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -50,7 +55,7 @@ class AdminEventController {
             try {
                 const id = req.params.id;
                 const formData = req.body;
-                const result = yield this.adminEventService.editEvent(id, formData);
+                const result = yield this._adminEventService.editEvent(id, formData);
                 if (result.success) {
                     res.json({ success: true, message: "edited successfully" });
                     return;
@@ -61,7 +66,9 @@ class AdminEventController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -69,7 +76,7 @@ class AdminEventController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const event = req.body;
-                const result = yield this.adminEventService.eventBlock(event);
+                const result = yield this._adminEventService.eventBlock(event);
                 if (result.success) {
                     res.json({ success: true, message: result.message });
                 }
@@ -79,21 +86,33 @@ class AdminEventController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
     getDashboard(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminEventService.dashboardGet();
+                const response = yield this._adminEventService.dashboardGet();
                 if (response.success) {
-                    res.json({ success: true, message: "successfully fetch", monthlyRevenue: response.monthlyRevenue, topEvents: response.topEvents, eventCategories: response.eventCategories, totalRevenue: response.totalRevenue, activeEvents: response.activeEvents });
+                    res.json({
+                        success: true,
+                        message: "successfully fetch",
+                        monthlyRevenue: response.monthlyRevenue,
+                        topEvents: response.topEvents,
+                        eventCategories: response.eventCategories,
+                        totalRevenue: response.totalRevenue,
+                        activeEvents: response.activeEvents,
+                    });
                 }
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

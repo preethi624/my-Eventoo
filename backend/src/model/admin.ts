@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 interface IAdmin extends Document {
   name: string;
@@ -14,5 +14,5 @@ const adminSchema: Schema<IAdmin> = new Schema({
   role: { type: String },
 });
 
-const Admin = mongoose.model<IAdmin>('Admin', adminSchema);
+const Admin = mongoose.model<IAdmin>("Admin", adminSchema);
 export default Admin;

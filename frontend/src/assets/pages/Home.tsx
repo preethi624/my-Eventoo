@@ -1,62 +1,49 @@
-import {  useState, useEffect } from 'react';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-import type {FC} from 'react'
-import { motion } from 'framer-motion';
+import type { FC } from "react";
+import { motion } from "framer-motion";
 
-import { FaCalendar,   FaSearch, FaMapMarkerAlt, FaClock} from 'react-icons/fa';
+import { FaCalendar, FaSearch, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 
+import UserNavbar from "../components/UseNavbar";
+import type { IEventDTO } from "../../interfaces/IEvent";
+import { eventRepository } from "../../repositories/eventRepositories";
 
-
-import UserNavbar from '../components/UseNavbar';
-import type { IEventDTO } from '../../interfaces/IEvent';
-import { eventRepository } from '../../repositories/eventRepositories';
-
-import Chatbot from '../components/Chatbot';
-import { categoryRepository } from '../../repositories/categoryRepository';
-
-
-
-
-
+import Chatbot from "../components/Chatbot";
+import { categoryRepository } from "../../repositories/categoryRepository";
+import SearchBar from "../components/SearchBar";
 
 const HomePage: FC = () => {
-  const [searchTerm,setSearchTerm]=useState("")
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [events, setEvents] = useState<IEventDTO[]>([]);
-    const navigate = useNavigate();
-    const [categories,setCategories]=useState<{_id:string;name:string}[]>([])
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
+    []
+  );
 
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-    fetchCategories()
+    fetchCategories();
     fetchEventsByCategory("Music");
-  setSelectedCategory("Music");
-
+    setSelectedCategory("Music");
   }, []);
-  const fetchCategories=async()=>{
-    const response=await categoryRepository.getCategories();
-    setCategories(response.cat)
-   
-  }
-  const fetchEventsByCategory=async(category:string)=>{
-  
-    
-    const response=await eventRepository.fetchEventsByCategory(category);
-    
-    setEvents(response.result)
-  
-    
+  const fetchCategories = async () => {
+    const response = await categoryRepository.getCategories();
+    setCategories(response.cat);
+  };
+  const fetchEventsByCategory = async (category: string) => {
+    const response = await eventRepository.fetchEventsByCategory(category);
 
-  }
-    const handleEventClick = (id: string) => {
+    setEvents(response.result);
+  };
+  const handleEventClick = (id: string) => {
     navigate(`/events/${id}`);
   };
- 
-  
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -65,28 +52,27 @@ const HomePage: FC = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
-      y: 0
-    }
+      y: 0,
+    },
   };
-  const handleSearch=async()=>{
-    const response=await eventRepository.findEvent(searchTerm);
-  
-      navigate(`/events/${response.result._id}`);
-    
-  }
-  
+  const handleSearch = async () => {
+    const response = await eventRepository.findEvent(searchTerm);
+
+    navigate(`/events/${response.result._id}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-     <UserNavbar/>
+      <UserNavbar />
       <section className="relative h-screen overflow-hidden">
         <motion.div
           initial={{ scale: 1.2 }}
@@ -130,10 +116,10 @@ const HomePage: FC = () => {
                 <input
                   type="text"
                   placeholder="Search for events..."
-                  onChange={(e)=>setSearchTerm(e.target.value)}
-                  onKeyDown={(e)=>{
-                    if(e.key==='Enter'){
-                      handleSearch()
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
                     }
                   }}
                   className="w-full px-6 py-4 rounded-full text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 group-hover:bg-white"
@@ -151,8 +137,7 @@ const HomePage: FC = () => {
             </motion.div>
           </motion.div>
         </div>
-        <Chatbot/>
-    
+        <Chatbot />
 
         {/* Scroll Indicator */}
         <motion.div
@@ -188,13 +173,13 @@ const HomePage: FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  setSelectedCategory(category.name)
-                  fetchEventsByCategory(category.name)
+                  setSelectedCategory(category.name);
+                  fetchEventsByCategory(category.name);
                 }}
                 className={`px-6 py-2 rounded-full transition-all duration-300 ${
                   selectedCategory === category.name
-                    ? 'bg-black text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                    ? "bg-black text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
                 } shadow-md`}
               >
                 {category.name}
@@ -202,61 +187,58 @@ const HomePage: FC = () => {
             ))}
           </motion.div>
         </div>
-       
-      
-
       </section>
 
       {/* Featured Events Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {events.map((event) => (
-                  <div
-                    key={event._id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                   
-                  >
-                    <div className="relative">
-                      <img
-                        src={
-                          event.images && event.images.length > 0
-                            ? `http://localhost:3000/${event.images[0].replace('\\', '/')}`
-                            : 'https://via.placeholder.com/300x200'
-                        }
-                        alt={event.title}
-                        className="w-full h-52 object-cover"
-                      />
-                      <span className="absolute top-3 right-3 bg-black text-white text-sm px-3 py-1 rounded-full">
-                        {event.category}
-                      </span>
-                    </div>
-                    <div className="p-4">
-                      <h2 className="text-xl font-semibold text-gray-800 mb-2">{event.title}</h2>
-                      <div className="text-gray-600 flex items-center mb-1">
-                        <FaCalendar className="mr-2 text-black" />
-                        {new Date(event.date).toLocaleDateString()}
-                      </div>
-                      <div className="text-gray-600 flex items-center mb-1">
-                        <FaClock className="mr-2 text-black" />
-                        {event.time}
-                      </div>
-                      <div className="text-gray-600 flex items-center mb-2">
-                        <FaMapMarkerAlt className="mr-2 text-black" />
-                        {event.venue}
-                      </div>
-      
-                      
-      
-                      <div className="flex justify-between items-center mt-4">
-                        <div className="text-[#004d4d]-600 font-semibold text-lg">
-                          ₹{event.ticketPrice}
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                ))}
+        {events.map((event) => (
+          <div
+            key={event._id}
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+          >
+            <div className="relative">
+              <img
+                src={
+                  event.images && event.images.length > 0
+                    ? `http://localhost:3000/${event.images[0].replace(
+                        "\\",
+                        "/"
+                      )}`
+                    : "https://via.placeholder.com/300x200"
+                }
+                alt={event.title}
+                className="w-full h-52 object-cover"
+              />
+              <span className="absolute top-3 right-3 bg-black text-white text-sm px-3 py-1 rounded-full">
+                {event.category}
+              </span>
+            </div>
+            <div className="p-4">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                {event.title}
+              </h2>
+              <div className="text-gray-600 flex items-center mb-1">
+                <FaCalendar className="mr-2 text-black" />
+                {new Date(event.date).toLocaleDateString()}
               </div>
-      
+              <div className="text-gray-600 flex items-center mb-1">
+                <FaClock className="mr-2 text-black" />
+                {event.time}
+              </div>
+              <div className="text-gray-600 flex items-center mb-2">
+                <FaMapMarkerAlt className="mr-2 text-black" />
+                {event.venue}
+              </div>
+
+              <div className="flex justify-between items-center mt-4">
+                <div className="text-[#004d4d]-600 font-semibold text-lg">
+                  ₹{event.ticketPrice}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Newsletter Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-purple-500 to-blue-500">
@@ -267,26 +249,14 @@ const HomePage: FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-bold mb-6">Stay Updated</h2>
-            <p className="text-xl mb-8">Get notified about upcoming events and exclusive offers</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="px-6 py-4 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-white text-purple-600 rounded-full font-medium hover:bg-gray-100 transition-colors duration-300"
-              >
-                Subscribe
-              </motion.button>
-            </div>
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              onSearch={handleSearch}
+            />
           </motion.div>
         </div>
       </section>
-      
     </div>
   );
 };

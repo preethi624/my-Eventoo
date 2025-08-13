@@ -19,14 +19,14 @@ class AdminEventRepository {
     getEventsAll(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, orgName } = filters;
+            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, orgName, } = filters;
             const skip = (page - 1) * limit;
             const query = {};
             if (searchLocation) {
-                query.venue = { $regex: searchLocation, $options: 'i' };
+                query.venue = { $regex: searchLocation, $options: "i" };
             }
             if (searchTitle) {
-                query.title = { $regex: searchTitle, $options: 'i' };
+                query.title = { $regex: searchTitle, $options: "i" };
             }
             if (selectedCategory) {
                 query.category = selectedCategory;
@@ -69,12 +69,10 @@ class AdminEventRepository {
             countPipeline.push({ $count: "total" });
             const countData = yield event_1.default.aggregate(countPipeline);
             const total = ((_a = countData[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
-            // const totalCount=await EventModel.countDocuments(query)
-            //const events=await EventModel.find(query).skip(skip).limit(limit).sort({createdAt:-1});
             return {
                 totalPages: Math.ceil(total / limit),
                 events,
-                currentPage: page
+                currentPage: page,
             };
         });
     }
@@ -98,49 +96,62 @@ class AdminEventRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const categoryColors = {
-                music: '#8B5CF6',
-                sports: '#06B6D4',
-                technology: '#10B981',
-                Others: '#F59E0B',
-                arts: '#EF4444'
+                music: "#8B5CF6",
+                sports: "#06B6D4",
+                technology: "#10B981",
+                Others: "#F59E0B",
+                arts: "#EF4444",
             };
             const settings = yield platformSettings_1.default.findOne();
             const commissionRate = ((_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10) / 100;
             const monthlyRevenue = yield event_1.default.aggregate([
                 {
                     $match: {
-                        status: 'completed'
-                    }
+                        status: "completed",
+                    },
                 },
                 {
                     $group: {
-                        _id: { $month: '$date' },
-                        revenue: { $sum: { $multiply: [{ $multiply: ['$ticketPrice', '$ticketsSold'] }, commissionRate] } },
-                        events: { $sum: 1 }
-                    }
+                        _id: { $month: "$date" },
+                        revenue: {
+                            $sum: {
+                                $multiply: [
+                                    { $multiply: ["$ticketPrice", "$ticketsSold"] },
+                                    commissionRate,
+                                ],
+                            },
+                        },
+                        events: { $sum: 1 },
+                    },
                 },
                 {
                     $project: {
-                        month: '$_id',
+                        month: "$_id",
                         revenue: 1,
                         events: 1,
-                        _id: 0
-                    }
+                        _id: 0,
+                    },
                 },
                 {
-                    $sort: { month: 1 }
-                }
+                    $sort: { month: 1 },
+                },
             ]);
             const topEvents = yield event_1.default.aggregate([
-                { $project: { title: 1, ticketsSold: 1, revenue: { $multiply: ["$ticketsSold", "$ticketPrice"] } } },
+                {
+                    $project: {
+                        title: 1,
+                        ticketsSold: 1,
+                        revenue: { $multiply: ["$ticketsSold", "$ticketPrice"] },
+                    },
+                },
                 { $sort: { revenue: -1 } },
-                { $limit: 5 }
+                { $limit: 5 },
             ]);
             const eventCategories = yield event_1.default.aggregate([
                 { $group: { _id: "$category", value: { $sum: 1 } } },
-                { $project: { name: "$_id", value: 1, _id: 0 } }
+                { $project: { name: "$_id", value: 1, _id: 0 } },
             ]);
-            const categories = eventCategories.map(cat => (Object.assign(Object.assign({}, cat), { color: categoryColors[cat.name] || '#9CA3AF' })));
+            const categories = eventCategories.map((cat) => (Object.assign(Object.assign({}, cat), { color: categoryColors[cat.name] || "#9CA3AF" })));
             const completedEvents = yield event_1.default.find({ status: "completed" });
             let adminEarning = 0;
             completedEvents.forEach((event) => {
@@ -149,10 +160,13 @@ class AdminEventRepository {
                 const totalAdmin = adminPerTicket * totalTickets;
                 adminEarning += totalAdmin;
             });
-            const activeEvents = yield event_1.default.find({ status: "published", isBlocked: false });
+            const activeEvents = yield event_1.default.find({
+                status: "published",
+                isBlocked: false,
+            });
             return {
                 monthlyRevenue,
-                message: 'Dashboard data fetched successfully',
+                message: "Dashboard data fetched successfully",
                 success: true,
                 topEvents,
                 eventCategories: categories,

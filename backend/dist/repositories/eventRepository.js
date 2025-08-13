@@ -24,17 +24,21 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6 } = filters;
+            console.log("filters", filters);
+            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, } = filters;
             const skip = (page - 1) * limit;
-            const query = { isBlocked: false, status: "published" };
+            const query = {
+                isBlocked: false,
+                status: "published",
+            };
             if (searchLocation) {
-                query.venue = { $regex: searchLocation, $options: 'i' };
+                query.venue = { $regex: searchLocation, $options: "i" };
             }
             if (searchTitle) {
-                query.title = { $regex: searchTitle, $options: 'i' };
+                query.title = { $regex: searchTitle, $options: "i" };
             }
             if (selectedCategory) {
-                query.category = selectedCategory;
+                query.category = { $regex: selectedCategory, $options: "i" };
             }
             if (maxPrice != undefined && maxPrice != null) {
                 query.ticketPrice = { $lte: maxPrice };
@@ -47,11 +51,15 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 query.date = { $gte: date, $lt: nextDay };
             }
             const totalCount = yield event_1.default.countDocuments(query);
-            const events = yield event_1.default.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+            const events = yield event_1.default.find(query)
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+            console.log("events", events);
             return {
                 totalPages: Math.ceil(totalCount / limit),
                 events,
-                currentPage: page
+                currentPage: page,
             };
         });
     }
@@ -74,19 +82,23 @@ class EventRepository extends baseRepository_1.BaseRepository {
     editEvent(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             const updatedData = Object.assign(Object.assign({}, data), { date: new Date(data.date), status: data.status });
+            if (data.capacity !== undefined) {
+                updatedData.availableTickets = data.capacity;
+            }
             return this.updateById(id, updatedData);
         });
     }
     statusCheck(emailObj) {
         return __awaiter(this, void 0, void 0, function* () {
-            ;
             const { email } = emailObj;
             return yield user_1.default.findOne({ email });
         });
     }
     decrementAvailableTickets(eventId, ticketCount) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield event_1.default.findByIdAndUpdate(eventId, { $inc: { availableTickets: -ticketCount } });
+            yield event_1.default.findByIdAndUpdate(eventId, {
+                $inc: { availableTickets: -ticketCount },
+            });
         });
     }
     eventGet(id, limit, page, searchTerm, date) {
@@ -105,12 +117,15 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 nextDate.setDate(selectedDate.getDate() + 1);
                 filter.date = { $gte: selectedDate, $lt: nextDate };
             }
-            const events = yield event_1.default.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+            const events = yield event_1.default.find(filter)
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
             const totalEvents = yield event_1.default.countDocuments({ organiser: id });
             return {
                 events,
                 totalPages: Math.ceil(totalEvents / limit),
-                currentPage: page
+                currentPage: page,
             };
         });
     }
@@ -122,50 +137,61 @@ class EventRepository extends baseRepository_1.BaseRepository {
     dashboardEvents(organiserId, timeFrame) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const days = timeFrame === '7d' ? 7 : timeFrame == '30d' ? 30 : 90;
+            const days = timeFrame === "7d" ? 7 : timeFrame == "30d" ? 30 : 90;
             const startDate = new Date();
             startDate.setDate(startDate.getDate() - days);
             const data = yield event_1.default.aggregate([
-                { $match: { organiser: new mongoose_1.default.Types.ObjectId(organiserId), status: 'published', date: { $gte: startDate } } },
+                {
+                    $match: {
+                        organiser: new mongoose_1.default.Types.ObjectId(organiserId),
+                        status: "published",
+                        date: { $gte: startDate },
+                    },
+                },
                 {
                     $project: {
                         month: { $month: "$date" },
-                        revenue: { $multiply: ["$ticketPrice", "$ticketsSold"] }
-                    }
+                        revenue: { $multiply: ["$ticketPrice", "$ticketsSold"] },
+                    },
                 },
                 {
                     $group: {
                         _id: "$month",
                         totalRevenue: { $sum: "$revenue" },
-                        totalEvents: { $sum: 1 }
-                    }
+                        totalEvents: { $sum: 1 },
+                    },
                 },
                 {
                     $project: {
                         month: "$_id",
                         revenue: "$totalRevenue",
                         events: "$totalEvents",
-                        _id: 0
-                    }
+                        _id: 0,
+                    },
                 },
                 {
-                    $sort: { month: 1 }
-                }
+                    $sort: { month: 1 },
+                },
             ]);
             const settings = yield platformSettings_1.default.findOne();
             const adminCommissionPercentage = (_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10;
-            const adjustedData = data.map(item => ({
+            const adjustedData = data.map((item) => ({
                 month: item.month,
                 events: item.events,
-                revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100
+                revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100,
             }));
-            const events = yield event_1.default.find({ organiser: organiserId, date: { $gte: startDate } });
+            const events = yield event_1.default.find({
+                organiser: organiserId,
+                date: { $gte: startDate },
+            });
             const completedEvents = yield event_1.default.find({
                 organiser: organiserId,
-                status: 'completed',
-                date: { $gte: startDate }
+                status: "completed",
+                date: { $gte: startDate },
             });
-            const topEvents = [...events].sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, 5);
+            const topEvents = [...events]
+                .sort((a, b) => b.ticketsSold - a.ticketsSold)
+                .slice(0, 5);
             let organiserEarning = 0;
             completedEvents.forEach((event) => {
                 const ticketRevenue = event.ticketPrice * event.ticketsSold;
@@ -176,10 +202,19 @@ class EventRepository extends baseRepository_1.BaseRepository {
             const totalEvents = events.length;
             const totalAttendees = completedEvents.reduce((sum, event) => sum + event.ticketsSold, 0);
             const upcomingEvents = events
-                .filter(event => new Date(event.date) >= new Date())
+                .filter((event) => new Date(event.date) >= new Date())
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                 .slice(0, 5);
-            return { events, data: adjustedData, adminCommissionPercentage, organiserEarning, totalEvents, totalAttendees, topEvents, upcomingEvents };
+            return {
+                events,
+                data: adjustedData,
+                adminCommissionPercentage,
+                organiserEarning,
+                totalEvents,
+                totalAttendees,
+                topEvents,
+                upcomingEvents,
+            };
         });
     }
     getOrgEvents(organiserId) {
@@ -189,16 +224,18 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     findEvent(eventName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const trimmedName = eventName.trim().replace(/\s+/g, '');
-            const regex = new RegExp(trimmedName.split('').join('\\s*'), 'i');
+            const trimmedName = eventName.trim().replace(/\s+/g, "");
+            const regex = new RegExp(trimmedName.split("").join("\\s*"), "i");
             return yield event_1.default.findOne({
-                title: { $regex: regex }
+                title: { $regex: regex },
             });
         });
     }
     findEventsByCat(category) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield event_1.default.find({ category: { $regex: new RegExp(`^${category}$`, 'i') } });
+            return yield event_1.default.find({
+                category: { $regex: new RegExp(`^${category}$`, "i") },
+            });
         });
     }
 }

@@ -10,24 +10,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
+const messages_1 = require("../constants/messages");
 class ChatService {
-    constructor(chatRepository) {
-        this.chatRepository = chatRepository;
+    constructor(_chatRepository) {
+        this._chatRepository = _chatRepository;
     }
     chatCreate(message, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.chatRepository.createChat(message, userId);
+                const result = yield this._chatRepository.createChat(message, userId);
                 if (result) {
-                    return { success: true, message: "successfully chat", result: result.text };
+                    return {
+                        success: true,
+                        message: messages_1.MESSAGES.CHAT.SUCCESS_CHAT,
+                        result: result.text,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to chat" };
+                    return { success: false, message: messages_1.MESSAGES.CHAT.FAILED_CHAT };
                 }
             }
             catch (error) {
                 console.log(error);
-                return { success: false, message: "failed to chat" };
+                return { success: false, message: messages_1.MESSAGES.CHAT.FAILED_CHAT };
             }
         });
     }

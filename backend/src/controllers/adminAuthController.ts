@@ -6,40 +6,36 @@ import { IAdminAuthService } from "src/services/serviceInterface/IAdminAuthServi
 import { StatusCode } from "../constants/statusCodeEnum";
 import { MESSAGES } from "../constants/messages";
 
-
-
-export class AdminAuthController implements IAdminAuthController{
-    constructor(private authService:IAdminAuthService,private setTokenService:ISetTokenService ){}
-    async adminLogin(req: Request<unknown, unknown, LoginBody>, res: Response):Promise<void>{
+export class AdminAuthController implements IAdminAuthController {
+  constructor(
+    private _authService: IAdminAuthService,
+    private setTokenService: ISetTokenService
+  ) {}
+  async adminLogin(
+    req: Request<unknown, unknown, LoginBody>,
+    res: Response
+  ): Promise<void> {
     try {
-       const {email,password}=req.body
-             const result:LoginResult=await this.authService.loginAdmin({email,password})
-             if (!result.success) {
-             
-               
-                res.status(StatusCode.UNAUTHORIZED).json({ message: result.message });
-                return
-       
-             }
-             if (result.refreshToken) {
-                 this.setTokenService.setRefreshToken(res,result.refreshToken)
-             
-           }
-         
-              res.json(result);
-         
-        
+      const { email, password } = req.body;
+      const result: LoginResult = await this._authService.loginAdmin({
+        email,
+        password,
+      });
+      if (!result.success) {
+        res.status(StatusCode.UNAUTHORIZED).json({ message: result.message });
+        return;
+      }
+      if (result.refreshToken) {
+        this.setTokenService.setRefreshToken(res, result.refreshToken);
+      }
+
+      res.json(result);
     } catch (error) {
       console.log(error);
-      
 
-         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COMMON.SERVER_ERROR }); 
-      
-        
+      res
+        .status(StatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: MESSAGES.COMMON.SERVER_ERROR });
     }
-    
-}
-
-    
-
+  }
 }

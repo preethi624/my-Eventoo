@@ -6,7 +6,7 @@ const mapOrganiserToDTO = (organiser) => ({
     name: organiser.name,
     email: organiser.email,
     isBlocked: organiser.isBlocked,
-    status: organiser.status
+    status: organiser.status,
 });
 exports.mapOrganiserToDTO = mapOrganiserToDTO;
 //# sourceMappingURL=mapOrganiserToDTO.js.map
