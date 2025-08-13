@@ -48,7 +48,7 @@ class OrganiserAuthRepository {
             yield otp_1.default.deleteMany({ email });
             yield otp_1.default.create({
                 email,
-                otp
+                otp,
             });
         });
     }

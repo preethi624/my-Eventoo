@@ -2,14 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
 
-
 interface Admin {
   _id: string;
   email: string;
   role: string;
-  
 }
-
 
 interface AdminAuthState {
   admin: Admin | null;

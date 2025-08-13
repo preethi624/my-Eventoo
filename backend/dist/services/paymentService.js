@@ -22,26 +22,26 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const pdfkit_1 = __importDefault(require("pdfkit"));
 const bwip_js_1 = __importDefault(require("bwip-js"));
 const transporter = nodemailer_1.default.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
+        pass: process.env.EMAIL_PASSWORD,
+    },
 });
 const razorpay = new razorpay_1.default({
     key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 function generateTicketPDF(order, tickets) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
             const doc = new pdfkit_1.default({ margin: 50 });
             const buffers = [];
-            doc.on('data', buffers.push.bind(buffers));
-            doc.on('end', () => resolve(Buffer.concat(buffers)));
-            doc.on('error', reject);
+            doc.on("data", buffers.push.bind(buffers));
+            doc.on("end", () => resolve(Buffer.concat(buffers)));
+            doc.on("error", reject);
             (() => __awaiter(this, void 0, void 0, function* () {
-                doc.fontSize(20).text(order.eventTitle, { align: 'center' });
+                doc.fontSize(20).text(order.eventTitle, { align: "center" });
                 doc.moveDown();
                 doc.fontSize(14).text(`Order ID: ${order.orderId}`);
                 doc.text(`Tickets Booked: ${order.ticketCount}`);
@@ -49,7 +49,7 @@ function generateTicketPDF(order, tickets) {
                 for (let i = 0; i < tickets.length; i++) {
                     const ticket = tickets[i];
                     const barcodeBuffer = yield bwip_js_1.default.toBuffer({
-                        bcid: 'qrcode',
+                        bcid: "qrcode",
                         text: ticket.qrToken,
                         scale: 3,
                         height: 12,
@@ -67,9 +67,9 @@ function generateTicketPDF(order, tickets) {
     });
 }
 class PaymentService {
-    constructor(paymentRepository, eventRepository) {
-        this.paymentRepository = paymentRepository;
-        this.eventRepository = eventRepository;
+    constructor(_paymentRepository, _eventRepository) {
+        this._paymentRepository = _paymentRepository;
+        this._eventRepository = _eventRepository;
     }
     orderCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -86,10 +86,10 @@ class PaymentService {
                 const options = {
                     amount: totalPrice * 100,
                     currency: "INR",
-                    receipt: "receipt_order_74394"
+                    receipt: "receipt_order_74394",
                 };
                 const order = yield razorpay.orders.create(options);
-                const response = yield this.paymentRepository.createOrder({
+                const response = yield this._paymentRepository.createOrder({
                     razorpayOrderId: order.id,
                     amount: Number(order.amount),
                     currency: order.currency,
@@ -101,18 +101,22 @@ class PaymentService {
                     eventTitle,
                     createdAt,
                     orderId: orderId,
-                    email
+                    email,
                 });
                 if (response) {
-                    return ({ success: true, message: "order created successfully", order: response });
+                    return {
+                        success: true,
+                        message: "order created successfully",
+                        order: response,
+                    };
                 }
                 else {
-                    return ({ success: false, message: "failed to create order" });
+                    return { success: false, message: "Not enough tickets to sail" };
                 }
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "not creating order" };
+                return { success: false, message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order" };
             }
         });
     }
@@ -125,18 +129,19 @@ class PaymentService {
                 const eventId = data.eventId;
                 const eventTitle = data.eventTitle;
                 const createdAt = new Date();
-                const response = yield this.paymentRepository.createOrderFree({ ticketCount,
+                const response = yield this._paymentRepository.createOrderFree({
+                    ticketCount,
                     userId,
                     eventId,
                     eventTitle,
                     createdAt,
                     orderId: orderId,
                     status: "Not required",
-                    bookingStatus: "confirmed"
+                    bookingStatus: "confirmed",
                 });
                 if (response) {
                     return {
-                        success: true
+                        success: true,
                     };
                 }
                 return { success: false };
@@ -147,7 +152,101 @@ class PaymentService {
             }
         });
     }
-    paymentVerify(data) {
+    /*async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
+      try {
+        const razorpay_payment_id = data.razorpay_payment_id;
+        const razorpay_order_id = data.razorpay_order_id;
+        const razorpay_signature = data.razorpay_signature;
+        const secret = process.env.RAZORPAY_KEY_SECRET;
+        if (!secret) {
+          throw new Error(
+            "RAZORPAY_KEY_SECRET is not defined in environment variables."
+          );
+        }
+        const hmac = crypto.createHmac("sha256", secret);
+        hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+        const generatedSignature = hmac.digest("hex");
+        if (generatedSignature === razorpay_signature) {
+          const updatedOrder = await this._paymentRepository.updatePaymentDetails(
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            "paid"
+          );
+          if (updatedOrder) {
+            console.log("updatedOrder", updatedOrder);
+            const event = updatedOrder.eventId as unknown as IEvent;
+  
+            await this._eventRepository.decrementAvailableTickets(
+              updatedOrder.eventId._id.toString(),
+              updatedOrder.ticketCount
+            );
+  
+            const tickets = await this._paymentRepository.getTickets(
+              updatedOrder._id
+            );
+            const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
+            const mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: updatedOrder?.email,
+              subject: `Your ticket for ${updatedOrder.eventTitle}`,
+              text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(
+                tickets,
+                null,
+                2
+              )}`,
+              html: `<h3>Thank you for booking!</h3>
+          <p>Event: <b>${updatedOrder.eventTitle}</b></p>
+          <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
+          <p>Order ID: ${updatedOrder.orderId}</p>
+          <p>Venue:${event.venue}</p>
+          <p>Date:${event.date}
+          
+          `,
+  
+              attachments: [
+                {
+                  filename: "ticket.pdf",
+                  content: pdfBuffer,
+                },
+              ],
+            };
+  
+            await transporter.sendMail(mailOptions);
+            return {
+              success: true,
+              message: "Payment verified and ticket sent to email",
+            };
+          } else {
+            console.warn(
+              "No matching order found for Razorpay Order ID:",
+              razorpay_order_id
+            );
+          }
+  
+          return { success: true, message: "Payment verified successfully" };
+        } else {
+          await this._paymentRepository.updatePaymentDetails(
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            "failed"
+          );
+          return { success: false, message: "Payment not verified" };
+        }
+      } catch (error) {
+        console.error(error);
+        if (data.razorpay_order_id) {
+          await this._paymentRepository.updatePaymentDetails(
+            data.razorpay_order_id,
+            data.razorpay_payment_id || "",
+            data.razorpay_signature || "",
+            "failed"
+          );
+        }
+        return { success: false, message: "Payment not verified" };
+      }
+    }*/ paymentVerify(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const razorpay_payment_id = data.razorpay_payment_id;
@@ -157,63 +256,63 @@ class PaymentService {
                 if (!secret) {
                     throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables.");
                 }
-                const hmac = crypto_1.default.createHmac('sha256', secret);
-                hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
-                const generatedSignature = hmac.digest('hex');
-                if (generatedSignature === razorpay_signature) {
-                    const updatedOrder = yield this.paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'paid');
-                    if (updatedOrder) {
-                        console.log("updatedOrder", updatedOrder);
-                        const event = updatedOrder.eventId;
-                        yield this.eventRepository.decrementAvailableTickets(updatedOrder.eventId._id.toString(), updatedOrder.ticketCount);
-                        const tickets = yield this.paymentRepository.getTickets(updatedOrder._id);
-                        const pdfBuffer = yield generateTicketPDF(updatedOrder, tickets);
-                        const mailOptions = {
-                            from: process.env.EMAIL_USER,
-                            to: updatedOrder === null || updatedOrder === void 0 ? void 0 : updatedOrder.email,
-                            subject: `Your ticket for ${updatedOrder.eventTitle}`,
-                            text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(tickets, null, 2)}`,
-                            html: `<h3>Thank you for booking!</h3>
+                // Step 1: Verify Razorpay signature
+                const hmac = crypto_1.default.createHmac("sha256", secret);
+                hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+                const generatedSignature = hmac.digest("hex");
+                if (generatedSignature !== razorpay_signature) {
+                    return { success: false, message: "Payment verification failed" };
+                }
+                // Step 2: Update payment + decrement tickets inside a single transaction
+                const updatedOrder = yield this._paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, "paid");
+                if (!updatedOrder) {
+                    console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
+                    return { success: false, message: "Order not found or already processed" };
+                }
+                const event = updatedOrder.eventId;
+                // Step 3: Fetch tickets after transaction
+                const tickets = yield this._paymentRepository.getTickets(updatedOrder._id);
+                // Step 4: Generate ticket PDF
+                const pdfBuffer = yield generateTicketPDF(updatedOrder, tickets);
+                // Step 5: Send email
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: updatedOrder === null || updatedOrder === void 0 ? void 0 : updatedOrder.email,
+                    subject: `Your ticket for ${updatedOrder.eventTitle}`,
+                    html: `<h3>Thank you for booking!</h3>
         <p>Event: <b>${updatedOrder.eventTitle}</b></p>
         <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
         <p>Order ID: ${updatedOrder.orderId}</p>
-        <p>Venue:${event.venue}</p>
-        <p>Date:${event.date}
-        
-        `,
-                            attachments: [
-                                {
-                                    filename: 'ticket.pdf',
-                                    content: pdfBuffer
-                                }
-                            ]
-                        };
-                        yield transporter.sendMail(mailOptions);
-                        return { success: true, message: "Payment verified and ticket sent to email" };
-                    }
-                    else {
-                        console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
-                    }
-                    return { success: true, message: "Payment verified successfully" };
-                }
-                else {
-                    yield this.paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'failed');
-                    return { success: false, message: "Payment not verified" };
-                }
+        <p>Venue: ${event.venue}</p>
+        <p>Date: ${event.date}</p>`,
+                    attachments: [
+                        {
+                            filename: "ticket.pdf",
+                            content: pdfBuffer,
+                        },
+                    ],
+                };
+                yield transporter.sendMail(mailOptions);
+                return {
+                    success: true,
+                    message: "Payment verified and ticket sent to email",
+                };
             }
             catch (error) {
-                console.error(error);
-                if (data.razorpay_order_id) {
-                    yield this.paymentRepository.updatePaymentDetails(data.razorpay_order_id, data.razorpay_payment_id || '', data.razorpay_signature || '', 'failed');
+                console.error("Payment verification failed:", error);
+                if (error.message === "Not enough tickets available") {
+                    return { success: false, message: error.message };
                 }
-                return { success: false, message: "Payment not verified" };
+                else {
+                    return { success: false, message: "Payment verification failed" };
+                }
             }
         });
     }
     paymentFailure(payStatus, orderId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.paymentRepository.failurePayment(payStatus, orderId, userId);
+                const response = yield this._paymentRepository.failurePayment(payStatus, orderId, userId);
                 if (response) {
                     return { success: true, message: "status updated" };
                 }
@@ -230,10 +329,14 @@ class PaymentService {
     ordersGet(id, limit, page, searchTerm, status) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.paymentRepository.getOrders(id, limit, page, searchTerm, status);
+                const result = yield this._paymentRepository.getOrders(id, limit, page, searchTerm, status);
                 console.log("result", result);
                 if (result) {
-                    return { success: true, message: "orders fetched successfully", order: result };
+                    return {
+                        success: true,
+                        message: "orders fetched successfully",
+                        order: result,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -248,9 +351,13 @@ class PaymentService {
     orderGetById(userId, orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.paymentRepository.getOrderById(userId, orderId);
+                const result = yield this._paymentRepository.getOrderById(userId, orderId);
                 if (result) {
-                    return { success: true, message: "orders fetched successfully", order: result };
+                    return {
+                        success: true,
+                        message: "orders fetched successfully",
+                        order: result,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -265,9 +372,13 @@ class PaymentService {
     ordersGetById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.paymentRepository.getOrdersById(userId);
+                const result = yield this._paymentRepository.getOrdersById(userId);
                 if (result) {
-                    return { success: true, totalSpent: result.totalSpent, eventsBooked: result.eventsBooked };
+                    return {
+                        success: true,
+                        totalSpent: result.totalSpent,
+                        eventsBooked: result.eventsBooked,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -282,15 +393,21 @@ class PaymentService {
     orderFind(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.paymentRepository.findOrder(orderId);
+                const result = yield this._paymentRepository.findOrder(orderId);
                 if (result) {
                     const paymentId = result.razorpayPaymentId;
                     const amount = result.amount;
-                    const refund = yield razorpay.payments.refund(paymentId, { amount: amount });
+                    const refund = yield razorpay.payments.refund(paymentId, {
+                        amount: amount,
+                    });
                     const refundId = refund.id;
-                    const response = yield this.paymentRepository.updateRefund(refundId, orderId);
+                    const response = yield this._paymentRepository.updateRefund(refundId, orderId);
                     if (response.success) {
-                        return { success: true, refundId: refundId, message: "successfully updated" };
+                        return {
+                            success: true,
+                            refundId: refundId,
+                            message: "successfully updated",
+                        };
                     }
                     else {
                         return { success: false, message: response.message };
@@ -309,7 +426,7 @@ class PaymentService {
     ticketsGet(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.paymentRepository.getTickets(orderId);
+                const result = yield this._paymentRepository.getTickets(orderId);
                 if (result) {
                     return { success: true, result: result };
                 }
@@ -326,7 +443,7 @@ class PaymentService {
     ticketDetailsGet(userId, searchTerm, status) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.paymentRepository.getTicketDetails(userId, searchTerm, status);
+                const result = yield this._paymentRepository.getTicketDetails(userId, searchTerm, status);
                 if (result) {
                     return { success: true, tickets: result };
                 }

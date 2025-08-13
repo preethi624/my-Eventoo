@@ -13,16 +13,15 @@ exports.UserAuthController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 const messages_1 = require("../constants/messages");
 class UserAuthController {
-    constructor(authService, setTokenService) {
-        this.authService = authService;
+    constructor(_authService, setTokenService) {
+        this._authService = _authService;
         this.setTokenService = setTokenService;
     }
-    ;
     userLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
-                const result = yield this.authService.loginUser(email, password);
+                const result = yield this._authService.loginUser(email, password);
                 if (!result.success) {
                     res.status(401).json({ message: result.message });
                     return;
@@ -34,25 +33,32 @@ class UserAuthController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
-    ;
     userRegister(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { name, email, password } = req.body;
-                const result = yield this.authService.registerUser(name, email, password);
+                const result = yield this._authService.registerUser(name, email, password);
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.CREATED).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.CREATED)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -60,16 +66,27 @@ class UserAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { name, email, password, otp } = req.body;
-                const result = yield this.authService.userVerify({ name, email, password, otp });
+                const result = yield this._authService.userVerify({
+                    name,
+                    email,
+                    password,
+                    otp,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -77,16 +94,24 @@ class UserAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email } = req.body;
-                const result = yield this.authService.resendUser({ email });
+                const result = yield this._authService.resendUser({
+                    email,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.error(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -94,7 +119,7 @@ class UserAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { credential } = req.body;
-                const result = yield this.authService.loginUserWithGoogle(credential);
+                const result = yield this._authService.loginUserWithGoogle(credential);
                 if (!result.success) {
                     res.status(statusCodeEnum_1.StatusCode.BAD_REQUEST).json({ message: result.message });
                     return;
@@ -106,7 +131,9 @@ class UserAuthController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -116,23 +143,28 @@ class UserAuthController {
             try {
                 const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken;
                 if (!refreshToken) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: 'No refresh token provided' });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: "No refresh token provided" });
                     return;
                 }
-                const newToken = yield this.authService.refreshTokens(refreshToken);
+                const newToken = yield this._authService.refreshTokens(refreshToken);
                 if (!(newToken === null || newToken === void 0 ? void 0 : newToken.accessToken)) {
-                    res.status(statusCodeEnum_1.StatusCode.FORBIDDEN).json({ message: 'Invalid refresh token' });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.FORBIDDEN)
+                        .json({ message: "Invalid refresh token" });
                     return;
                 }
                 res.json({ token: newToken.accessToken });
             }
             catch (error) {
-                console.error('Refresh error:', error);
-                res.status(statusCodeEnum_1.StatusCode.FORBIDDEN).json({ message: 'Invalid refresh token' });
+                console.error("Refresh error:", error);
+                res
+                    .status(statusCodeEnum_1.StatusCode.FORBIDDEN)
+                    .json({ message: "Invalid refresh token" });
             }
         });
     }
-    ;
 }
 exports.UserAuthController = UserAuthController;
 //# sourceMappingURL=userAuthController.js.map

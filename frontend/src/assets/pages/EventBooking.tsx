@@ -30,12 +30,24 @@ const EventBooking: React.FC = () => {
   const [ticketCount, setTicketCount] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
   const [paymentStatus,setPaymentStatus]=useState('')
-  const [bookingStep, setBookingStep] = useState(1); // 1 = select tickets, 2 = user details, 3 = payment, 4 = confirmation
+  const [bookingStep, setBookingStep] = useState(1); 
   const [bookingData, setBookingData] = useState({
     name: '',
     email: '',
     phone: '',
   });
+  let imageSrc = "https://via.placeholder.com/300x200";
+    if (event&&event.images && event.images.length > 0) {
+    const img = event.images[0];
+    if (img.startsWith("http")) {
+      
+      imageSrc = img;
+    } else {
+    
+      imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+    }
+  }
+
  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -245,6 +257,9 @@ const handleFreebooking=async()=>{
     
     
     if (!order) return;
+    if(!order.success){
+     toast.error(order.message)
+    }
     console.log("order",order);
     
     
@@ -383,17 +398,16 @@ const handleFreebooking=async()=>{
       <h2 className="text-xl font-bold mb-4">Select Tickets</h2>
       
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <img 
+       <div className="flex items-center">
+          <img
             src={
-              event.images?.[0]
-                ? `http://localhost:3000/${event.images[0].replace('\\', '/')}`
-                : 'https://via.placeholder.com/120x80'
+              imageSrc
             }
             alt={event.title}
             className="w-20 h-16 object-cover rounded mr-4"
           />
           <div>
+
             <h3 className="font-semibold">{event.title}</h3>
             <div className="text-sm text-gray-600 flex items-center">
               <FaCalendar className="mr-1" size={12} />

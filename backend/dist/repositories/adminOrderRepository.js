@@ -19,12 +19,12 @@ class AdminOrderRepository {
     getOrdersAll(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const { searchTerm = '', statusFilter = '', selectedDate = '', page = 1, limit = 6, organiser = '', user = '' } = filters;
+            const { searchTerm = "", statusFilter = "", selectedDate = "", page = 1, limit = 6, organiser = "", user = "", } = filters;
             const skip = (page - 1) * limit;
             const match = {};
             // Filter by booking status
             if (statusFilter) {
-                match.bookingStatus = { $regex: statusFilter, $options: 'i' };
+                match.bookingStatus = { $regex: statusFilter, $options: "i" };
             }
             // Filter by createdAt date
             if (selectedDate) {
@@ -38,43 +38,45 @@ class AdminOrderRepository {
             const pipeline = [
                 {
                     $lookup: {
-                        from: 'events',
-                        localField: 'eventId',
-                        foreignField: '_id',
-                        as: 'eventDetails',
+                        from: "events",
+                        localField: "eventId",
+                        foreignField: "_id",
+                        as: "eventDetails",
                     },
                 },
-                { $unwind: '$eventDetails' },
+                { $unwind: "$eventDetails" },
                 {
                     $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'userDetails',
+                        from: "users",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "userDetails",
                     },
                 },
-                { $unwind: '$userDetails' },
+                { $unwind: "$userDetails" },
                 {
                     $lookup: {
-                        from: 'organisers',
-                        localField: 'eventDetails.organiser',
-                        foreignField: '_id',
-                        as: 'organiserDetails',
+                        from: "organisers",
+                        localField: "eventDetails.organiser",
+                        foreignField: "_id",
+                        as: "organiserDetails",
                     },
                 },
-                { $unwind: '$organiserDetails' },
+                { $unwind: "$organiserDetails" },
                 {
                     $match: Object.assign(Object.assign(Object.assign(Object.assign({}, match), (searchTerm
                         ? {
                             $or: [
-                                { 'eventDetails.title': { $regex: searchTerm, $options: 'i' } },
-                                { _id: { $regex: searchTerm, $options: 'i' } },
+                                {
+                                    "eventDetails.title": { $regex: searchTerm, $options: "i" },
+                                },
+                                { _id: { $regex: searchTerm, $options: "i" } },
                             ],
                         }
                         : {})), (organiser
-                        ? { 'organiserDetails.name': { $regex: organiser, $options: 'i' } }
+                        ? { "organiserDetails.name": { $regex: organiser, $options: "i" } }
                         : {})), (user
-                        ? { 'userDetails.name': { $regex: user, $options: 'i' } }
+                        ? { "userDetails.name": { $regex: user, $options: "i" } }
                         : {})),
                 },
                 { $sort: { createdAt: -1 } },
@@ -85,7 +87,7 @@ class AdminOrderRepository {
                 order_1.default.aggregate(pipeline),
                 order_1.default.aggregate([
                     ...pipeline.slice(0, -2), // remove skip & limit
-                    { $count: 'total' },
+                    { $count: "total" },
                 ]),
             ]);
             const totalCount = ((_a = countData[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
@@ -100,16 +102,16 @@ class AdminOrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             /*let stDate: Date;
-            let enDate: Date | undefined;
-          
-            if (startDate && endDate) {
-              stDate = new Date(startDate);
-              enDate = new Date(endDate);
-            } else {
-              const days = timeFrame === '7d' ? 7 : timeFrame === '30d' ? 30 : 90;
-              stDate = new Date();
-              stDate.setDate(stDate.getDate() - days);
-            }*/
+          let enDate: Date | undefined;
+        
+          if (startDate && endDate) {
+            stDate = new Date(startDate);
+            enDate = new Date(endDate);
+          } else {
+            const days = timeFrame === '7d' ? 7 : timeFrame === '30d' ? 30 : 90;
+            stDate = new Date();
+            stDate.setDate(stDate.getDate() - days);
+          }*/
             let stDate;
             let enDate;
             if (startDate && endDate) {
@@ -133,66 +135,72 @@ class AdminOrderRepository {
                 enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
             }
             else {
-                const days = timeFrame === '7d' ? 7 : timeFrame === '30d' ? 30 : 90;
+                const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
                 stDate = new Date();
                 stDate.setDate(stDate.getDate() - days);
             }
             const eventMatchCondition = {
-                'eventDetails.status': 'completed',
+                "eventDetails.status": "completed",
                 createdAt: enDate ? { $gte: stDate, $lte: enDate } : { $gte: stDate },
             };
             if (category) {
-                eventMatchCondition['eventDetails.category'] = category;
+                eventMatchCondition["eventDetails.category"] = category;
             }
             const orders = yield order_1.default.aggregate([
                 { $sort: { createdAt: -1 } },
                 { $limit: 5 },
                 {
                     $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'user',
+                        from: "users",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "user",
                     },
                 },
-                { $unwind: '$user' },
+                { $unwind: "$user" },
                 {
                     $lookup: {
-                        from: 'events',
-                        localField: 'eventId',
-                        foreignField: '_id',
-                        as: 'event',
+                        from: "events",
+                        localField: "eventId",
+                        foreignField: "_id",
+                        as: "event",
                     },
                 },
-                { $unwind: '$event' },
+                { $unwind: "$event" },
                 {
                     $lookup: {
-                        from: 'organisers',
-                        localField: 'event.organiser',
-                        foreignField: '_id',
-                        as: 'organiser',
+                        from: "organisers",
+                        localField: "event.organiser",
+                        foreignField: "_id",
+                        as: "organiser",
                     },
                 },
-                { $unwind: '$organiser' },
+                { $unwind: "$organiser" },
                 {
                     $project: {
                         _id: 0,
-                        date: '$createdAt',
-                        id: '$orderId',
-                        user: '$user.name',
-                        event: '$event.title',
-                        eventDate: '$event.date',
-                        eventStatus: '$event.status',
-                        organiserName: '$organiser.name',
-                        organiserEmail: '$organiser.email',
+                        date: "$createdAt",
+                        id: "$orderId",
+                        user: "$user.name",
+                        event: "$event.title",
+                        eventDate: "$event.date",
+                        eventStatus: "$event.status",
+                        organiserName: "$organiser.name",
+                        organiserEmail: "$organiser.email",
                         amount: 1,
                         status: {
                             $switch: {
                                 branches: [
-                                    { case: { $eq: ['$bookingStatus', 'confirmed'] }, then: 'Completed' },
-                                    { case: { $eq: ['$bookingStatus', 'cancelled'] }, then: 'Failed' },
+                                    {
+                                        case: { $eq: ["$bookingStatus", "confirmed"] },
+                                        then: "Completed",
+                                    },
+                                    {
+                                        case: { $eq: ["$bookingStatus", "cancelled"] },
+                                        then: "Failed",
+                                    },
                                 ],
-                                default: 'Pending',
+                                default: "Pending",
                             },
                         },
                     },
@@ -203,59 +211,62 @@ class AdminOrderRepository {
             const salesReport = yield order_1.default.aggregate([
                 {
                     $lookup: {
-                        from: 'events',
-                        localField: 'eventId',
-                        foreignField: '_id',
-                        as: 'eventDetails',
+                        from: "events",
+                        localField: "eventId",
+                        foreignField: "_id",
+                        as: "eventDetails",
                     },
                 },
-                { $unwind: '$eventDetails' },
+                { $unwind: "$eventDetails" },
                 {
                     $lookup: {
-                        from: 'organisers',
-                        localField: 'eventDetails.organiser',
-                        foreignField: '_id',
-                        as: 'organiserDetails',
+                        from: "organisers",
+                        localField: "eventDetails.organiser",
+                        foreignField: "_id",
+                        as: "organiserDetails",
                     },
                 },
-                { $unwind: '$organiserDetails' },
+                { $unwind: "$organiserDetails" },
                 {
                     $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'userDetails',
+                        from: "users",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "userDetails",
                     },
                 },
-                { $unwind: '$userDetails' },
+                { $unwind: "$userDetails" },
                 { $match: eventMatchCondition },
-                { $addFields: {
+                {
+                    $addFields: {
                         adminEarning: {
                             $multiply: [
                                 {
                                     $divide: [
                                         { $multiply: ["$amount", adminCommissionPercentage] },
-                                        100
-                                    ]
+                                        100,
+                                    ],
                                 },
-                                "$ticketCount"
-                            ]
-                        }
-                    } },
+                                "$ticketCount",
+                            ],
+                        },
+                    },
+                },
                 {
                     $project: {
                         _id: 0,
-                        event: '$eventDetails.title',
-                        eventDate: '$eventDetails.date',
-                        ticketPrice: '$eventDetails.ticketPrice',
-                        user: '$userDetails.name',
-                        organiserName: '$organiserDetails.name',
-                        organiserEmail: '$organiserDetails.email',
+                        event: "$eventDetails.title",
+                        eventDate: "$eventDetails.date",
+                        ticketPrice: "$eventDetails.ticketPrice",
+                        user: "$userDetails.name",
+                        organiserName: "$organiserDetails.name",
+                        organiserEmail: "$organiserDetails.email",
                         adminEarning: 1,
                     },
                 },
             ]);
-            const totalAdminEarning = salesReport.reduce((sum, record) => sum + (record.adminEarning || 0), 0) / 100;
+            const totalAdminEarning = salesReport.reduce((sum, record) => sum + (record.adminEarning || 0), 0) /
+                100;
             return { orders, salesReport, totalAdminEarning };
         });
     }

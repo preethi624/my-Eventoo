@@ -18,22 +18,22 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 class MailService {
     constructor() {
-        this.transporter = nodemailer_1.default.createTransport({
-            service: 'gmail',
+        this._transporter = nodemailer_1.default.createTransport({
+            service: "gmail",
             auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD
-            }
+                pass: process.env.EMAIL_PASSWORD,
+            },
         });
     }
     sendMail(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ to, subject, text, html }) {
-            yield this.transporter.sendMail({
+        return __awaiter(this, arguments, void 0, function* ({ to, subject, text, html, }) {
+            yield this._transporter.sendMail({
                 from: process.env.EMAIL_USER,
                 to,
                 subject,
                 text,
-                html
+                html,
             });
         });
     }

@@ -1,19 +1,19 @@
-import React from 'react';
+import React from "react";
 
-import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
-import type { RootState } from '../../redux/stroe';
-
-
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+import type { RootState } from "../../redux/stroe";
 
 interface ProtectedRouteProps {
   element: React.ReactNode;
 }
 
-export default function ProtectedRoute({ element }: ProtectedRouteProps): React.ReactNode {
-  const isUserLoggedin = useSelector((state:RootState ) => !!state.auth.userToken);
-  const isOrganiserLoggedin = useSelector((state: RootState) => !!state.auth.organiserToken);
- 
+export default function ProtectedRoute({
+  element,
+}: ProtectedRouteProps): React.ReactNode {
+  //const isUserLoggedin = useSelector((state:RootState ) => !!state.auth.authToken);
+  //const isOrganiserLoggedin = useSelector((state: RootState) => !!state.auth.authToken);
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.authToken);
 
-  return (isUserLoggedin || isOrganiserLoggedin) ? element : <Navigate to="/login" />;
+  return isLoggedIn ? element : <Navigate to="/login" />;
 }

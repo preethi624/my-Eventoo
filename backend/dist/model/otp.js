@@ -9,6 +9,6 @@ const otpSchema = new mongoose_1.default.Schema({
     otp: { type: String, required: true },
     createdAt: { type: Date, default: Date.now, expires: 600 },
 });
-const OTP = mongoose_1.default.model('Otp', otpSchema);
+const OTP = mongoose_1.default.model("Otp", otpSchema);
 exports.default = OTP;
 //# sourceMappingURL=otp.js.map

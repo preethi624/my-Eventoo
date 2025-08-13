@@ -11,16 +11,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const commonAuthRepository_1 = require("../repositories/commonAuthRepository");
+const messages_1 = require("../constants/messages");
 class AuthService {
-    constructor(otpService, emailService, passwordService) {
-        this.otpService = otpService;
-        this.emailService = emailService;
-        this.passwordService = passwordService;
+    constructor(_otpService, _emailService, _passwordService) {
+        this._otpService = _otpService;
+        this._emailService = _emailService;
+        this._passwordService = _passwordService;
     }
     passwordForgot(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, userType }) {
             try {
-                if (userType !== 'user' && userType !== 'organiser') {
+                if (userType !== "user" && userType !== "organiser") {
                     throw new Error("Invalid user type");
                 }
                 const repo = commonAuthRepository_1.CommonAuthRepository.getRepository(userType);
@@ -28,27 +29,27 @@ class AuthService {
                 if (!account) {
                     return { success: false, message: "Email not exist" };
                 }
-                const otp = this.otpService.generateOTP();
+                const otp = this._otpService.generateOTP();
                 yield repo.createOTP(otp, email);
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: email,
-                    subject: 'Password Reset OTP',
-                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`
+                    subject: "Password Reset OTP",
+                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
                 };
-                yield this.emailService.sendMail(mailOptions);
+                yield this._emailService.sendMail(mailOptions);
                 return { success: true, message: "OTP sent successfully" };
             }
             catch (error) {
                 console.log(error);
-                return { success: false, message: "Internal server error" };
+                return { success: false, message: messages_1.MESSAGES.COMMON.SERVER_ERROR };
             }
         });
     }
     verifyOtp(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, otp, userType }) {
             try {
-                if (userType !== 'user' && userType !== 'organiser') {
+                if (userType !== "user" && userType !== "organiser") {
                     throw new Error("Invalid user type");
                 }
                 const repo = commonAuthRepository_1.CommonAuthRepository.getRepository(userType);
@@ -57,21 +58,24 @@ class AuthService {
                     return { success: false, message: "OTP not found, please try again" };
                 }
                 if (otp != Otp.otp) {
-                    return { success: false, message: "otp verification failed,please try again" };
+                    return {
+                        success: false,
+                        message: "otp verification failed,please try again",
+                    };
                 }
                 return { success: true, message: "otp verified successfully" };
             }
             catch (error) {
                 console.log(error);
-                return { success: false, message: "Internal server error" };
+                return { success: false, message: messages_1.MESSAGES.COMMON.SERVER_ERROR };
             }
         });
     }
     resetPassword(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ email, password, userType }) {
+        return __awaiter(this, arguments, void 0, function* ({ email, password, userType, }) {
             try {
-                const hashedPassword = yield this.passwordService.hashPassword(password);
-                if (userType !== 'user' && userType !== 'organiser') {
+                const hashedPassword = yield this._passwordService.hashPassword(password);
+                if (userType !== "user" && userType !== "organiser") {
                     throw new Error("Invalid user type");
                 }
                 const repo = commonAuthRepository_1.CommonAuthRepository.getRepository(userType);
@@ -84,15 +88,15 @@ class AuthService {
             }
             catch (error) {
                 console.log(error);
-                return { success: false, message: "Internal server error" };
+                return { success: false, message: messages_1.MESSAGES.COMMON.SERVER_ERROR };
             }
         });
     }
     forgotResend(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, userType }) {
             try {
-                const otp = this.otpService.generateOTP();
-                if (userType !== 'user' && userType !== 'organiser') {
+                const otp = this._otpService.generateOTP();
+                if (userType !== "user" && userType !== "organiser") {
                     throw new Error("Invalid user type");
                 }
                 const repo = commonAuthRepository_1.CommonAuthRepository.getRepository(userType);
@@ -100,15 +104,15 @@ class AuthService {
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: email,
-                    subject: 'Password Reset OTP',
-                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`
+                    subject: "Password Reset OTP",
+                    text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
                 };
-                yield this.emailService.sendMail(mailOptions);
-                return ({ success: true, message: "otp send successfully" });
+                yield this._emailService.sendMail(mailOptions);
+                return { success: true, message: "otp send successfully" };
             }
             catch (error) {
                 console.log(error);
-                return { success: false, message: "Internal server error" };
+                return { success: false, message: messages_1.MESSAGES.COMMON.SERVER_ERROR };
             }
         });
     }

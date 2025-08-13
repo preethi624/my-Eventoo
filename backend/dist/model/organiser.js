@@ -37,23 +37,26 @@ const mongoose_1 = __importStar(require("mongoose"));
 const organiserSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: function () {
-            return this.authMethod !== 'google';
-        } },
+    password: {
+        type: String,
+        required: function () {
+            return this.authMethod !== "google";
+        },
+    },
     role: { type: String },
     otp: { type: String },
     otpExpiry: { type: Date },
     isBlocked: { type: Boolean, default: false },
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending',
+        enum: ["pending", "approved", "rejected"],
+        default: "pending",
     },
     location: { type: String },
     phone: { type: Number },
     aboutMe: { type: String },
-    profileImage: { type: String }
+    profileImage: { type: String },
 });
-const Organiser = mongoose_1.default.model('Organiser', organiserSchema);
+const Organiser = mongoose_1.default.model("Organiser", organiserSchema);
 exports.default = Organiser;
 //# sourceMappingURL=organiser.js.map

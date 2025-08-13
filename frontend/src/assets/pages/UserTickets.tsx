@@ -1,14 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Clock, QrCode, CheckCircle, XCircle, Download, Share2, Filter, Search } from 'lucide-react';
-import { paymentRepository } from '../../repositories/paymentRepositories';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../redux/stroe';
-import { QRCodeSVG } from 'qrcode.react'; 
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  QrCode,
+  CheckCircle,
+  XCircle,
+  Download,
+  Share2,
+  Filter,
+  Search,
+} from "lucide-react";
+import { paymentRepository } from "../../repositories/paymentRepositories";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../redux/stroe";
+import { QRCodeSVG } from "qrcode.react";
 import { jsPDF } from "jspdf";
-import QRCode from 'qrcode';
-import UserNavbar from '../components/UseNavbar';
-
-
+import QRCode from "qrcode";
+import UserNavbar from "../components/UseNavbar";
 
 interface Ticket {
   _id: string;
@@ -39,50 +48,38 @@ export const TicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-    const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.auth.user);
 
- 
   useEffect(() => {
-    fetchTickets()
-   
-  }, [searchTerm,filterStatus]);
-  const fetchTickets=async()=>{
+    fetchTickets();
+  }, [searchTerm, filterStatus]);
+  const fetchTickets = async () => {
     try {
-         const params=new URLSearchParams();
-          if(searchTerm){
-  
-   
-    
-    params.append('searchTerm',searchTerm);}
-      if(filterStatus!='all')params.append('status',filterStatus)
-        if(!user||!user.id){
-            throw new Error("usser not present")
-        }
-       const data=await paymentRepository.getTicketDetails(user?.id,params.toString()) ;
-       console.log("data",data);
-       setTickets(data.result)
-       
-        
+      const params = new URLSearchParams();
+      if (searchTerm) {
+        params.append("searchTerm", searchTerm);
+      }
+      if (filterStatus != "all") params.append("status", filterStatus);
+      if (!user || !user.id) {
+        throw new Error("usser not present");
+      }
+      const data = await paymentRepository.getTicketDetails(
+        user?.id,
+        params.toString()
+      );
+      console.log("data", data);
+      setTickets(data.result);
     } catch (error) {
-        console.log(error);
-        
-        
-    }finally {
-    
-    setLoading(false);
-  }
-     
-    
-  }
- 
-
- 
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const generateQRCode = (qrToken: string) => {
-    
     return `data:image/svg+xml;base64,${btoa(`
       <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
         <rect width="200" height="200" fill="white"/>
@@ -92,106 +89,117 @@ export const TicketsPage: React.FC = () => {
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
-  const formatCurrency = (amount: number, currency: string = 'INR') => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
+  const formatCurrency = (amount: number, currency: string = "INR") => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
       currency: currency,
-    }).format(amount/100);
+    }).format(amount / 100);
   };
 
   const isUpcoming = (date: Date) => new Date(date) > new Date();
 
-  const downloadTicket = async(ticket: Ticket) => {
+  const downloadTicket = async (ticket: Ticket) => {
     const doc = new jsPDF();
-     
-       
-    
-      const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`; 
-      const qrImage = await QRCode.toDataURL(qrText);
-    
-      doc.text(`Ticket Confirmation`, 10, 10);
-      doc.text(`Ticket ID: ${ticket._id.slice(-6)}`, 10, 50);
-      doc.text(`Event: ${ticket.event.title}`, 10, 20);
-     doc.text(`Date: ${formatDate(ticket.event.date)}`, 10, 30);
-      doc.text(`Venue: ${ticket.event.venue}`, 10, 40);
 
-     
-     
-      doc.text(`Amount Paid: ${formatCurrency(ticket.order.totalAmount)}`, 10, 70);
-    
-      // Draw QR code
-      doc.addImage(qrImage, 'PNG', 10, 80, 50, 50);
-       
-    
-      doc.save(`ticket_${ticket.event.title.replace(/\s+/g, '_')}.pdf`);
-   
- 
+    const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`;
+    const qrImage = await QRCode.toDataURL(qrText);
+
+    doc.text(`Ticket Confirmation`, 10, 10);
+    doc.text(`Ticket ID: ${ticket._id.slice(-6)}`, 10, 50);
+    doc.text(`Event: ${ticket.event.title}`, 10, 20);
+    doc.text(`Date: ${formatDate(ticket.event.date)}`, 10, 30);
+    doc.text(`Venue: ${ticket.event.venue}`, 10, 40);
+
+    doc.text(
+      `Amount Paid: ${formatCurrency(ticket.order.totalAmount)}`,
+      10,
+      70
+    );
+
+    // Draw QR code
+    doc.addImage(qrImage, "PNG", 10, 80, 50, 50);
+
+    doc.save(`ticket_${ticket.event.title.replace(/\s+/g, "_")}.pdf`);
   };
 
-  
- const shareTicket = async (ticket: Ticket) => {
-  const doc = new jsPDF();
+  const shareTicket = async (ticket: Ticket) => {
+    const doc = new jsPDF();
 
-  const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`;
-  const qrImage = await QRCode.toDataURL(qrText);
+    const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`;
+    const qrImage = await QRCode.toDataURL(qrText);
 
-  // Ticket Content
-  doc.text(`Ticket Confirmation`, 10, 10);
-  doc.text(`Ticket ID: ${ticket._id.slice(-6)}`, 10, 20);
-  doc.text(`Event: ${ticket.event.title}`, 10, 30);
-  doc.text(`Date: ${formatDate(ticket.event.date)}`, 10, 40);
-  doc.text(`Venue: ${ticket.event.venue}`, 10, 50);
-  doc.text(`Amount Paid: ${formatCurrency(ticket.order.totalAmount)}`, 10, 60);
-  doc.addImage(qrImage, 'PNG', 10, 70, 50, 50);
+    // Ticket Content
+    doc.text(`Ticket Confirmation`, 10, 10);
+    doc.text(`Ticket ID: ${ticket._id.slice(-6)}`, 10, 20);
+    doc.text(`Event: ${ticket.event.title}`, 10, 30);
+    doc.text(`Date: ${formatDate(ticket.event.date)}`, 10, 40);
+    doc.text(`Venue: ${ticket.event.venue}`, 10, 50);
+    doc.text(
+      `Amount Paid: ${formatCurrency(ticket.order.totalAmount)}`,
+      10,
+      60
+    );
+    doc.addImage(qrImage, "PNG", 10, 70, 50, 50);
 
-  const pdfBlob = doc.output('blob'); // PDF as a Blob
+    const pdfBlob = doc.output("blob"); // PDF as a Blob
 
-  const file = new File([pdfBlob], `ticket_${ticket._id}.pdf`, { type: 'application/pdf' });
+    const file = new File([pdfBlob], `ticket_${ticket._id}.pdf`, {
+      type: "application/pdf",
+    });
 
-  // Web Share API - for mobile browsers that support file sharing
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        title: `Ticket for ${ticket.event.title}`,
-        text: `Here's my ticket for "${ticket.event.title}" on ${formatDate(ticket.event.date)} at ${ticket.event.venue}.`,
-        files: [file],
-      });
-    } catch (err) {
-      console.error("Sharing failed:", err);
+    // Web Share API - for mobile browsers that support file sharing
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: `Ticket for ${ticket.event.title}`,
+          text: `Here's my ticket for "${ticket.event.title}" on ${formatDate(
+            ticket.event.date
+          )} at ${ticket.event.venue}.`,
+          files: [file],
+        });
+      } catch (err) {
+        console.error("Sharing failed:", err);
+      }
+    } else {
+      // Fallback for Desktop: Offer download + WhatsApp text
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `ticket_${ticket._id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // WhatsApp text share
+      const message = `🎟️ My Ticket for "${
+        ticket.event.title
+      }"\n\n📅 ${formatDate(ticket.event.date)}\n📍 ${
+        ticket.event.venue
+      }\n💳 Amount Paid: ${formatCurrency(
+        ticket.order.totalAmount
+      )}\n\nYou can verify it here:\n${qrText}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, "_blank");
     }
-  } else {
-    // Fallback for Desktop: Offer download + WhatsApp text
-    const url = URL.createObjectURL(pdfBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ticket_${ticket._id}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // WhatsApp text share
-    const message = `🎟️ My Ticket for "${ticket.event.title}"\n\n📅 ${formatDate(ticket.event.date)}\n📍 ${ticket.event.venue}\n💳 Amount Paid: ${formatCurrency(ticket.order.totalAmount)}\n\nYou can verify it here:\n${qrText}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <UserNavbar/>
+      <UserNavbar />
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h1 className="text-3xl font-bold text-gray-900">My Tickets</h1>
-          <p className="text-gray-600 mt-2">Manage and view all your event tickets</p>
+          <p className="text-gray-600 mt-2">
+            Manage and view all your event tickets
+          </p>
         </div>
       </div>
 
@@ -227,16 +235,26 @@ export const TicketsPage: React.FC = () => {
         {tickets.length === 0 ? (
           <div className="text-center py-12">
             <QrCode className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tickets found</h3>
-            <p className="text-gray-600">You don't have any tickets matching your search criteria.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No tickets found
+            </h3>
+            <p className="text-gray-600">
+              You don't have any tickets matching your search criteria.
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
-              <div key={ticket._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+              <div
+                key={ticket._id}
+                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+              >
                 <div className="relative">
                   <img
-                    src= {`http://localhost:3000/${ticket.event.image[0].replace('\\', '/')}`}
+                    src={`http://localhost:3000/${ticket.event.image[0].replace(
+                      "\\",
+                      "/"
+                    )}`}
                     alt={ticket.event.title}
                     className="w-full h-48 object-cover"
                   />
@@ -261,8 +279,10 @@ export const TicketsPage: React.FC = () => {
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{ticket.event.title}</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {ticket.event.title}
+                  </h3>
+
                   <div className="space-y-2 text-sm text-gray-600 mb-4">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-gray-400" />
@@ -321,29 +341,35 @@ export const TicketsPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 {selectedTicket.event.title}
               </h3>
-             
-              <p>{new Date(selectedTicket.event.date).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-               day: 'numeric'
-              })}</p>
-              <p>{selectedTicket.event.venue}</p>
-             
 
+              <p>
+                {new Date(selectedTicket.event.date).toLocaleDateString(
+                  "en-US",
+                  {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }
+                )}
+              </p>
+              <p>{selectedTicket.event.venue}</p>
 
               <div className="bg-gray-50 rounded-lg p-6 mb-4">
-                <QRCodeSVG value={`https://myeventsite.com/verify/${selectedTicket.qrToken}`} size={128} />
+                <QRCodeSVG
+                  value={`https://myeventsite.com/verify/${selectedTicket.qrToken}`}
+                  size={128}
+                />
                 <p className="text-sm text-gray-600 mb-2">QR Token</p>
                 <p className="text-xs font-mono bg-white px-3 py-2 rounded border">
                   {selectedTicket.qrToken}
                 </p>
-                
-
               </div>
               <div className="text-sm text-gray-600 mb-4">
                 <p>Show this QR code at the event entrance</p>
-                <p className="font-medium">Ticket ID: #{selectedTicket._id.slice(-6)}</p>
+                <p className="font-medium">
+                  Ticket ID: #{selectedTicket._id.slice(-6)}
+                </p>
               </div>
               <div className="flex space-x-3">
                 <button

@@ -1,26 +1,26 @@
 // pages/organizer/CheckIn.tsx
-import { useState } from 'react';
+import { useState } from "react";
 
-import React from 'react';
+import React from "react";
 
-import QrScanner from '../components/QRScanner';
+import QrScanner from "../components/QRScanner";
 
-import { organiserRepository } from '../../repositories/organiserRepositories';
+import { organiserRepository } from "../../repositories/organiserRepositories";
 
 const CheckInPage = () => {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const handleScanSuccess = async (qrData: string) => {
     try {
-        const qrToken=qrData.split('/').pop()
-        if(!qrToken){
-            throw new Error("qr token not present")
-        }
-    const response=await organiserRepository.updateTicket(qrToken)
+      const qrToken = qrData.split("/").pop();
+      if (!qrToken) {
+        throw new Error("qr token not present");
+      }
+      const response = await organiserRepository.updateTicket(qrToken);
 
       setMessage(response.message);
     } catch (error: any) {
-      setMessage(error.response?.data?.message || 'Invalid ticket');
+      setMessage(error.response?.data?.message || "Invalid ticket");
     }
   };
 

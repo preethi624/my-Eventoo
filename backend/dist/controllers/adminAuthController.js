@@ -13,15 +13,18 @@ exports.AdminAuthController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
 const messages_1 = require("../constants/messages");
 class AdminAuthController {
-    constructor(authService, setTokenService) {
-        this.authService = authService;
+    constructor(_authService, setTokenService) {
+        this._authService = _authService;
         this.setTokenService = setTokenService;
     }
     adminLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
-                const result = yield this.authService.loginAdmin({ email, password });
+                const result = yield this._authService.loginAdmin({
+                    email,
+                    password,
+                });
                 if (!result.success) {
                     res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message });
                     return;
@@ -33,7 +36,9 @@ class AdminAuthController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

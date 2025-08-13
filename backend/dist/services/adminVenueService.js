@@ -10,48 +10,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminVenueService = void 0;
+const messages_1 = require("../constants/messages");
 class AdminVenueService {
-    constructor(adminVenueRepository) {
-        this.adminVenueRepository = adminVenueRepository;
+    constructor(_adminVenueRepository) {
+        this._adminVenueRepository = _adminVenueRepository;
     }
     venueCreate(venueData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminVenueRepository.createVenue(venueData);
+                const result = yield this._adminVenueRepository.createVenue(venueData);
                 if (result) {
-                    return { success: true, message: "Venue created successfully" };
+                    return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE };
                 }
                 else {
-                    return { success: false, message: "Failed t create venue" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE };
                 }
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "not creating venue" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE };
             }
         });
     }
     venuesFetch(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminVenueRepository.fetchVenues(filters);
+                const response = yield this._adminVenueRepository.fetchVenues(filters);
                 if (response) {
-                    return { success: true, message: "fetched successfully", venues: response.venues, totalPages: response.totalPages, currentPage: response.currentPage };
+                    return {
+                        success: true,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                        venues: response.venues,
+                        totalPages: response.totalPages,
+                        currentPage: response.currentPage,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "failed to fetch venues" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
             }
         });
     }
     venueEdit(updateData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminVenueRepository.editVenue(updateData);
+                const response = yield this._adminVenueRepository.editVenue(updateData);
                 if (response) {
                     return { success: true, message: "updated successfully" };
                 }
@@ -61,24 +68,24 @@ class AdminVenueService {
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "failed to update" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE };
             }
         });
     }
     venueDelete(venueId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminVenueRepository.deleteVenue(venueId);
+                const response = yield this._adminVenueRepository.deleteVenue(venueId);
                 if (response.acknowledged && response.deletedCount === 1) {
                     return { success: true, message: "deleted successfully" };
                 }
                 else {
-                    return { success: false, message: "failed to delete" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_DELETE };
                 }
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "failed to delete" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_DELETE };
             }
         });
     }

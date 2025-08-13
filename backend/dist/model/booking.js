@@ -35,12 +35,12 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const bookingSchema = new mongoose_1.Schema({
-    eventId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'EventModel' },
-    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' },
+    eventId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "EventModel" },
+    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "User" },
     quantity: Number,
     totalAmount: Number,
-    bookingDate: { type: Date, default: Date.now }
+    bookingDate: { type: Date, default: Date.now },
 });
-const Booking = mongoose_1.default.model('Booking', bookingSchema);
+const Booking = mongoose_1.default.model("Booking", bookingSchema);
 exports.default = Booking;
 //# sourceMappingURL=booking.js.map

@@ -19,6 +19,7 @@
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.97",
+    "@types/morgan": "^1.9.10",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.15.17",
     "@types/nodemailer": "^6.4.17",
@@ -37,6 +38,7 @@
     "@google/generative-ai": "^0.24.1",
     "bcrypt": "^5.1.1",
     "bwip-js": "^4.7.0",
+    "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -44,12 +46,15 @@
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.0",
+    "morgan": "^1.10.1",
     "multer": "^1.4.5-lts.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "node-cron": "^4.1.1",
     "nodemailer": "^7.0.3",
     "pdfkit": "^0.17.1",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0"
   }
 }

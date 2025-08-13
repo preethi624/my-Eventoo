@@ -1,13 +1,13 @@
-import React, { useState, useEffect} from 'react';
-import type { FormEvent } from 'react';
-import { FaEdit } from 'react-icons/fa';
-import AdminLayout from '../components/AdminLayout';
-import { adminRepository } from '../../repositories/adminRepositories';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import type { FormEvent } from "react";
+import { FaEdit } from "react-icons/fa";
+import AdminLayout from "../components/AdminLayout";
+import { adminRepository } from "../../repositories/adminRepositories";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import Swal from 'sweetalert2';
-import type { IUser } from '../../interfaces/IUser';
+import Swal from "sweetalert2";
+import type { IUser } from "../../interfaces/IUser";
 
 export interface User {
   _id: string;
@@ -18,35 +18,34 @@ export interface User {
 
 const AdminUser: React.FC = () => {
   const [users, setUsers] = useState<IUser[]>([]);
-  const [totalPage,setTotalPage]=useState(1)
+  const [totalPage, setTotalPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<IUser| null>(null);
-    const [currentPage,setCurrentPage]=useState(1);
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+const [filterStatus, setFilterStatus] = useState("all"); 
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
   });
-  const limit=10;
-  
+  const limit = 10;
+
   useEffect(() => {
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage,searchTerm,filterStatus]);
 
   const fetchUsers = async () => {
     try {
-      const response = await adminRepository.getAllUsers(limit,currentPage);
-      console.log("response",response);
-      
-   
-      
-      if (response.success&&response.result) {
-        setUsers(response.result);
-        setTotalPage(response.total)
-       
+      const response = await adminRepository.getAllUsers(limit, currentPage,searchTerm,filterStatus);
+      console.log("response", response);
 
+      if (response.success && response.result) {
+        setUsers(response.result);
+        setTotalPage(response.total);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     }
   };
 
@@ -58,104 +57,110 @@ const AdminUser: React.FC = () => {
         toast.error("Invalid user ID");
         return;
       }
-      
-        const response =await adminRepository.updateUser( id, formData )
 
-      
-         
-        
+      const response = await adminRepository.updateUser(id, formData);
 
       if (response.success) {
         setShowModal(false);
         fetchUsers();
         resetForm();
-        toast.success( "User updated" );
+        toast.success("User updated");
       }
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error("Error saving user:", error);
     }
   };
 
   const handleEdit = (user: IUser) => {
     setSelectedUser(user);
-    if(!user.name){
-      throw new Error("name not exist")
+    if (!user.name) {
+      throw new Error("name not exist");
     }
-    
+
     setFormData({ name: user.name, email: user.email });
     setShowModal(true);
   };
 
-  
-
   const handleToggleBlock = async (user: IUser) => {
+    if (!user) return;
 
-    
-     if (!user) return;
-        
-          const result = await Swal.fire({
-            title: 'Are you sure?',
-           
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, block/unblock it!',
-          });
-        
-          if (result.isConfirmed) {
-            try {
-              const response = await adminRepository.blockUser(user);
-             
-              
-              if (response.success) {
-                fetchUsers();
-                if(user.isBlocked){
-                  toast.success('Unblocked user successfully!');
-                  
-                
-    
-                }else{
-    
-               
-                toast.success('Blocked user successfully!');
-                }
-                
-               
-              } else {
-                toast.error( 'Failed to block.');
-              }
-            } catch (error) {
-              console.log(error);
-              
-              toast.error('Error blocking.');
-            }
+    const result = await Swal.fire({
+      title: "Are you sure?",
+
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, block/unblock it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await adminRepository.blockUser(user);
+
+        if (response.success) {
+          setUsers(prevUsers=>prevUsers.map(u=>u._id===user._id?{...u,isBlocked:!u.isBlocked}:u))
+          
+          if (user.isBlocked) {
+            toast.success("Unblocked user successfully!");
+          } else {
+            toast.success("Blocked user successfully!");
           }
+        } else {
+          toast.error("Failed to block.");
+        }
+      } catch (error) {
+        console.log(error);
+
+        toast.error("Error blocking.");
+      }
+    }
   };
 
   const resetForm = () => {
     setSelectedUser(null);
-    setFormData({ name: '', email: '' });
+    setFormData({ name: "", email: "" });
   };
-   const handleNextPage = () => {
-  if (currentPage < totalPage) {
-    setCurrentPage(currentPage + 1);
-  }
-};
+  const handleNextPage = () => {
+    if (currentPage < totalPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-const handlePrevPage = () => {
-  if (currentPage > 1) {
-    setCurrentPage(currentPage - 1);
-  }
-};
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <AdminLayout>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Users</h2>
-        
       </div>
+      <div className="flex gap-4 mb-4">
+  {/* Search input */}
+  <input
+    type="text"
+    placeholder="Search by name or email"
+    className="border border-gray-300 rounded px-3 py-2 w-64"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+
+  {/* Filter dropdown */}
+  <select
+    className="border border-gray-300 rounded px-3 py-2"
+    value={filterStatus}
+    onChange={(e) => setFilterStatus(e.target.value)}
+  >
+    <option value="all">All</option>
+    <option value="blocked">Blocked</option>
+    <option value="unblocked">Unblocked</option>
+  </select>
+</div>
+
 
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300 rounded shadow">
@@ -176,10 +181,12 @@ const handlePrevPage = () => {
                   <button
                     onClick={() => handleToggleBlock(user)}
                     className={`px-3 py-1 rounded text-sm font-medium ${
-                      user.isBlocked ? 'bg-green-500 text-white' : 'bg-yellow-500 text-black'
+                      user.isBlocked
+                        ? "bg-green-500 text-white"
+                        : "bg-yellow-500 text-black"
                     }`}
                   >
-                    {user.isBlocked ? 'Unblock' : 'Block'}
+                    {user.isBlocked ? "Unblock" : "Block"}
                   </button>
                 </td>
                 <td className="p-3 border-b flex gap-2">
@@ -189,7 +196,6 @@ const handlePrevPage = () => {
                   >
                     <FaEdit />
                   </button>
-                  
                 </td>
               </tr>
             ))}
@@ -201,7 +207,9 @@ const handlePrevPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">{selectedUser ? 'Edit User' : ''}</h3>
+              <h3 className="text-xl font-semibold">
+                {selectedUser ? "Edit User" : ""}
+              </h3>
               <button
                 onClick={() => {
                   setShowModal(false);
@@ -221,7 +229,9 @@ const handlePrevPage = () => {
                     type="text"
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -231,7 +241,9 @@ const handlePrevPage = () => {
                     type="email"
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -252,40 +264,45 @@ const handlePrevPage = () => {
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
-                  {selectedUser ? 'Update' : 'Create'}
+                  {selectedUser ? "Update" : "Create"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-       
-        {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
-  <button
-    onClick={handlePrevPage}
-    disabled={currentPage === 1}
-    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-  >
-    Previous
-  </button>
-  {Array.from({ length: totalPage }, (_, index) => (
-    <button
-      key={index}
-      onClick={() => setCurrentPage(index + 1)}
-      className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}
-    >
-      {index + 1}
-    </button>
-  ))}
-  <button
-    onClick={handleNextPage}
-    disabled={currentPage === totalPage}
-    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-  >
-    Next
-  </button>
-</div>)}
-      
+
+      {totalPage > 1 && (
+        <div className="flex justify-center mt-4 gap-2">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPage }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPage}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </AdminLayout>
   );
 };

@@ -48,8 +48,8 @@ const venueSchema = new mongoose_1.Schema({
     images: { type: [String], default: [] },
     website: { type: String, required: true },
     facilities: { type: [String] },
-    status: { type: String, enum: ['active', 'inactive'] }
+    status: { type: String, enum: ["active", "inactive"] },
 }, { timestamps: true });
-const Venue = mongoose_1.default.model('Venue', venueSchema);
+const Venue = mongoose_1.default.model("Venue", venueSchema);
 exports.default = Venue;
 //# sourceMappingURL=venue.js.map

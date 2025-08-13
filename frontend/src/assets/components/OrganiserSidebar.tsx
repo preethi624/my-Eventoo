@@ -1,32 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import {
   FaCalendarAlt,
- 
   FaTicketAlt,
-  FaChartBar,
   FaUsers,
-  FaCog,
   FaSignInAlt,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 const links = [
-   { to: '/organiserProfile', icon: <FaCalendarAlt />, label: 'Profile' },
+  { to: "/organiserProfile", icon: <FaCalendarAlt />, label: "Profile" },
 
-  { to: '/dashboard', icon: <FaCalendarAlt />, label: 'Dashboard' },
-  { to: '/orgEvents', icon: <FaCalendarAlt />, label: 'Events' },
-   { to: '/orgVenues', icon: <FaCalendarAlt />, label: 'Venues' },
+  { to: "/dashboard", icon: <FaCalendarAlt />, label: "Dashboard" },
+  { to: "/orgEvents", icon: <FaCalendarAlt />, label: "Events" },
+  { to: "/orgVenues", icon: <FaCalendarAlt />, label: "Venues" },
 
- 
-  { to: '/tickets', icon: <FaTicketAlt />, label: 'Tickets' },
-   { to: '/organiserBookings', icon: <FaTicketAlt />, label: 'Bookings' },
+  { to: "/organiserBookings", icon: <FaTicketAlt />, label: "Bookings" },
 
-  { to: '/analytics', icon: <FaChartBar />, label: 'Analytics' },
-  { to: '/organiserAttendees', icon: <FaUsers />, label: 'Attendees' },
-  { to: '/settings', icon: <FaCog />, label: 'Settings' },
-  { to: '/checkin', icon: <	FaSignInAlt/>, label: 'Checkin' },
+  { to: "/organiserAttendees", icon: <FaUsers />, label: "Attendees" },
 
+  { to: "/checkin", icon: <FaSignInAlt />, label: "Checkin" },
+  { to: "/chat", icon: <FaUsers />, label: "Chat" },
 ];
 
 const OrganiserSidebar: React.FC = () => {

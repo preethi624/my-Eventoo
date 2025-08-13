@@ -10,27 +10,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminOrderService = void 0;
+const messages_1 = require("../constants/messages");
 class AdminOrderService {
-    constructor(adminOrderRepository) {
-        this.adminOrderRepository = adminOrderRepository;
+    constructor(_adminOrderRepository) {
+        this._adminOrderRepository = _adminOrderRepository;
     }
-    ;
     getOrders(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminOrderRepository.getOrdersAll(filters);
+                const response = yield this._adminOrderRepository.getOrdersAll(filters);
                 if (response) {
-                    return { result: response, success: true, message: "Users fetched successfully" };
+                    return {
+                        result: response,
+                        success: true,
+                        message: messages_1.MESSAGES.EVENT.SUCCESS_TO_FETCH,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch users" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -38,19 +42,25 @@ class AdminOrderService {
     getDashboard(timeFrame, startDate, endDate, category, month, year) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminOrderRepository.getDashboardOrders(timeFrame, startDate, endDate, category, month, year);
+                const response = yield this._adminOrderRepository.getDashboardOrders(timeFrame, startDate, endDate, category, month, year);
                 if (response) {
-                    return { orders: response.orders, success: true, message: "Users fetched successfully", salesReport: response.salesReport, totalAdminEarning: response.totalAdminEarning };
+                    return {
+                        orders: response.orders,
+                        success: true,
+                        message: "Users fetched successfully",
+                        salesReport: response.salesReport,
+                        totalAdminEarning: response.totalAdminEarning,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch users" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });

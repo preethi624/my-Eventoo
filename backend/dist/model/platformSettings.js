@@ -38,13 +38,13 @@ const platformSettingsSchema = new mongoose_1.Schema({
     adminCommissionPercentage: {
         type: Number,
         required: true,
-        default: 10
+        default: 10,
     },
     updatedAt: {
         type: Date,
-        default: Date.now
-    }
+        default: Date.now,
+    },
 });
-const PlatformSettings = mongoose_1.default.model('PlatformSettings', platformSettingsSchema);
+const PlatformSettings = mongoose_1.default.model("PlatformSettings", platformSettingsSchema);
 exports.default = PlatformSettings;
 //# sourceMappingURL=platformSettings.js.map

@@ -11,31 +11,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
+const messages_1 = require("../constants/messages");
 class EventController {
-    constructor(eventService) {
-        this.eventService = eventService;
+    constructor(_eventService) {
+        this._eventService = _eventService;
     }
     getEvents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const query = req.query;
                 const filters = {
-                    searchLocation: typeof query.searchLocation === 'string' ? query.searchLocation : '',
-                    searchTitle: typeof query.searchTitle === 'string' ? query.searchTitle : '',
-                    selectedCategory: typeof query.selectedCategory === 'string' ? query.selectedCategory : '',
+                    searchLocation: typeof query.searchLocation === "string" ? query.searchLocation : "",
+                    searchTitle: typeof query.searchTitle === "string" ? query.searchTitle : "",
+                    selectedCategory: typeof query.selectedCategory === "string"
+                        ? query.selectedCategory
+                        : "",
                     maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
-                    selectedDate: typeof query.selectedDate === 'string' ? query.selectedDate : '',
+                    selectedDate: typeof query.selectedDate === "string" ? query.selectedDate : "",
                     page: query.page ? Number(query.page) : undefined,
-                    limit: query.limit ? Number(query.limit) : undefined
+                    limit: query.limit ? Number(query.limit) : undefined,
                 };
-                const result = yield this.eventService.eventGet(filters);
+                const result = yield this._eventService.eventGet(filters);
                 if (result) {
                     res.json({ result: result, success: true });
                 }
                 else {
                     res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
                         success: false,
-                        message: "No events found",
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
                     });
                 }
             }
@@ -43,24 +46,23 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
     }
-    ;
     getEventById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const id = req.params.id;
-                const response = yield this.eventService.eventGetById(id);
+                const response = yield this._eventService.eventGetById(id);
                 if (response) {
                     res.json({ result: response, success: true });
                 }
                 else {
                     res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
                         success: false,
-                        message: "No events found",
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
                     });
                 }
             }
@@ -68,30 +70,29 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
     }
-    ;
     createEvent(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const files = req.files;
                 const eventData = Object.assign(Object.assign({}, req.body), { images: (files === null || files === void 0 ? void 0 : files.map((file) => file.path)) || [] });
-                const response = yield this.eventService.eventCreate(eventData);
+                const response = yield this._eventService.eventCreate(eventData);
                 if (response.success) {
-                    res.json({ success: true, message: "Event created successfully" });
+                    res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE });
                 }
                 else {
-                    res.json({ success: false, message: "Failed to create event" });
+                    res.json({ success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE });
                 }
             }
             catch (error) {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to create event",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE,
                 });
             }
         });
@@ -101,19 +102,19 @@ class EventController {
             try {
                 const id = req.params.id;
                 console.log("id", id);
-                const response = yield this.eventService.eventDelete(id);
+                const response = yield this._eventService.eventDelete(id);
                 if (response.success) {
-                    res.json({ success: true, messge: "event deleted" });
+                    res.json({ success: true, messge: messages_1.MESSAGES.EVENT.SUCCESS_TO_DELETE });
                 }
                 else {
-                    res.json({ success: false, message: "failed to delete event" });
+                    res.json({ success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_DELETE });
                 }
             }
             catch (error) {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to delete event",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_DELETE,
                 });
             }
         });
@@ -124,19 +125,19 @@ class EventController {
                 console.log("req", req.body);
                 const data = req.body;
                 const id = req.params.id;
-                const response = yield this.eventService.eventEdit(id, data);
+                const response = yield this._eventService.eventEdit(id, data);
                 if (response.success) {
-                    res.json({ success: true, message: "Event edited successfully" });
+                    res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE });
                 }
                 else {
-                    res.json({ success: false, message: "Failed to edit event" });
+                    res.json({ success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE });
                 }
             }
             catch (error) {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to create event",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE,
                 });
             }
         });
@@ -145,7 +146,7 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = req.body;
-                const response = yield this.eventService.statusCheck(result);
+                const response = yield this._eventService.statusCheck(result);
                 if (response) {
                     res.json({ user: response, success: true });
                 }
@@ -157,7 +158,7 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to create event",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_CREATE,
                 });
             }
         });
@@ -166,11 +167,13 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const id = req.params.id;
-                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+                const limit = req.query.limit
+                    ? parseInt(req.query.limit, 10)
+                    : 5;
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = req.query.searchTerm;
                 const date = req.query.date;
-                const response = yield this.eventService.getEvent(id, limit, page, searchTerm, date);
+                const response = yield this._eventService.getEvent(id, limit, page, searchTerm, date);
                 console.log("response", response);
                 if (response) {
                     res.json({ result: response, success: true });
@@ -178,7 +181,7 @@ class EventController {
                 else {
                     res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
                         success: false,
-                        message: "No events found",
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
                     });
                 }
             }
@@ -186,12 +189,11 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
     }
-    ;
     getEventCount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -200,14 +202,14 @@ class EventController {
                 if (!organiserId) {
                     throw new Error("organiserId not get");
                 }
-                const response = yield this.eventService.eventCountGet(organiserId);
+                const response = yield this._eventService.eventCountGet(organiserId);
                 if (response) {
                     res.json({ result: response, success: true });
                 }
                 else {
                     res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
                         success: false,
-                        message: "No events found",
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
                     });
                 }
             }
@@ -215,25 +217,34 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
     }
-    ;
     getDashboardEvents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const organiserId = req.params.organiserId || '';
-                const timeFrame = req.query.timeFrame || '30d';
-                const response = yield this.eventService.getDashboardEvents(organiserId, timeFrame);
+                const organiserId = req.params.organiserId || "";
+                const timeFrame = req.query.timeFrame || "30d";
+                const response = yield this._eventService.getDashboardEvents(organiserId, timeFrame);
                 if (response.success) {
-                    res.json({ success: true, events: response.events, data: response.data, adminPercentage: response.adminPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents });
+                    res.json({
+                        success: true,
+                        events: response.events,
+                        data: response.data,
+                        adminPercentage: response.adminPercentage,
+                        organiserEarning: response.organiserEarning,
+                        totalEvents: response.totalEvents,
+                        totalAttendees: response.totalAttendees,
+                        topEvents: response.topEvents,
+                        upcomingEvents: response.upcomingEvents,
+                    });
                 }
                 else {
                     res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
                         success: false,
-                        message: "No events found",
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
                     });
                 }
             }
@@ -241,7 +252,7 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
@@ -249,15 +260,15 @@ class EventController {
     getOrgEvents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const organiserId = req.params.orgId || '';
-                const response = yield this.eventService.getEvents(organiserId);
+                const organiserId = req.params.orgId || "";
+                const response = yield this._eventService.getEvents(organiserId);
                 if (response) {
                     res.json({ events: response.result, success: true });
                 }
                 else {
                     res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
                         success: false,
-                        message: "No events found",
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
                     });
                 }
             }
@@ -265,7 +276,7 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
@@ -274,7 +285,7 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             const eventName = req.query.name;
             try {
-                const response = yield this.eventService.eventFind(eventName);
+                const response = yield this._eventService.eventFind(eventName);
                 if (response.success) {
                     res.json({ result: response.result });
                 }
@@ -286,7 +297,7 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });
@@ -295,7 +306,7 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             const category = req.query.name;
             try {
-                const response = yield this.eventService.eventsFindByCat(category);
+                const response = yield this._eventService.eventsFindByCat(category);
                 if (response.success) {
                     res.json({ result: response.result });
                 }
@@ -307,7 +318,7 @@ class EventController {
                 console.error(error);
                 res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
                     success: false,
-                    message: "Failed to fetch events",
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
             }
         });

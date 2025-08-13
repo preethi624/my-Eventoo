@@ -1,3 +1,4 @@
+import { IOrganiser } from "./IOrgAuth";
 import { IUser } from "./IUserAuth";
 
 export interface UserGet{
@@ -89,4 +90,13 @@ export interface Attendees{
 export interface GetUser{
   users:IUser[];
   total?:number
+}
+export interface GetUsers{
+  users?:IUser[];
+  success?:boolean;
+}
+
+export interface GetOrgs{
+  organisers?:IOrganiser[];
+  success?:boolean;
 }

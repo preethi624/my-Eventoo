@@ -1,13 +1,12 @@
-import React, { useState, useEffect} from 'react';
-import type { FormEvent } from 'react';
-import { FaEdit} from 'react-icons/fa';
-import AdminLayout from '../components/AdminLayout';
-import { adminRepository } from '../../repositories/adminRepositories';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import type { FormEvent } from "react";
+import { FaEdit } from "react-icons/fa";
+import AdminLayout from "../components/AdminLayout";
+import { adminRepository } from "../../repositories/adminRepositories";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import Swal from 'sweetalert2';
-
+import Swal from "sweetalert2";
 
 export interface Organiser {
   _id: string;
@@ -15,67 +14,75 @@ export interface Organiser {
   email: string;
   password?: string;
   phone?: string;
-  status?: 'pending' | 'approved' | 'rejected';
-  isBlocked:boolean
- 
+  status?: "pending" | "approved" | "rejected";
+  isBlocked: boolean;
 }
 
 const AdminOrganiser: React.FC = () => {
   const [organisers, setOrganisers] = useState<Organiser[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedOrganiser, setSelectedOrganiser] = useState<Organiser | null>(null);
-  const [currentPage,setCurrentPage]=useState(1);
-    const [totalPage,setTotalPage]=useState(1);
-    const  limit=10;
+  const [selectedOrganiser, setSelectedOrganiser] = useState<Organiser | null>(
+    null
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all"); 
+  const limit = 10;
 
-  const [formData, setFormData] = useState<Omit<Organiser, '_id'>>({
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    status: 'pending',
-    isBlocked:false
-   
+  const [formData, setFormData] = useState<Omit<Organiser, "_id">>({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    status: "pending",
+    isBlocked: false,
   });
 
   useEffect(() => {
     fetchOrganisers();
-  }, [currentPage]);
+  }, [currentPage,searchTerm,filterStatus]);
 
   const fetchOrganisers = async () => {
     try {
-      const response = await adminRepository.getAllOrganisers(limit,currentPage);
-    
-      
-      if (response.success&&response.result) {
+      const response = await adminRepository.getAllOrganisers(
+        limit,
+        currentPage,
+        searchTerm,
+        filterStatus
+      );
+
+      if (response.success && response.result) {
         setOrganisers(response.result);
-        setTotalPage(response.total)
+        setTotalPage(response.total);
       }
     } catch (error: any) {
-      console.error('Error fetching organisers:', error);
-      toast.error('Failed to load organisers');
+      console.error("Error fetching organisers:", error);
+      toast.error("Failed to load organisers");
     }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-        if (!selectedOrganiser?._id) {
-            toast.error('Invalid organiser ID');
-            return;
-          }
-      const organiserId= selectedOrganiser?._id;
-      const response =  await adminRepository.updateOrganiser( organiserId, formData )
-     
+      if (!selectedOrganiser?._id) {
+        toast.error("Invalid organiser ID");
+        return;
+      }
+      const organiserId = selectedOrganiser?._id;
+      const response = await adminRepository.updateOrganiser(
+        organiserId,
+        formData
+      );
 
       if (response.success) {
-        toast.success('Organiser updated successfully and Email sent');
+        toast.success("Organiser updated successfully and Email sent");
         setShowModal(false);
         fetchOrganisers();
         resetForm();
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error saving organiser');
+      toast.error(error.message || "Error saving organiser");
     }
   };
 
@@ -84,99 +91,122 @@ const AdminOrganiser: React.FC = () => {
     setFormData({
       name: organiser.name,
       email: organiser.email,
-      password: '',
-      phone: organiser.phone || '',
-      status: organiser.status || 'pending',
-      isBlocked:organiser.isBlocked||false,
+      password: "",
+      phone: organiser.phone || "",
+      status: organiser.status || "pending",
+      isBlocked: organiser.isBlocked || false,
     });
     setShowModal(true);
   };
 
-  
-  const handleBlock = async (organiser:Organiser) => {
-      if (!organiser) return;
-    
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-       
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, block/unblock it!',
-      });
-    
-      if (result.isConfirmed) {
-        try {
-          const response = await adminRepository.organiserBlock(organiser);
-          if (response.success) {
-            fetchOrganisers();
-            if(organiser.isBlocked){
-              toast.success('Unblocked organiser successfully!');
-              
-            
+  const handleBlock = async (organiser: Organiser) => {
+    if (!organiser) return;
 
-            }else{
+    const result = await Swal.fire({
+      title: "Are you sure?",
 
-           
-            toast.success('Blocked organiser successfully!');
-            }
-            
-           
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, block/unblock it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await adminRepository.organiserBlock(organiser);
+        if (response.success) {
+          setOrganisers(prevOrgs=>prevOrgs.map(u=>u._id===organiser._id?{...u,isBlocked:!u.isBlocked}:u))
+          if (organiser.isBlocked) {
+            toast.success("Unblocked organiser successfully!");
           } else {
-            toast.error('Failed to block.');
+            toast.success("Blocked organiser successfully!");
           }
-        } catch (error) {
-          console.log(error);
-          
-          toast.error('Error blocking.');
+        } else {
+          toast.error("Failed to block.");
         }
+      } catch (error) {
+        console.log(error);
+
+        toast.error("Error blocking.");
       }
-    };
+    }
+  };
 
   const resetForm = () => {
     setSelectedOrganiser(null);
     setFormData({
-      name: '',
-      email: '',
-      password: '',
-      phone: '',
-      status: 'pending',
-      isBlocked:false
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      status: "pending",
+      isBlocked: false,
     });
   };
 
-  const getStatusBadge = (status: string = 'pending') => {
-    const base = 'px-2 py-1 rounded text-sm font-medium';
+  const getStatusBadge = (status: string = "pending") => {
+    const base = "px-2 py-1 rounded text-sm font-medium";
     switch (status) {
-      case 'approved':
-        return <span className={`${base} bg-green-100 text-green-800`}>Approved</span>;
-      case 'rejected':
-        return <span className={`${base} bg-red-100 text-red-800`}>Rejected</span>;
+      case "approved":
+        return (
+          <span className={`${base} bg-green-100 text-green-800`}>
+            Approved
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className={`${base} bg-red-100 text-red-800`}>Rejected</span>
+        );
       default:
-        return <span className={`${base} bg-yellow-100 text-yellow-800`}>Pending</span>;
+        return (
+          <span className={`${base} bg-yellow-100 text-yellow-800`}>
+            Pending
+          </span>
+        );
     }
   };
-   const handleNextPage = () => {
-  if (currentPage < totalPage) {
-    setCurrentPage(currentPage + 1);
-  }
-};
+  const handleNextPage = () => {
+    if (currentPage < totalPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-const handlePrevPage = () => {
-  if (currentPage > 1) {
-    setCurrentPage(currentPage - 1);
-  }
-};
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <AdminLayout>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
-      
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Organisers</h2>
-        
       </div>
+       <div className="flex gap-4 mb-4">
+  {/* Search input */}
+  <input
+    type="text"
+    placeholder="Search by name or email"
+    className="border border-gray-300 rounded px-3 py-2 w-64"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+
+  {/* Filter dropdown */}
+  <select
+    className="border border-gray-300 rounded px-3 py-2"
+    value={filterStatus}
+    onChange={(e) => setFilterStatus(e.target.value)}
+  >
+    <option value="all">All</option>
+    <option value="blocked">Blocked</option>
+    <option value="unblocked">Unblocked</option>
+  </select>
+</div>
+
 
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-200">
@@ -202,14 +232,15 @@ const handlePrevPage = () => {
                     <FaEdit />
                   </button>
                   <button
-                 className={`${
-                 organiser.isBlocked ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'
-                  } text-white p-2 rounded`}
-                 onClick={() => handleBlock(organiser)}
->
-  {organiser.isBlocked ? 'Unblock' : 'Block'}
-</button>
-
+                    className={`${
+                      organiser.isBlocked
+                        ? "bg-green-500 hover:bg-green-600"
+                        : "bg-yellow-500 hover:bg-yellow-600"
+                    } text-white p-2 rounded`}
+                    onClick={() => handleBlock(organiser)}
+                  >
+                    {organiser.isBlocked ? "Unblock" : "Block"}
+                  </button>
                 </td>
               </tr>
             ))}
@@ -221,9 +252,7 @@ const handlePrevPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">
-                Edit Organiser
-              </h3>
+              <h3 className="text-xl font-semibold">Edit Organiser</h3>
               <button
                 onClick={() => {
                   setShowModal(false);
@@ -243,7 +272,9 @@ const handlePrevPage = () => {
                     type="text"
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -253,20 +284,25 @@ const handlePrevPage = () => {
                     type="email"
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                   />
                 </div>
               </div>
-
-              
 
               <div>
                 <label className="block mb-1 font-medium">Status</label>
                 <select
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as Organiser['status'] })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      status: e.target.value as Organiser["status"],
+                    })
+                  }
                   required
                 >
                   <option value="pending">Pending</option>
@@ -290,38 +326,44 @@ const handlePrevPage = () => {
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
-                  {selectedOrganiser ? 'Update' : 'Create'}
+                  {selectedOrganiser ? "Update" : "Create"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-       {totalPage>1&&(<div className="flex justify-center mt-4 gap-2">
-  <button
-    onClick={handlePrevPage}
-    disabled={currentPage === 1}
-    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-  >
-    Previous
-  </button>
-  {Array.from({ length: totalPage }, (_, index) => (
-    <button
-      key={index}
-      onClick={() => setCurrentPage(index + 1)}
-      className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}
-    >
-      {index + 1}
-    </button>
-  ))}
-  <button
-    onClick={handleNextPage}
-    disabled={currentPage === totalPage}
-    className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-  >
-    Next
-  </button>
-</div>)}
+      {totalPage > 1 && (
+        <div className="flex justify-center mt-4 gap-2">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPage }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPage}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </AdminLayout>
   );
 };

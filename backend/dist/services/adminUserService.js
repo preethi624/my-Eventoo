@@ -10,26 +10,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminUserService = void 0;
+const messages_1 = require("../constants/messages");
 class AdminUserService {
-    constructor(adminUserRepository) {
-        this.adminUserRepository = adminUserRepository;
+    constructor(_adminUserRepository) {
+        this._adminUserRepository = _adminUserRepository;
     }
-    getUsers(limit, page) {
+    getUsers(limit, page, searchTerm, filterStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.adminUserRepository.getUserAll(limit, page);
+                const result = yield this._adminUserRepository.getUserAll(limit, page, searchTerm, filterStatus);
                 if (result) {
-                    return { result: result.users, success: true, message: "Users fetched successfully", total: result.total };
+                    return {
+                        result: result.users,
+                        success: true,
+                        message: "Users fetched successfully",
+                        total: result.total,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch users" };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -37,7 +43,7 @@ class AdminUserService {
     userUpdate(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminUserRepository.editUser(id, formData);
+                const response = yield this._adminUserRepository.editUser(id, formData);
                 if (response) {
                     return { success: true, message: "User edit successfully" };
                 }
@@ -46,10 +52,10 @@ class AdminUserService {
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -57,20 +63,24 @@ class AdminUserService {
     userBlock(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminUserRepository.blockUser(user);
+                const response = yield this._adminUserRepository.blockUser(user);
                 if (response) {
                     console.log("reseee", response);
-                    return { user: response, success: true, message: "User blocked successfully" };
+                    return {
+                        user: response,
+                        success: true,
+                        message: "User blocked successfully",
+                    };
                 }
                 else {
                     return { success: false, message: "failed to block" };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });
@@ -78,19 +88,23 @@ class AdminUserService {
     dashboardUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminUserRepository.getDashboardUsers();
+                const response = yield this._adminUserRepository.getDashboardUsers();
                 if (response) {
-                    return { success: true, data: response.data, totalUsers: response.totalUsers };
+                    return {
+                        success: true,
+                        data: response.data,
+                        totalUsers: response.totalUsers,
+                    };
                 }
                 else {
                     return { success: false };
                 }
             }
             catch (error) {
-                console.error('Login error:', error);
+                console.error("Login error:", error);
                 return {
                     success: false,
-                    message: 'Internal server error',
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
                 };
             }
         });

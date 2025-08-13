@@ -16,18 +16,27 @@ const socketMap_1 = require("../socketMap");
 const index_1 = require("../index");
 const messages_1 = require("../constants/messages");
 class AdminOrgController {
-    constructor(adminOrgService) {
-        this.adminOrgService = adminOrgService;
+    constructor(_adminOrgService) {
+        this._adminOrgService = _adminOrgService;
     }
     getAllOrganisers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+                const limit = req.query.limit
+                    ? parseInt(req.query.limit, 10)
+                    : 5;
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
-                const result = yield this.adminOrgService.getOrganiser(limit, page);
+                const searchTerm = typeof req.query.searchTerm === "string" ? req.query.searchTerm : "";
+                const filterStatus = typeof req.query.filterStatus === "string" ? req.query.filterStatus : "";
+                const result = yield this._adminOrgService.getOrganiser(limit, page, searchTerm, filterStatus);
                 if (result.success && result.result) {
                     const mappedOrganisers = result.result.map(mapOrganiserToDTO_1.mapOrganiserToDTO);
-                    res.json({ result: mappedOrganisers, message: result.message, success: true, total: result.total });
+                    res.json({
+                        result: mappedOrganisers,
+                        message: result.message,
+                        success: true,
+                        total: result.total,
+                    });
                 }
                 else {
                     res.json({ message: result.message, success: false });
@@ -35,7 +44,9 @@ class AdminOrgController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -44,7 +55,7 @@ class AdminOrgController {
             try {
                 const id = req.params.id;
                 const formData = req.body;
-                const result = yield this.adminOrgService.organiserUpdate(id, formData);
+                const result = yield this._adminOrgService.organiserUpdate(id, formData);
                 if (result.success) {
                     res.json({ success: true, message: "edited successfully" });
                     return;
@@ -55,7 +66,9 @@ class AdminOrgController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }
@@ -64,12 +77,12 @@ class AdminOrgController {
             try {
                 const organiser = req.body;
                 const organiserId = organiser._id;
-                const result = yield this.adminOrgService.organiserBlock(organiser);
+                const result = yield this._adminOrgService.organiserBlock(organiser);
                 if (result.success && result.organiser) {
                     if (result.organiser.isBlocked) {
                         const socketId = socketMap_1.organiserSocketMap.get(organiserId.toString());
                         if (socketId) {
-                            index_1.io.to(socketId).emit('logout');
+                            index_1.io.to(socketId).emit("logout");
                             console.log(`Forced logout emitted for user ${organiserId}`);
                         }
                     }
@@ -81,7 +94,9 @@ class AdminOrgController {
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR });
             }
         });
     }

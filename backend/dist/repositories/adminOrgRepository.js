@@ -15,10 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminOrgRepository = void 0;
 const organiser_1 = __importDefault(require("../model/organiser"));
 class AdminOrgRepository {
-    getOrganiserAll(limit, page) {
+    getOrganiserAll(limit, page, searchTerm, filterStatus) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = {};
+            if (searchTerm) {
+                query.$or = [
+                    { name: { $regex: searchTerm, $options: "i" } },
+                    { email: { $regex: searchTerm, $options: "i" } }
+                ];
+            }
+            if (filterStatus === "blocked") {
+                query.isBlocked = true;
+            }
+            else if (filterStatus === "unblocked") {
+                query.isBlocked = false;
+            }
             const skip = (page - 1) * limit;
-            const organisers = yield organiser_1.default.find().skip(skip).limit(limit);
+            const organisers = yield organiser_1.default.find(query).skip(skip).limit(limit);
             const totalOrganisers = yield organiser_1.default.countDocuments();
             const total = totalOrganisers / limit;
             return { result: organisers, total };

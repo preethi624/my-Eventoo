@@ -11,24 +11,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const statusCodeEnum_1 = require("../constants/statusCodeEnum");
+const messages_1 = require("../constants/messages");
 class AuthController {
-    constructor(authService) {
-        this.authService = authService;
+    constructor(_authService) {
+        this._authService = _authService;
     }
     forgotPassword(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, userType } = req.body;
-                const result = yield this.authService.passwordForgot({ email, userType });
+                const result = yield this._authService.passwordForgot({
+                    email,
+                    userType,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -36,16 +46,26 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, otp, userType } = req.body;
-                const result = yield this.authService.verifyOtp({ email, otp, userType });
+                const result = yield this._authService.verifyOtp({
+                    email,
+                    otp,
+                    userType,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -53,16 +73,26 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password, userType } = req.body;
-                const result = yield this.authService.resetPassword({ email, password, userType });
+                const result = yield this._authService.resetPassword({
+                    email,
+                    password,
+                    userType,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.log(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }
@@ -70,16 +100,25 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, userType } = req.body;
-                const result = yield this.authService.forgotResend({ email, userType });
+                const result = yield this._authService.forgotResend({
+                    email,
+                    userType,
+                });
                 if (!result.success) {
-                    res.status(statusCodeEnum_1.StatusCode.UNAUTHORIZED).json({ message: result.message, success: false });
+                    res
+                        .status(statusCodeEnum_1.StatusCode.UNAUTHORIZED)
+                        .json({ message: result.message, success: false });
                     return;
                 }
-                res.status(statusCodeEnum_1.StatusCode.OK).json({ message: result.message, success: true });
+                res
+                    .status(statusCodeEnum_1.StatusCode.OK)
+                    .json({ message: result.message, success: true });
             }
             catch (error) {
                 console.error(error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error", success: false });
+                res
+                    .status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: messages_1.MESSAGES.COMMON.SERVER_ERROR, success: false });
             }
         });
     }

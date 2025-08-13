@@ -37,9 +37,12 @@ const mongoose_1 = __importStar(require("mongoose"));
 const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: function () {
-            return this.authMethod !== 'google';
-        } },
+    password: {
+        type: String,
+        required: function () {
+            return this.authMethod !== "google";
+        },
+    },
     role: { type: String },
     otp: { type: String },
     otpExpiry: { type: Date },
@@ -47,10 +50,10 @@ const userSchema = new mongoose_1.Schema({
     phone: { type: Number },
     location: { type: String },
     aboutMe: { type: String },
-    profileImage: { type: String }
+    profileImage: { type: String },
 }, {
-    timestamps: true
+    timestamps: true,
 });
-const User = mongoose_1.default.model('User', userSchema);
+const User = mongoose_1.default.model("User", userSchema);
 exports.default = User;
 //# sourceMappingURL=user.js.map

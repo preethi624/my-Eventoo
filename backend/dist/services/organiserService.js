@@ -10,16 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrganiserService = void 0;
+const messages_1 = require("../constants/messages");
 class OrganiserService {
-    constructor(organiserRepository) {
-        this.organiserRepository = organiserRepository;
+    constructor(_organiserRepository) {
+        this._organiserRepository = _organiserRepository;
     }
     orgGetById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.getOrganiserById(id);
+                const result = yield this._organiserRepository.getOrganiserById(id);
                 if (result) {
-                    return { result, success: true, message: "organiser fetched successfully" };
+                    return {
+                        result,
+                        success: true,
+                        message: "organiser fetched successfully",
+                    };
                 }
                 else {
                     return { success: false, message: "No organiser found" };
@@ -34,7 +39,7 @@ class OrganiserService {
     statusCheck(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.statusCheck(email);
+                const result = yield this._organiserRepository.statusCheck(email);
                 if (result) {
                     return { result: result, success: true };
                 }
@@ -51,9 +56,13 @@ class OrganiserService {
     organiserUpdate(data, organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.updateOrganiser(data, organiserId);
+                const result = yield this._organiserRepository.updateOrganiser(data, organiserId);
                 if (result) {
-                    return { result: result, success: true, message: "user updated successfully" };
+                    return {
+                        result: result,
+                        success: true,
+                        message: "user updated successfully",
+                    };
                 }
                 else {
                     return { success: false, message: "failed to update" };
@@ -68,9 +77,15 @@ class OrganiserService {
     bookingFetch(organiserId, limit, page, searchTerm, status, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.fetchBooking(organiserId, limit, page, searchTerm, status, date);
+                const result = yield this._organiserRepository.fetchBooking(organiserId, limit, page, searchTerm, status, date);
                 if (result) {
-                    return { success: true, message: "orders fetched successfully", result: result.result, totalPages: result.totalPages, currentPage: result.currentPage };
+                    return {
+                        success: true,
+                        message: "orders fetched successfully",
+                        result: result.result,
+                        totalPages: result.totalPages,
+                        currentPage: result.currentPage,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -85,10 +100,14 @@ class OrganiserService {
     orderGetDetails(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.getOrderDetails(orderId);
+                const result = yield this._organiserRepository.getOrderDetails(orderId);
                 console.log("fetch result", result);
                 if (result) {
-                    return { success: true, message: "orders fetched successfully", order: result };
+                    return {
+                        success: true,
+                        message: "orders fetched successfully",
+                        order: result,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -103,7 +122,7 @@ class OrganiserService {
     reapplyOrg(organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.orgReapply(organiserId);
+                const result = yield this._organiserRepository.orgReapply(organiserId);
                 console.log("fetch result", result);
                 if (result) {
                     return { success: true, message: "reapplied successfully" };
@@ -121,9 +140,15 @@ class OrganiserService {
     venuesGet(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.getVenues(filters);
+                const result = yield this._organiserRepository.getVenues(filters);
                 if (result) {
-                    return { success: true, message: "venues fetched successfully", venues: result.venues, totalPages: result.totalPages, currentPage: result.currentPage };
+                    return {
+                        success: true,
+                        message: "venues fetched successfully",
+                        venues: result.venues,
+                        totalPages: result.totalPages,
+                        currentPage: result.currentPage,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -138,9 +163,13 @@ class OrganiserService {
     venueGetById(venueId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.getVenueById(venueId);
+                const result = yield this._organiserRepository.getVenueById(venueId);
                 if (result) {
-                    return { success: true, message: "orders fetched successfully", venue: result };
+                    return {
+                        success: true,
+                        message: "orders fetched successfully",
+                        venue: result,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -155,9 +184,13 @@ class OrganiserService {
     dashboardGet(eventId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.organiserRepository.getDashboard(eventId);
+                const result = yield this._organiserRepository.getDashboard(eventId);
                 if (result) {
-                    return { success: true, message: "orders fetched successfully", data: result };
+                    return {
+                        success: true,
+                        message: "orders fetched successfully",
+                        data: result,
+                    };
                 }
                 else {
                     return { success: false, message: "failed to fetch" };
@@ -172,9 +205,17 @@ class OrganiserService {
     attendeesFetch(eventId, organiserId, filters, filterStatus, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.organiserRepository.fetchAttendees(eventId, organiserId, filters, filterStatus, page, limit);
+                const response = yield this._organiserRepository.fetchAttendees(eventId, organiserId, filters, filterStatus, page, limit);
                 if (response) {
-                    return { success: true, message: "fetched successfully", attendees: response.attendees, revenue: response.revenue, currentPage: response.currentPage, totalPages: response.totalPages, totalAttendees: response.totalAttendees };
+                    return {
+                        success: true,
+                        message: "fetched successfully",
+                        attendees: response.attendees,
+                        revenue: response.revenue,
+                        currentPage: response.currentPage,
+                        totalPages: response.totalPages,
+                        totalAttendees: response.totalAttendees,
+                    };
                 }
                 else {
                     return { success: false, message: "failed" };
@@ -182,7 +223,7 @@ class OrganiserService {
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: "failed to fetch attendees" };
+                return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
             }
         });
     }
@@ -190,12 +231,24 @@ class OrganiserService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("serviceStart", startDate);
-                const response = yield this.organiserRepository.dashboardEvents(organiserId, timeFrame, startDate, endDate, category, month, year);
+                const response = yield this._organiserRepository.dashboardEvents(organiserId, timeFrame, startDate, endDate, category, month, year);
                 if (response) {
-                    return { success: true, events: response.events, message: "event fetched successfully", data: response.data, adminPercentage: response.adminCommissionPercentage, organiserEarning: response.organiserEarning, totalEvents: response.totalEvents, totalAttendees: response.totalAttendees, topEvents: response.topEvents, upcomingEvents: response.upcomingEvents, orderDetails: response.orderDetails };
+                    return {
+                        success: true,
+                        events: response.events,
+                        message: "event fetched successfully",
+                        data: response.data,
+                        adminPercentage: response.adminCommissionPercentage,
+                        organiserEarning: response.organiserEarning,
+                        totalEvents: response.totalEvents,
+                        totalAttendees: response.totalAttendees,
+                        topEvents: response.topEvents,
+                        upcomingEvents: response.upcomingEvents,
+                        orderDetails: response.orderDetails,
+                    };
                 }
                 else {
-                    return { success: false, message: "failed to fetch events" };
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH };
                 }
             }
             catch (error) {
@@ -207,12 +260,29 @@ class OrganiserService {
     ticketUpdate(qrToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.organiserRepository.updateTicket(qrToken);
+                const response = yield this._organiserRepository.updateTicket(qrToken);
                 return { message: response.message };
             }
             catch (error) {
                 console.log(error);
-                return { message: "failed" };
+                return { message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE };
+            }
+        });
+    }
+    usersGet() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._organiserRepository.getUsers();
+                if (response) {
+                    return { users: response, success: true };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                throw error;
             }
         });
     }

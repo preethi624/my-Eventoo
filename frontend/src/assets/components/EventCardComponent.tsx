@@ -9,9 +9,20 @@ type EventCardProps = {
 };
 
 const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
-  const imageSrc = event.images && event.images.length > 0
+  /*const imageSrc = event.images && event.images.length > 0
     ? `http://localhost:3000/${event.images[0].replace('\\', '/')}`
-    : 'https://via.placeholder.com/300x200';
+    : 'https://via.placeholder.com/300x200';*/
+    let imageSrc = "https://via.placeholder.com/300x200";
+    if (event.images && event.images.length > 0) {
+    const img = event.images[0];
+    if (img.startsWith("http")) {
+      
+      imageSrc = img;
+    } else {
+    
+      imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+    }
+  }
 
   return (
     <div

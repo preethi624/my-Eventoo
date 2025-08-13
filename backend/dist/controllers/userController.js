@@ -10,9 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
+const messages_1 = require("../constants/messages");
 class UserController {
-    constructor(userService) {
-        this.userService = userService;
+    constructor(_userService) {
+        this._userService = _userService;
     }
     getUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -22,7 +23,7 @@ class UserController {
                 if (!userId) {
                     throw new Error("userId not get");
                 }
-                const response = yield this.userService.userGet(userId);
+                const response = yield this._userService.userGet(userId);
                 if (response) {
                     res.json({
                         user: response,
@@ -31,7 +32,7 @@ class UserController {
                     });
                 }
                 else {
-                    res.json({ success: false, message: "failed to fetch user" });
+                    res.json({ success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH });
                 }
             }
             catch (error) {
@@ -58,7 +59,7 @@ class UserController {
                 if (!userId) {
                     throw new Error("userId not get");
                 }
-                const response = yield this.userService.userUpdate(data, userId);
+                const response = yield this._userService.userUpdate(data, userId);
                 if (response.success) {
                     res.json({
                         result: response.result,
@@ -67,7 +68,23 @@ class UserController {
                     });
                 }
                 else {
-                    res.json({ success: false, message: "failed to update" });
+                    res.json({ success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE });
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    getOrgs(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._userService.orgsGet();
+                if (response.success) {
+                    res.json({ response });
+                }
+                else {
+                    res.json({ success: false });
                 }
             }
             catch (error) {
