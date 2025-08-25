@@ -11,15 +11,42 @@ import {
   EventFind,
   EventGet,
   IEventFilter,
+  Location,
   StatusCheck,
 } from "../interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
 import { MESSAGES } from "../constants/messages";
+import dotenv from 'dotenv';
+dotenv.config()
+import { InferenceClient  } from "@huggingface/inference";
+import { Recommend } from "src/interface/IUser";
+import { cosineSimilarity } from "../utils/cosine";
+import axios from "axios";
+const hf = new InferenceClient (process.env.HUGGING_API_KEY);
 export class EventService implements IEventService {
   constructor(private _eventRepository: IEventRepository) {}
   async eventGet(filters: IEventFilter): Promise<EventGet> {
     try {
       const response = await this._eventRepository.getEvents(filters);
+      
+
+      if (response) {
+        return {
+          response,
+          success: true,
+          message: "Event fetched successfully",
+        };
+      } else {
+        return { success: false, message: "No events found" };
+      }
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: "not getting events" };
+    }
+  }
+  async completedGet(filters: IEventFilter): Promise<EventGet> {
+    try {
+      const response = await this._eventRepository.getCompleted(filters);
       
 
       if (response) {
@@ -53,9 +80,16 @@ export class EventService implements IEventService {
       return { success: false, message: MESSAGES.EVENT.FAILED_TO_FETCH };
     }
   }
-  async eventCreate(data: IEventDTO): Promise<CreateEvent> {
+  /*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
     try {
-      const result = await this._eventRepository.createEvent(data);
+      const text = `${data.category} ${data.description} ${data.venue}`;
+      const output = await hf.featureExtraction({
+    model: "sentence-transformers/all-MiniLM-L6-v2",
+    inputs: text,
+  });
+  const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
+      const result = await this._eventRepository.createEvent({...data,embedding});
+      
 
       if (result) {
         return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
@@ -66,7 +100,62 @@ export class EventService implements IEventService {
       console.error(error);
       return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
     }
+  }*/
+
+
+async eventCreate(data: IEventDTO): Promise<CreateEvent> {
+  try {
+    const text = `${data.category} ${data.description} ${data.venue}`;
+    const output = await hf.featureExtraction({
+      model: "sentence-transformers/all-MiniLM-L6-v2",
+      inputs: text,
+    });
+
+    const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
+
+    const geoResponse = await axios.get("https://nominatim.openstreetmap.org/search", {
+      params: {
+        q: data.venue,
+        format: "json",
+        limit: 1
+      },
+      headers: {
+        "User-Agent": "eventManagement/1.0"
+      }
+    });
+
+    if (!geoResponse.data || geoResponse.data.length === 0) {
+      return { success: false, message: "Could not geocode venue address." };
+    }
+
+    const { lat, lon } = geoResponse.data[0];
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lon);
+
+    const eventPayload = {
+      ...data,
+      latitude,
+      longitude,
+      embedding,
+      location: {
+        type: "Point",
+        coordinates: [longitude, latitude]
+      }
+    };
+
+    const result = await this._eventRepository.createEvent(eventPayload);
+
+    if (result) {
+      return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
+    } else {
+      return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
   }
+}
+
   async eventDelete(id: string): Promise<CreateEvent> {
     try {
       const result = await this._eventRepository.eventDelete(id);
@@ -222,6 +311,53 @@ export class EventService implements IEventService {
     } catch (error) {
       console.error(error);
       return { success: false };
+    }
+  }
+  async getRecommended(userId:string,filters:IEventFilter):Promise<Recommend>{
+    try {
+      const response=await this._eventRepository.findRecommended(userId,filters);
+      if(response.event&&response.events){
+        const baseEmbedding=response.event.embedding;
+        if(!baseEmbedding){
+          throw new Error("embedding not present")
+        }
+        const events=response.events;
+
+        const scoredEvents=events.map((event)=>{
+          if (!event.embedding) return { ...event, score: -1 };
+          const score=cosineSimilarity(baseEmbedding,event.embedding);
+          console.log("scre",score);
+          
+          return {...event,score}
+        })
+        console.log("scored",scoredEvents);
+        
+        scoredEvents.sort((a,b)=>b.score-a.score);
+        const filteredEvents = scoredEvents.filter(e => e.score >= 0.6);
+        
+        
+        return {success:true,events:filteredEvents}
+
+      }
+      if(response.events){
+        return {success:true,events:response.events}
+      }else{
+        return {success:false}
+      }
+
+      
+    } catch (error) {
+      console.error(error);
+      return {success:false}
+      
+    }
+  }
+  async nearFind({lat,lng}:Location,filters:IEventFilter):Promise<Recommend>{
+    const response=await this._eventRepository.findNear({lat,lng},filters);
+    if(response){
+      return {events:response,success:true}
+    }else{
+      return{success:false}
     }
   }
 }

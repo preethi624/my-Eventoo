@@ -191,7 +191,7 @@ const OrganiserBookings: React.FC = () => {
         <DataTable data={orders} columns={orderColumns} />
 
         {totalPage > 1 && (
-          <div className="flex justify-center mt-4 gap-2">
+          <div className="flex justify-center mt-4 gap-2 flex-wrap">
             <button
               onClick={handlePrevPage}
               disabled={currentPage === 1}

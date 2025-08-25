@@ -76,4 +76,25 @@ export class UserController implements IUserController {
       console.log(error);
     }
   }
+  async changePassword(req:AuthenticatedRequest,res:Response):Promise<void>{
+    const userId=req.user?.id;
+    const newPass=String(req.body.newPass);
+    const currentPass=String(req.body.currentPass);
+    console.log("newPass",newPass);
+    
+    try {
+      if(!userId) throw new Error("userId not found")
+      const response=await this._userService.passwordChange(userId,newPass,currentPass);
+      if(response.success){
+        res.json({success:true})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+  }
 }

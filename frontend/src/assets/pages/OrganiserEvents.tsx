@@ -102,7 +102,15 @@ const OrganiserEvents: React.FC = () => {
   useEffect(() => {
     fetchEvents();
     fetchCategories();
-  }, [currentPage, searchTerm, selectedDate]);
+  }, [currentPage, selectedDate]);
+  useEffect(()=>{
+    const handler=setTimeout(()=>{
+      fetchEvents()
+
+    },500)
+    return()=>clearTimeout(handler)
+
+  },[searchTerm])
   const fetchCategories = async () => {
     const response = await categoryRepository.getCategories();
 
@@ -119,6 +127,9 @@ const OrganiserEvents: React.FC = () => {
       if (selectedDate) params.append("date", selectedDate);
 
       const orgId = organiser?.id;
+      if(!orgId){
+        throw new Error("organiserId not present")
+      }
       const response: EventFetchResponse = await eventRepository.getEvents(
         orgId,
         currentPage,

@@ -8,9 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventService = void 0;
 const messages_1 = require("../constants/messages");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const inference_1 = require("@huggingface/inference");
+const cosine_1 = require("../utils/cosine");
+const axios_1 = __importDefault(require("axios"));
+const hf = new inference_1.InferenceClient(process.env.HUGGING_API_KEY);
 class EventService {
     constructor(_eventRepository) {
         this._eventRepository = _eventRepository;
@@ -19,6 +28,27 @@ class EventService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._eventRepository.getEvents(filters);
+                if (response) {
+                    return {
+                        response,
+                        success: true,
+                        message: "Event fetched successfully",
+                    };
+                }
+                else {
+                    return { success: false, message: "No events found" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "not getting events" };
+            }
+        });
+    }
+    completedGet(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._eventRepository.getCompleted(filters);
                 if (response) {
                     return {
                         response,
@@ -57,10 +87,59 @@ class EventService {
             }
         });
     }
+    /*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
+      try {
+        const text = `${data.category} ${data.description} ${data.venue}`;
+        const output = await hf.featureExtraction({
+      model: "sentence-transformers/all-MiniLM-L6-v2",
+      inputs: text,
+    });
+    const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
+        const result = await this._eventRepository.createEvent({...data,embedding});
+        
+  
+        if (result) {
+          return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
+        } else {
+          return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+        }
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+      }
+    }*/
     eventCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._eventRepository.createEvent(data);
+                const text = `${data.category} ${data.description} ${data.venue}`;
+                const output = yield hf.featureExtraction({
+                    model: "sentence-transformers/all-MiniLM-L6-v2",
+                    inputs: text,
+                });
+                const embedding = Array.isArray(output[0]) ? output[0] : output;
+                const geoResponse = yield axios_1.default.get("https://nominatim.openstreetmap.org/search", {
+                    params: {
+                        q: data.venue,
+                        format: "json",
+                        limit: 1
+                    },
+                    headers: {
+                        "User-Agent": "eventManagement/1.0"
+                    }
+                });
+                if (!geoResponse.data || geoResponse.data.length === 0) {
+                    return { success: false, message: "Could not geocode venue address." };
+                }
+                const { lat, lon } = geoResponse.data[0];
+                const latitude = parseFloat(lat);
+                const longitude = parseFloat(lon);
+                const eventPayload = Object.assign(Object.assign({}, data), { latitude,
+                    longitude,
+                    embedding, location: {
+                        type: "Point",
+                        coordinates: [longitude, latitude]
+                    } });
+                const result = yield this._eventRepository.createEvent(eventPayload);
                 if (result) {
                     return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE };
                 }
@@ -242,6 +321,52 @@ class EventService {
             }
             catch (error) {
                 console.error(error);
+                return { success: false };
+            }
+        });
+    }
+    getRecommended(userId, filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._eventRepository.findRecommended(userId, filters);
+                if (response.event && response.events) {
+                    const baseEmbedding = response.event.embedding;
+                    if (!baseEmbedding) {
+                        throw new Error("embedding not present");
+                    }
+                    const events = response.events;
+                    const scoredEvents = events.map((event) => {
+                        if (!event.embedding)
+                            return Object.assign(Object.assign({}, event), { score: -1 });
+                        const score = (0, cosine_1.cosineSimilarity)(baseEmbedding, event.embedding);
+                        console.log("scre", score);
+                        return Object.assign(Object.assign({}, event), { score });
+                    });
+                    console.log("scored", scoredEvents);
+                    scoredEvents.sort((a, b) => b.score - a.score);
+                    const filteredEvents = scoredEvents.filter(e => e.score >= 0.6);
+                    return { success: true, events: filteredEvents };
+                }
+                if (response.events) {
+                    return { success: true, events: response.events };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false };
+            }
+        });
+    }
+    nearFind(_a, filters_1) {
+        return __awaiter(this, arguments, void 0, function* ({ lat, lng }, filters) {
+            const response = yield this._eventRepository.findNear({ lat, lng }, filters);
+            if (response) {
+                return { events: response, success: true };
+            }
+            else {
                 return { success: false };
             }
         });

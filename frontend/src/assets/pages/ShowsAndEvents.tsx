@@ -7,33 +7,44 @@ import type { EventFetchResponse, IEventDTO } from "../../interfaces/IEvent";
 import { eventRepository } from "../../repositories/eventRepositories";
 
 import EventCard from "../components/EventCardComponent";
+import EventHistorySticker from "../components/EventHistorySticker";
 
 const ShowsAndEvents: React.FC = () => {
   const [events, setEvents] = useState<IEventDTO[]>([]);
-  const [searchLocation, setSearchLocation] = useState("");
-  const [searchTitle, setSearchTitle] = useState("");
+  //const [searchLocation, setSearchLocation] = useState("");
+  //const [searchTitle, setSearchTitle] = useState("");
+  const [searchTerm,setSearchTerm]=useState("")
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const eventsPerPage = 6;
+  const eventsPerPage = 3;
 
   useEffect(() => {
     fetchEvents();
   }, [
-    searchLocation,
+    
     selectedCategory,
     maxPrice,
     selectedDate,
-    searchTitle,
+    
     currentPage,
   ]);
+  useEffect(()=>{
+    const handler=setTimeout(()=>{
+      fetchEvents()
+
+    },500)
+    return()=>clearTimeout(handler)
+
+  },[searchTerm])
 
   const params = new URLSearchParams();
-  if (searchLocation) params.append("searchLocation", searchLocation);
-  if (searchTitle) params.append("searchTitle", searchTitle);
+  //if (searchLocation) params.append("searchLocation", searchLocation);
+  //if (searchTitle) params.append("searchTitle", searchTitle);
+  if(searchTerm) params.append("searchTerm",searchTerm)
   if (selectedCategory) params.append("selectedCategory", selectedCategory);
   if (maxPrice) params.append("maxPrice", maxPrice.toString());
   if (selectedDate) params.append("selectedDate", selectedDate);
@@ -55,7 +66,7 @@ const ShowsAndEvents: React.FC = () => {
         });
 
         setEvents(latestEvents);
-        setTotalPages(response.result.response.totalPages);
+        setTotalPages(response.result.response.events.length);
       } else {
         console.error("Unexpected API result format:", response);
         setEvents([]);
@@ -66,13 +77,18 @@ const ShowsAndEvents: React.FC = () => {
     }
   };
 
+
   const handleEventClick = (id: string) => {
     navigate(`/events/${id}`);
+  };
+  const handleAllEventsClick = () => {
+    navigate('/completed'); 
   };
 
   return (
     <div className="pt-24 min-h-screen bg-gray-100">
       <UserNavbar />
+      <EventHistorySticker onClick={handleAllEventsClick}/>
 
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">Upcoming Events</h1>
@@ -107,20 +123,11 @@ const ShowsAndEvents: React.FC = () => {
               className="w-full p-2 border rounded"
             />
 
-            {/* Location Filter */}
             <input
               type="text"
-              placeholder="Search by location"
-              value={searchLocation}
-              onChange={(e) => setSearchLocation(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            {/*Title Filter*/}
-            <input
-              type="text"
-              placeholder="Search by event name"
-              value={searchTitle}
-              onChange={(e) => setSearchTitle(e.target.value)}
+              placeholder="Search by event name or Location"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full p-2 border rounded"
             />
 
@@ -138,7 +145,7 @@ const ShowsAndEvents: React.FC = () => {
                 setSelectedCategory("");
                 setMaxPrice(null);
                 setSelectedDate("");
-                setSearchLocation("");
+                setSearchTerm("");
               }}
               className="w-full p-2 bg-gray-200 rounded hover:bg-gray-300"
             >

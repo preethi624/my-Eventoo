@@ -59,12 +59,19 @@ const AdminBookings: React.FC = () => {
     fetchOrders();
   }, [
     currentPage,
-    searchTerm,
+
     statusFilter,
     selectedDate,
-    orgSearch,
-    userSearch,
+    
   ]);
+  useEffect(()=>{
+    const handler=setTimeout(()=>{
+      fetchOrders()
+
+    },500)
+    return ()=>clearTimeout(handler)
+
+  },[searchTerm,orgSearch,userSearch])
 
   const fetchOrders = async () => {
     try {

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
 const organiser_1 = __importDefault(require("../model/organiser"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 class UserRepository {
     getUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -35,6 +36,30 @@ class UserRepository {
             catch (error) {
                 console.log(error);
                 throw error;
+            }
+        });
+    }
+    changePassword(userId, newPass, currentPass) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log("new", newPass);
+                const user = yield user_1.default.findById(userId);
+                if (!user) {
+                    throw new Error("user not found");
+                }
+                const isMatch = yield bcrypt_1.default.compare(currentPass, user.password);
+                if (!isMatch) {
+                    return { success: false };
+                }
+                const saltRounds = 10;
+                const hashedPassword = yield bcrypt_1.default.hash(newPass, saltRounds);
+                user.password = hashedPassword;
+                yield user.save();
+                return { success: true };
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
             }
         });
     }

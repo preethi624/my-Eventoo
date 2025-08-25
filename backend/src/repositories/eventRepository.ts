@@ -2,11 +2,23 @@ import { IEventDTO } from "src/interface/IEventDTO";
 import EventModel, { IEvent } from "../model/event";
 import { IEventRepository } from "./repositoryInterface/IEventRepository";
 import mongoose, { DeleteResult, FilterQuery } from "mongoose";
-import { EventEdit, GetEvent, IEventFilter } from "src/interface/event";
+import { EventEdit, GetEvent, IEventFilter, Location } from "src/interface/event";
 import { IUser } from "src/interface/IUserAuth";
 import User from "../model/user";
 import { BaseRepository } from "./baseRepository";
 import PlatformSettings from "../model/platformSettings";
+
+import dotenv from 'dotenv';
+dotenv.config()
+
+import Order from "../model/order";
+import { Recommend } from "src/interface/IUser";
+import Notification from "../model/notification";
+
+
+
+
+
 
 export class EventRepository
   extends BaseRepository<IEvent>
@@ -16,14 +28,13 @@ export class EventRepository
     super(EventModel);
   }
   async getEvents(filters: IEventFilter): Promise<GetEvent | null> {
-    console.log("filters",filters);
     
+
     const {
-      searchLocation,
       selectedCategory,
       maxPrice,
       selectedDate,
-      searchTitle,
+      searchTerm,
       page = 1,
       limit = 6,
     } = filters;
@@ -32,16 +43,18 @@ export class EventRepository
 
     const query: FilterQuery<IEvent> = {
       isBlocked: false,
-      status: "published",
+      status:"published"
+      
     };
-    if (searchLocation) {
-      query.venue = { $regex: searchLocation, $options: "i" };
-    }
-    if (searchTitle) {
-      query.title = { $regex: searchTitle, $options: "i" };
+
+    if (searchTerm) {
+      query.$or = [
+        { title: { $regex: searchTerm, $options: "i" } },
+        { venue: { $regex: searchTerm, $options: "i" } },
+      ];
     }
     if (selectedCategory) {
-      query.category = {$regex:selectedCategory,$options:"i"};
+      query.category = { $regex: selectedCategory, $options: "i" };
     }
     if (maxPrice != undefined && maxPrice != null) {
       query.ticketPrice = { $lte: maxPrice };
@@ -58,8 +71,59 @@ export class EventRepository
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-      console.log("events",events);
+    console.log("eventsee", events);
+
+    return {
+      totalPages: Math.ceil(totalCount / limit),
+      events,
+      currentPage: page,
+    };
+  }
+  async getCompleted(filters: IEventFilter): Promise<GetEvent | null> {
+    
+
+    const {
+      selectedCategory,
+      maxPrice,
+      selectedDate,
+      searchTerm,
+      page = 1,
+      limit = 6,
+    } = filters;
+
+    const skip = (page - 1) * limit;
+
+    const query: FilterQuery<IEvent> = {
+      isBlocked: false,
+      status:"completed"
       
+    };
+
+    if (searchTerm) {
+      query.$or = [
+        { title: { $regex: searchTerm, $options: "i" } },
+        { venue: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
+    if (selectedCategory) {
+      query.category = { $regex: selectedCategory, $options: "i" };
+    }
+    if (maxPrice != undefined && maxPrice != null) {
+      query.ticketPrice = { $lte: maxPrice };
+    }
+    if (selectedDate) {
+      const date = new Date(selectedDate);
+      date.setHours(0, 0, 0, 0);
+      const nextDay = new Date(date);
+      nextDay.setDate(date.getDate() + 1);
+      query.date = { $gte: date, $lt: nextDay };
+    }
+    const totalCount = await EventModel.countDocuments(query);
+    const events = await EventModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    console.log("eventsee", events);
 
     return {
       totalPages: Math.ceil(totalCount / limit),
@@ -71,9 +135,16 @@ export class EventRepository
     return await this.findById(id);
   }
   async createEvent(data: IEventDTO): Promise<IEvent> {
-    console.log("repdata", data);
+    const event= await EventModel.create(data);
+    await Notification.create({
+      organizerId:event.organiser,
+      type:"event_created",
+      message:`Your event ${event.title} has been created successfully!`,
+      isRead:false
 
-    return await EventModel.create(data);
+
+    })
+    return event
   }
   async eventDelete(id: string): Promise<DeleteResult> {
     return this.deleteById(id);
@@ -84,8 +155,8 @@ export class EventRepository
       date: new Date(data.date),
       status: data.status as "draft" | "published" | "completed" | "cancelled",
     };
-    if(data.capacity!==undefined){
-      updatedData.availableTickets=data.capacity
+    if (data.capacity !== undefined) {
+      updatedData.availableTickets = data.capacity;
     }
     return this.updateById(id, updatedData);
   }
@@ -113,7 +184,6 @@ export class EventRepository
     const filter: {
       organiser: string;
       title?: { $regex: string; $options: string };
-      venue?: { $regex: string; $options: string };
 
       date?: { $gte: Date; $lt: Date };
     } = {
@@ -121,7 +191,6 @@ export class EventRepository
     };
     if (searchTerm) {
       filter.title = { $regex: searchTerm, $options: "i" };
-      filter.venue = { $regex: searchTerm, $options: "i" };
     }
 
     if (date) {
@@ -264,4 +333,129 @@ export class EventRepository
       category: { $regex: new RegExp(`^${category}$`, "i") },
     });
   }
+  async findRecommended(
+    userId: string,
+    filters: IEventFilter
+  ): Promise<Recommend> {
+    try {
+      const {
+        searchTerm,
+
+        maxPrice,
+        selectedDate,
+
+        page = 1,
+        limit = 3,
+      } = filters;
+      const skip = (page - 1) * limit;
+
+      const query: FilterQuery<IEvent> = {
+        isBlocked: false,
+        status: "published",
+        date: { $gte: new Date() },
+      };
+      if (searchTerm) {
+        query.$or = [
+          { title: { $regex: searchTerm, $options: "i" } },
+          { venue: { $regex: searchTerm, $options: "i" } },
+        ];
+      }
+      if (maxPrice) {
+        query.ticketPrice = { $lte: maxPrice };
+      }
+
+      if (selectedDate) {
+        const date = new Date(selectedDate);
+        date.setHours(0, 0, 0, 0);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+        query.date = { $gte: date, $lt: nextDay };
+      }
+
+      const latestOrder = await Order.findOne({ userId }).sort({
+        createdAt: -1,
+      });
+      if (!latestOrder) {
+        throw new Error("latest order does not exist");
+      }
+
+      const eventId = latestOrder.eventId;
+      const event = await EventModel.findById(eventId).lean<IEventDTO>().exec();
+
+      query._id = { $ne: eventId };
+      const events = await EventModel.find(query)
+        .skip(skip)
+        .limit(limit)
+        .lean<IEventDTO[]>()
+        .exec();
+       
+        
+
+      if (!event) {
+        return { events };
+      }
+      return { event: event, events: events, success: true };
+    } catch (error) {
+      console.log(error);
+      return { success: false };
+    }
+  }
+async findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]> {
+
+   const {
+        searchTerm,
+
+        maxPrice,
+        selectedDate,
+
+        page = 1,
+        limit = 3,
+      } = filters;
+    
+      const query: FilterQuery<IEvent> = {
+        isBlocked: false,
+        status: "published",
+        date: { $gte: new Date() },
+      };
+      if (searchTerm) {
+        query.$or = [
+          { title: { $regex: searchTerm, $options: "i" } },
+          { venue: { $regex: searchTerm, $options: "i" } },
+        ];
+      }
+      if (maxPrice) {
+        query.ticketPrice = { $lte: maxPrice };
+      }
+
+      if (selectedDate) {
+        const date = new Date(selectedDate);
+        date.setHours(0, 0, 0, 0);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+        query.date = { $gte: date, $lt: nextDay };
+      }
+      
+   
+
+
+    return await EventModel.find({
+      /*status: "published",
+
+      location: {
+        $near: {
+          $geometry: { type: "Point", coordinates: [lng, lat] },
+          $maxDistance: 50000,
+        },
+      },*/
+      ...query,
+      location: {
+      $near: {
+        $geometry: { type: "Point", coordinates: [lng, lat] },
+        $maxDistance: 50000,
+      },
+    },
+    });
+   
+  }
+
 }

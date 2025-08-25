@@ -47,6 +47,12 @@ import CheckInPage from "./assets/pages/OrganiserCheckin";
 import OrganizerChatPage from "./assets/pages/OrganiserChat";
 import socket from "./socket";
 import UserChatPage from "./assets/pages/UserChat";
+import RecommendedEventsPage from "./assets/pages/RecommendedPage";
+import NearEventsPage from "./assets/pages/NearEvents";
+import CompletedEvents from "./assets/pages/CompletedEvents";
+import ReviewPage from "./assets/pages/ReviewPage";
+import NotificationPage from "./assets/pages/OrganiserNotification";
+import UserNotificationPage from "./assets/pages/UserNotification";
 
 function App() {
   const dispatch = useDispatch();
@@ -58,37 +64,26 @@ function App() {
   const organiserId = organiser?.id ?? "";
 
   useEffect(() => {
-    if (!userId) return; // not logged in yet—skip
+    if (!userId) return; 
 
-    //const socket = io('http://localhost:3000', { withCredentials: true });
-
-    // 1) Register this socket under the user’s ID
     socket.emit("register-user", userId);
 
-    // 2) Listen for forced-logout events
     socket.on("logout", () => {
-      // Clear any tokens or Redux state, then redirect
       dispatch(logout());
-      // If you store userId in Redux, dispatch a logout action there as well
+
       window.location.href = "/login";
     });
 
-    // 3) Clean up on unmount
     return () => {
       socket.disconnect();
     };
   }, [userId]);
 
   useEffect(() => {
-    if (!organiserId) return; // skip if no organiser is logged in
-
-    //const socket = io('http://localhost:3000', { withCredentials: true })
-
-    // Tell the server: “this socket belongs to organiserId”
+    if (!organiserId) return;
     socket.emit("register-organiser", organiserId);
 
     socket.on("logout", () => {
-      // Force‐logout for an organiser
       dispatch(logout());
       window.location.href = "/login";
     });
@@ -106,7 +101,12 @@ function App() {
       <Route path="/verifyOtpUser" element={<VerifyOtpUser />} />
       <Route path="/verifyOtpOrg" element={<VerifyOtpOrg />} />
       <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
+       <Route path="/recommended" element={<ProtectedRoute element={<RecommendedEventsPage />} />} />
+       <Route path="/near" element={<ProtectedRoute element={<NearEventsPage/>} />} />
       <Route path="/" element={<HomePage />} />
+       <Route path="/completed" element={<ProtectedRoute element={<CompletedEvents/>} />} />
+        <Route path="/reviews/:id" element={<ProtectedRoute element={<ReviewPage/>} />} />
+
 
       <Route
         path="/dashboard"
@@ -127,8 +127,12 @@ function App() {
         path="/orgEvents"
         element={<ProtectedRoute element={<OrganiserEvents />} />}
       />
+      <Route
+        path="/userNotifications"
+        element={<ProtectedRoute element={<UserNotificationPage />} />}
+      />
       <Route path="/adminLogin" element={<AdminLogin />} />
-      <Route path="/adminDashboard" element={<AdminDashboard />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/adminOrganiser" element={<AdminOrganiser />} />
       <Route path="/adminUser" element={<AdminUser />} />
       <Route path="/admin/events" element={<EventPage />} />
@@ -174,6 +178,10 @@ function App() {
       <Route
         path="/orgVenues"
         element={<ProtectedRoute element={<VenuePage />} />}
+      />
+      <Route
+        path="/orgNotifications"
+        element={<ProtectedRoute element={<NotificationPage />} />}
       />
       <Route
         path="/venue/:venueId"

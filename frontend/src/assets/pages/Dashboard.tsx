@@ -238,8 +238,6 @@ const organiserEarning = totalAmount - commission;
 
     const commission = (totalAmount * validAdminPercentage) / 100;
     const organiserEarning = totalAmount - commission;
-
-    // Safely check event date
     const eventDate = new Date(order.eventDate);
     if (!isNaN(eventDate.getTime()) && eventDate < today) {
       totalEarnings += organiserEarning;
@@ -258,8 +256,6 @@ const organiserEarning = totalAmount - commission;
       `₹${organiserEarning.toFixed(2)}`,
     ];
   });
-
-  // Add an empty row + total
   tableRows.push([]);
   tableRows.push([
     "",
@@ -367,36 +363,7 @@ const organiserEarning = totalAmount - commission;
             </div>
           </div>
 
-          {/* <div className=" mx-auto p-4 bg-white shadow-md rounded-md  lg:flex-row justify-between items-start lg:items-center">
-           
-
-        <label className="block text-sm font-medium">Select Month</label>
-        <select
-            className="w-full border rounded p-2"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          >
-            {months.map((month) => (
-              <option key={month.value} value={month.value}>
-                {month.label}
-              </option>
-            ))}
-          </select>
-          
-          <label className="block text-sm font-medium">Select Year</label>
-          <input
-            type="number"
-            className="w-full border rounded p-2"
-            placeholder="e.g. 2025"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-            min="2000"
-            max="2099"
-          />
-         
-          </div>*/}
-
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
+         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Calendar className="text-white" size={20} />

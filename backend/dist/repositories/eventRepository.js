@@ -18,24 +18,27 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const user_1 = __importDefault(require("../model/user"));
 const baseRepository_1 = require("./baseRepository");
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const order_1 = __importDefault(require("../model/order"));
+const notification_1 = __importDefault(require("../model/notification"));
 class EventRepository extends baseRepository_1.BaseRepository {
     constructor() {
         super(event_1.default);
     }
     getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("filters", filters);
-            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, } = filters;
+            const { selectedCategory, maxPrice, selectedDate, searchTerm, page = 1, limit = 6, } = filters;
             const skip = (page - 1) * limit;
             const query = {
                 isBlocked: false,
-                status: "published",
+                status: "published"
             };
-            if (searchLocation) {
-                query.venue = { $regex: searchLocation, $options: "i" };
-            }
-            if (searchTitle) {
-                query.title = { $regex: searchTitle, $options: "i" };
+            if (searchTerm) {
+                query.$or = [
+                    { title: { $regex: searchTerm, $options: "i" } },
+                    { venue: { $regex: searchTerm, $options: "i" } },
+                ];
             }
             if (selectedCategory) {
                 query.category = { $regex: selectedCategory, $options: "i" };
@@ -55,7 +58,47 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });
-            console.log("events", events);
+            console.log("eventsee", events);
+            return {
+                totalPages: Math.ceil(totalCount / limit),
+                events,
+                currentPage: page,
+            };
+        });
+    }
+    getCompleted(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { selectedCategory, maxPrice, selectedDate, searchTerm, page = 1, limit = 6, } = filters;
+            const skip = (page - 1) * limit;
+            const query = {
+                isBlocked: false,
+                status: "completed"
+            };
+            if (searchTerm) {
+                query.$or = [
+                    { title: { $regex: searchTerm, $options: "i" } },
+                    { venue: { $regex: searchTerm, $options: "i" } },
+                ];
+            }
+            if (selectedCategory) {
+                query.category = { $regex: selectedCategory, $options: "i" };
+            }
+            if (maxPrice != undefined && maxPrice != null) {
+                query.ticketPrice = { $lte: maxPrice };
+            }
+            if (selectedDate) {
+                const date = new Date(selectedDate);
+                date.setHours(0, 0, 0, 0);
+                const nextDay = new Date(date);
+                nextDay.setDate(date.getDate() + 1);
+                query.date = { $gte: date, $lt: nextDay };
+            }
+            const totalCount = yield event_1.default.countDocuments(query);
+            const events = yield event_1.default.find(query)
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+            console.log("eventsee", events);
             return {
                 totalPages: Math.ceil(totalCount / limit),
                 events,
@@ -70,8 +113,14 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     createEvent(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("repdata", data);
-            return yield event_1.default.create(data);
+            const event = yield event_1.default.create(data);
+            yield notification_1.default.create({
+                organizerId: event.organiser,
+                type: "event_created",
+                message: `Your event ${event.title} has been created successfully!`,
+                isRead: false
+            });
+            return event;
         });
     }
     eventDelete(id) {
@@ -109,7 +158,6 @@ class EventRepository extends baseRepository_1.BaseRepository {
             };
             if (searchTerm) {
                 filter.title = { $regex: searchTerm, $options: "i" };
-                filter.venue = { $regex: searchTerm, $options: "i" };
             }
             if (date) {
                 const selectedDate = new Date(date);
@@ -236,6 +284,89 @@ class EventRepository extends baseRepository_1.BaseRepository {
             return yield event_1.default.find({
                 category: { $regex: new RegExp(`^${category}$`, "i") },
             });
+        });
+    }
+    findRecommended(userId, filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { searchTerm, maxPrice, selectedDate, page = 1, limit = 3, } = filters;
+                const skip = (page - 1) * limit;
+                const query = {
+                    isBlocked: false,
+                    status: "published",
+                    date: { $gte: new Date() },
+                };
+                if (searchTerm) {
+                    query.$or = [
+                        { title: { $regex: searchTerm, $options: "i" } },
+                        { venue: { $regex: searchTerm, $options: "i" } },
+                    ];
+                }
+                if (maxPrice) {
+                    query.ticketPrice = { $lte: maxPrice };
+                }
+                if (selectedDate) {
+                    const date = new Date(selectedDate);
+                    date.setHours(0, 0, 0, 0);
+                    const nextDay = new Date(date);
+                    nextDay.setDate(date.getDate() + 1);
+                    query.date = { $gte: date, $lt: nextDay };
+                }
+                const latestOrder = yield order_1.default.findOne({ userId }).sort({
+                    createdAt: -1,
+                });
+                if (!latestOrder) {
+                    throw new Error("latest order does not exist");
+                }
+                const eventId = latestOrder.eventId;
+                const event = yield event_1.default.findById(eventId).lean().exec();
+                query._id = { $ne: eventId };
+                const events = yield event_1.default.find(query)
+                    .skip(skip)
+                    .limit(limit)
+                    .lean()
+                    .exec();
+                if (!event) {
+                    return { events };
+                }
+                return { event: event, events: events, success: true };
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
+            }
+        });
+    }
+    findNear(_a, filters_1) {
+        return __awaiter(this, arguments, void 0, function* ({ lat, lng }, filters) {
+            const { searchTerm, maxPrice, selectedDate, page = 1, limit = 3, } = filters;
+            const query = {
+                isBlocked: false,
+                status: "published",
+                date: { $gte: new Date() },
+            };
+            if (searchTerm) {
+                query.$or = [
+                    { title: { $regex: searchTerm, $options: "i" } },
+                    { venue: { $regex: searchTerm, $options: "i" } },
+                ];
+            }
+            if (maxPrice) {
+                query.ticketPrice = { $lte: maxPrice };
+            }
+            if (selectedDate) {
+                const date = new Date(selectedDate);
+                date.setHours(0, 0, 0, 0);
+                const nextDay = new Date(date);
+                nextDay.setDate(date.getDate() + 1);
+                query.date = { $gte: date, $lt: nextDay };
+            }
+            return yield event_1.default.find(Object.assign(Object.assign({}, query), { location: {
+                    $near: {
+                        $geometry: { type: "Point", coordinates: [lng, lat] },
+                        $maxDistance: 50000,
+                    },
+                } }));
         });
     }
 }

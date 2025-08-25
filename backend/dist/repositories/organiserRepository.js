@@ -269,22 +269,20 @@ class OrganiserRepository {
                 const targetYear = parseInt(year !== null && year !== void 0 ? year : new Date().getFullYear().toString());
                 const targetMonth = month ? parseInt(month) : 0;
                 stDate = new Date(targetYear, targetMonth, 1);
-                if (month) {
-                    enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
-                }
-                else {
-                    enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-                }
+                enDate = month
+                    ? new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999)
+                    : new Date(targetYear, 11, 31, 23, 59, 59, 999);
             }
-            else if (!month && !year) {
-                const targetYear = parseInt(new Date().getFullYear().toString());
-                stDate = new Date(targetYear, 0, 1);
-                enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-            }
-            else {
+            else if (timeFrame) {
                 const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
                 stDate = new Date();
                 stDate.setDate(stDate.getDate() - days);
+                enDate = new Date();
+            }
+            else {
+                const targetYear = parseInt(new Date().getFullYear().toString());
+                stDate = new Date(targetYear, 0, 1);
+                enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
             }
             const eventMatchCondition = {
                 "EventDetails.organiser": new mongoose_1.default.Types.ObjectId(organiserId),

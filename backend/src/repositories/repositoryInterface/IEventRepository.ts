@@ -1,6 +1,7 @@
 import { DeleteResult } from "mongoose";
-import { EventEdit, GetEvent, IEventFilter } from "src/interface/event";
+import { EventEdit, GetEvent, IEventFilter, Location } from "src/interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
+import { Recommend } from "src/interface/IUser";
 import { IUser } from "src/interface/IUserAuth";
 import { IEvent } from "src/model/event";
 
@@ -25,6 +26,10 @@ export interface IEventRepository{
 getOrgEvents(organiserId:string):Promise<IEvent[]>
 findEvent(eventName:string):Promise<IEvent|null>
 findEventsByCat(category:string):Promise<IEvent[]>
+findRecommended(userId:string,filters:IEventFilter):Promise<Recommend>
+findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]> 
+
+getCompleted(filters: IEventFilter): Promise<GetEvent | null>
 
     
 }

@@ -92,6 +92,29 @@ class UserController {
             }
         });
     }
+    changePassword(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const newPass = String(req.body.newPass);
+            const currentPass = String(req.body.currentPass);
+            console.log("newPass", newPass);
+            try {
+                if (!userId)
+                    throw new Error("userId not found");
+                const response = yield this._userService.passwordChange(userId, newPass, currentPass);
+                if (response.success) {
+                    res.json({ success: true });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.UserController = UserController;
 //# sourceMappingURL=userController.js.map

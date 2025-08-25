@@ -7,6 +7,7 @@ import { ParsedQs } from "qs";
 
 import { StatusCode } from "../constants/statusCodeEnum";
 import { MESSAGES } from "../constants/messages";
+
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
@@ -20,10 +21,11 @@ export class EventController implements IEventController {
     try {
       const query = req.query as ParsedQs;
       const filters: IEventFilter = {
-        searchLocation:
-          typeof query.searchLocation === "string" ? query.searchLocation : "",
-        searchTitle:
-          typeof query.searchTitle === "string" ? query.searchTitle : "",
+       // searchLocation:
+          //typeof query.searchLocation === "string" ? query.searchLocation : "",
+        //searchTitle:
+         // typeof query.searchTitle === "string" ? query.searchTitle : "",
+         searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
         selectedCategory:
           typeof query.selectedCategory === "string"
             ? query.selectedCategory
@@ -54,7 +56,47 @@ export class EventController implements IEventController {
         message: MESSAGES.EVENT.FAILED_TO_FETCH,
       });
     }
+  } async getCompleted(req: Request, res: Response): Promise<void> {
+    try {
+      const query = req.query as ParsedQs;
+      const filters: IEventFilter = {
+       // searchLocation:
+          //typeof query.searchLocation === "string" ? query.searchLocation : "",
+        //searchTitle:
+         // typeof query.searchTitle === "string" ? query.searchTitle : "",
+         searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
+        selectedCategory:
+          typeof query.selectedCategory === "string"
+            ? query.selectedCategory
+            : "",
+        maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+        selectedDate:
+          typeof query.selectedDate === "string" ? query.selectedDate : "",
+        page: query.page ? Number(query.page) : undefined,
+        limit: query.limit ? Number(query.limit) : undefined,
+      };
+      
+      
+
+      const result = await this._eventService.completedGet(filters);
+
+      if (result) {
+        res.json({ result: result, success: true });
+      } else {
+        res.status(StatusCode.NOT_FOUND).json({
+          success: false,
+          message: MESSAGES.COMMON.NOT_FOUND,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: MESSAGES.EVENT.FAILED_TO_FETCH,
+      });
+    }
   }
+
   async getEventById(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;
@@ -172,6 +214,8 @@ export class EventController implements IEventController {
         : 5;
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const searchTerm = req.query.searchTerm as string;
+     
+      
       const date = req.query.date as string;
 
       const response = await this._eventService.getEvent(
@@ -309,6 +353,79 @@ export class EventController implements IEventController {
         success: false,
         message: MESSAGES.EVENT.FAILED_TO_FETCH,
       });
+    }
+  }
+  async findRecommended(req:AuthenticatedRequest,res:Response):Promise<void>{
+    const userId=req.user?.id;
+    
+     const query = req.query as ParsedQs;
+      const filters = {
+        searchTerm:
+          typeof query.searchTerm === "string" ? query.searchTerm: "",
+       
+        
+        maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+        selectedDate:
+          typeof query.selectedDate === "string" ? query.selectedDate : "",
+        page: query.page ? Number(query.page) : undefined,
+        limit: query.limit ? Number(query.limit) : undefined,
+      };
+    try {
+      if(!userId)throw new Error("userId not get")
+      const response=await this._eventService.getRecommended(userId,filters);
+      if(response.success){
+        res.json( {success:true,events:response.events})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error(error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: MESSAGES.EVENT.FAILED_TO_FETCH,
+      });
+      
+    }
+    
+
+  }
+  async findNear(req:Request,res:Response):Promise<void>{
+    try {
+     
+      
+      const lat=Number(req.query.lat);
+      const lng=Number(req.query.lng);
+     const query = req.query as ParsedQs;
+      const filters = {
+        searchTerm:
+          typeof query.searchTerm === "string" ? query.searchTerm: "",
+       
+        
+        maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+        selectedDate:
+          typeof query.selectedDate === "string" ? query.selectedDate : "",
+        page: query.page ? Number(query.page) : undefined,
+        limit: query.limit ? Number(query.limit) : undefined,
+      };
+    
+
+      const response=await this._eventService.nearFind({lat,lng},filters);
+    
+      
+      if(response){
+        res.json({data:response.events,success:true})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error(error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: MESSAGES.EVENT.FAILED_TO_FETCH,
+      });
+      
     }
   }
 }

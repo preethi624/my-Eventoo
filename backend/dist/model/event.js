@@ -64,6 +64,18 @@ const eventSchema = new mongoose_1.Schema({
     latitude: { type: Number, default: 9.9312 },
     longitude: { type: Number, default: 76.2673 },
     isBlocked: { type: Boolean, default: false },
+    embedding: [Number],
+    location: {
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
+        coordinates: {
+            type: [Number],
+            default: [0, 0]
+        }
+    }
 }, { timestamps: true });
 eventSchema.pre("save", function (next) {
     if (this.isNew) {
@@ -71,6 +83,7 @@ eventSchema.pre("save", function (next) {
     }
     next();
 });
+eventSchema.index({ location: "2dsphere" });
 const EventModel = mongoose_1.default.model("Event", eventSchema);
 exports.default = EventModel;
 //# sourceMappingURL=event.js.map

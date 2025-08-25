@@ -43,7 +43,7 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       match.createdAt = { $gte: date, $lt: nextDay };
     }
 
-    // Build aggregation pipeline
+    
     const pipeline: PipelineStage[] = [
       {
         $lookup: {
@@ -122,43 +122,31 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     month?: string,
     year?: string
   ): Promise<OrderDashboard> {
-    /*let stDate: Date;
-  let enDate: Date | undefined;
-
-  if (startDate && endDate) {
-    stDate = new Date(startDate);
-    enDate = new Date(endDate);
-  } else {
-    const days = timeFrame === '7d' ? 7 : timeFrame === '30d' ? 30 : 90;
-    stDate = new Date();
-    stDate.setDate(stDate.getDate() - days);
-  }*/
+    
     let stDate: Date;
     let enDate: Date | undefined;
 
-    if (startDate && endDate) {
+    
+   if (startDate && endDate) {
       stDate = new Date(startDate);
       enDate = new Date(endDate);
     } else if (month || year) {
       const targetYear = parseInt(year ?? new Date().getFullYear().toString());
-
       const targetMonth = month ? parseInt(month) : 0;
 
       stDate = new Date(targetYear, targetMonth, 1);
-
-      if (month) {
-        enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
-      } else {
-        enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-      }
-    } else if (!month && !year) {
-      const targetYear = parseInt(new Date().getFullYear().toString());
-      stDate = new Date(targetYear, 0, 1);
-      enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-    } else {
+      enDate = month
+        ? new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999)
+        : new Date(targetYear, 11, 31, 23, 59, 59, 999);
+    } else if (timeFrame) {
       const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
       stDate = new Date();
       stDate.setDate(stDate.getDate() - days);
+      enDate = new Date();
+    } else {
+      const targetYear = parseInt(new Date().getFullYear().toString());
+      stDate = new Date(targetYear, 0, 1);
+      enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
     }
 
     const eventMatchCondition: Record<string, unknown> = {
@@ -171,6 +159,7 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     }
 
     const orders = await Order.aggregate([
+    
       { $sort: { createdAt: -1 } },
       { $limit: 5 },
       {
@@ -235,6 +224,7 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
 
     const salesReport = await Order.aggregate([
+     
       {
         $lookup: {
           from: "events",

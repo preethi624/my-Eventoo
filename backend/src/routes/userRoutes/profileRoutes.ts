@@ -25,5 +25,6 @@ router.get(
   authMiddlewarwSet.userOnly,
   userController.getOrgs.bind(userController)
 );
+router.put('/',authMiddlewarwSet.userOnly,userController.changePassword.bind(userController))
 
 export default router;

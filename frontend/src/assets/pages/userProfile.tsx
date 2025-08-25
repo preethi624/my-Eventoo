@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Camera, Mail, Phone, MapPin, Edit2, Check, X } from "lucide-react";
+import { Camera, Mail, Phone, MapPin, Edit2, Check, X,Key,Lock } from "lucide-react";
 import type { RootState } from "../../redux/stroe";
 
 import { userRepository } from "../../repositories/userRepositories";
@@ -9,8 +9,14 @@ import { paymentRepository } from "../../repositories/paymentRepositories";
 import type { UserProfile } from "../../interfaces/IPayment";
 import UserNavbar from "../components/UseNavbar";
 
+
 const UserProfile: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+
 
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
@@ -111,6 +117,30 @@ const UserProfile: React.FC = () => {
       console.error("Failed to update profile:", error);
     }
   };
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("❌ New passwords do not match");
+      return;
+    }
+    try {
+      const response = await userRepository.changePassword(
+        currentPassword,
+        newPassword,
+      );
+      console.log("respo",response);
+      
+      if (response.success) {
+        setPasswordMessage("✅ Password updated successfully!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setPasswordMessage("❌ " + response.message);
+      }
+    } catch (error) {
+      setPasswordMessage("❌ Failed to change password");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -287,6 +317,64 @@ const UserProfile: React.FC = () => {
               {formData.bio || "No bio added yet."}
             </p>
           )}
+        </div>
+        <div className="mt-6 bg-white rounded-2xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <Lock className="w-5 h-5 mr-2 text-purple-600" />
+            Change Password
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-600 mb-1">Current Password</label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full bg-gray-100 rounded px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-600 mb-1">New Password</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full bg-gray-100 rounded px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-600 mb-1">Confirm Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-gray-100 rounded px-3 py-2"
+              />
+            </div>
+
+            {passwordMessage && (
+              <p
+                className={`text-sm ${
+                  passwordMessage.startsWith("✅")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {passwordMessage}
+              </p>
+            )}
+
+            <button
+              onClick={handleChangePassword}
+              className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-xl shadow hover:bg-purple-700 transition"
+            >
+              <Key className="w-4 h-4 mr-2" />
+              Update Password
+            </button>
+          </div>
         </div>
       </div>
     </div>

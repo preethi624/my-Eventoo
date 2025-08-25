@@ -7,6 +7,10 @@ import {
   FaClock,
   FaTicketAlt,
   FaUsers,
+  FaStar,
+  FaUser,
+  FaPaperPlane,
+  FaQuoteLeft,
 } from "react-icons/fa";
 
 import UserNavbar from "../components/UseNavbar";
@@ -14,26 +18,52 @@ import type { IEventDTO } from "../../interfaces/IEvent";
 import EventMap from "../components/EventMap";
 import { eventRepository } from "../../repositories/eventRepositories";
 import EventInfoItem from "../components/EventInfoItem";
+import { reviewRepository } from "../../repositories/reviewRepositories";
+
+interface Review {
+  _id: string;
+  user: {
+    name: string;
+    _id: string;
+    avatar?: string;
+  };
+  rating: number;
+  comment: string;
+  createdAt: string;
+  eventId: string;
+}
 
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<IEventDTO | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewStats, setReviewStats] = useState({
+    averageRating: 0,
+    totalReviews: 0,
+    ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  });
+  
   const navigate = useNavigate();
-   let imageSrc = "https://via.placeholder.com/300x200";
-    if (event&&event.images && event.images.length > 0) {
+  
+  let imageSrc = "https://via.placeholder.com/300x200";
+  if (event && event.images && event.images.length > 0) {
     const img = event.images[0];
     if (img.startsWith("http")) {
-      
       imageSrc = img;
     } else {
-    
       imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
     }
   }
 
+
+  
   useEffect(() => {
     if (id) {
       fetchEventDetail(id);
+     
     }
   }, [id]);
 
@@ -49,7 +79,23 @@ const EventDetail: React.FC = () => {
     }
   };
 
+  
+  
+
+  
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  
+
+
   if (!event) return <div className="text-center mt-20">Loading...</div>;
+
   const handleBooking = async () => {
     const eventId = event._id;
     navigate(`/eventBooking/${eventId}`);
@@ -60,23 +106,11 @@ const EventDetail: React.FC = () => {
       <UserNavbar />
 
       <div className="max-w-4xl mx-auto p-6">
-        {/*<img
-          src={
-            event.images?.[0]
-              ? `http://localhost:3000/${event.images[0].replace("\\", "/")}`
-              : "https://via.placeholder.com/800x400"
-          }
-          alt={event.title}
-          className="w-full h-[400px] object-cover rounded-xl mb-6"
-        />*/}
         <img
-          src={
-            imageSrc
-          }
+          src={imageSrc}
           alt={event.title}
           className="w-full h-[400px] object-cover rounded-xl mb-6"
         />
-        
 
         <span className="bg-black text-white px-3 py-1 rounded-full text-sm mb-4 inline-block">
           {event.category}
@@ -123,6 +157,8 @@ const EventDetail: React.FC = () => {
             Book Tickets
           </button>
         </div>
+
+        
       </div>
     </div>
   );

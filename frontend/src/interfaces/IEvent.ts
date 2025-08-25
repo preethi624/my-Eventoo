@@ -38,3 +38,7 @@ export interface EventCount{
 
 }
 
+export interface Location {
+  latitude: number;
+  longitude: number;
+}

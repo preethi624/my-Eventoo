@@ -79,6 +79,12 @@ const UserNavbar: React.FC = () => {
               >
                 Chat
               </Link>
+              <Link
+                to="/userNotifications"
+                className="text-gray-700 hover:text-blue-600 font-medium"
+              >
+                Notifications
+              </Link>
 
               <Link to={`/userProfile`}>
                 <span className="text-sm font-semibold text-gray-800">

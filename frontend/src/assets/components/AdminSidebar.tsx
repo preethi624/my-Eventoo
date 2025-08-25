@@ -7,8 +7,7 @@ import {
   FaCalendarAlt,
   FaMapMarkerAlt,
   FaTicketAlt,
-  FaChartBar,
-  FaUserCircle,
+  
 } from "react-icons/fa";
 
 interface MenuItem {
@@ -27,12 +26,11 @@ const AdminSidebar: React.FC = () => {
     { path: "/admin/events", icon: <FaCalendarAlt />, label: "Events" },
     { path: "/admin/venues", icon: <FaMapMarkerAlt />, label: "Venues" },
     { path: "/admin/bookings", icon: <FaTicketAlt />, label: "Bookings" },
-    { path: "/admin/reports", icon: <FaChartBar />, label: "Reports" },
-    { path: "/admin/profile", icon: <FaUserCircle />, label: "Profile" },
+    
   ];
 
   return (
-    <div className="min-h-screen w-64 bg-[#1a2634] text-white">
+    <div className=" min-h-screen w-64 bg-[#1a2634] text-white">
       <nav className="flex flex-col py-4">
         {menuItems.map((item) => (
           <Link

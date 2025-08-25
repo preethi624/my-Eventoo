@@ -125,7 +125,8 @@ User asked: "${userMessage}"
 System Data:
 ${relevantData}
 
-Respond clearly, helpfully, and friendly.
+Format your response as bullet points. Each point should be concise, clear, and easy to read.
+Respond in a friendly and helpful tone.
 `;
 
       const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });

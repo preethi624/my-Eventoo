@@ -4,7 +4,8 @@ import User from "../model/user";
 
 import { IAdminUserRepository } from "./repositoryInterface/IAdminUserRepository";
 import { FilterQuery } from "mongoose";
-import { options } from "pdfkit";
+import Notification from "../model/notification";
+
 
 export class AdminUserRepository implements IAdminUserRepository {
   async getUserAll(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetUser> {
@@ -28,22 +29,52 @@ export class AdminUserRepository implements IAdminUserRepository {
     return { users, total };
   }
   async editUser(id: string, formData: EditUser): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(id, formData, { new: true });
+    try {
+       const user= await User.findByIdAndUpdate(id, formData, { new: true });
+      await Notification.create({
+            userId:id,
+            type:"general",
+            message:`Your Eventoo acount is edited by admin !`,
+            isRead:false
+             })
+             return user
+      
+    } catch (error) {
+      console.log(error);
+      return null
+      
+      
+    }
+   
   }
   async blockUser(user: IUser): Promise<IUser | null> {
     const id = user._id;
     if (!user.isBlocked) {
-      return await User.findByIdAndUpdate(
+      const user=await User.findByIdAndUpdate(
         id,
         { isBlocked: true },
         { new: true }
       );
+      await Notification.create({
+            userId:id,
+            type:"general",
+            message:`Your Eventoo acount is blocked by admin !`,
+            isRead:false
+             })
+             return user
     } else {
-      return await User.findByIdAndUpdate(
+      const user=await User.findByIdAndUpdate(
         id,
         { isBlocked: false },
         { new: true }
       );
+      await Notification.create({
+            userId:id,
+            type:"general",
+            message:`Your Eventoo acount is unblocked by admin !`,
+            isRead:false
+             })
+             return user
     }
   }
   async getDashboardUsers(): Promise<DashboardUsers> {

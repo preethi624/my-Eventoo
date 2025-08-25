@@ -14,149 +14,42 @@ import { v4 as uuidv4 } from "uuid";
 import { ITicket, TicketModel } from "../model/ticket";
 
 import { PipelineStage } from "mongoose";
+import Notification from "../model/notification";
 
 export class PaymentRepository implements IPaymentRepository {
- async createOrder(data: IPaymentDTO): Promise<IOrder> {
-
-
-    /*console.log("repData", data);
-
-   
-       return await Order.create(data);*/
-       const session=await mongoose.startSession();
-       session.startTransaction()
-       try {
-        const updatedEvent=await EventModel.findOneAndUpdate({ _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
-      { $inc: { availableTickets: -data.ticketCount } },
-      { new: true, session })
-      if(!updatedEvent){
-        throw new Error("Not enough tickets available")
+  async createOrder(data: IPaymentDTO): Promise<IOrder> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const updatedEvent = await EventModel.findOneAndUpdate(
+        { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
+        { $inc: { availableTickets: -data.ticketCount } },
+        { new: true, session }
+      );
+      if (!updatedEvent) {
+        throw new Error("Not enough tickets available");
       }
-      const [order]=await Order.create([data],{session})
+      const [order] = await Order.create([data], { session });
       await session.commitTransaction();
-      return order
-        
-       } catch (error) {
-        await session.abortTransaction();
-    throw error;
-        
-       } finally {
-    session.endSession();
-  }
-
-  
-
-
-   
-  }
-  /*async createOrder(data: IPaymentDTO): Promise<IOrder> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    // Reserve tickets
-    const updatedEvent = await EventModel.findOneAndUpdate(
-      { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
-      { $inc: { availableTickets: -data.ticketCount } },
-      { new: true, session }
-    );
-
-    if (!updatedEvent) {
-
-      throw new Error("Not enough tickets available");
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    // Create pending order
-    const order = await Order.create(
-      [{ ...data, bookingStatus: "pending" }],
-      { session }
-    );
-
-    await session.commitTransaction();
-    return order[0];
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
-  } finally {
-    session.endSession();
   }
-}*/
 
   async createOrderFree(data: OrderFree): Promise<IOrder> {
     return await Order.create(data);
   }
 
-  /*async updatePaymentDetails(
+  async updatePaymentDetails(
     orderId: string,
     paymentId: string,
     signature: string,
     status: string
-   ): Promise<IOrder | null> {
-    const session=await mongoose.startSession();
-    session.startTransaction();
-    try {
-    
-     const updateOrder = await Order.findOneAndUpdate(
-      { razorpayOrderId: orderId },
-      {
-        razorpayPaymentId: paymentId,
-        razorpaySignature: signature,
-        status: status,
-        bookingStatus: "confirmed",
-      },
-      { new: true ,session}
-    );
-
-    if (
-      updateOrder &&
-      updateOrder.eventId &&
-      updateOrder.ticketCount &&
-      updateOrder.bookingStatus === "confirmed"
-    ) {
-      const updatedEvent=await EventModel.findByIdAndUpdate(updateOrder.eventId._id, {
-        $inc: { ticketsSold: updateOrder.ticketCount },
-       
-      },{new:true,session});
-       if (!updatedEvent) {
-      throw new Error("Not enough tickets available");
-    }
-      const ticketsToInsert = [];
-      for (let i = 0; i < updateOrder.ticketCount; i++) {
-        ticketsToInsert.push({
-          userId: updateOrder.userId,
-          orderId: updateOrder._id,
-          eventId: updateOrder.eventId,
-          qrToken: uuidv4(),
-          issuedAt: new Date(),
-          checkedIn: false,
-        });
-      }
-      await TicketModel.insertMany(ticketsToInsert,{session});
-    }
-    await session.commitTransaction();
-    return Order.findById(updateOrder?._id).populate("eventId").exec(); 
-    
-      
-    } catch (error) {
-      await session.abortTransaction();
-      throw error
-      
-    }finally{
-      session.endSession()
-    }
-    
-  }*/
- /*async updatePaymentDetails(
-  orderId: string,
-  paymentId: string,
-  signature: string,
-  status: string
-): Promise<IOrder | null> {
-  const session=await mongoose.startSession()
-
-  try {
-    session.startTransaction()
-    // Step 1: Update the order and confirm booking
+  ): Promise<IOrder | null> {
     const updateOrder = await Order.findOneAndUpdate(
       { razorpayOrderId: orderId },
       {
@@ -165,7 +58,7 @@ export class PaymentRepository implements IPaymentRepository {
         status: status,
         bookingStatus: "confirmed",
       },
-      { new: true,session }
+      { new: true }
     );
 
     if (
@@ -174,26 +67,9 @@ export class PaymentRepository implements IPaymentRepository {
       updateOrder.ticketCount &&
       updateOrder.bookingStatus === "confirmed"
     ) {
-      // Step 2: Atomically decrement availableTickets and increment ticketsSold
-      const updatedEvent = await EventModel.findOneAndUpdate(
-        {
-          _id: updateOrder.eventId._id,
-          availableTickets: { $gte: updateOrder.ticketCount } // Ensure enough tickets left
-        },
-        {
-          $inc: {
-            ticketsSold: updateOrder.ticketCount,
-            availableTickets: -updateOrder.ticketCount
-          }
-        },
-        { new: true,session}
-      );
-
-      if (!updatedEvent) {
-        throw new Error("Not enough tickets available");
-      }
-
-      // Step 3: Create ticket documents
+      await EventModel.findByIdAndUpdate(updateOrder.eventId._id, {
+        $inc: { ticketsSold: updateOrder.ticketCount },
+      });
       const ticketsToInsert = [];
       for (let i = 0; i < updateOrder.ticketCount; i++) {
         ticketsToInsert.push({
@@ -205,121 +81,18 @@ export class PaymentRepository implements IPaymentRepository {
           checkedIn: false,
         });
       }
-      await TicketModel.insertMany(ticketsToInsert,{session});
+      await TicketModel.insertMany(ticketsToInsert);
+      await Notification.create({
+      userId: updateOrder.userId,
+      message: `Your booking for event "${updateOrder.eventTitle}" has been confirmed! 🎉`,
+      type: "booking_confirmed",
+      isRead: false,
+    });
+
     }
-    await session.commitTransaction();
-    session.endSession()
 
-    
-
-    // Step 5: Return populated order
     return Order.findById(updateOrder?._id).populate("eventId").exec();
-    
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession()
-    console.log(error);
-    
-    
-    throw error;
-  } 
-} */
-/*async updatePaymentDetails(
-  orderId: string,
-  paymentId: string,
-  signature: string,
-  status: string
-): Promise<IOrder | null> {
-  const session=await mongoose.startSession()
-  try {
-    session.startTransaction();
-    const order=await Order.findOne(
-      { razorpayOrderId: orderId, bookingStatus: { $ne: "confirmed" } },
-      null,
-      {session}
-    )
-     if (!order) {
-      throw new Error("Order not found or already confirmed");
-    }
-    const updatedEvent = await EventModel.findOneAndUpdate(
-      {
-        _id: order.eventId._id,
-        availableTickets: { $gte: order.ticketCount }, 
-      },
-      {
-        $inc: {
-          ticketsSold: order.ticketCount,
-          availableTickets: -order.ticketCount,
-        },
-      },
-      { new: true, session }
-    );
-    if (!updatedEvent) {
-      throw new Error("Not enough tickets available");
-    }
-    order.razorpayPaymentId = paymentId;
-    order.razorpaySignature = signature;
-    order.status = status;
-    order.bookingStatus = "confirmed";
-    await order.save({ session });
-    const ticketsToInsert = [];
-    for (let i = 0; i < order.ticketCount; i++) {
-      ticketsToInsert.push({
-        userId: order.userId,
-        orderId: order._id,
-        eventId: order.eventId,
-        qrToken: uuidv4(),
-        issuedAt: new Date(),
-        checkedIn: false,
-      });
-    }
-    await TicketModel.insertMany(ticketsToInsert, { session });
-
-    await session.commitTransaction();
-    session.endSession();
-
-    return Order.findById(order._id).populate("eventId").exec();
-
-    
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    console.error(error);
-    throw error;
-    
   }
-}*/
- async updatePaymentDetails(orderId:string,paymentId:string,signature:string,status:string):Promise<IOrder|null>{
-     
-      
-        const updateOrder=await Order.findOneAndUpdate({razorpayOrderId:orderId},{
-            razorpayPaymentId:paymentId,
-            razorpaySignature:signature,
-            status:status,
-            bookingStatus:"confirmed"
-
-        },{new:true})
-
-        if(updateOrder&&updateOrder.eventId&&updateOrder.ticketCount&&updateOrder.bookingStatus==="confirmed"){
-          await EventModel.findByIdAndUpdate(updateOrder.eventId._id,{$inc:{ticketsSold:updateOrder.ticketCount}})
-          const ticketsToInsert = [];
-          for(let i=0;i<updateOrder.ticketCount;i++){
-            ticketsToInsert.push({
-        userId: updateOrder.userId,
-        orderId: updateOrder._id,
-        eventId: updateOrder.eventId,
-        qrToken: uuidv4(),
-        issuedAt: new Date(),
-        checkedIn: false
-      });
-
-          }
-          await TicketModel.insertMany(ticketsToInsert)
-        }
-        return Order.findById(updateOrder?._id).populate("eventId").exec()
-
-    }
-
 
   async getOrders(
     id: string,
@@ -381,27 +154,37 @@ export class PaymentRepository implements IPaymentRepository {
     orderId: string,
     userId: string
   ): Promise<IOrder | null> {
-    console.log("orderId", orderId);
-
-   /* return await Order.findOneAndUpdate(
+   
+try {
+  const order = await Order.findOneAndUpdate(
       { userId, _id: orderId },
       { status: payStatus },
       { new: true }
-    );*/
-    const order = await Order.findOneAndUpdate(
-    { userId, _id: orderId },
-    { status: payStatus },
-    { new: true }
-  );
+    );
 
-  if (order && order.eventId) {
-    // Increment the available tickets in the event
-    await EventModel.findByIdAndUpdate(order.eventId, {
-      $inc: { availableTickets: order.ticketCount }
+    if (order && order.eventId) {
+      await EventModel.findByIdAndUpdate(order.eventId, {
+        $inc: { availableTickets: order.ticketCount },
+      });
+    }
+    if(!order) throw new Error("order not found")
+    await Notification.create({
+      userId: userId,
+      message: `Your booking for event "${order.eventTitle}" failed! `,
+      type: "booking_cancelled",
+      isRead: false,
     });
-  }
 
-  return order;
+    return order;
+  
+} catch (error) {
+  console.log((error));
+  return null
+  
+  
+}
+
+    
   }
   async getOrdersById(userId: string): Promise<UserProfileUpdate> {
     try {
@@ -450,6 +233,12 @@ export class PaymentRepository implements IPaymentRepository {
       await EventModel.findByIdAndUpdate(eventId, {
         $inc: { availableTickets: ticketCount },
       });
+       await Notification.create({
+      userId: order.userId,
+      message: `Your booking for event "${order.eventTitle}" refunded with amount ${order.amount/100}! `,
+      type: "general",
+      isRead: false,
+    })
       return { success: true };
     } catch (error) {
       console.log(error);

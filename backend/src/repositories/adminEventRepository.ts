@@ -4,6 +4,7 @@ import { IAdminEventRepository } from "./repositoryInterface/IAdminEventReposito
 import { FilterQuery, PipelineStage } from "mongoose";
 import { AdminDashboard } from "src/interface/IAdmin";
 import PlatformSettings from "../model/platformSettings";
+import Notification from "../model/notification";
 
 export class AdminEventRepository implements IAdminEventRepository {
   async getEventsAll(filters: IEventFilter): Promise<GetEvent | null> {
@@ -83,23 +84,74 @@ export class AdminEventRepository implements IAdminEventRepository {
     };
   }
   async eventEdit(id: string, formData: EditEvent): Promise<IEvent | null> {
-    return await EventModel.findByIdAndUpdate(id, formData, { new: true });
+    try {
+      const event=await EventModel.findByIdAndUpdate(id, formData, { new: true });
+      if(!event) throw new Error("event not found")
+
+     await Notification.create({
+      organizerId:event.organiser,
+      type:"general",
+      message:`Your event ${event.title} has been edited by admin!`,
+      isRead:false
+       })
+       return event
+
+      
+    } catch (error) {
+      console.log(error);
+      return null
+      
+      
+    }
+    
+
+   
+
   }
   async blockEvent(event: IEvent): Promise<IEvent | null> {
-    const id = event._id;
+    try {
+       const id = event._id;
     if (!event.isBlocked) {
-      return await EventModel.findByIdAndUpdate(
+      const event=await EventModel.findByIdAndUpdate(
         id,
         { isBlocked: true },
         { new: true }
       );
+      if(!event) throw new Error("event not found")
+      
+     await Notification.create({
+      organizerId:event.organiser,
+      type:"general",
+      message:`Your event ${event.title} has been blocked by admin!`,
+      isRead:false
+       })
+       return event
+
     } else {
-      return await EventModel.findByIdAndUpdate(
+      const event=await EventModel.findByIdAndUpdate(
         id,
         { isBlocked: false },
         { new: true }
       );
+      if(!event) throw new Error("event not found")
+      await Notification.create({
+      organizerId:event.organiser,
+      type:"general",
+      message:`Your event ${event.title} has been unblocked admin!`,
+      isRead:false
+       })
+       return event
     }
+    
+      
+    } catch (error) {
+      console.log(error);
+      return null
+      
+      
+    }
+   
+     
   }
   async getDashboard(): Promise<AdminDashboard> {
     const categoryColors: Record<string, string> = {

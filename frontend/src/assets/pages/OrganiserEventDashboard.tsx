@@ -34,8 +34,18 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+export interface IReview {
+  _id: string;
+  userId: { name: string }; // adjust if User model is different
+  rating: number;
+  comment: string;
+  createdAt: string;
+  sentiment?:string
+}
 import { organiserRepository } from "../../repositories/organiserRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
+import { reviewRepository } from "../../repositories/reviewRepositories";
+import ReviewSentimentChart from "../components/ReviewSentimentChart";
 
 const EventDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +53,7 @@ const EventDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reviews,setReviews]=useState<IReview>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +74,24 @@ const EventDashboard = () => {
     };
 
     fetchData();
+    fetchReviews()
   }, [id]);
+  const fetchReviews=async()=>{
+    try {
+      if(!id) throw new Error("id not found")
+       const response=await reviewRepository.fetchReviews(id);
+    setReviews(response.reviews)
+      
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+   
+  }
+  
+
 
   if (loading)
     return <div className="text-center py-10 text-gray-600">Loading...</div>;
@@ -259,6 +287,10 @@ const EventDashboard = () => {
     ))}
   </Pie>
 </PieChart>
+<h3 className="text-lg font-semibold mt-10 mb-3 text-gray-700">
+  Review Chart
+</h3>
+<ReviewSentimentChart reviews={reviews}/>
 
         {/* === End dynamic section === */}
       </div>

@@ -4,6 +4,7 @@ import { IUser } from "./IUserAuth";
 import { IOrganiser } from "./IOrgAuth";
 
 import { IAdminOrder } from "./IAdmin";
+import { IReview } from "src/model/review";
 
 export interface EventGet {
   message: string;
@@ -77,6 +78,7 @@ export interface IEventFilter {
   page?: number;
   limit?: number;
   orgName?: string;
+  searchTerm?:string;
 }
 export interface EventCount {
   count?: number;
@@ -164,3 +166,19 @@ export interface EventByCat {
   result?: IEvent[];
   success?: boolean;
 }
+
+export interface Location {
+  lat: number;
+  lng: number;
+}
+export interface IReviewWithSentiment {
+_id: string;
+  userId:string;
+  eventId: string;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  sentiment: string;
+}
+
+

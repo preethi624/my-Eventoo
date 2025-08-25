@@ -5,6 +5,7 @@ import type {
   EventCount,
   EventFetchResponse,
   IEventDTO,
+  Location,
 } from "../interfaces/IEvent";
 import type { EventEdit } from "../assets/pages/OrganiserEvents";
 import axiosInstance from "../utils/axiosUser";
@@ -70,6 +71,22 @@ export const getOrganiserEvents = async (
   }
 };
 
+export const getCompletedEvents = async (
+  filters: string
+): Promise<EventFetchResponse> => {
+  try {
+   
+    
+    const response = await axiosInstance.get<EventFetchResponse>(
+      `${API_BASE_URL}/completed?${filters}`
+    );
+
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+};
 export const getEventById = async (id: string): Promise<EventGetById> => {
   try {
     const response = await axiosInstance.get<EventGetById>(
@@ -126,6 +143,8 @@ export const getEvents = async (
   queryParams: string
 ): Promise<EventFetchResponse> => {
   try {
+   
+    
     const response = await axiosInstance.get<EventFetchResponse>(
       `${API_BASE_URL}/events/${id}?limit=${limit}&page=${currentPage}&${queryParams}`
     );
@@ -191,6 +210,46 @@ export const fetchEventsByCategory = async (category: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+export const findRecommended=async(filters:string)=>{
+  try {
+    const response=await axiosInstance.get(`${API_BASE_URL}/recommended?${filters}`);
+    if(response){
+      return response.data
+    }
+    
+  } catch (error) {
+     const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+  
+}
+export const fetchNearByEvents=async({latitude,longitude}:Location,filters:string)=>{
+  try {
+   
+    
+   
+    
+    
+    
+    const response=await axiosInstance.get(`${API_BASE_URL}/near?lat=${latitude}&lng=${longitude}&${filters}`);
+    console.log("reee",response);
+    
+ 
+    
+   
+    
+    
+    
+    return response.data
+    
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+}
 
 export const eventRepository = {
   createEvent,
@@ -205,4 +264,7 @@ export const eventRepository = {
   fetchEvents,
   findEvent,
   fetchEventsByCategory,
+  findRecommended,
+  fetchNearByEvents,
+  getCompletedEvents
 };

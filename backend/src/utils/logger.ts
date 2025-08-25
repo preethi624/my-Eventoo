@@ -1,4 +1,5 @@
-
+import dotenv from 'dotenv'
+dotenv.config()
 import { createLogger, format, transports, Logger } from 'winston';
 
 const isDev = process.env.NODE_ENV !== 'production';

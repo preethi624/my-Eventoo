@@ -18,13 +18,10 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const event_1 = __importDefault(require("../model/event"));
 const uuid_1 = require("uuid");
 const ticket_1 = require("../model/ticket");
+const notification_1 = __importDefault(require("../model/notification"));
 class PaymentRepository {
     createOrder(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            /*console.log("repData", data);
-        
-           
-               return await Order.create(data);*/
             const session = yield mongoose_1.default.startSession();
             session.startTransaction();
             try {
@@ -45,256 +42,26 @@ class PaymentRepository {
             }
         });
     }
-    /*async createOrder(data: IPaymentDTO): Promise<IOrder> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-  
-    try {
-      // Reserve tickets
-      const updatedEvent = await EventModel.findOneAndUpdate(
-        { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
-        { $inc: { availableTickets: -data.ticketCount } },
-        { new: true, session }
-      );
-  
-      if (!updatedEvent) {
-  
-        throw new Error("Not enough tickets available");
-      }
-  
-      // Create pending order
-      const order = await Order.create(
-        [{ ...data, bookingStatus: "pending" }],
-        { session }
-      );
-  
-      await session.commitTransaction();
-      return order[0];
-    } catch (err) {
-      await session.abortTransaction();
-      throw err;
-    } finally {
-      session.endSession();
-    }
-  }*/
     createOrderFree(data) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield order_1.default.create(data);
         });
     }
-    /*async updatePaymentDetails(
-      orderId: string,
-      paymentId: string,
-      signature: string,
-      status: string
-     ): Promise<IOrder | null> {
-      const session=await mongoose.startSession();
-      session.startTransaction();
-      try {
-      
-       const updateOrder = await Order.findOneAndUpdate(
-        { razorpayOrderId: orderId },
-        {
-          razorpayPaymentId: paymentId,
-          razorpaySignature: signature,
-          status: status,
-          bookingStatus: "confirmed",
-        },
-        { new: true ,session}
-      );
-  
-      if (
-        updateOrder &&
-        updateOrder.eventId &&
-        updateOrder.ticketCount &&
-        updateOrder.bookingStatus === "confirmed"
-      ) {
-        const updatedEvent=await EventModel.findByIdAndUpdate(updateOrder.eventId._id, {
-          $inc: { ticketsSold: updateOrder.ticketCount },
-         
-        },{new:true,session});
-         if (!updatedEvent) {
-        throw new Error("Not enough tickets available");
-      }
-        const ticketsToInsert = [];
-        for (let i = 0; i < updateOrder.ticketCount; i++) {
-          ticketsToInsert.push({
-            userId: updateOrder.userId,
-            orderId: updateOrder._id,
-            eventId: updateOrder.eventId,
-            qrToken: uuidv4(),
-            issuedAt: new Date(),
-            checkedIn: false,
-          });
-        }
-        await TicketModel.insertMany(ticketsToInsert,{session});
-      }
-      await session.commitTransaction();
-      return Order.findById(updateOrder?._id).populate("eventId").exec();
-      
-        
-      } catch (error) {
-        await session.abortTransaction();
-        throw error
-        
-      }finally{
-        session.endSession()
-      }
-      
-    }*/
-    /*async updatePaymentDetails(
-     orderId: string,
-     paymentId: string,
-     signature: string,
-     status: string
-   ): Promise<IOrder | null> {
-     const session=await mongoose.startSession()
-   
-     try {
-       session.startTransaction()
-       // Step 1: Update the order and confirm booking
-       const updateOrder = await Order.findOneAndUpdate(
-         { razorpayOrderId: orderId },
-         {
-           razorpayPaymentId: paymentId,
-           razorpaySignature: signature,
-           status: status,
-           bookingStatus: "confirmed",
-         },
-         { new: true,session }
-       );
-   
-       if (
-         updateOrder &&
-         updateOrder.eventId &&
-         updateOrder.ticketCount &&
-         updateOrder.bookingStatus === "confirmed"
-       ) {
-         // Step 2: Atomically decrement availableTickets and increment ticketsSold
-         const updatedEvent = await EventModel.findOneAndUpdate(
-           {
-             _id: updateOrder.eventId._id,
-             availableTickets: { $gte: updateOrder.ticketCount } // Ensure enough tickets left
-           },
-           {
-             $inc: {
-               ticketsSold: updateOrder.ticketCount,
-               availableTickets: -updateOrder.ticketCount
-             }
-           },
-           { new: true,session}
-         );
-   
-         if (!updatedEvent) {
-           throw new Error("Not enough tickets available");
-         }
-   
-         // Step 3: Create ticket documents
-         const ticketsToInsert = [];
-         for (let i = 0; i < updateOrder.ticketCount; i++) {
-           ticketsToInsert.push({
-             userId: updateOrder.userId,
-             orderId: updateOrder._id,
-             eventId: updateOrder.eventId,
-             qrToken: uuidv4(),
-             issuedAt: new Date(),
-             checkedIn: false,
-           });
-         }
-         await TicketModel.insertMany(ticketsToInsert,{session});
-       }
-       await session.commitTransaction();
-       session.endSession()
-   
-       
-   
-       // Step 5: Return populated order
-       return Order.findById(updateOrder?._id).populate("eventId").exec();
-       
-     } catch (error) {
-       await session.abortTransaction();
-       session.endSession()
-       console.log(error);
-       
-       
-       throw error;
-     }
-   } */
-    /*async updatePaymentDetails(
-      orderId: string,
-      paymentId: string,
-      signature: string,
-      status: string
-    ): Promise<IOrder | null> {
-      const session=await mongoose.startSession()
-      try {
-        session.startTransaction();
-        const order=await Order.findOne(
-          { razorpayOrderId: orderId, bookingStatus: { $ne: "confirmed" } },
-          null,
-          {session}
-        )
-         if (!order) {
-          throw new Error("Order not found or already confirmed");
-        }
-        const updatedEvent = await EventModel.findOneAndUpdate(
-          {
-            _id: order.eventId._id,
-            availableTickets: { $gte: order.ticketCount },
-          },
-          {
-            $inc: {
-              ticketsSold: order.ticketCount,
-              availableTickets: -order.ticketCount,
-            },
-          },
-          { new: true, session }
-        );
-        if (!updatedEvent) {
-          throw new Error("Not enough tickets available");
-        }
-        order.razorpayPaymentId = paymentId;
-        order.razorpaySignature = signature;
-        order.status = status;
-        order.bookingStatus = "confirmed";
-        await order.save({ session });
-        const ticketsToInsert = [];
-        for (let i = 0; i < order.ticketCount; i++) {
-          ticketsToInsert.push({
-            userId: order.userId,
-            orderId: order._id,
-            eventId: order.eventId,
-            qrToken: uuidv4(),
-            issuedAt: new Date(),
-            checkedIn: false,
-          });
-        }
-        await TicketModel.insertMany(ticketsToInsert, { session });
-    
-        await session.commitTransaction();
-        session.endSession();
-    
-        return Order.findById(order._id).populate("eventId").exec();
-    
-        
-      } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        console.error(error);
-        throw error;
-        
-      }
-    }*/
     updatePaymentDetails(orderId, paymentId, signature, status) {
         return __awaiter(this, void 0, void 0, function* () {
             const updateOrder = yield order_1.default.findOneAndUpdate({ razorpayOrderId: orderId }, {
                 razorpayPaymentId: paymentId,
                 razorpaySignature: signature,
                 status: status,
-                bookingStatus: "confirmed"
+                bookingStatus: "confirmed",
             }, { new: true });
-            if (updateOrder && updateOrder.eventId && updateOrder.ticketCount && updateOrder.bookingStatus === "confirmed") {
-                yield event_1.default.findByIdAndUpdate(updateOrder.eventId._id, { $inc: { ticketsSold: updateOrder.ticketCount } });
+            if (updateOrder &&
+                updateOrder.eventId &&
+                updateOrder.ticketCount &&
+                updateOrder.bookingStatus === "confirmed") {
+                yield event_1.default.findByIdAndUpdate(updateOrder.eventId._id, {
+                    $inc: { ticketsSold: updateOrder.ticketCount },
+                });
                 const ticketsToInsert = [];
                 for (let i = 0; i < updateOrder.ticketCount; i++) {
                     ticketsToInsert.push({
@@ -303,10 +70,16 @@ class PaymentRepository {
                         eventId: updateOrder.eventId,
                         qrToken: (0, uuid_1.v4)(),
                         issuedAt: new Date(),
-                        checkedIn: false
+                        checkedIn: false,
                     });
                 }
                 yield ticket_1.TicketModel.insertMany(ticketsToInsert);
+                yield notification_1.default.create({
+                    userId: updateOrder.userId,
+                    message: `Your booking for event "${updateOrder.eventTitle}" has been confirmed! 🎉`,
+                    type: "booking_confirmed",
+                    isRead: false,
+                });
             }
             return order_1.default.findById(updateOrder === null || updateOrder === void 0 ? void 0 : updateOrder._id).populate("eventId").exec();
         });
@@ -358,20 +131,27 @@ class PaymentRepository {
     }
     failurePayment(payStatus, orderId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("orderId", orderId);
-            /* return await Order.findOneAndUpdate(
-               { userId, _id: orderId },
-               { status: payStatus },
-               { new: true }
-             );*/
-            const order = yield order_1.default.findOneAndUpdate({ userId, _id: orderId }, { status: payStatus }, { new: true });
-            if (order && order.eventId) {
-                // Increment the available tickets in the event
-                yield event_1.default.findByIdAndUpdate(order.eventId, {
-                    $inc: { availableTickets: order.ticketCount }
+            try {
+                const order = yield order_1.default.findOneAndUpdate({ userId, _id: orderId }, { status: payStatus }, { new: true });
+                if (order && order.eventId) {
+                    yield event_1.default.findByIdAndUpdate(order.eventId, {
+                        $inc: { availableTickets: order.ticketCount },
+                    });
+                }
+                if (!order)
+                    throw new Error("order not found");
+                yield notification_1.default.create({
+                    userId: userId,
+                    message: `Your booking for event "${order.eventTitle}" failed! `,
+                    type: "booking_cancelled",
+                    isRead: false,
                 });
+                return order;
             }
-            return order;
+            catch (error) {
+                console.log((error));
+                return null;
+            }
         });
     }
     getOrdersById(userId) {
@@ -425,6 +205,12 @@ class PaymentRepository {
                 });
                 yield event_1.default.findByIdAndUpdate(eventId, {
                     $inc: { availableTickets: ticketCount },
+                });
+                yield notification_1.default.create({
+                    userId: order.userId,
+                    message: `Your booking for event "${order.eventTitle}" refunded with amount ${order.amount / 100}! `,
+                    type: "general",
+                    isRead: false,
                 });
                 return { success: true };
             }

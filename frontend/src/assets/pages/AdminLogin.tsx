@@ -37,7 +37,7 @@ const AdminLogin: React.FC = () => {
         localStorage.setItem("adminToken", result.token);
         console.log("login success");
 
-        navigate("/adminDashboard");
+        navigate("/admin/dashboard");
       }
     } catch (err: any) {
       setError(err.message || "Login failed");

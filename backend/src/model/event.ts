@@ -20,6 +20,11 @@ export interface IEvent extends Document {
   latitude: number;
   longitude: number;
   isBlocked: boolean;
+  embedding:number[];
+  location:{
+    type:"Point",
+    coordinates:[number,number]
+  }
 }
 
 const eventSchema: Schema<IEvent> = new Schema<IEvent>(
@@ -55,6 +60,18 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
     latitude: { type: Number, default: 9.9312 },
     longitude: { type: Number, default: 76.2673 },
     isBlocked: { type: Boolean, default: false },
+    embedding:[Number],
+    location: {
+  type: {
+    type: String,
+    enum: ["Point"],
+    default: "Point"
+  },
+  coordinates: {
+    type: [Number],
+    default: [0, 0]
+  }
+}
   },
   { timestamps: true }
 );
@@ -64,6 +81,9 @@ eventSchema.pre<IEvent>("save", function (next) {
   }
   next();
 });
+eventSchema.index({ location: "2dsphere" });
+
+
 
 const EventModel = mongoose.model<IEvent>("Event", eventSchema);
 

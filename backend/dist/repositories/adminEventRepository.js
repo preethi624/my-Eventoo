@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminEventRepository = void 0;
 const event_1 = __importDefault(require("../model/event"));
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
+const notification_1 = __importDefault(require("../model/notification"));
 class AdminEventRepository {
     getEventsAll(filters) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -78,17 +79,56 @@ class AdminEventRepository {
     }
     eventEdit(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield event_1.default.findByIdAndUpdate(id, formData, { new: true });
+            try {
+                const event = yield event_1.default.findByIdAndUpdate(id, formData, { new: true });
+                if (!event)
+                    throw new Error("event not found");
+                yield notification_1.default.create({
+                    organizerId: event.organiser,
+                    type: "general",
+                    message: `Your event ${event.title} has been edited by admin!`,
+                    isRead: false
+                });
+                return event;
+            }
+            catch (error) {
+                console.log(error);
+                return null;
+            }
         });
     }
     blockEvent(event) {
         return __awaiter(this, void 0, void 0, function* () {
-            const id = event._id;
-            if (!event.isBlocked) {
-                return yield event_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+            try {
+                const id = event._id;
+                if (!event.isBlocked) {
+                    const event = yield event_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+                    if (!event)
+                        throw new Error("event not found");
+                    yield notification_1.default.create({
+                        organizerId: event.organiser,
+                        type: "general",
+                        message: `Your event ${event.title} has been blocked by admin!`,
+                        isRead: false
+                    });
+                    return event;
+                }
+                else {
+                    const event = yield event_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+                    if (!event)
+                        throw new Error("event not found");
+                    yield notification_1.default.create({
+                        organizerId: event.organiser,
+                        type: "general",
+                        message: `Your event ${event.title} has been unblocked admin!`,
+                        isRead: false
+                    });
+                    return event;
+                }
             }
-            else {
-                return yield event_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+            catch (error) {
+                console.log(error);
+                return null;
             }
         });
     }

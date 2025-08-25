@@ -9,6 +9,11 @@ router.get(
   eventController.getEvents.bind(eventController)
 );
 router.get(
+  "/completed",
+  authMiddlewarwSet.userAndOrganiser,
+  eventController.getCompleted.bind(eventController)
+);
+router.get(
   "/event/:id",
   authMiddlewarwSet.userOnly,
   eventController.getEventById.bind(eventController)
@@ -28,5 +33,12 @@ router.get(
   authMiddlewarwSet.userOnly,
   eventController.findEventsByCat.bind(eventController)
 );
+router.get(
+  "/recommended",authMiddlewarwSet.userOnly,eventController.findRecommended.bind(eventController)
+
+)
+router.get(
+  "/near",authMiddlewarwSet.userOnly,eventController.findNear.bind(eventController)
+)
 
 export default router;

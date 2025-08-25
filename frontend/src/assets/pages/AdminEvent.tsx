@@ -65,16 +65,23 @@ const EventPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchEvents();
+    const handler=setTimeout(()=>{
+      fetchEvents();
+
+    },500)
+    return()=>clearTimeout(handler)
+    
   }, [
     searchLocation,
-    selectedCategory,
-    maxPrice,
-    selectedDate,
+    
+  
     searchTitle,
-    currentPage,
+   
     orgName,
   ]);
+  useEffect(() => {
+  fetchEvents();
+}, [selectedCategory, maxPrice, selectedDate, currentPage]);
 
   const fetchEvents = async () => {
     try {

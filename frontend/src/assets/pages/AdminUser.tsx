@@ -24,16 +24,25 @@ const AdminUser: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
 const [filterStatus, setFilterStatus] = useState("all"); 
+const [debounceSearch,setDebounceSearch]=useState(searchTerm)
+
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
   const limit = 10;
+  useEffect(()=>{
+    const handler=setTimeout(()=>{
+      setDebounceSearch(searchTerm)
+
+    },500)
+    return()=>clearTimeout(handler)
+  },[searchTerm])
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage,searchTerm,filterStatus]);
+  }, [currentPage,debounceSearch,filterStatus]);
 
   const fetchUsers = async () => {
     try {

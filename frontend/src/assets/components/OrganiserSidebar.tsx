@@ -21,6 +21,7 @@ const links = [
 
   { to: "/checkin", icon: <FaSignInAlt />, label: "Checkin" },
   { to: "/chat", icon: <FaUsers />, label: "Chat" },
+  { to: "/orgNotifications", icon: <FaUsers />, label: "Notifications" },
 ];
 
 const OrganiserSidebar: React.FC = () => {

@@ -70,6 +70,23 @@ class UserService {
             }
         });
     }
+    passwordChange(userId, newPass, currentPass) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._userRepository.changePassword(userId, newPass, currentPass);
+                if (response) {
+                    return { success: true };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
+            }
+        });
+    }
 }
 exports.UserService = UserService;
 //# sourceMappingURL=userService.js.map

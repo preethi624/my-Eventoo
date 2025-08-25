@@ -131,9 +131,12 @@ export class PaymentService implements IPaymentService {
       } else {
         return { success: false, message: "Not enough tickets to sail" };
       }
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(error);
-      return { success: false, message:error?.message|| "not creating order" };
+      return {
+        success: false,
+        message: error?.message || "not creating order",
+      };
     }
   }
   async orderCreateFree(
@@ -168,180 +171,86 @@ export class PaymentService implements IPaymentService {
       return { success: false };
     }
   }
-  /*async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
+  async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
     try {
       const razorpay_payment_id = data.razorpay_payment_id;
       const razorpay_order_id = data.razorpay_order_id;
       const razorpay_signature = data.razorpay_signature;
       const secret = process.env.RAZORPAY_KEY_SECRET;
+
       if (!secret) {
         throw new Error(
           "RAZORPAY_KEY_SECRET is not defined in environment variables."
         );
       }
+
       const hmac = crypto.createHmac("sha256", secret);
       hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
       const generatedSignature = hmac.digest("hex");
-      if (generatedSignature === razorpay_signature) {
-        const updatedOrder = await this._paymentRepository.updatePaymentDetails(
-          razorpay_order_id,
-          razorpay_payment_id,
-          razorpay_signature,
-          "paid"
-        );
-        if (updatedOrder) {
-          console.log("updatedOrder", updatedOrder);
-          const event = updatedOrder.eventId as unknown as IEvent;
 
-          await this._eventRepository.decrementAvailableTickets(
-            updatedOrder.eventId._id.toString(),
-            updatedOrder.ticketCount
-          );
-
-          const tickets = await this._paymentRepository.getTickets(
-            updatedOrder._id
-          );
-          const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
-          const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: updatedOrder?.email,
-            subject: `Your ticket for ${updatedOrder.eventTitle}`,
-            text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(
-              tickets,
-              null,
-              2
-            )}`,
-            html: `<h3>Thank you for booking!</h3>
-        <p>Event: <b>${updatedOrder.eventTitle}</b></p>
-        <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
-        <p>Order ID: ${updatedOrder.orderId}</p>
-        <p>Venue:${event.venue}</p>
-        <p>Date:${event.date}
-        
-        `,
-
-            attachments: [
-              {
-                filename: "ticket.pdf",
-                content: pdfBuffer,
-              },
-            ],
-          };
-
-          await transporter.sendMail(mailOptions);
-          return {
-            success: true,
-            message: "Payment verified and ticket sent to email",
-          };
-        } else {
-          console.warn(
-            "No matching order found for Razorpay Order ID:",
-            razorpay_order_id
-          );
-        }
-
-        return { success: true, message: "Payment verified successfully" };
-      } else {
-        await this._paymentRepository.updatePaymentDetails(
-          razorpay_order_id,
-          razorpay_payment_id,
-          razorpay_signature,
-          "failed"
-        );
-        return { success: false, message: "Payment not verified" };
+      if (generatedSignature !== razorpay_signature) {
+        return { success: false, message: "Payment verification failed" };
       }
-    } catch (error) {
-      console.error(error);
-      if (data.razorpay_order_id) {
-        await this._paymentRepository.updatePaymentDetails(
-          data.razorpay_order_id,
-          data.razorpay_payment_id || "",
-          data.razorpay_signature || "",
-          "failed"
+
+      const updatedOrder = await this._paymentRepository.updatePaymentDetails(
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        "paid"
+      );
+
+      if (!updatedOrder) {
+        console.warn(
+          "No matching order found for Razorpay Order ID:",
+          razorpay_order_id
         );
+        return {
+          success: false,
+          message: "Order not found or already processed",
+        };
       }
-      return { success: false, message: "Payment not verified" };
-    }
-  }*/async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
-  try {
-    const razorpay_payment_id = data.razorpay_payment_id;
-    const razorpay_order_id = data.razorpay_order_id;
-    const razorpay_signature = data.razorpay_signature;
-    const secret = process.env.RAZORPAY_KEY_SECRET;
 
-    if (!secret) {
-      throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables.");
-    }
+      const event = updatedOrder.eventId as unknown as IEvent;
 
-    // Step 1: Verify Razorpay signature
-    const hmac = crypto.createHmac("sha256", secret);
-    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
-    const generatedSignature = hmac.digest("hex");
+      const tickets = await this._paymentRepository.getTickets(
+        updatedOrder._id
+      );
 
-    if (generatedSignature !== razorpay_signature) {
-      return { success: false, message: "Payment verification failed" };
-    }
+      const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
 
-    // Step 2: Update payment + decrement tickets inside a single transaction
-    const updatedOrder = await this._paymentRepository.updatePaymentDetails(
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      "paid"
-    );
-
-    if (!updatedOrder) {
-      console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
-      return { success: false, message: "Order not found or already processed" };
-    }
-
-    const event = updatedOrder.eventId as unknown as IEvent;
-
-    // Step 3: Fetch tickets after transaction
-    const tickets = await this._paymentRepository.getTickets(updatedOrder._id);
-
-    // Step 4: Generate ticket PDF
-    const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
-
-    // Step 5: Send email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: updatedOrder?.email,
-      subject: `Your ticket for ${updatedOrder.eventTitle}`,
-      html: `<h3>Thank you for booking!</h3>
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: updatedOrder?.email,
+        subject: `Your ticket for ${updatedOrder.eventTitle}`,
+        html: `<h3>Thank you for booking!</h3>
         <p>Event: <b>${updatedOrder.eventTitle}</b></p>
         <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
         <p>Order ID: ${updatedOrder.orderId}</p>
         <p>Venue: ${event.venue}</p>
         <p>Date: ${event.date}</p>`,
-      attachments: [
-        {
-          filename: "ticket.pdf",
-          content: pdfBuffer,
-        },
-      ],
-    };
+        attachments: [
+          {
+            filename: "ticket.pdf",
+            content: pdfBuffer,
+          },
+        ],
+      };
 
-    await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
 
-    return {
-      success: true,
-      message: "Payment verified and ticket sent to email",
-    };
-
-  } catch (error:any) {
-    
-    console.error("Payment verification failed:", error);
-    if(error.message==="Not enough tickets available"){
-      return {success:false,message:error.message}
-    }else{
-
- return { success: false, message: "Payment verification failed" };
+      return {
+        success: true,
+        message: "Payment verified and ticket sent to email",
+      };
+    } catch (error: any) {
+      console.error("Payment verification failed:", error);
+      if (error.message === "Not enough tickets available") {
+        return { success: false, message: error.message };
+      } else {
+        return { success: false, message: "Payment verification failed" };
+      }
     }
-   
   }
-}
-
 
   async paymentFailure(
     payStatus: string,

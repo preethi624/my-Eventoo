@@ -116,7 +116,10 @@ class PaymentService {
             }
             catch (error) {
                 console.error(error);
-                return { success: false, message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order" };
+                return {
+                    success: false,
+                    message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order",
+                };
             }
         });
     }
@@ -152,101 +155,7 @@ class PaymentService {
             }
         });
     }
-    /*async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
-      try {
-        const razorpay_payment_id = data.razorpay_payment_id;
-        const razorpay_order_id = data.razorpay_order_id;
-        const razorpay_signature = data.razorpay_signature;
-        const secret = process.env.RAZORPAY_KEY_SECRET;
-        if (!secret) {
-          throw new Error(
-            "RAZORPAY_KEY_SECRET is not defined in environment variables."
-          );
-        }
-        const hmac = crypto.createHmac("sha256", secret);
-        hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
-        const generatedSignature = hmac.digest("hex");
-        if (generatedSignature === razorpay_signature) {
-          const updatedOrder = await this._paymentRepository.updatePaymentDetails(
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            "paid"
-          );
-          if (updatedOrder) {
-            console.log("updatedOrder", updatedOrder);
-            const event = updatedOrder.eventId as unknown as IEvent;
-  
-            await this._eventRepository.decrementAvailableTickets(
-              updatedOrder.eventId._id.toString(),
-              updatedOrder.ticketCount
-            );
-  
-            const tickets = await this._paymentRepository.getTickets(
-              updatedOrder._id
-            );
-            const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
-            const mailOptions = {
-              from: process.env.EMAIL_USER,
-              to: updatedOrder?.email,
-              subject: `Your ticket for ${updatedOrder.eventTitle}`,
-              text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(
-                tickets,
-                null,
-                2
-              )}`,
-              html: `<h3>Thank you for booking!</h3>
-          <p>Event: <b>${updatedOrder.eventTitle}</b></p>
-          <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
-          <p>Order ID: ${updatedOrder.orderId}</p>
-          <p>Venue:${event.venue}</p>
-          <p>Date:${event.date}
-          
-          `,
-  
-              attachments: [
-                {
-                  filename: "ticket.pdf",
-                  content: pdfBuffer,
-                },
-              ],
-            };
-  
-            await transporter.sendMail(mailOptions);
-            return {
-              success: true,
-              message: "Payment verified and ticket sent to email",
-            };
-          } else {
-            console.warn(
-              "No matching order found for Razorpay Order ID:",
-              razorpay_order_id
-            );
-          }
-  
-          return { success: true, message: "Payment verified successfully" };
-        } else {
-          await this._paymentRepository.updatePaymentDetails(
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            "failed"
-          );
-          return { success: false, message: "Payment not verified" };
-        }
-      } catch (error) {
-        console.error(error);
-        if (data.razorpay_order_id) {
-          await this._paymentRepository.updatePaymentDetails(
-            data.razorpay_order_id,
-            data.razorpay_payment_id || "",
-            data.razorpay_signature || "",
-            "failed"
-          );
-        }
-        return { success: false, message: "Payment not verified" };
-      }
-    }*/ paymentVerify(data) {
+    paymentVerify(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const razorpay_payment_id = data.razorpay_payment_id;
@@ -256,25 +165,23 @@ class PaymentService {
                 if (!secret) {
                     throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables.");
                 }
-                // Step 1: Verify Razorpay signature
                 const hmac = crypto_1.default.createHmac("sha256", secret);
                 hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
                 const generatedSignature = hmac.digest("hex");
                 if (generatedSignature !== razorpay_signature) {
                     return { success: false, message: "Payment verification failed" };
                 }
-                // Step 2: Update payment + decrement tickets inside a single transaction
                 const updatedOrder = yield this._paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, "paid");
                 if (!updatedOrder) {
                     console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
-                    return { success: false, message: "Order not found or already processed" };
+                    return {
+                        success: false,
+                        message: "Order not found or already processed",
+                    };
                 }
                 const event = updatedOrder.eventId;
-                // Step 3: Fetch tickets after transaction
                 const tickets = yield this._paymentRepository.getTickets(updatedOrder._id);
-                // Step 4: Generate ticket PDF
                 const pdfBuffer = yield generateTicketPDF(updatedOrder, tickets);
-                // Step 5: Send email
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: updatedOrder === null || updatedOrder === void 0 ? void 0 : updatedOrder.email,

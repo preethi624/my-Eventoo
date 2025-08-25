@@ -21,8 +21,11 @@ class EventController {
             try {
                 const query = req.query;
                 const filters = {
-                    searchLocation: typeof query.searchLocation === "string" ? query.searchLocation : "",
-                    searchTitle: typeof query.searchTitle === "string" ? query.searchTitle : "",
+                    // searchLocation:
+                    //typeof query.searchLocation === "string" ? query.searchLocation : "",
+                    //searchTitle:
+                    // typeof query.searchTitle === "string" ? query.searchTitle : "",
+                    searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
                     selectedCategory: typeof query.selectedCategory === "string"
                         ? query.selectedCategory
                         : "",
@@ -32,6 +35,44 @@ class EventController {
                     limit: query.limit ? Number(query.limit) : undefined,
                 };
                 const result = yield this._eventService.eventGet(filters);
+                if (result) {
+                    res.json({ result: result, success: true });
+                }
+                else {
+                    res.status(statusCodeEnum_1.StatusCode.NOT_FOUND).json({
+                        success: false,
+                        message: messages_1.MESSAGES.COMMON.NOT_FOUND,
+                    });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
+                });
+            }
+        });
+    }
+    getCompleted(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const query = req.query;
+                const filters = {
+                    // searchLocation:
+                    //typeof query.searchLocation === "string" ? query.searchLocation : "",
+                    //searchTitle:
+                    // typeof query.searchTitle === "string" ? query.searchTitle : "",
+                    searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
+                    selectedCategory: typeof query.selectedCategory === "string"
+                        ? query.selectedCategory
+                        : "",
+                    maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+                    selectedDate: typeof query.selectedDate === "string" ? query.selectedDate : "",
+                    page: query.page ? Number(query.page) : undefined,
+                    limit: query.limit ? Number(query.limit) : undefined,
+                };
+                const result = yield this._eventService.completedGet(filters);
                 if (result) {
                     res.json({ result: result, success: true });
                 }
@@ -309,6 +350,68 @@ class EventController {
                 const response = yield this._eventService.eventsFindByCat(category);
                 if (response.success) {
                     res.json({ result: response.result });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
+                });
+            }
+        });
+    }
+    findRecommended(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const query = req.query;
+            const filters = {
+                searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
+                maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+                selectedDate: typeof query.selectedDate === "string" ? query.selectedDate : "",
+                page: query.page ? Number(query.page) : undefined,
+                limit: query.limit ? Number(query.limit) : undefined,
+            };
+            try {
+                if (!userId)
+                    throw new Error("userId not get");
+                const response = yield this._eventService.getRecommended(userId, filters);
+                if (response.success) {
+                    res.json({ success: true, events: response.events });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
+                });
+            }
+        });
+    }
+    findNear(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const lat = Number(req.query.lat);
+                const lng = Number(req.query.lng);
+                const query = req.query;
+                const filters = {
+                    searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
+                    maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+                    selectedDate: typeof query.selectedDate === "string" ? query.selectedDate : "",
+                    page: query.page ? Number(query.page) : undefined,
+                    limit: query.limit ? Number(query.limit) : undefined,
+                };
+                const response = yield this._eventService.nearFind({ lat, lng }, filters);
+                if (response) {
+                    res.json({ data: response.events, success: true });
                 }
                 else {
                     res.json({ success: false });

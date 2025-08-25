@@ -22,6 +22,8 @@ import adminOrderRoutes from "./routes/adminRoutes/adminOrderRoutes";
 import adminVenueRoutes from "./routes/adminRoutes/adminVenueRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import messageRoutes from "./routes/messageRoutes";
+import reviewRoutes from "./routes/reviewRoutes";
+import notificationRoutes from "./routes/notificationRoutes"
 
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db";
@@ -77,25 +79,27 @@ app.use((req, res, next) => {
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Routes
-app.use("/api/auth", userRoutes);
-app.use("/api/auth", organiserRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/category", categoryRoutes);
+app.use("/api/v1/auth", userRoutes);
+app.use("/api/v1/auth", organiserRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/category", categoryRoutes);
 
-app.use("/api/event", eventRoutes);
-app.use("/api/event", eventOrgRoutes);
-app.use("/api/organiser", orgRoutes);
-app.use("/api/user", userProfileRoutes);
+app.use("/api/v1/event", eventRoutes);
+app.use("/api/v1/event", eventOrgRoutes);
+app.use("/api/v1/organiser", orgRoutes);
+app.use("/api/v1/user", userProfileRoutes);
 
-app.use("/api/admin", adminAuthRoutes);
-app.use("/api/admin", adminUserRoutes);
-app.use("/api/admin", adminEventRoutes);
-app.use("/api/admin", adminOrgRoutes);
-app.use("/api/admin", adminOrderRoutes);
-app.use("/api/admin", adminVenueRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/message", messageRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/v1/admin", adminAuthRoutes);
+app.use("/api/v1/admin", adminUserRoutes);
+app.use("/api/v1/admin", adminEventRoutes);
+app.use("/api/v1/admin", adminOrgRoutes);
+app.use("/api/v1/admin", adminOrderRoutes);
+app.use("/api/v1/admin", adminVenueRoutes);
+app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/message", messageRoutes);
+app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/review",reviewRoutes);
+app.use("/api/v1/notification",notificationRoutes)
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 

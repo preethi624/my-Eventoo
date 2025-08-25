@@ -35,6 +35,8 @@ const adminOrderRoutes_1 = __importDefault(require("./routes/adminRoutes/adminOr
 const adminVenueRoutes_1 = __importDefault(require("./routes/adminRoutes/adminVenueRoutes"));
 const categoryRoutes_1 = __importDefault(require("./routes/categoryRoutes"));
 const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
+const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
+const notificationRoutes_1 = __importDefault(require("./routes/notificationRoutes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const db_1 = __importDefault(require("./config/db"));
 const http_1 = require("http");
@@ -76,23 +78,25 @@ app.use((req, res, next) => {
 // Static Files
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
 // Routes
-app.use("/api/auth", userAuthRoutes_1.default);
-app.use("/api/auth", organiserAuthRoutes_1.default);
-app.use("/api/auth", authRoutes_1.default);
-app.use("/api/category", categoryRoutes_1.default);
-app.use("/api/event", eventRoutes_1.default);
-app.use("/api/event", eventOrgRoutes_1.default);
-app.use("/api/organiser", organiserRoutes_1.default);
-app.use("/api/user", profileRoutes_1.default);
-app.use("/api/admin", adminAuthRoutes_1.default);
-app.use("/api/admin", adminUserRoutes_1.default);
-app.use("/api/admin", adminEventRoutes_1.default);
-app.use("/api/admin", adminOrganiserRoutes_1.default);
-app.use("/api/admin", adminOrderRoutes_1.default);
-app.use("/api/admin", adminVenueRoutes_1.default);
-app.use("/api/payment", paymentRoutes_1.default);
-app.use("/api/message", messageRoutes_1.default);
-app.use("/api/chat", chatRoutes_1.default);
+app.use("/api/v1/auth", userAuthRoutes_1.default);
+app.use("/api/v1/auth", organiserAuthRoutes_1.default);
+app.use("/api/v1/auth", authRoutes_1.default);
+app.use("/api/v1/category", categoryRoutes_1.default);
+app.use("/api/v1/event", eventRoutes_1.default);
+app.use("/api/v1/event", eventOrgRoutes_1.default);
+app.use("/api/v1/organiser", organiserRoutes_1.default);
+app.use("/api/v1/user", profileRoutes_1.default);
+app.use("/api/v1/admin", adminAuthRoutes_1.default);
+app.use("/api/v1/admin", adminUserRoutes_1.default);
+app.use("/api/v1/admin", adminEventRoutes_1.default);
+app.use("/api/v1/admin", adminOrganiserRoutes_1.default);
+app.use("/api/v1/admin", adminOrderRoutes_1.default);
+app.use("/api/v1/admin", adminVenueRoutes_1.default);
+app.use("/api/v1/payment", paymentRoutes_1.default);
+app.use("/api/v1/message", messageRoutes_1.default);
+app.use("/api/v1/chat", chatRoutes_1.default);
+app.use("/api/v1/review", reviewRoutes_1.default);
+app.use("/api/v1/notification", notificationRoutes_1.default);
 exports.io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
     socket.on("register-user", (userId) => {

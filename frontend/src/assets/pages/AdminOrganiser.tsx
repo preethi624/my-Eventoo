@@ -28,6 +28,7 @@ const AdminOrganiser: React.FC = () => {
   const [totalPage, setTotalPage] = useState(1);
    const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); 
+  const [debounceSearch,setDebounceSearch]=useState(searchTerm)
   const limit = 10;
 
   const [formData, setFormData] = useState<Omit<Organiser, "_id">>({
@@ -38,10 +39,18 @@ const AdminOrganiser: React.FC = () => {
     status: "pending",
     isBlocked: false,
   });
+  useEffect(()=>{
+      const handler=setTimeout(()=>{
+        setDebounceSearch(searchTerm)
+  
+      },500)
+      return()=>clearTimeout(handler)
+    },[searchTerm])
+  
 
   useEffect(() => {
     fetchOrganisers();
-  }, [currentPage,searchTerm,filterStatus]);
+  }, [currentPage,debounceSearch,filterStatus]);
 
   const fetchOrganisers = async () => {
     try {

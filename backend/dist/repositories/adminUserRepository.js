@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminUserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
+const notification_1 = __importDefault(require("../model/notification"));
 class AdminUserRepository {
     getUserAll(limit, page, searchTerm, filterStatus) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,17 +40,44 @@ class AdminUserRepository {
     }
     editUser(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield user_1.default.findByIdAndUpdate(id, formData, { new: true });
+            try {
+                const user = yield user_1.default.findByIdAndUpdate(id, formData, { new: true });
+                yield notification_1.default.create({
+                    userId: id,
+                    type: "general",
+                    message: `Your Eventoo acount is edited by admin !`,
+                    isRead: false
+                });
+                return user;
+            }
+            catch (error) {
+                console.log(error);
+                return null;
+            }
         });
     }
     blockUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = user._id;
             if (!user.isBlocked) {
-                return yield user_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+                const user = yield user_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+                yield notification_1.default.create({
+                    userId: id,
+                    type: "general",
+                    message: `Your Eventoo acount is blocked by admin !`,
+                    isRead: false
+                });
+                return user;
             }
             else {
-                return yield user_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+                const user = yield user_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+                yield notification_1.default.create({
+                    userId: id,
+                    type: "general",
+                    message: `Your Eventoo acount is unblocked by admin !`,
+                    isRead: false
+                });
+                return user;
             }
         });
     }

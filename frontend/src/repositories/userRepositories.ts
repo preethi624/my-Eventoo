@@ -45,9 +45,31 @@ export const fetchOrganisers = async () => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+export const changePassword=async(currentPass:string,newPass:string)=>{
+ 
+  
+  try {
+      const response=await axiosInstance.put(
+    `${API_BASE_URL}`,{currentPass,newPass}
+  )
+  if(response.data.success){
+  return {success:true}
+
+}else{
+  return {success:false}
+}
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+
+}
 
 export const userRepository = {
   getUserById,
   updateUser,
   fetchOrganisers,
+  changePassword
 };

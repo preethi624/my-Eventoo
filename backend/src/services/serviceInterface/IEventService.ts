@@ -9,9 +9,11 @@ import {
   EventFind,
   EventGet,
   IEventFilter,
+  Location,
   StatusCheck,
 } from "src/interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
+import { Recommend } from "src/interface/IUser";
 
 export interface IEventService {
   eventGet(filters: IEventFilter): Promise<EventGet>;
@@ -35,4 +37,7 @@ export interface IEventService {
   getEvents(organiserId: string): Promise<EventGet>;
   eventFind(eventName: string): Promise<EventFind>;
   eventsFindByCat(category: string): Promise<EventByCat>;
+  getRecommended(userId:string,filters:IEventFilter):Promise<Recommend>
+   nearFind({lat,lng}:Location,filters:IEventFilter):Promise<Recommend>
+   completedGet(filters: IEventFilter): Promise<EventGet>
 }

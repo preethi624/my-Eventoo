@@ -14,6 +14,7 @@ import { eventRepository } from "../../repositories/eventRepositories";
 import Chatbot from "../components/Chatbot";
 import { categoryRepository } from "../../repositories/categoryRepository";
 import SearchBar from "../components/SearchBar";
+import RecommendationSticker from "../components/Recommendation";
 
 const HomePage: FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,10 +70,15 @@ const HomePage: FC = () => {
 
     navigate(`/events/${response.result._id}`);
   };
+  const handleRecommendationClick = () => {
+    navigate('/recommended')
+ 
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <UserNavbar />
+      <RecommendationSticker onClick={handleRecommendationClick}/>
       <section className="relative h-screen overflow-hidden">
         <motion.div
           initial={{ scale: 1.2 }}

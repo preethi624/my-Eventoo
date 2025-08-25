@@ -51,4 +51,21 @@ export class UserService implements IUserService {
       throw error;
     }
   }
+  async passwordChange(userId:string,newPass:string,currentPass:string):Promise<{success:boolean}>{
+    try {
+      const response=await this._userRepository.changePassword(userId,newPass,currentPass);
+      if(response){
+        return {success:true}
+      }else{
+        return {success:false}
+      }
+      
+    } catch (error) {
+      console.log(error);
+      return {success:false}
+      
+      
+    }
+
+  }
 }
