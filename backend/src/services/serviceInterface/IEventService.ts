@@ -14,20 +14,22 @@ import {
 } from "src/interface/event";
 import { IEventDTO } from "src/interface/IEventDTO";
 import { Recommend } from "src/interface/IUser";
+import { IEvent } from "src/model/event";
 
 export interface IEventService {
   eventGet(filters: IEventFilter): Promise<EventGet>;
   eventGetById(id: string): Promise<EventById>;
   eventCreate(data: IEventDTO): Promise<CreateEvent>;
   eventDelete(id: string): Promise<CreateEvent>;
-  eventEdit(id: string, data: EventEdit): Promise<CreateEvent>;
+ eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promise<IEvent| null>
   statusCheck(email: object): Promise<StatusCheck>;
   getEvent(
     id: string,
     limit: number,
     page: number,
     searchTerm: string,
-    date: string
+    date: string,
+    status:string
   ): Promise<EventGet>;
   eventCountGet(organiserId: string): Promise<EventCount>;
   getDashboardEvents(

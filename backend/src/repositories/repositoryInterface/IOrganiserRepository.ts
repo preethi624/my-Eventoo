@@ -1,6 +1,6 @@
 import { DashboardResponse } from "src/interface/event";
 import { IOrganiser } from "src/interface/IOrgAuth";
-import { FetchOrders } from "src/interface/IPayment";
+import { FetchOrders, Update } from "src/interface/IPayment";
 import { Attendees, ProfileEdit } from "src/interface/IUser";
 import { IUser } from "src/interface/IUserAuth";
 import { OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
@@ -70,4 +70,8 @@ export interface IOrganiserRepository {
 
   updateTicket(qrToken: string): Promise<{ message: string }>;
   getUsers(): Promise<IUser[]>;
+   fetchEventOrders(eventId:string):Promise<IOrder[]|null>
+   findOrder(orderId:string):Promise<IOrder|null>;
+   updateRefund(refundId: string, orderId: string): Promise<Update>
+   fetchVenues():Promise<IVenue[]|null>
 }

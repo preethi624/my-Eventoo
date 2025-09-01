@@ -15,9 +15,11 @@ export class AdminEventRepository implements IAdminEventRepository {
       selectedDate,
       searchTitle,
       page = 1,
-      limit = 6,
+      limit=6 ,
       orgName,
     } = filters;
+    console.log("limit",limit);
+    
 
     const skip = (page - 1) * limit;
 

@@ -108,3 +108,7 @@ export interface Recommend{
   success?:boolean;
   page?:number
 }
+export interface UserData{
+  name:string;
+  email:string
+}

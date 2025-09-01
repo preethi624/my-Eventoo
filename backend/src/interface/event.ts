@@ -5,6 +5,7 @@ import { IOrganiser } from "./IOrgAuth";
 
 import { IAdminOrder } from "./IAdmin";
 import { IReview } from "src/model/review";
+import { IEventImage } from "./IEventDTO";
 
 export interface EventGet {
   message: string;
@@ -34,6 +35,7 @@ export interface EventEdit {
   capacity: number;
   category: string;
   time: string;
+  images:IEventImage[];
 }
 export interface EditEvent {
   title: string;
@@ -44,6 +46,7 @@ export interface EditEvent {
   venue: string;
   capacity: number;
   status: string;
+   images?:IEventImage[]
 }
 export interface EventEdit {
   message: string;
@@ -79,6 +82,7 @@ export interface IEventFilter {
   limit?: number;
   orgName?: string;
   searchTerm?:string;
+  status?:string
 }
 export interface EventCount {
   count?: number;

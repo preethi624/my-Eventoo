@@ -40,6 +40,7 @@ const EventPage: React.FC = () => {
   const [searchTitle, setSearchTitle] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [orgName, setOrgName] = useState("");
+  const[limit,setLimit]=useState(10)
 
   const eventsPerPage = 6;
 
@@ -81,7 +82,7 @@ const EventPage: React.FC = () => {
   ]);
   useEffect(() => {
   fetchEvents();
-}, [selectedCategory, maxPrice, selectedDate, currentPage]);
+}, [selectedCategory, maxPrice, selectedDate, currentPage,limit]);
 
   const fetchEvents = async () => {
     try {
@@ -93,7 +94,7 @@ const EventPage: React.FC = () => {
       if (selectedDate) params.append("selectedDate", selectedDate);
       if (orgName) params.append("orgName", orgName);
       params.append("page", currentPage.toString());
-      params.append("limit", eventsPerPage.toString());
+      params.append("limit", limit.toString());
 
       const response = await adminRepository.getAllEvents(params.toString());
       console.log("resoo", response);
@@ -299,9 +300,26 @@ const EventPage: React.FC = () => {
             </div>
           </div>
         </div>
+        <div>
+            <label className="mr-2 text-gray-600">Rows per page:</label>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border px-2 py-1 rounded"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
 
         {/* Event List */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          
           {events.map((event) => (
             <div
               key={event._id}
@@ -580,7 +598,28 @@ const EventPage: React.FC = () => {
           </div>
         )}
       </div>
-      {totalPage > 1 && (
+      <div className="flex justify-center mt-4 gap-2 flex-wrap">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span className="px-3 py-1">
+            Page {currentPage} of {totalPage}
+          </span>
+
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPage}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      {/*totalPage > 1 && (
         <div className="flex justify-center mt-4 gap-2">
           <button
             onClick={handlePrevPage}
@@ -610,7 +649,7 @@ const EventPage: React.FC = () => {
             Next
           </button>
         </div>
-      )}
+      )*/}
     </AdminLayout>
   );
 };

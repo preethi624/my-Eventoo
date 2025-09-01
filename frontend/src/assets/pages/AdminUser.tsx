@@ -8,6 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Swal from "sweetalert2";
 import type { IUser } from "../../interfaces/IUser";
+import { Search, Filter, SortAsc, Sparkles } from 'lucide-react';
+import DataTable from "../components/DataTable";
 
 export interface User {
   _id: string;
@@ -23,15 +25,17 @@ const AdminUser: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy,setSortBy]=useState("")
 const [filterStatus, setFilterStatus] = useState("all"); 
-const [debounceSearch,setDebounceSearch]=useState(searchTerm)
+const [debounceSearch,setDebounceSearch]=useState(searchTerm);
+const [limit,setLimit]=useState(10)
 
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
-  const limit = 10;
+ 
   useEffect(()=>{
     const handler=setTimeout(()=>{
       setDebounceSearch(searchTerm)
@@ -42,11 +46,11 @@ const [debounceSearch,setDebounceSearch]=useState(searchTerm)
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage,debounceSearch,filterStatus]);
+  }, [currentPage,debounceSearch,filterStatus,sortBy,limit]);
 
   const fetchUsers = async () => {
     try {
-      const response = await adminRepository.getAllUsers(limit, currentPage,searchTerm,filterStatus);
+      const response = await adminRepository.getAllUsers(limit, currentPage,searchTerm,filterStatus,sortBy);
       console.log("response", response);
 
       if (response.success && response.result) {
@@ -141,6 +145,50 @@ const [debounceSearch,setDebounceSearch]=useState(searchTerm)
       setCurrentPage(currentPage - 1);
     }
   };
+  const columns = [
+  {
+    header: "Name",
+    accessor: "name",
+  },
+  {
+    header: "Email",
+    accessor: "email",
+  },
+  {
+    header: "Status",
+    accessor: "isBlocked",
+    render: (user: IUser) => (
+      <span
+        className={`px-2 py-1 text-xs rounded ${
+          user.isBlocked ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
+        }`}
+      >
+        {user.isBlocked ? "Blocked" : "Active"}
+      </span>
+    ),
+  },
+  {
+    header: "Actions",
+    accessor: "_id",
+    render: (user: IUser) => (
+      <div className="flex gap-2">
+        <button
+          onClick={() => handleEdit(user)}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          <FaEdit />
+        </button>
+        <button
+          onClick={() => handleToggleBlock(user)}
+          className="text-red-600 hover:text-red-800"
+        >
+          {user.isBlocked ? "Unblock" : "Block"}
+        </button>
+      </div>
+    ),
+  },
+];
+
 
   return (
     <AdminLayout>
@@ -148,68 +196,140 @@ const [debounceSearch,setDebounceSearch]=useState(searchTerm)
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Users</h2>
       </div>
-      <div className="flex gap-4 mb-4">
-  {/* Search input */}
-  <input
-    type="text"
-    placeholder="Search by name or email"
-    className="border border-gray-300 rounded px-3 py-2 w-64"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-  />
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 rounded-2xl border border-white/20 shadow-xl backdrop-blur-sm mb-6">
+      
+      <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-400/10 to-orange-400/10 rounded-full blur-xl animate-pulse delay-1000"></div>
+      
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="h-5 w-5 text-indigo-500 animate-pulse" />
+          <h3 className="text-lg font-semibold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+            Search & Filter
+          </h3>
+        </div>
 
-  {/* Filter dropdown */}
-  <select
-    className="border border-gray-300 rounded px-3 py-2"
-    value={filterStatus}
-    onChange={(e) => setFilterStatus(e.target.value)}
-  >
-    <option value="all">All</option>
-    <option value="blocked">Blocked</option>
-    <option value="unblocked">Unblocked</option>
-  </select>
-</div>
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+          
+          
+          <div className="relative flex-1 group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300" />
+              </div>
+              <input
+                type="text"
+                placeholder="✨ Search by name or email..."
+                className="w-full pl-12 pr-6 py-4 bg-white/70 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 focus:bg-white/90 transition-all duration-300 text-slate-800 placeholder-slate-500 shadow-lg hover:shadow-xl font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            </div>
+          </div>
+
+          
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            
+           
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Filter className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors duration-300" />
+                </div>
+                <select
+                  className="appearance-none pl-11 pr-10 py-4 bg-white/70 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-400 focus:bg-white/90 transition-all duration-300 text-slate-700 font-semibold cursor-pointer min-w-[150px] shadow-lg hover:shadow-xl"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="all">🌟 All Status</option>
+                  <option value="blocked">🚫 Blocked</option>
+                  <option value="unblocked">✅ unblocked</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
+                  <svg className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 to-purple-400/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <SortAsc className="h-4 w-4 text-slate-400 group-focus-within:text-violet-500 transition-colors duration-300" />
+                </div>
+                <select
+                  className="appearance-none pl-11 pr-10 py-4 bg-white/70 backdrop-blur-sm border border-white/40 rounded-xl focus:ring-2 focus:ring-violet-500/50 focus:border-violet-400 focus:bg-white/90 transition-all duration-300 text-slate-700 font-semibold cursor-pointer min-w-[170px] shadow-lg hover:shadow-xl"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="newest">🕒 Newest First</option>
+                  <option value="oldest">⏳ Oldest First</option>
+                  <option value="nameAsc">🔤 Name (A-Z)</option>
+                  <option value="nameDesc">🔡 Name (Z-A)</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
+                  <svg className="h-4 w-4 text-slate-400 group-focus-within:text-violet-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+       
+        <div className="absolute inset-0 -top-2 -bottom-2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none opacity-0 hover:opacity-100"></div>
+      </div>
+    </div>
 
 
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300 rounded shadow">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="text-left p-3 border-b">Name</th>
-              <th className="text-left p-3 border-b">Email</th>
-              <th className="text-left p-3 border-b">Status</th>
-              <th className="text-left p-3 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id} className="hover:bg-gray-50">
-                <td className="p-3 border-b">{user.name}</td>
-                <td className="p-3 border-b">{user.email}</td>
-                <td className="p-3 border-b">
-                  <button
-                    onClick={() => handleToggleBlock(user)}
-                    className={`px-3 py-1 rounded text-sm font-medium ${
-                      user.isBlocked
-                        ? "bg-green-500 text-white"
-                        : "bg-yellow-500 text-black"
-                    }`}
-                  >
-                    {user.isBlocked ? "Unblock" : "Block"}
-                  </button>
-                </td>
-                <td className="p-3 border-b flex gap-2">
-                  <button
-                    onClick={() => handleEdit(user)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                  >
-                    <FaEdit />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        
+        <div>
+            <label className="mr-2 text-gray-600">Rows per page:</label>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border px-2 py-1 rounded"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        <DataTable<IUser> data={users} columns={columns} />
+          <div className="flex justify-center mt-4 gap-2 flex-wrap">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span className="px-3 py-1">
+            Page {currentPage} of {totalPage}
+          </span>
+
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPage}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+
       </div>
 
       {showModal && (
@@ -281,37 +401,7 @@ const [debounceSearch,setDebounceSearch]=useState(searchTerm)
         </div>
       )}
 
-      {totalPage > 1 && (
-        <div className="flex justify-center mt-4 gap-2">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPage }, (_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentPage(index + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === index + 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPage}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      
     </AdminLayout>
   );
 };

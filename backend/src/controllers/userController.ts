@@ -3,11 +3,8 @@ import { IUserController } from "./controllerInterface/IUserController";
 import { IUserService } from "src/services/serviceInterface/IUserService";
 
 import { MESSAGES } from "../constants/messages";
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
+import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
+
 export class UserController implements IUserController {
   constructor(private _userService: IUserService) {}
   async getUser(req: AuthenticatedRequest, res: Response): Promise<void> {

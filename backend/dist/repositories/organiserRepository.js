@@ -22,6 +22,7 @@ const analyticHelper_1 = require("../utils/analyticHelper");
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
 const ticket_1 = require("../model/ticket");
 const user_1 = __importDefault(require("../model/user"));
+const notification_1 = __importDefault(require("../model/notification"));
 class OrganiserRepository {
     getOrganiserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -103,11 +104,11 @@ class OrganiserRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = filters.limit && filters.page ? (filters.page - 1) * filters.limit : 0;
             const query = {};
-            if (filters.nameSearch) {
-                query.name = { $regex: filters.nameSearch, $options: "i" };
-            }
-            if (filters.locationSearch) {
-                query.city = { $regex: filters.locationSearch, $options: "i" };
+            if (filters.searchTerm) {
+                query.$or = [
+                    { name: { $regex: filters.searchTerm, $options: "i" } },
+                    { city: { $regex: filters.searchTerm, $options: "i" } }
+                ];
             }
             const venues = yield venue_1.default.find(query)
                 .skip(skip)
@@ -167,14 +168,12 @@ class OrganiserRepository {
     fetchAttendees(eventId, organiserId, searchTerm, filterStatus, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("page", page);
             const settings = yield platformSettings_1.default.findOne();
             const adminCommissionPercentage = (_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10;
             const startDate = new Date();
             startDate.setDate(startDate.getDate() - 30);
             const matchStage = {
                 eventId: new mongoose_1.default.Types.ObjectId(eventId),
-                createdAt: { $gte: startDate },
             };
             if (filterStatus && filterStatus !== "all") {
                 matchStage.bookingStatus = filterStatus;
@@ -349,10 +348,13 @@ class OrganiserRepository {
             const topEvents = [...events]
                 .sort((a, b) => b.ticketsSold - a.ticketsSold)
                 .slice(0, 5);
-            const upcomingEvents = events
-                .filter((event) => new Date(event.date) >= new Date())
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .slice(0, 5);
+            const upcomingEvents = yield event_1.default.find({
+                organiser: organiserId,
+                date: { $gte: new Date() }
+            })
+                .sort({ date: 1 })
+                .limit(5);
+            console.log("upcomings", events);
             const earningAggregation = yield order_1.default.aggregate([
                 {
                     $lookup: {
@@ -477,6 +479,64 @@ class OrganiserRepository {
             catch (error) {
                 console.log(error);
                 throw error;
+            }
+        });
+    }
+    fetchEventOrders(eventId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield order_1.default.find({ eventId: eventId }).lean().populate("userId", "name email");
+            }
+            catch (error) {
+                console.log(error);
+                return null;
+            }
+        });
+    }
+    updateRefund(refundId, orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log("refundid", refundId);
+                const order = yield order_1.default.findById(orderId);
+                if (!order)
+                    throw new Error("Order not found");
+                const eventId = order.eventId;
+                const ticketCount = order.ticketCount;
+                yield order_1.default.findByIdAndUpdate(orderId, {
+                    refundId: refundId,
+                    status: "refunded",
+                    bookingStatus: "cancelled",
+                });
+                yield event_1.default.findByIdAndUpdate(eventId, {
+                    $inc: { availableTickets: ticketCount },
+                });
+                yield notification_1.default.create({
+                    userId: order.userId,
+                    message: `Your booking for event "${order.eventTitle}" refunded with amount ${order.amount / 100}!Cancelled  By Organiser `,
+                    type: "general",
+                    isRead: false,
+                });
+                return { success: true };
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false, message: "Failed to refund" };
+            }
+        });
+    }
+    findOrder(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield order_1.default.findById({ _id: orderId });
+        });
+    }
+    fetchVenues() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield venue_1.default.find();
+            }
+            catch (error) {
+                console.log(error);
+                return null;
             }
         });
     }

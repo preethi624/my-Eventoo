@@ -1,12 +1,9 @@
 import { Request, Response } from "express";
 import { INotificationController } from "./controllerInterface/INotificationController";
 import { INotificationService } from "src/services/serviceInterface/INotificationService";
+import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
+
 export class NotificationController implements INotificationController{
     constructor(private _notificationService:INotificationService){}
     async fetchNotifications(req:AuthenticatedRequest,res:Response):Promise<void>{

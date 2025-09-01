@@ -14,7 +14,7 @@ import {
   Location,
   StatusCheck,
 } from "../interface/event";
-import { IEventDTO } from "src/interface/IEventDTO";
+import { IEventDTO, IEventImage } from "src/interface/IEventDTO";
 import { MESSAGES } from "../constants/messages";
 import dotenv from 'dotenv';
 dotenv.config()
@@ -22,6 +22,8 @@ import { InferenceClient  } from "@huggingface/inference";
 import { Recommend } from "src/interface/IUser";
 import { cosineSimilarity } from "../utils/cosine";
 import axios from "axios";
+import cloudinary from "../config/cloudinary";
+import { IEvent } from "src/model/event";
 const hf = new InferenceClient (process.env.HUGGING_API_KEY);
 export class EventService implements IEventService {
   constructor(private _eventRepository: IEventRepository) {}
@@ -80,27 +82,7 @@ export class EventService implements IEventService {
       return { success: false, message: MESSAGES.EVENT.FAILED_TO_FETCH };
     }
   }
-  /*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
-    try {
-      const text = `${data.category} ${data.description} ${data.venue}`;
-      const output = await hf.featureExtraction({
-    model: "sentence-transformers/all-MiniLM-L6-v2",
-    inputs: text,
-  });
-  const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
-      const result = await this._eventRepository.createEvent({...data,embedding});
-      
-
-      if (result) {
-        return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
-      } else {
-        return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-      }
-    } catch (error) {
-      console.error(error);
-      return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-    }
-  }*/
+  
 
 
 async eventCreate(data: IEventDTO): Promise<CreateEvent> {
@@ -170,20 +152,45 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
       return { success: false, message: "failed to delete event" };
     }
   }
-  async eventEdit(id: string, data: EventEdit): Promise<CreateEvent> {
-    try {
-      const result = await this._eventRepository.editEvent(id, data);
-      if (result) {
-        return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE };
-      } else {
-        return { success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE };
-      }
-    } catch (error) {
-      console.log(error);
-
-      return { success: false, message: "failed to edit event" };
-    }
+  
+async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promise<IEvent| null> {
+  const existingEvent = await this._eventRepository.findById(id);
+  if (!existingEvent) {
+    throw new Error("Event not found");
   }
+
+  let normalizedImages: IEventImage[] = [];
+
+  if (file) {
+    
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "events"
+    });
+
+   
+    normalizedImages = [
+      {
+        url: result.secure_url,
+        public_id: result.public_id || null,
+      },
+    ];
+  } else {
+   
+    normalizedImages = existingEvent.images.map((img) => ({
+      url: typeof img === "string" ? img : img.url,
+      public_id: typeof img === "string" ? null : img.public_id ?? null,
+    }));
+  }
+
+ 
+  data.images = normalizedImages;
+
+  
+  const updatedEvent = await this._eventRepository.editEvent(id, data);
+  return updatedEvent;
+}
+
+
   async statusCheck(email: object): Promise<StatusCheck> {
     try {
       const result = await this._eventRepository.statusCheck(email);
@@ -202,7 +209,8 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
     limit: number,
     page: number,
     searchTerm: string,
-    date: string
+    date: string,
+    status:string
   ): Promise<EventGet> {
     try {
       const response = await this._eventRepository.eventGet(
@@ -210,7 +218,7 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
         limit,
         page,
         searchTerm,
-        date
+        date,status
       );
 
       if (response) {

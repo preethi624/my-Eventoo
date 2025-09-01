@@ -237,9 +237,12 @@ class PaymentController {
                 const userId = req.params.userId;
                 const searchTerm = req.query.searchTerm;
                 const status = req.query.status;
-                const response = yield this._paymentService.ticketDetailsGet(userId, searchTerm, status);
+                const page = req.query.page;
+                const limit = req.query.limit;
+                console.log("limitNumbr", limit);
+                const response = yield this._paymentService.ticketDetailsGet(userId, searchTerm, status, page, limit);
                 if (response) {
-                    res.json({ result: response.tickets, success: true });
+                    res.json({ tickets: response.tickets, success: true, totalPages: response.totalPages, totalItems: response.totalItems, currentPage: response.currentPage });
                 }
                 else {
                     res.json({ success: false });

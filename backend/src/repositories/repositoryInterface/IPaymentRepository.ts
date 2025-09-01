@@ -1,4 +1,5 @@
 import { IPaymentDTO, OrderFree, OrdersGet, Update, UserProfileUpdate } from "src/interface/IPayment";
+import { ITicketDetails } from "src/interface/ITicket";
 import { IOrder } from "src/model/order";
 import { ITicket } from "src/model/ticket";
 
@@ -13,6 +14,6 @@ export interface IPaymentRepository{
      findOrder(orderId:string):Promise<IOrder|null>;
      updateRefund(refundId:string,orderId:string):Promise<Update>
      getTickets(orderId:string):Promise<ITicket[]>;
-     getTicketDetails(userId: string,searchTerm:string,status:string):Promise<ITicket[]>
+     getTicketDetails(userId: string,searchTerm:string,status:string,page:string,limit:string):Promise<ITicketDetails>
    
 }

@@ -179,22 +179,28 @@ const MyOrderPage: React.FC = () => {
   };
 
   const getEventImage = (order: IOrder) => {
-    // Priority: eventDetails.image > eventDetails.images[0] > default placeholder
+   
+    let imageSrc = "https://via.placeholder.com/300x200";
+  if (order&&order.eventDetails&& order.eventDetails.images.length > 0) {
+    const img = order.eventDetails.images[0]; 
 
-    if (order.eventDetails?.images && order.eventDetails.images.length > 0) {
-      const imagePath = order.eventDetails.images[0];
-      if(imagePath.startsWith("http")){
-         return imagePath;
-
-      }else{
-        return  `http://localhost:3000/${imagePath.replace(/\\/g, "/")}`;
+    
+    if (typeof img === "string") {
+      if (img.startsWith("http")) {
+        return imageSrc = img; 
+      } else {
+        
+        return imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
       }
-     
+    } else if (typeof img === "object" && img.url) {
+      // Case 2: if Mongo stores { url: "..." }
+      return imageSrc = img.url;
     }
-    // Default placeholder image
-    return `https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format`;
-  };
+  }
 
+
+  };
+   
   const handleCancelBooking = async (orderId: string) => {
     try {
       const result = await MySwal.fire({
@@ -210,6 +216,8 @@ const MyOrderPage: React.FC = () => {
 
       if (result.isConfirmed) {
         const response = await paymentRepository.findOrder(orderId);
+        
+        
         if (response.success) {
           setRefundId(response.refund.response.refundId);
           fetchOrders();
@@ -238,7 +246,7 @@ const MyOrderPage: React.FC = () => {
       );
     }
   };
-  console.log("refundid", refundId);
+  
 
   
   const handleDownloadTicket = async (orderId: string) => {
@@ -391,7 +399,7 @@ const MyOrderPage: React.FC = () => {
             <div className="p-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Event Image */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 relative">
                   <img
                     src={getEventImage(order)}
                     alt={order.eventTitle}
@@ -401,6 +409,9 @@ const MyOrderPage: React.FC = () => {
                         "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
                     }}
                   />
+                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+    {order.bookingNumber}
+  </div>
                 </div>
 
                 {/* Order Details */}
@@ -413,6 +424,10 @@ const MyOrderPage: React.FC = () => {
                       <p className="text-sm text-gray-500 mb-2">
                         Order ID: {order.orderId}
                       </p>
+                      <p className="text-sm text-gray-500 mb-2">
+                        Booking Number: {order.bookingNumber}
+                      </p>
+
                       <p className="text-sm text-gray-500 mb-2">
                         Razorpay ID: {order.razorpayOrderId}
                       </p>

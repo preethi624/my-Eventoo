@@ -1,13 +1,9 @@
 import { Request, Response } from "express";
 import { IReviewController } from "./controllerInterface/IReviewController";
 import { IReviewService } from "src/services/serviceInterface/IReviewService";
+import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    
-  };
-}
+
 export class ReviewControoler implements IReviewController{
     constructor(private _reviewService:IReviewService){}
     async createReview(req:AuthenticatedRequest,res:Response):Promise<void>{

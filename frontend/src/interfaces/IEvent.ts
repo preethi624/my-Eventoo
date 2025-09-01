@@ -9,7 +9,7 @@ export interface IEventDTO {
   category: string;
   ticketPrice: number;
   capacity: number;
-  images: string[];
+  images: (string|IEventImage)[];
   organiser: string;
   status: 'draft' | 'published' |'completed'| 'cancelled';
   ticketsSold: number;
@@ -41,4 +41,9 @@ export interface EventCount{
 export interface Location {
   latitude: number;
   longitude: number;
+}
+export interface IEventImage{
+  url:string;
+  public_id:string|null
+
 }

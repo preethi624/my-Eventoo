@@ -7,8 +7,9 @@ import { IPaymentController } from "./controllerInterface/IPaymentController";
 import { IPaymentService } from "src/services/serviceInterface/IPaymentService";
 
 import { StatusCode } from "../constants/statusCodeEnum";
-import { AuthenticatedRequest } from "./userController";
+
 import { MESSAGES } from "../constants/messages";
+import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 export class PaymentController implements IPaymentController {
   constructor(private _paymentService: IPaymentService) {}
   async createOrder(req: Request, res: Response): Promise<void> {
@@ -213,14 +214,19 @@ export class PaymentController implements IPaymentController {
       const userId = req.params.userId;
       const searchTerm = req.query.searchTerm as string;
       const status = req.query.status as string;
+      const page=req.query.page as string;
+      const limit=req.query.limit as string;
+      console.log("limitNumbr",limit);
+      
+
 
       const response = await this._paymentService.ticketDetailsGet(
         userId,
         searchTerm as string,
-        status
+        status,page,limit
       );
       if (response) {
-        res.json({ result: response.tickets, success: true });
+        res.json({ tickets: response.tickets, success: true ,totalPages:response.totalPages,totalItems:response.totalItems,currentPage:response.currentPage});
       } else {
         res.json({ success: false });
       }

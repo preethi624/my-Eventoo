@@ -13,11 +13,18 @@ import {
   ProfileEdit,
   Reapply,
 } from "src/interface/IUser";
-import { FetchOrders, GetOrder } from "src/interface/IPayment";
+import { FetchOrders, GetOrder, Update } from "src/interface/IPayment";
 import { GetVenue, OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 import { MESSAGES } from "../constants/messages";
 import { OrganiserRepository } from "src/repositories/organiserRepository";
 import { IUser } from "src/interface/IUserAuth";
+import { IOrder } from "src/model/order";
+import Razorpay from "razorpay";
+import { IVenues } from "src/interface/IVenues";
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 export class OrganiserService implements IOrganiserService {
   constructor(private _organiserRepository: IOrganiserRepository) {}
@@ -300,6 +307,88 @@ export class OrganiserService implements IOrganiserService {
     } catch (error) {
       console.log(error);
       throw error;
+    }
+  }
+  async eventOrders(eventId:string):Promise<{success:boolean,orders?:IOrder[]}>{
+    try {
+      const response=await this._organiserRepository.fetchEventOrders(eventId
+
+      )
+      if(response){
+        return{success:true,orders:response}
+      }else{
+        return {success:false}
+      }
+
+      
+    } catch (error) {
+      
+      console.log(error);
+      return {success:false}
+      
+    }
+  }
+  async orderCancel(orderId:string):Promise<Update>{
+    try {
+      const result = await this._organiserRepository.findOrder(orderId)
+     
+      
+      
+      
+     
+      
+      if (result) {
+        const paymentId = result.razorpayPaymentId;
+        const amount = result.amount;
+        const refund =await razorpay.payments.refund (paymentId,{
+          amount: amount,
+
+    });
+
+         const payment = await razorpay.payments.fetch(paymentId);
+console.log("Razorpay payment:", payment);
+        
+        
+
+        const refundId = refund.id;
+        
+        
+        const response = await this._organiserRepository.updateRefund(
+          refundId,
+          orderId
+        );
+        if (response.success) {
+          return {
+            success: true,
+            refundId: refundId,
+            message: "successfully updated",
+          };
+        } else {
+          return { success: false, message: response.message };
+        }
+      } else {
+        return { success: false, message: "failed to update" };
+      }
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: "failed to update" };
+    }
+
+  }
+  async venuesFetch():Promise<IVenues>{
+    try {
+      const response=await this._organiserRepository.fetchVenues();
+      if(response){
+        return{success:true,venues:response}
+      }else{
+        return{success:false}
+      }
+      
+    } catch (error) {
+      console.log(error);
+      return{success:false}
+      
+      
     }
   }
 }

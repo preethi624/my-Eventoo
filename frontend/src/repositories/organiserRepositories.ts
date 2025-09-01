@@ -100,6 +100,8 @@ export const fetchBookings = async (
 };
 export const getOrderDetails = async (orderId: string): Promise<OrgOrder> => {
   try {
+   
+    
     const response = await axiosInstance.get(
       `${API_BASE_URL}/orgOrders/${orderId}`
     );
@@ -141,7 +143,7 @@ export const getVenues = async (filters: string) => {
     const response = await axiosInstance.get(
       `${API_BASE_URL}/venues/?${filters}`
     );
-    console.log("responseDetails", response);
+   
 
     if (response) {
       return {
@@ -209,6 +211,7 @@ export const fetchAttendees = async (
   limit: number
 ) => {
   try {
+    
     const response = await axiosInstance.get(
       `${API_BASE_URL}/order/${eventId}/${organiserId}`,
       { params: { searchTerm, filterStatus, currentPage, limit } }
@@ -275,6 +278,65 @@ export const fetchUsers = async () => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+export const getEventOrders=async(eventId:string)=>{
+  try {
+      const response=await axiosInstance.get(`${API_BASE_URL}/eventOrder/${eventId}`);
+      console.log("eveee respooo",response);
+      
+  if(response.data.success){
+    return response.data
+  }
+}
+    
+  catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+}
+export const cancelOrder=async(orderId:string)=>{
+  try {
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/order/${orderId}`
+      );
+      console.log("responseeee", response);
+  
+      if (response.data && response.data.response.success) {
+        return {
+          success: true,
+          message: "status updated successfully",
+          refund: response.data,
+        };
+      } else {
+        return { success: false, message: "Payment status updation  fails" };
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      throw axiosError.response?.data || axiosError.message;
+      return { success: false, message: "updation fails" };
+    }
+
+}
+export const fetchVenues=async()=>{
+    try {
+        const response=await axiosInstance.get(
+            `${API_BASE_URL}/venues`
+
+        ) 
+        if(response.data.success){
+            return response.data
+        }
+    
+        
+    } catch (error) {
+        const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+        
+    }
+    
+
+}
+
 
 export const organiserRepository = {
   getOrganiserById,
@@ -290,4 +352,7 @@ export const organiserRepository = {
   getDashboardEvents,
   updateTicket,
   fetchUsers,
+  getEventOrders,
+  cancelOrder,
+  fetchVenues
 };

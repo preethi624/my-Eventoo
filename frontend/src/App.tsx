@@ -53,6 +53,7 @@ import CompletedEvents from "./assets/pages/CompletedEvents";
 import ReviewPage from "./assets/pages/ReviewPage";
 import NotificationPage from "./assets/pages/OrganiserNotification";
 import UserNotificationPage from "./assets/pages/UserNotification";
+import AdminOrderDetails from "./assets/pages/AdminOrderDetails";
 
 function App() {
   const dispatch = useDispatch();
@@ -138,6 +139,7 @@ function App() {
       <Route path="/admin/events" element={<EventPage />} />
       <Route path="/admin/bookings" element={<AdminBookings />} />
       <Route path="/admin/venues" element={<VenueManagement />} />
+      <Route path="/adminOrderDetails/:orderId" element={<AdminOrderDetails />} />
 
       <Route
         path="/eventBooking/:eventId"

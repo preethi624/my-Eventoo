@@ -24,6 +24,7 @@ import PDFDocument from "pdfkit";
 import bwipjs from "bwip-js";
 import { ITicket } from "src/model/ticket";
 import { IEvent } from "src/model/event";
+import { ITicketDetails } from "src/interface/ITicket";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -173,6 +174,8 @@ export class PaymentService implements IPaymentService {
   }
   async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
     try {
+  
+      
       const razorpay_payment_id = data.razorpay_payment_id;
       const razorpay_order_id = data.razorpay_order_id;
       const razorpay_signature = data.razorpay_signature;
@@ -345,14 +348,28 @@ export class PaymentService implements IPaymentService {
   async orderFind(orderId: string): Promise<Update> {
     try {
       const result = await this._paymentRepository.findOrder(orderId);
+     
+      
+      
+      
+     
+      
       if (result) {
         const paymentId = result.razorpayPaymentId;
         const amount = result.amount;
-        const refund = await razorpay.payments.refund(paymentId, {
+        const refund =await razorpay.payments.refund (paymentId,{
           amount: amount,
-        });
+
+    });
+
+         const payment = await razorpay.payments.fetch(paymentId);
+console.log("Razorpay payment:", payment);
+        
+        
 
         const refundId = refund.id;
+        
+        
         const response = await this._paymentRepository.updateRefund(
           refundId,
           orderId
@@ -390,16 +407,20 @@ export class PaymentService implements IPaymentService {
   async ticketDetailsGet(
     userId: string,
     searchTerm: string,
-    status: string
-  ): Promise<TicketDetails> {
+    status: string,
+    page:string,
+    limit:string
+  ): Promise<ITicketDetails> {
     try {
       const result = await this._paymentRepository.getTicketDetails(
         userId,
         searchTerm,
-        status
+        status,
+        page,
+        limit
       );
       if (result) {
-        return { success: true, tickets: result };
+        return { success: true, tickets: result.tickets,totalItems:result.totalItems,totalPages:result.totalPages,currentPage:result.currentPage };
       } else {
         return { success: false };
       }

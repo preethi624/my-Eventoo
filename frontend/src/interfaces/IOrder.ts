@@ -18,7 +18,8 @@ export interface IOrder{
     orders?:IOrder;
     orderId:string;
     bookingStatus?:string|undefined;
-    refundId?:string
+    refundId?:string;
+    bookingNumber:string
    
 }
 export interface IGetOrdersResponse {

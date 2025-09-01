@@ -164,10 +164,12 @@ export const getTickets = async (orderId: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
-export const getTicketDetails = async (userId: string, queryParams: string) => {
+export const getTicketDetails = async (userId: string, queryParams: string,page:number,limit:number) => {
   try {
+   
+    
     const response = await axiosInstance.get(
-      `${API_BASE_URL}/ticketDetails/${userId}?${queryParams}`
+      `${API_BASE_URL}/ticketDetails/${userId}?${queryParams}&page=${page}&limit=${limit}`
     );
     console.log("detailResponse", response);
     if (response) {
@@ -197,6 +199,7 @@ export const createFreeBooking = async (data: OrderCreateInput) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+
 
 export const paymentRepository = {
   createOrder,

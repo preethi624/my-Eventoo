@@ -1,4 +1,5 @@
 import { IAdminOrder } from "src/interface/IAdmin";
+import { IOrderDTO } from "src/interface/IOrder";
 import { OrderDashboard } from "src/interface/IUser";
 
 export interface IAdminOrderRepository{
@@ -10,6 +11,7 @@ getOrdersAll(filters: {
     page?: number;
     limit?: number;
   }):Promise<IAdminOrder>;
-  getDashboardOrders(timeFrame:'7d' | '30d' | '90d',startDate?:string,endDate?:string,category?:string,month?:string,year?:string):Promise<OrderDashboard>
+  getDashboardOrders(timeFrame:'7d' | '30d' | '90d',startDate?:string,endDate?:string,category?:string,month?:string,year?:string):Promise<OrderDashboard>;
+   getOrderDetails(orderId:string):Promise<IOrderDTO|null>
 }
  

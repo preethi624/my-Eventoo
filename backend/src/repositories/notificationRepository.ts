@@ -5,7 +5,7 @@ import { INotificationRepository } from "./repositoryInterface/INotificationRepo
 export class NotificationRepository implements INotificationRepository{
     async fetchNotification(id:string):Promise<INotification[]|null>{
         try {
-            return await Notification.find({$or:[{organizerId:id},{userId:id}]})
+            return await Notification.find({$or:[{organizerId:id},{userId:id}]}).sort({createdAt:-1})
 
             
         } catch (error) {

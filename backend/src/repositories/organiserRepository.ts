@@ -1,8 +1,8 @@
 import { IOrganiser } from "src/interface/IOrgAuth";
 import { IOrganiserRepository } from "./repositoryInterface/IOrganiserRepository";
 import Organiser from "../model/organiser";
-import { Attendees, ProfileEdit } from "src/interface/IUser";
-import { FetchOrders } from "src/interface/IPayment";
+import { Attendees, ProfileEdit, UserData } from "src/interface/IUser";
+import { FetchOrders, Update } from "src/interface/IPayment";
 import Order, { IOrder } from "../model/order";
 import EventModel, { IEvent } from "../model/event";
 import Venue, { IVenue } from "../model/venue";
@@ -15,6 +15,8 @@ import { TicketModel } from "../model/ticket";
 import { log } from "util";
 import User from "../model/user";
 import { IUser } from "src/interface/IUserAuth";
+import Notification from "../model/notification";
+import { options } from "pdfkit";
 
 export class OrganiserRepository implements IOrganiserRepository {
   async getOrganiserById(id: string): Promise<IOrganiser | null> {
@@ -110,12 +112,14 @@ export class OrganiserRepository implements IOrganiserRepository {
       filters.limit && filters.page ? (filters.page - 1) * filters.limit : 0;
 
     const query: FilterQuery<IVenue> = {};
-    if (filters.nameSearch) {
-      query.name = { $regex: filters.nameSearch, $options: "i" };
+    if (filters.searchTerm) {
+     
+      query.$or=[
+        {name:{$regex:filters.searchTerm,$options:"i"}},
+        {city:{$regex:filters.searchTerm,$options:"i"}}
+      ]
     }
-    if (filters.locationSearch) {
-      query.city = { $regex: filters.locationSearch, $options: "i" };
-    }
+    
     const venues = await Venue.find(query)
       .skip(skip)
       .limit(Number(filters.limit));
@@ -178,7 +182,7 @@ export class OrganiserRepository implements IOrganiserRepository {
     page: number,
     limit: number
   ): Promise<Attendees> {
-    console.log("page", page);
+   
 
     const settings = await PlatformSettings.findOne();
     const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
@@ -192,7 +196,7 @@ export class OrganiserRepository implements IOrganiserRepository {
       createdAt?: { $gte: Date };
     } = {
       eventId: new mongoose.Types.ObjectId(eventId),
-      createdAt: { $gte: startDate },
+      
     };
     if (filterStatus && filterStatus !== "all") {
       matchStage.bookingStatus = filterStatus;
@@ -227,6 +231,8 @@ export class OrganiserRepository implements IOrganiserRepository {
       },
       { $unwind: "$userDetails" },
     ];
+ 
+    
 
     if (searchTerm) {
       pipeline.push({
@@ -270,6 +276,8 @@ export class OrganiserRepository implements IOrganiserRepository {
       { $limit: limit },
     ];
     const attendee = await Order.aggregate(paginatedPipeline);
+   
+    
 
     return {
       attendees: attendee,
@@ -408,10 +416,16 @@ export class OrganiserRepository implements IOrganiserRepository {
       .sort((a, b) => b.ticketsSold - a.ticketsSold)
       .slice(0, 5);
 
-    const upcomingEvents = events
-      .filter((event) => new Date(event.date) >= new Date())
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(0, 5);
+    
+      const upcomingEvents = await EventModel.find({
+  organiser: organiserId,
+  date: { $gte: new Date() } 
+})
+  .sort({ date: 1 })
+  .limit(5);
+
+      console.log("upcomings",events);
+      
     const earningAggregation = await Order.aggregate([
       {
         $lookup: {
@@ -534,4 +548,62 @@ export class OrganiserRepository implements IOrganiserRepository {
       throw error;
     }
   }
+  async fetchEventOrders(eventId:string):Promise<IOrder[]|null>{
+    try {
+      return await Order.find({eventId:eventId}).lean().populate("userId","name email");
+      
+    } catch (error) {
+      console.log(error);
+      return null
+      
+      
+    }
+   
+
+  }
+  async updateRefund(refundId: string, orderId: string): Promise<Update> {
+      try {
+        console.log("refundid", refundId);
+  
+        const order = await Order.findById(orderId);
+        if (!order) throw new Error("Order not found");
+        const eventId = order.eventId;
+        const ticketCount = order.ticketCount;
+        await Order.findByIdAndUpdate(orderId, {
+          refundId: refundId,
+          status: "refunded",
+          bookingStatus: "cancelled",
+        });
+  
+        await EventModel.findByIdAndUpdate(eventId, {
+          $inc: { availableTickets: ticketCount },
+        });
+         await Notification.create({
+        userId: order.userId,
+        message: `Your booking for event "${order.eventTitle}" refunded with amount ${order.amount/100}!Cancelled  By Organiser `,
+        type: "general",
+        isRead: false,
+      })
+        return { success: true };
+      } catch (error) {
+        console.log(error);
+  
+        return { success: false, message: "Failed to refund" };
+      }
+    }
+    async findOrder(orderId: string): Promise<IOrder | null> {
+        return await Order.findById({ _id: orderId });
+      }
+      async fetchVenues():Promise<IVenue[]|null>{
+        try {
+          return await Venue.find()
+          
+        } catch (error) {
+          console.log(error);
+          return null
+          
+
+          
+        }
+      }
 }

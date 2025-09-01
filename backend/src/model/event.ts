@@ -1,4 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
+export interface IEventImage {
+  url: string;
+  public_id: string | null;
+}
 
 export interface IEvent extends Document {
   title: string;
@@ -9,7 +13,7 @@ export interface IEvent extends Document {
   category: string;
   ticketPrice: number;
   capacity: number;
-  images: string[];
+  images: (string|IEventImage)[];
   organiser: mongoose.Types.ObjectId;
   status: "draft" | "published" | "completed" | "cancelled";
 
@@ -46,8 +50,11 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
     category: { type: String, required: true },
     ticketPrice: { type: Number, required: true },
     capacity: { type: Number, required: true },
-    images: { type: [String], default: [] },
-    organiser: { type: mongoose.Schema.Types.ObjectId, ref: "organiser" },
+    images: {
+      type: [Schema.Types.Mixed],  
+      default: [],
+    },
+    organiser: { type: mongoose.Schema.Types.ObjectId, ref: "Organiser" },
     status: {
       type: String,
       enum: ["draft", "published", "completed", "cancelled"],

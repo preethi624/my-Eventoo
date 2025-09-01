@@ -65,6 +65,23 @@ class AdminOrderService {
             }
         });
     }
+    orderDetailsGet(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._adminOrderRepository.getOrderDetails(orderId);
+                if (response) {
+                    return { success: true, orders: response };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
+            }
+        });
+    }
 }
 exports.AdminOrderService = AdminOrderService;
 //# sourceMappingURL=adminOrderService.js.map

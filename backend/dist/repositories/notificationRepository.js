@@ -18,7 +18,7 @@ class NotificationRepository {
     fetchNotification(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield notification_1.default.find({ $or: [{ organizerId: id }, { userId: id }] });
+                return yield notification_1.default.find({ $or: [{ organizerId: id }, { userId: id }] }).sort({ createdAt: -1 });
             }
             catch (error) {
                 console.log((error));

@@ -3,6 +3,8 @@ import { IAdminOrderService } from "./serviceInterface/IAdminOrderService";
 import { IAdminOrderRepository } from "src/repositories/repositoryInterface/IAdminOrderRepository";
 import { OrderDashboard } from "src/interface/IUser";
 import { MESSAGES } from "../constants/messages";
+import { IOrder } from "src/model/order";
+import { IOrderDTO } from "src/interface/IOrder";
 
 export class AdminOrderService implements IAdminOrderService {
   constructor(private _adminOrderRepository: IAdminOrderRepository) {}
@@ -62,6 +64,23 @@ export class AdminOrderService implements IAdminOrderService {
         success: false,
         message: MESSAGES.COMMON.SERVER_ERROR,
       };
+    }
+  }
+  async orderDetailsGet(orderId:string):Promise<{success:boolean,orders?:IOrderDTO}>{
+    try {
+      const response=await this._adminOrderRepository.getOrderDetails(orderId);
+      if(response){
+        return {success:true,orders:response}
+
+      }else{
+        return{success:false}
+      }
+      
+    } catch (error) {
+      console.log(error);
+      return {success:false}
+      
+      
     }
   }
 }

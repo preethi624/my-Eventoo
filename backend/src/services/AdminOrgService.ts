@@ -11,13 +11,14 @@ export class AdminOrgService implements IAdminOrgService {
     private _adminOrgRepository: IAdminOrgRepository,
     private mailService: IMailService
   ) {}
-  async getOrganiser(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetOrganisers> {
+  async getOrganiser(limit: number, page: number,searchTerm:string,filterStatus:string,sortBy:string): Promise<GetOrganisers> {
     try {
       const result = await this._adminOrgRepository.getOrganiserAll(
         limit,
         page,
         searchTerm,
-        filterStatus
+        filterStatus,
+        sortBy
       );
       if (result) {
         return {

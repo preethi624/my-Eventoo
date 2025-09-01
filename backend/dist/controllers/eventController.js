@@ -21,10 +21,6 @@ class EventController {
             try {
                 const query = req.query;
                 const filters = {
-                    // searchLocation:
-                    //typeof query.searchLocation === "string" ? query.searchLocation : "",
-                    //searchTitle:
-                    // typeof query.searchTitle === "string" ? query.searchTitle : "",
                     searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
                     selectedCategory: typeof query.selectedCategory === "string"
                         ? query.selectedCategory
@@ -59,10 +55,6 @@ class EventController {
             try {
                 const query = req.query;
                 const filters = {
-                    // searchLocation:
-                    //typeof query.searchLocation === "string" ? query.searchLocation : "",
-                    //searchTitle:
-                    // typeof query.searchTitle === "string" ? query.searchTitle : "",
                     searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
                     selectedCategory: typeof query.selectedCategory === "string"
                         ? query.selectedCategory
@@ -120,7 +112,11 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const files = req.files;
-                const eventData = Object.assign(Object.assign({}, req.body), { images: (files === null || files === void 0 ? void 0 : files.map((file) => file.path)) || [] });
+                console.log("from cloud", files);
+                const eventData = Object.assign(Object.assign({}, req.body), { images: (files === null || files === void 0 ? void 0 : files.map((file) => ({
+                        url: file.path,
+                        public_id: file.filename
+                    }))) || [] });
                 const response = yield this._eventService.eventCreate(eventData);
                 if (response.success) {
                     res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE });
@@ -163,11 +159,11 @@ class EventController {
     editEvent(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("req", req.body);
+                const file = req.file;
                 const data = req.body;
                 const id = req.params.id;
-                const response = yield this._eventService.eventEdit(id, data);
-                if (response.success) {
+                const response = yield this._eventService.eventEdit(id, data, file);
+                if (response) {
                     res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE });
                 }
                 else {
@@ -214,7 +210,8 @@ class EventController {
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = req.query.searchTerm;
                 const date = req.query.date;
-                const response = yield this._eventService.getEvent(id, limit, page, searchTerm, date);
+                const status = req.query.status;
+                const response = yield this._eventService.getEvent(id, limit, page, searchTerm, date, status);
                 console.log("response", response);
                 if (response) {
                     res.json({ result: response, success: true });

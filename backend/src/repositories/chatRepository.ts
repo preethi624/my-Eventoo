@@ -9,7 +9,7 @@ import Order from "../model/order";
 
 import { FilterQuery } from "mongoose";
 dotenv.config();
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const ai = new GoogleGenerativeAI(process.env.GEMINI || "");
 
 export class ChatRepository implements IChatRepository {
   async createChat(
@@ -117,7 +117,8 @@ export class ChatRepository implements IChatRepository {
         }
       }
 
-      const prompt = `
+      
+const prompt = `
 You are an assistant for an Event Management System.
 
 User asked: "${userMessage}"
@@ -125,9 +126,14 @@ User asked: "${userMessage}"
 System Data:
 ${relevantData}
 
-Format your response as bullet points. Each point should be concise, clear, and easy to read.
-Respond in a friendly and helpful tone.
+Your task:
+- Always respond only in bullet points.
+- Each bullet should be short, clear, and easy to scan.
+- Do not use long paragraphs.
+- If there is no relevant data, still respond politely with a single bullet point saying "No relevant information found."
+- Keep the tone friendly and helpful.
 `;
+
 
       const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent({

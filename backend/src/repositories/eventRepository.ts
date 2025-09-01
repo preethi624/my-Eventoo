@@ -37,7 +37,10 @@ export class EventRepository
       searchTerm,
       page = 1,
       limit = 6,
+    
     } = filters;
+    
+    
 
     const skip = (page - 1) * limit;
 
@@ -56,6 +59,7 @@ export class EventRepository
     if (selectedCategory) {
       query.category = { $regex: selectedCategory, $options: "i" };
     }
+    
     if (maxPrice != undefined && maxPrice != null) {
       query.ticketPrice = { $lte: maxPrice };
     }
@@ -135,6 +139,8 @@ export class EventRepository
     return await this.findById(id);
   }
   async createEvent(data: IEventDTO): Promise<IEvent> {
+    console.log("data",data);
+    
     const event= await EventModel.create(data);
     await Notification.create({
       organizerId:event.organiser,
@@ -178,19 +184,30 @@ export class EventRepository
     limit: number,
     page: number,
     searchTerm: string,
-    date: string
+    date: string,
+    status:string
+
   ): Promise<GetEvent | null> {
     const skip = (page - 1) * limit;
-    const filter: {
+    /*const filter: {
       organiser: string;
       title?: { $regex: string; $options: string };
 
       date?: { $gte: Date; $lt: Date };
+       status?: { $regex: string; $options: string };
     } = {
       organiser: id,
-    };
+    };*/
+      const filter: FilterQuery<IEvent> = { organiser: id };
     if (searchTerm) {
-      filter.title = { $regex: searchTerm, $options: "i" };
+filter.$or = [
+    { title: { $regex: searchTerm, $options: "i" } },
+    { venue: { $regex: searchTerm, $options: "i" } }
+  ];
+     
+    }
+    if(status&&status!="all"){
+      filter.status={$regex:status,$options:"i"}
     }
 
     if (date) {
@@ -204,7 +221,8 @@ export class EventRepository
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-    const totalEvents = await EventModel.countDocuments({ organiser: id });
+    const totalEvents = await EventModel.countDocuments(filter);
+    
     return {
       events,
       totalPages: Math.ceil(totalEvents / limit),
@@ -439,14 +457,7 @@ async findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]
 
 
     return await EventModel.find({
-      /*status: "published",
-
-      location: {
-        $near: {
-          $geometry: { type: "Point", coordinates: [lng, lat] },
-          $maxDistance: 50000,
-        },
-      },*/
+      
       ...query,
       location: {
       $near: {

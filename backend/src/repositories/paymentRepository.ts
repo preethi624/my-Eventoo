@@ -15,12 +15,14 @@ import { ITicket, TicketModel } from "../model/ticket";
 
 import { PipelineStage } from "mongoose";
 import Notification from "../model/notification";
+import { ITicketDetails } from "src/interface/ITicket";
 
 export class PaymentRepository implements IPaymentRepository {
   async createOrder(data: IPaymentDTO): Promise<IOrder> {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
+      
       const updatedEvent = await EventModel.findOneAndUpdate(
         { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
         { $inc: { availableTickets: -data.ticketCount } },
@@ -29,7 +31,17 @@ export class PaymentRepository implements IPaymentRepository {
       if (!updatedEvent) {
         throw new Error("Not enough tickets available");
       }
-      const [order] = await Order.create([data], { session });
+      const lastOrder=await Order.findOne().sort({bookingNumber:-1}).session(session)
+       let nextBookingNumber = "BK-1000";
+    if(lastOrder?.bookingNumber){
+      const lastNumber=parseInt(lastOrder.bookingNumber.replace("BK-",""),10);
+      nextBookingNumber=`BK-${lastNumber+1}`
+    }
+      const orderData={
+        ...data,
+        bookingNumber:nextBookingNumber
+      }
+      const [order] = await Order.create([orderData], { session });
       await session.commitTransaction();
       return order;
     } catch (error) {
@@ -253,76 +265,101 @@ try {
     return tickets as unknown as ITicket[];
   }
 
-  async getTicketDetails(
-    userId: string,
-    searchTerm = "",
-    status = ""
-  ): Promise<ITicket[]> {
-    const matchStage: PipelineStage.Match = {
-      $match: {
-        userId: new mongoose.Types.ObjectId(userId),
-      },
-    };
-    const pipeline: PipelineStage[] = [
-      matchStage,
-      {
-        $lookup: {
-          from: "events",
-          localField: "eventId",
-          foreignField: "_id",
-          as: "event",
-        },
-      },
-      { $unwind: "$event" },
-      {
-        $addFields: {
-          normalizedTitle: {
-            $replaceAll: {
-              input: { $toLower: "$event.title" },
-              find: " ",
-              replacement: "",
-            },
-          },
-          normalizedVenue: {
-            $replaceAll: {
-              input: { $toLower: "$event.venue" },
-              find: " ",
-              replacement: "",
-            },
-          },
-        },
-      },
 
-      {
-        $lookup: {
-          from: "orders",
-          localField: "orderId",
-          foreignField: "_id",
-          as: "order",
+ async getTicketDetails(
+  userId: string,
+  searchTerm = "",
+  status = "",
+  page: string,
+  limit: string
+): Promise<ITicketDetails> {
+  const pageNumber = parseInt(page) || 1;
+  const limitNumber = parseInt(limit) || 5;
+  const skip = (pageNumber - 1) * limitNumber;
+
+  const matchStage: PipelineStage.Match = {
+    $match: {
+      userId: new mongoose.Types.ObjectId(userId),
+    },
+  };
+
+  // Base pipeline (without pagination)
+  const basePipeline: PipelineStage[] = [
+    matchStage,
+    {
+      $lookup: {
+        from: "events",
+        localField: "eventId",
+        foreignField: "_id",
+        as: "event",
+      },
+    },
+    { $unwind: "$event" },
+    {
+      $addFields: {
+        normalizedTitle: {
+          $replaceAll: {
+            input: { $toLower: "$event.title" },
+            find: " ",
+            replacement: "",
+          },
+        },
+        normalizedVenue: {
+          $replaceAll: {
+            input: { $toLower: "$event.venue" },
+            find: " ",
+            replacement: "",
+          },
         },
       },
-      { $unwind: "$order" },
-    ];
-    if (searchTerm.trim() !== "") {
-      const cleanedSearch = searchTerm
-        .trim()
-        .replace(/\s/g, "")
-        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-        .toLowerCase();
-      const regex = new RegExp(cleanedSearch, "i");
-      pipeline.push({
-        $match: {
-          $or: [{ normalizedTitle: regex }, { normalizedVenue: regex }],
-        },
-      });
-    }
-    const now = new Date();
-    if (status === "upcoming") {
-      pipeline.push({ $match: { "event.date": { $gte: now } } });
-    } else if (status === "past") {
-      pipeline.push({ $match: { "event.date": { $lt: now } } });
-    }
-    pipeline.push({
+    },
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "order",
+      },
+    },
+    { $unwind: "$order" },
+  ];
+
+  // search filter
+  if (searchTerm.trim() !== "") {
+    const cleanedSearch = searchTerm
+      .trim()
+      .replace(/\s/g, "")
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .toLowerCase();
+    const regex = new RegExp(cleanedSearch, "i");
+    basePipeline.push({
+      $match: {
+        $or: [{ normalizedTitle: regex }, { normalizedVenue: regex }],
+      },
+    });
+  }
+
+  // status filter
+  const now = new Date();
+  if (status === "upcoming") {
+    basePipeline.push({ $match: { "event.date": { $gte: now } } });
+  } else if (status === "past") {
+    basePipeline.push({ $match: { "event.date": { $lt: now } } });
+  }
+
+  // ✅ Count documents before skip/limit
+  const countPipeline = [
+    ...basePipeline,
+    { $count: "total" }
+  ];
+  const countResult = await TicketModel.aggregate(countPipeline);
+  const totalItems = countResult[0]?.total || 0;
+  const totalPages = Math.ceil(totalItems / limitNumber);
+
+  // ✅ Get paginated tickets
+  const dataPipeline = [
+    ...basePipeline,
+    {
       $project: {
         _id: 1,
         userId: 1,
@@ -347,10 +384,19 @@ try {
           status: "$order.status",
         },
       },
-    });
+    },
+    { $skip: skip },
+    { $limit: limitNumber },
+  ];
 
-    const tickets = await TicketModel.aggregate(pipeline);
+  const tickets = await TicketModel.aggregate(dataPipeline);
 
-    return tickets;
-  }
+  return {
+    tickets,
+    totalPages,
+    totalItems,
+    currentPage: pageNumber,
+  };
+}
+
 }

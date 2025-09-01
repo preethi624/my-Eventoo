@@ -15,6 +15,8 @@ export class AdminEventService implements IAdminEventService {
   constructor(private _adminEventRepository: IAdminEventRepository) {}
   async getEvents(filters: IEventFilter): Promise<EventGet> {
     try {
+      console.log("fil",filters);
+      
       const response = await this._adminEventRepository.getEventsAll(filters);
 
       if (response) {

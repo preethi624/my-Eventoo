@@ -307,6 +307,8 @@ class PaymentService {
                     const refund = yield razorpay.payments.refund(paymentId, {
                         amount: amount,
                     });
+                    const payment = yield razorpay.payments.fetch(paymentId);
+                    console.log("Razorpay payment:", payment);
                     const refundId = refund.id;
                     const response = yield this._paymentRepository.updateRefund(refundId, orderId);
                     if (response.success) {
@@ -347,12 +349,12 @@ class PaymentService {
             }
         });
     }
-    ticketDetailsGet(userId, searchTerm, status) {
+    ticketDetailsGet(userId, searchTerm, status, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._paymentRepository.getTicketDetails(userId, searchTerm, status);
+                const result = yield this._paymentRepository.getTicketDetails(userId, searchTerm, status, page, limit);
                 if (result) {
-                    return { success: true, tickets: result };
+                    return { success: true, tickets: result.tickets, totalItems: result.totalItems, totalPages: result.totalPages, currentPage: result.currentPage };
                 }
                 else {
                     return { success: false };

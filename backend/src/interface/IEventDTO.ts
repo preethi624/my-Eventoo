@@ -1,5 +1,10 @@
-import mongoose, { ObjectId } from "mongoose";
-import Types from 'mongoose'
+
+import Types from 'mongoose';
+export interface IEventImage{
+  url:string;
+  public_id:string|null
+
+}
 
 export interface IEventDTO {
   
@@ -11,7 +16,7 @@ export interface IEventDTO {
   category: string;
   ticketPrice: number;
   capacity: number;
-  images: string[];
+  images: string[]|IEventImage[];
   organiser: string|Types.ObjectId;
   status: 'draft' | 'published' |'completed'| 'cancelled';
   ticketsSold: number;

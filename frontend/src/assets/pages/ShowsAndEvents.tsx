@@ -11,8 +11,7 @@ import EventHistorySticker from "../components/EventHistorySticker";
 
 const ShowsAndEvents: React.FC = () => {
   const [events, setEvents] = useState<IEventDTO[]>([]);
-  //const [searchLocation, setSearchLocation] = useState("");
-  //const [searchTitle, setSearchTitle] = useState("");
+ 
   const [searchTerm,setSearchTerm]=useState("")
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -42,8 +41,7 @@ const ShowsAndEvents: React.FC = () => {
   },[searchTerm])
 
   const params = new URLSearchParams();
-  //if (searchLocation) params.append("searchLocation", searchLocation);
-  //if (searchTitle) params.append("searchTitle", searchTitle);
+  
   if(searchTerm) params.append("searchTerm",searchTerm)
   if (selectedCategory) params.append("selectedCategory", selectedCategory);
   if (maxPrice) params.append("maxPrice", maxPrice.toString());

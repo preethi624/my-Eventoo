@@ -4,6 +4,7 @@ import Order, { IOrder } from "../model/order";
 import { IAdminOrderRepository } from "./repositoryInterface/IAdminOrderRepository";
 import { OrderDashboard } from "src/interface/IUser";
 import PlatformSettings from "../model/platformSettings";
+import { IOrderDTO } from "src/interface/IOrder";
 
 export class AdminOrderRepository implements IAdminOrderRepository {
   async getOrdersAll(filters: {
@@ -24,6 +25,8 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       organiser = "",
       user = "",
     } = filters;
+    console.log("limit",limit);
+    
 
     const skip = (page - 1) * limit;
 
@@ -289,5 +292,26 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       100;
 
     return { orders, salesReport, totalAdminEarning };
+  }
+  async getOrderDetails(orderId:string):Promise<IOrderDTO|null>{
+    try {
+      const order=await Order.findById(orderId).populate("userId","name email").populate({
+        path:"eventId",
+        select:"title date venue organiser",
+        populate:{
+          path:"organiser",
+          select:"name email"
+        }
+      }).lean<IOrderDTO>()
+      return order
+      
+      
+    } catch (error) {
+      console.log(error);
+      
+      return null
+      
+    }
+
   }
 }

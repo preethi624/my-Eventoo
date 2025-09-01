@@ -179,8 +179,7 @@ class OrganiserController {
             try {
                 const query = req.query;
                 const filters = {
-                    nameSearch: typeof query.nameSearch === "string" ? query.nameSearch : "",
-                    locationSearch: typeof query.locationSearch === "string" ? query.locationSearch : "",
+                    searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
                     page: query.page ? Number(query.page) : undefined,
                     limit: query.limit && !isNaN(Number(query.limit))
                         ? Number(query.limit)
@@ -368,6 +367,63 @@ class OrganiserController {
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    fetchEventOrder(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const eventId = req.params.eventId;
+                const response = yield this._organiserService.eventOrders(eventId);
+                if (response.success) {
+                    res.json({ success: true, orders: response.orders });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    cancelOrder(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orderId = req.params.orderId;
+            try {
+                const response = yield this._organiserService.orderCancel(orderId);
+                if (response) {
+                    res.json({ response });
+                }
+            }
+            catch (error) {
+                console.error("Error in payment verification :", error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                });
+            }
+        });
+    }
+    fetchVenues(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._organiserService.venuesFetch();
+                if (response.success) {
+                    res.json({
+                        success: true, venues: response.venues
+                    });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error("Error in payment verification :", error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.COMMON.SERVER_ERROR,
+                });
             }
         });
     }

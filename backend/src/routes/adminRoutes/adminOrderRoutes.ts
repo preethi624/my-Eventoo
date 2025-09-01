@@ -14,5 +14,6 @@ router.get(
   authMiddlewarwSet.adminOnly,
   adminOrderController.getDashboardOrders.bind(adminOrderController)
 );
+router.get('/details/:orderId',authMiddlewarwSet.adminOnly,adminOrderController.getOrderDetails.bind(adminOrderController))
 
 export default router;

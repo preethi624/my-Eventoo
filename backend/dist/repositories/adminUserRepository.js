@@ -16,7 +16,7 @@ exports.AdminUserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
 const notification_1 = __importDefault(require("../model/notification"));
 class AdminUserRepository {
-    getUserAll(limit, page, searchTerm, filterStatus) {
+    getUserAll(limit, page, searchTerm, filterStatus, sortBy) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = {};
             if (searchTerm) {
@@ -32,7 +32,9 @@ class AdminUserRepository {
                 query.isBlocked = false;
             }
             const skip = (page - 1) * limit;
-            const users = yield user_1.default.find(query).skip(skip).limit(limit).lean();
+            const users = yield user_1.default.find(query).sort(sortBy === "newest" ? { createdAt: -1 } :
+                sortBy === "oldest" ? { createdAt: 1 } :
+                    sortBy === "nameAsc" ? { name: 1 } : { name: -1 }).skip(skip).limit(limit).lean();
             const totalUser = yield user_1.default.countDocuments();
             const total = totalUser / limit;
             return { users, total };

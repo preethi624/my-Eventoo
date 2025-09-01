@@ -19,8 +19,12 @@ export class AdminOrgController implements IAdminOrgController {
       const searchTerm=typeof req.query.searchTerm==="string"?req.query.searchTerm:"";
       const filterStatus=typeof req.query.filterStatus==="string"?req.query.filterStatus:""
 
+       const sortBy=typeof req.query.sortBy==="string"?req.query.sortBy:""
+      
 
-      const result = await this._adminOrgService.getOrganiser(limit, page,searchTerm,filterStatus);
+
+
+      const result = await this._adminOrgService.getOrganiser(limit, page,searchTerm,filterStatus,sortBy);
       if (result.success && result.result) {
         const mappedOrganisers: IOrganiserDTO[] =
           result.result.map(mapOrganiserToDTO);

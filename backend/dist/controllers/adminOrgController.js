@@ -28,7 +28,8 @@ class AdminOrgController {
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = typeof req.query.searchTerm === "string" ? req.query.searchTerm : "";
                 const filterStatus = typeof req.query.filterStatus === "string" ? req.query.filterStatus : "";
-                const result = yield this._adminOrgService.getOrganiser(limit, page, searchTerm, filterStatus);
+                const sortBy = typeof req.query.sortBy === "string" ? req.query.sortBy : "";
+                const result = yield this._adminOrgService.getOrganiser(limit, page, searchTerm, filterStatus, sortBy);
                 if (result.success && result.result) {
                     const mappedOrganisers = result.result.map(mapOrganiserToDTO_1.mapOrganiserToDTO);
                     res.json({

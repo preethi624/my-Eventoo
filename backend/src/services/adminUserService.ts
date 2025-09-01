@@ -6,9 +6,9 @@ import { MESSAGES } from "../constants/messages";
 
 export class AdminUserService implements IAdminUserService {
   constructor(private _adminUserRepository: IAdminUserRepository) {}
-  async getUsers(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetUsers> {
+  async getUsers(limit: number, page: number,searchTerm:string,filterStatus:string,sortBy:string): Promise<GetUsers> {
     try {
-      const result = await this._adminUserRepository.getUserAll(limit, page,searchTerm,filterStatus);
+      const result = await this._adminUserRepository.getUserAll(limit, page,searchTerm,filterStatus,sortBy);
       if (result) {
         return {
           result: result.users,

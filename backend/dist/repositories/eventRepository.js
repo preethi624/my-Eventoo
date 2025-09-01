@@ -113,6 +113,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     createEvent(data) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("data", data);
             const event = yield event_1.default.create(data);
             yield notification_1.default.create({
                 organizerId: event.organiser,
@@ -150,14 +151,27 @@ class EventRepository extends baseRepository_1.BaseRepository {
             });
         });
     }
-    eventGet(id, limit, page, searchTerm, date) {
+    eventGet(id, limit, page, searchTerm, date, status) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
-            const filter = {
-                organiser: id,
-            };
+            /*const filter: {
+              organiser: string;
+              title?: { $regex: string; $options: string };
+        
+              date?: { $gte: Date; $lt: Date };
+               status?: { $regex: string; $options: string };
+            } = {
+              organiser: id,
+            };*/
+            const filter = { organiser: id };
             if (searchTerm) {
-                filter.title = { $regex: searchTerm, $options: "i" };
+                filter.$or = [
+                    { title: { $regex: searchTerm, $options: "i" } },
+                    { venue: { $regex: searchTerm, $options: "i" } }
+                ];
+            }
+            if (status && status != "all") {
+                filter.status = { $regex: status, $options: "i" };
             }
             if (date) {
                 const selectedDate = new Date(date);
@@ -169,7 +183,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });
-            const totalEvents = yield event_1.default.countDocuments({ organiser: id });
+            const totalEvents = yield event_1.default.countDocuments(filter);
             return {
                 events,
                 totalPages: Math.ceil(totalEvents / limit),

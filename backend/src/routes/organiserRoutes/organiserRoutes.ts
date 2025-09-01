@@ -32,6 +32,10 @@ router.get(
   organiserController.fetchBooking.bind(organiserController)
 );
 router.get(
+  "/eventOrder/:eventId",authMiddlewarwSet.organiserOnly,organiserController.fetchEventOrder.bind(organiserController)
+
+)
+router.get(
   "/orgOrders/:orderId",
   authMiddlewarwSet.organiserOnly,
   organiserController.getOrderDetails.bind(organiserController)
@@ -76,5 +80,7 @@ router.get(
   authMiddlewarwSet.organiserOnly,
   organiserController.getUsers.bind(organiserController)
 );
+router.post('/order/:orderId',authMiddlewarwSet.organiserOnly,organiserController.cancelOrder.bind(organiserController))
+router.get('/venues',authMiddlewarwSet.organiserOnly,organiserController.fetchVenues.bind(organiserController))
 
 export default router;

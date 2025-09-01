@@ -20,6 +20,7 @@ class AdminOrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { searchTerm = "", statusFilter = "", selectedDate = "", page = 1, limit = 6, organiser = "", user = "", } = filters;
+            console.log("limit", limit);
             const skip = (page - 1) * limit;
             const match = {};
             // Filter by booking status
@@ -254,6 +255,25 @@ class AdminOrderRepository {
             const totalAdminEarning = salesReport.reduce((sum, record) => sum + (record.adminEarning || 0), 0) /
                 100;
             return { orders, salesReport, totalAdminEarning };
+        });
+    }
+    getOrderDetails(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const order = yield order_1.default.findById(orderId).populate("userId", "name email").populate({
+                    path: "eventId",
+                    select: "title date venue organiser",
+                    populate: {
+                        path: "organiser",
+                        select: "name email"
+                    }
+                }).lean();
+                return order;
+            }
+            catch (error) {
+                console.log(error);
+                return null;
+            }
         });
     }
 }

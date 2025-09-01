@@ -8,6 +8,7 @@ import type { Organiser } from "../assets/pages/AdminOrganiser";
 import type { LoginResponse } from "../redux/thunk/adminAuthThunk";
 import type { VenueUpdate } from "../interfaces/IVenue";
 import type { AdminDashboard } from "../interfaces/IAdmin";
+import axiosInstance from "../utils/axiosUser";
 
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/admin`;
 
@@ -71,12 +72,13 @@ export const getAllOrganisers = async (
   limit: number,
   currentPage: number,
   searchTerm:string,
-  filterStatus:string
+  filterStatus:string,
+  sortBy:string
 ): Promise<GetOrganisers> => {
   try {
     const token = localStorage.getItem("adminToken");
     const response = await axios.get(
-      `${API_BASE_URL}/organisers?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}`,
+      `${API_BASE_URL}/organisers?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}&&sortBy=${sortBy}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -129,11 +131,13 @@ export const organiserBlock = async (
     throw axiosError.response?.data || axiosError.message;
   }
 };
-export const getAllUsers = async (limit: number, currentPage: number,searchTerm:string,filterStatus:string) => {
+export const getAllUsers = async (limit: number, currentPage: number,searchTerm:string,filterStatus:string,sortBy:string) => {
   try {
+    console.log("filter status",filterStatus);
+    
     const token = localStorage.getItem("adminToken");
     const response = await axios.get(
-      `${API_BASE_URL}/users?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}`,
+      `${API_BASE_URL}/users?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}&&sortBy=${sortBy}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -185,6 +189,8 @@ export const blockUser = async (user: IUser) => {
 };
 export const getAllEvents = async (filters: string) => {
   try {
+    console.log("filt",filters);
+    
     const token = localStorage.getItem("adminToken");
 
     const response = await axios.get<GetEvents>(
@@ -389,6 +395,31 @@ const getDashboardOrders = async (params: Record<string, string>) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+export const fetchOrderById=async(orderId:string)=>{
+  try {
+    
+    
+    const token = localStorage.getItem("adminToken");
+
+
+    const response = await axios.get(`${API_BASE_URL}/details/${orderId}`, {
+      
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    
+    console.log("admin res",response);
+    
+   
+      return response.data
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+}
 
 export const adminRepository = {
   adminLogin,
@@ -410,4 +441,5 @@ export const adminRepository = {
   getDashboard,
   fetchUsers,
   getDashboardOrders,
+  fetchOrderById
 };

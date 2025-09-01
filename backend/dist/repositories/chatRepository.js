@@ -19,7 +19,7 @@ const event_1 = __importDefault(require("../model/event"));
 const user_1 = __importDefault(require("../model/user"));
 const order_1 = __importDefault(require("../model/order"));
 dotenv_1.default.config();
-const ai = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const ai = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI || "");
 class ChatRepository {
     createChat(userMessage, userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -116,7 +116,12 @@ User asked: "${userMessage}"
 System Data:
 ${relevantData}
 
-Respond clearly, helpfully, and friendly.
+Your task:
+- Always respond only in bullet points.
+- Each bullet should be short, clear, and easy to scan.
+- Do not use long paragraphs.
+- If there is no relevant data, still respond politely with a single bullet point saying "No relevant information found."
+- Keep the tone friendly and helpful.
 `;
                 const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = yield model.generateContent({

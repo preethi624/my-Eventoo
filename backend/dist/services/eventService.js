@@ -19,6 +19,7 @@ dotenv_1.default.config();
 const inference_1 = require("@huggingface/inference");
 const cosine_1 = require("../utils/cosine");
 const axios_1 = __importDefault(require("axios"));
+const cloudinary_1 = __importDefault(require("../config/cloudinary"));
 const hf = new inference_1.InferenceClient(process.env.HUGGING_API_KEY);
 class EventService {
     constructor(_eventRepository) {
@@ -87,27 +88,6 @@ class EventService {
             }
         });
     }
-    /*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
-      try {
-        const text = `${data.category} ${data.description} ${data.venue}`;
-        const output = await hf.featureExtraction({
-      model: "sentence-transformers/all-MiniLM-L6-v2",
-      inputs: text,
-    });
-    const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
-        const result = await this._eventRepository.createEvent({...data,embedding});
-        
-  
-        if (result) {
-          return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
-        } else {
-          return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-        }
-      } catch (error) {
-        console.error(error);
-        return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-      }
-    }*/
     eventCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -170,21 +150,36 @@ class EventService {
             }
         });
     }
-    eventEdit(id, data) {
+    eventEdit(id, data, file) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const result = yield this._eventRepository.editEvent(id, data);
-                if (result) {
-                    return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE };
-                }
-                else {
-                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE };
-                }
+            const existingEvent = yield this._eventRepository.findById(id);
+            if (!existingEvent) {
+                throw new Error("Event not found");
             }
-            catch (error) {
-                console.log(error);
-                return { success: false, message: "failed to edit event" };
+            let normalizedImages = [];
+            if (file) {
+                const result = yield cloudinary_1.default.uploader.upload(file.path, {
+                    folder: "events"
+                });
+                normalizedImages = [
+                    {
+                        url: result.secure_url,
+                        public_id: result.public_id || null,
+                    },
+                ];
             }
+            else {
+                normalizedImages = existingEvent.images.map((img) => {
+                    var _a;
+                    return ({
+                        url: typeof img === "string" ? img : img.url,
+                        public_id: typeof img === "string" ? null : (_a = img.public_id) !== null && _a !== void 0 ? _a : null,
+                    });
+                });
+            }
+            data.images = normalizedImages;
+            const updatedEvent = yield this._eventRepository.editEvent(id, data);
+            return updatedEvent;
         });
     }
     statusCheck(email) {
@@ -204,10 +199,10 @@ class EventService {
             }
         });
     }
-    getEvent(id, limit, page, searchTerm, date) {
+    getEvent(id, limit, page, searchTerm, date, status) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this._eventRepository.eventGet(id, limit, page, searchTerm, date);
+                const response = yield this._eventRepository.eventGet(id, limit, page, searchTerm, date, status);
                 if (response) {
                     return {
                         response,

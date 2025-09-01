@@ -78,6 +78,24 @@ class AdminOrderController {
             }
         });
     }
+    getOrderDetails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orderId = req.params.orderId;
+            console.log("oreerId", orderId);
+            try {
+                const response = yield this._adminOrderService.orderDetailsGet(orderId);
+                if (response.success) {
+                    res.json({ success: true, orders: response.orders });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.AdminOrderController = AdminOrderController;
 //# sourceMappingURL=adminOrderController.js.map

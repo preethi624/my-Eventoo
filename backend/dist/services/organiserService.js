@@ -8,9 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrganiserService = void 0;
 const messages_1 = require("../constants/messages");
+const razorpay_1 = __importDefault(require("razorpay"));
+const razorpay = new razorpay_1.default({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 class OrganiserService {
     constructor(_organiserRepository) {
         this._organiserRepository = _organiserRepository;
@@ -283,6 +291,75 @@ class OrganiserService {
             catch (error) {
                 console.log(error);
                 throw error;
+            }
+        });
+    }
+    eventOrders(eventId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._organiserRepository.fetchEventOrders(eventId);
+                if (response) {
+                    return { success: true, orders: response };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
+            }
+        });
+    }
+    orderCancel(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._organiserRepository.findOrder(orderId);
+                if (result) {
+                    const paymentId = result.razorpayPaymentId;
+                    const amount = result.amount;
+                    const refund = yield razorpay.payments.refund(paymentId, {
+                        amount: amount,
+                    });
+                    const payment = yield razorpay.payments.fetch(paymentId);
+                    console.log("Razorpay payment:", payment);
+                    const refundId = refund.id;
+                    const response = yield this._organiserRepository.updateRefund(refundId, orderId);
+                    if (response.success) {
+                        return {
+                            success: true,
+                            refundId: refundId,
+                            message: "successfully updated",
+                        };
+                    }
+                    else {
+                        return { success: false, message: response.message };
+                    }
+                }
+                else {
+                    return { success: false, message: "failed to update" };
+                }
+            }
+            catch (error) {
+                console.error(error);
+                return { success: false, message: "failed to update" };
+            }
+        });
+    }
+    venuesFetch() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._organiserRepository.fetchVenues();
+                if (response) {
+                    return { success: true, venues: response };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
             }
         });
     }

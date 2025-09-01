@@ -10,7 +10,7 @@ const upload_1 = require("../../middleware/upload");
 const router = express_1.default.Router();
 router.post("/event", upload_1.upload.array("images"), middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.createEvent.bind(event_di_1.eventController));
 router.delete("/event/:id", middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.deleteEvent.bind(event_di_1.eventController));
-router.put("/event/:id", middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.editEvent.bind(event_di_1.eventController));
+router.put("/event/:id", upload_1.upload.single("image"), middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.editEvent.bind(event_di_1.eventController));
 router.get("/events/:id", middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.eventGet.bind(event_di_1.eventController));
 router.get("/eventCount", middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getEventCount.bind(event_di_1.eventController));
 router.get("/dashboardEvents/:organiserId", middleware_di_1.authMiddlewarwSet.organiserOnly, event_di_1.eventController.getDashboardEvents.bind(event_di_1.eventController));

@@ -86,4 +86,23 @@ export class AdminOrderController implements IAdminOrderController {
         .json({ message: MESSAGES.COMMON.SERVER_ERROR });
     }
   }
+  async getOrderDetails(req:Request,res:Response):Promise<void>{
+    const orderId=req.params.orderId;
+    console.log("oreerId",orderId);
+    
+    try {
+      const response=await this._adminOrderService.orderDetailsGet(orderId);
+      if(response.success){
+        res.json({success:true,orders:response.orders})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+
+  }
 }

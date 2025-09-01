@@ -63,8 +63,7 @@ export interface VenueFetch{
   message?:string;
 }
 export interface OrgVenueFilter{
-  nameSearch?:string;
-  locationSearch?:string;
+ searchTerm?:string
   page?:number;
   limit?:number
 }

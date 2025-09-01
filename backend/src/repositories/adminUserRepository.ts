@@ -8,8 +8,9 @@ import Notification from "../model/notification";
 
 
 export class AdminUserRepository implements IAdminUserRepository {
-  async getUserAll(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetUser> {
+  async getUserAll(limit: number, page: number,searchTerm:string,filterStatus:string,sortBy:string): Promise<GetUser> {
     const query:FilterQuery<IUser>={};
+    
     if(searchTerm){
       query.$or=[
         {name:{$regex:searchTerm,$options:"i"}},
@@ -22,9 +23,14 @@ export class AdminUserRepository implements IAdminUserRepository {
       query.isBlocked=false
     }
     const skip = (page - 1) * limit;
-    const users = await User.find(query).skip(skip).limit(limit).lean();
+    const users = await User.find(query).sort(
+      sortBy==="newest"?{createdAt:-1}:
+      sortBy==="oldest"?{createdAt:1}:
+      sortBy==="nameAsc"?{name:1}:{name:-1}
+    
+    ).skip(skip).limit(limit).lean();
     const totalUser = await User.countDocuments();
-    const total = totalUser / limit;
+    const total =totalUser / limit;
 
     return { users, total };
   }

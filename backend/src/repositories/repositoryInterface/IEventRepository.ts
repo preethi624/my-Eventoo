@@ -13,7 +13,7 @@ export interface IEventRepository{
      editEvent(id:string,data:EventEdit):Promise<IEvent|null>;
      statusCheck(email:object):Promise<IUser|null>;
       decrementAvailableTickets(eventId:string,ticketCount:number):Promise<void>;
-      eventGet(id:string,limit:number,page:number,searchTerm:string,date:string):Promise<GetEvent|null>;
+      eventGet(id:string,limit:number,page:number,searchTerm:string,date:string,status:string):Promise<GetEvent|null>;
        getEventCount(organiserId:string):Promise<number|null>;
        dashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d'):Promise<{
   events: IEvent[],
@@ -30,6 +30,8 @@ findRecommended(userId:string,filters:IEventFilter):Promise<Recommend>
 findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]> 
 
 getCompleted(filters: IEventFilter): Promise<GetEvent | null>
+findById(id:string):Promise<IEvent|null>
+
 
     
 }

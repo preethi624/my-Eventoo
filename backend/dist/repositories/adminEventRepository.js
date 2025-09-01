@@ -21,6 +21,7 @@ class AdminEventRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, orgName, } = filters;
+            console.log("limit", limit);
             const skip = (page - 1) * limit;
             const query = {};
             if (searchLocation) {

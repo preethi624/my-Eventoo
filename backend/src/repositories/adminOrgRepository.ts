@@ -5,7 +5,7 @@ import { IAdminOrgRepository } from "./repositoryInterface/IAdminOrgRepository";
 import { FilterQuery } from "mongoose";
 
 export class AdminOrgRepository implements IAdminOrgRepository {
-  async getOrganiserAll(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetOrganisers> {
+  async getOrganiserAll(limit: number, page: number,searchTerm:string,filterStatus:string,sortBy:string): Promise<GetOrganisers> {
     const query:FilterQuery<IOrganiser>={};
     if(searchTerm){
       query.$or=[
@@ -19,7 +19,12 @@ export class AdminOrgRepository implements IAdminOrgRepository {
       query.isBlocked=false
     }
     const skip = (page - 1) * limit;
-    const organisers = await Organiser.find(query).skip(skip).limit(limit);
+    const organisers = await Organiser.find(query).skip(skip).sort(
+      sortBy==="newest"?{createdAt:-1}:
+      sortBy==="oldest"?{createdAt:1}:
+      sortBy==="nameAsc"?{name:1}:{name:-1}
+    
+    ).limit(limit);
     const totalOrganisers = await Organiser.countDocuments();
     const total = totalOrganisers / limit;
     return { result: organisers, total };

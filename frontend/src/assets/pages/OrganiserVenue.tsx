@@ -24,8 +24,9 @@ const VenuePage: React.FC = () => {
   const [venues, setVenues] = useState<IVenue[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const [nameSearch, setNameSearch] = useState("");
-  const [locationSearch, setLocationSearch] = useState("");
+  //const [nameSearch, setNameSearch] = useState("");
+  //const [locationSearch, setLocationSearch] = useState("");
+  const [searchTerm,setSearchTerm]=useState("");
   const limit = 6;
 
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
@@ -33,8 +34,9 @@ const VenuePage: React.FC = () => {
 
   const fetchVenues = async () => {
     const params = new URLSearchParams();
-    if (nameSearch) params.append("nameSearch", nameSearch);
-    if (locationSearch) params.append("locationSearch", locationSearch);
+    //if (nameSearch) params.append("nameSearch", nameSearch);
+    //if (locationSearch) params.append("locationSearch", locationSearch);
+    if(searchTerm) params.append("searchTerm",searchTerm)
     params.append("page", currentPage.toString());
     params.append("limit", limit.toString());
 
@@ -46,7 +48,7 @@ const VenuePage: React.FC = () => {
 
   useEffect(() => {
     fetchVenues();
-  }, [currentPage, nameSearch, locationSearch]);
+  }, [currentPage, searchTerm]);
   const handleVenueDetail = async (venueId: string) => {
     navigate(`/venue/${venueId}`);
   };
@@ -59,27 +61,16 @@ const VenuePage: React.FC = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by name..."
-              value={nameSearch}
+              placeholder="Search by name or venue"
+              value={searchTerm}
               onChange={(e) => {
-                setNameSearch(e.target.value);
+                setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg"
             />
           </div>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search by name location..."
-              value={locationSearch}
-              onChange={(e) => {
-                setLocationSearch(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg"
-            />
-          </div>
+         
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -120,8 +111,10 @@ const VenuePage: React.FC = () => {
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                       />
                     </svg>
-                    <span className="text-sm">{venue.address}</span>
+                    <span className="text-sm">{venue.address},</span>
+                    <span>{venue.city}</span>
                   </div>
+
 
                   <div className="flex items-center text-gray-600">
                     <svg

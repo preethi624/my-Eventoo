@@ -29,7 +29,14 @@ class PaymentRepository {
                 if (!updatedEvent) {
                     throw new Error("Not enough tickets available");
                 }
-                const [order] = yield order_1.default.create([data], { session });
+                const lastOrder = yield order_1.default.findOne().sort({ bookingNumber: -1 }).session(session);
+                let nextBookingNumber = "BK-1000";
+                if (lastOrder === null || lastOrder === void 0 ? void 0 : lastOrder.bookingNumber) {
+                    const lastNumber = parseInt(lastOrder.bookingNumber.replace("BK-", ""), 10);
+                    nextBookingNumber = `BK-${lastNumber + 1}`;
+                }
+                const orderData = Object.assign(Object.assign({}, data), { bookingNumber: nextBookingNumber });
+                const [order] = yield order_1.default.create([orderData], { session });
                 yield session.commitTransaction();
                 return order;
             }
@@ -229,13 +236,18 @@ class PaymentRepository {
         });
     }
     getTicketDetails(userId_1) {
-        return __awaiter(this, arguments, void 0, function* (userId, searchTerm = "", status = "") {
+        return __awaiter(this, arguments, void 0, function* (userId, searchTerm = "", status = "", page, limit) {
+            var _a;
+            const pageNumber = parseInt(page) || 1;
+            const limitNumber = parseInt(limit) || 5;
+            const skip = (pageNumber - 1) * limitNumber;
             const matchStage = {
                 $match: {
                     userId: new mongoose_1.default.Types.ObjectId(userId),
                 },
             };
-            const pipeline = [
+            // Base pipeline (without pagination)
+            const basePipeline = [
                 matchStage,
                 {
                     $lookup: {
@@ -274,6 +286,7 @@ class PaymentRepository {
                 },
                 { $unwind: "$order" },
             ];
+            // search filter
             if (searchTerm.trim() !== "") {
                 const cleanedSearch = searchTerm
                     .trim()
@@ -281,47 +294,67 @@ class PaymentRepository {
                     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
                     .toLowerCase();
                 const regex = new RegExp(cleanedSearch, "i");
-                pipeline.push({
+                basePipeline.push({
                     $match: {
                         $or: [{ normalizedTitle: regex }, { normalizedVenue: regex }],
                     },
                 });
             }
+            // status filter
             const now = new Date();
             if (status === "upcoming") {
-                pipeline.push({ $match: { "event.date": { $gte: now } } });
+                basePipeline.push({ $match: { "event.date": { $gte: now } } });
             }
             else if (status === "past") {
-                pipeline.push({ $match: { "event.date": { $lt: now } } });
+                basePipeline.push({ $match: { "event.date": { $lt: now } } });
             }
-            pipeline.push({
-                $project: {
-                    _id: 1,
-                    userId: 1,
-                    qrToken: 1,
-                    issuedAt: 1,
-                    checkedIn: 1,
-                    orderId: "$order._id",
-                    eventId: "$event._id",
-                    event: {
-                        _id: "$event._id",
-                        title: "$event.title",
-                        description: "$event.description",
-                        date: "$event.date",
-                        time: "$event.time",
-                        venue: "$event.venue",
-                        image: "$event.images",
-                        category: "$event.category",
-                    },
-                    order: {
-                        _id: "$order._id",
-                        totalAmount: "$order.amount",
-                        status: "$order.status",
+            // ✅ Count documents before skip/limit
+            const countPipeline = [
+                ...basePipeline,
+                { $count: "total" }
+            ];
+            const countResult = yield ticket_1.TicketModel.aggregate(countPipeline);
+            const totalItems = ((_a = countResult[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
+            const totalPages = Math.ceil(totalItems / limitNumber);
+            // ✅ Get paginated tickets
+            const dataPipeline = [
+                ...basePipeline,
+                {
+                    $project: {
+                        _id: 1,
+                        userId: 1,
+                        qrToken: 1,
+                        issuedAt: 1,
+                        checkedIn: 1,
+                        orderId: "$order._id",
+                        eventId: "$event._id",
+                        event: {
+                            _id: "$event._id",
+                            title: "$event.title",
+                            description: "$event.description",
+                            date: "$event.date",
+                            time: "$event.time",
+                            venue: "$event.venue",
+                            image: "$event.images",
+                            category: "$event.category",
+                        },
+                        order: {
+                            _id: "$order._id",
+                            totalAmount: "$order.amount",
+                            status: "$order.status",
+                        },
                     },
                 },
-            });
-            const tickets = yield ticket_1.TicketModel.aggregate(pipeline);
-            return tickets;
+                { $skip: skip },
+                { $limit: limitNumber },
+            ];
+            const tickets = yield ticket_1.TicketModel.aggregate(dataPipeline);
+            return {
+                tickets,
+                totalPages,
+                totalItems,
+                currentPage: pageNumber,
+            };
         });
     }
 }

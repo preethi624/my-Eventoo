@@ -2,7 +2,7 @@ import express from "express";
 import { eventController } from "../../container/event.di";
 import { authMiddlewarwSet } from "../../container/middleware.di";
 
-import multer from "multer";
+
 import { upload } from "../../middleware/upload";
 
 const router = express.Router();
@@ -19,6 +19,7 @@ router.delete(
 );
 router.put(
   "/event/:id",
+  upload.single("image"),
   authMiddlewarwSet.organiserOnly,
   eventController.editEvent.bind(eventController)
 );

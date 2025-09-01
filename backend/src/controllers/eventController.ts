@@ -7,25 +7,23 @@ import { ParsedQs } from "qs";
 
 import { StatusCode } from "../constants/statusCodeEnum";
 import { MESSAGES } from "../constants/messages";
+import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
+
+
 
 export class EventController implements IEventController {
   constructor(private _eventService: IEventService) {}
 
   async getEvents(req: Request, res: Response): Promise<void> {
     try {
+      
+      
       const query = req.query as ParsedQs;
       const filters: IEventFilter = {
-       // searchLocation:
-          //typeof query.searchLocation === "string" ? query.searchLocation : "",
-        //searchTitle:
-         // typeof query.searchTitle === "string" ? query.searchTitle : "",
+       
          searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
+        
         selectedCategory:
           typeof query.selectedCategory === "string"
             ? query.selectedCategory
@@ -36,6 +34,8 @@ export class EventController implements IEventController {
         page: query.page ? Number(query.page) : undefined,
         limit: query.limit ? Number(query.limit) : undefined,
       };
+    
+      
       
       
 
@@ -60,10 +60,7 @@ export class EventController implements IEventController {
     try {
       const query = req.query as ParsedQs;
       const filters: IEventFilter = {
-       // searchLocation:
-          //typeof query.searchLocation === "string" ? query.searchLocation : "",
-        //searchTitle:
-         // typeof query.searchTitle === "string" ? query.searchTitle : "",
+       
          searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
         selectedCategory:
           typeof query.selectedCategory === "string"
@@ -123,10 +120,15 @@ export class EventController implements IEventController {
   ): Promise<void> {
     try {
       const files = req.files as Express.Multer.File[];
+      console.log("from cloud",files);
+      
 
       const eventData = {
         ...req.body,
-        images: files?.map((file: Express.Multer.File) => file.path) || [],
+        images: files?.map((file: Express.Multer.File) => ({
+          url:file.path,
+          public_id:file.filename
+        })) || [],
       };
 
       const response = await this._eventService.eventCreate(eventData);
@@ -167,12 +169,15 @@ export class EventController implements IEventController {
     res: Response
   ): Promise<void> {
     try {
-      console.log("req", req.body);
+     
+      const file = req.file as Express.Multer.File|undefined;
+     
+      
 
       const data = req.body;
       const id = req.params.id;
-      const response = await this._eventService.eventEdit(id, data);
-      if (response.success) {
+      const response = await this._eventService.eventEdit(id, data,file);
+      if (response) {
         res.json({ success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE });
       } else {
         res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE });
@@ -217,13 +222,14 @@ export class EventController implements IEventController {
      
       
       const date = req.query.date as string;
+      const status=req.query.status as string
 
       const response = await this._eventService.getEvent(
         id,
         limit,
         page,
         searchTerm,
-        date
+        date,status
       );
       console.log("response", response);
 

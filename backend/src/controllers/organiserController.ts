@@ -172,10 +172,8 @@ export class OrganiserController implements IOrganiserController {
     try {
       const query = req.query as ParsedQs;
       const filters: OrgVenueFilter = {
-        nameSearch:
-          typeof query.nameSearch === "string" ? query.nameSearch : "",
-        locationSearch:
-          typeof query.locationSearch === "string" ? query.locationSearch : "",
+       
+          searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
 
         page: query.page ? Number(query.page) : undefined,
         limit:
@@ -381,5 +379,62 @@ export class OrganiserController implements IOrganiserController {
     } catch (error) {
       console.log(error);
     }
+  }
+  async fetchEventOrder(req:Request,res:Response):Promise<void>{
+    try {
+      const eventId=req.params.eventId;
+      const response=await this._organiserService.eventOrders(eventId);
+      if(response.success){
+        res.json({success:true,orders:response.orders})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+
+  }
+  async cancelOrder(req:Request,res:Response):Promise<void>{
+    const orderId=req.params.orderId
+    try {
+      const response=await this._organiserService.orderCancel(orderId);
+      if(response){
+        res.json({response})
+      }
+      
+    } catch (error) {
+       console.error("Error in payment verification :", error);
+            res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+              success: false,
+              message: MESSAGES.COMMON.SERVER_ERROR,
+            });
+      
+    }
+
+  }
+  async fetchVenues(req:Request,res:Response):Promise<void>{
+    try {
+      const response=await this._organiserService.venuesFetch();
+      if(response.success){
+        res.json({
+          success:true,venues:response.venues
+        })
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error("Error in payment verification :", error);
+            res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+              success: false,
+              message: MESSAGES.COMMON.SERVER_ERROR,
+            });
+      
+      
+    }
+
   }
 }

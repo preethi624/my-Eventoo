@@ -52,8 +52,11 @@ const eventSchema = new mongoose_1.Schema({
     category: { type: String, required: true },
     ticketPrice: { type: Number, required: true },
     capacity: { type: Number, required: true },
-    images: { type: [String], default: [] },
-    organiser: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "organiser" },
+    images: {
+        type: [mongoose_1.Schema.Types.Mixed],
+        default: [],
+    },
+    organiser: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Organiser" },
     status: {
         type: String,
         enum: ["draft", "published", "completed", "cancelled"],

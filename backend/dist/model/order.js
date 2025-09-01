@@ -93,6 +93,11 @@ const orderSchema = new mongoose_1.Schema({
     },
     refundId: { type: String },
     email: { type: String },
+    bookingNumber: {
+        type: String, // or Number, depending on your format
+        required: true,
+        unique: true,
+    },
 });
 const Order = mongoose_1.default.model("Order", orderSchema);
 exports.default = Order;

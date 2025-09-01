@@ -1,6 +1,7 @@
+import { Types } from "mongoose";
 export interface INotification{
-userId?: string      
-  organizerId?:string
+userId?: string |Types.ObjectId;     
+  organizerId?:string| Types.ObjectId;
   message: string;                        
   type: string
   isRead: boolean;                       

@@ -15,16 +15,22 @@ type EventCardProps = {
 };
 
 const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
-  /*const imageSrc = event.images && event.images.length > 0
-    ? `http://localhost:3000/${event.images[0].replace('\\', '/')}`
-    : 'https://via.placeholder.com/300x200';*/
+  
   let imageSrc = "https://via.placeholder.com/300x200";
   if (event.images && event.images.length > 0) {
-    const img = event.images[0];
-    if (img.startsWith("http")) {
-      imageSrc = img;
-    } else {
-      imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+    const img = event.images[0]; // take the first image
+
+    // Case 1: Cloudinary (direct URL or object with url property)
+    if (typeof img === "string") {
+      if (img.startsWith("http")) {
+        imageSrc = img; // Cloudinary or external full URL
+      } else {
+        // Local stored image (uploads/myimage.jpg)
+        imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+      }
+    } else if (typeof img === "object" && img.url) {
+      // Case 2: if Mongo stores { url: "..." }
+      imageSrc = img.url;
     }
   }
 

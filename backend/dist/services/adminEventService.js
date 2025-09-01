@@ -18,6 +18,7 @@ class AdminEventService {
     getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("fil", filters);
                 const response = yield this._adminEventRepository.getEventsAll(filters);
                 if (response) {
                     return {

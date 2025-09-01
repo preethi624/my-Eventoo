@@ -11,6 +11,7 @@ import type { EventEdit } from "../assets/pages/OrganiserEvents";
 import axiosInstance from "../utils/axiosUser";
 
 
+
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/event`;
 
 interface CreateEvent {
@@ -27,6 +28,8 @@ interface EventGetById {
 
 export const createEvent = async (data: FormData): Promise<CreateEvent> => {
   try {
+    
+    
     const response: CreateEvent = await axiosInstance.post(
       `${API_BASE_URL}/event`,
       data
@@ -102,10 +105,39 @@ export const editEvent = async (
   id: string,
   editForm: EventEdit
 ): Promise<CreateEvent> => {
+ 
+  
   try {
+    
+    const formData=new FormData();
+    formData.append("title",editForm.title);
+    formData.append("capacity",String(editForm.capacity));
+    formData.append("category",editForm.category);
+    formData.append("date",editForm.date);
+    formData.append("time",editForm.time);
+    formData.append("status",editForm.status);
+    formData.append("ticketPrice",String(editForm.ticketPrice));
+    formData.append("ticketSold",String(editForm.ticketsSold));
+    formData.append("venue",editForm.venue);
+    if(editForm.images&&editForm.images[0]){
+      const firstImage = editForm.images[0];
+      
+   if (firstImage instanceof File) {
+   
+    formData.append("image", firstImage);
+  }
+    }
+
+
+    
+    
     const response: AxiosResponse<CreateEvent> = await axiosInstance.put(
       `${API_BASE_URL}/event/${id}`,
-      editForm
+      formData,{
+        headers:{
+          "Content-Type":"multipart/form-data"
+        }
+      }
     );
     if (response.data) {
       return response.data;
@@ -142,6 +174,8 @@ export const getEvents = async (
   limit: number,
   queryParams: string
 ): Promise<EventFetchResponse> => {
+ 
+  
   try {
    
     

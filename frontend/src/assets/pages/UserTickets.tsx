@@ -18,6 +18,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import UserNavbar from "../components/UseNavbar";
+import targetLogo from "../images/target_3484438 (2).png";
 
 interface Ticket {
   _id: string;
@@ -43,6 +44,23 @@ interface Ticket {
     status: string;
   };
 }
+const getBase64FromImage = (imgUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imgUrl;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject("Canvas context is null");
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+  });
+};
 
 export const TicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -52,10 +70,13 @@ export const TicketsPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
+  const [limit, setLimit] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
     fetchTickets();
-  }, [searchTerm, filterStatus]);
+  }, [searchTerm, filterStatus, limit, currentPage]);
   const fetchTickets = async () => {
     try {
       const params = new URLSearchParams();
@@ -68,16 +89,21 @@ export const TicketsPage: React.FC = () => {
       }
       const data = await paymentRepository.getTicketDetails(
         user?.id,
-        params.toString()
+        params.toString(),
+        currentPage,
+        limit
       );
       console.log("data", data);
-      setTickets(data.result);
+      setTickets(data.tickets);
+      setTotalPage(data.totalPages);
+      setCurrentPage(data.currentPage);
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
+  console.log("tot", totalPage);
 
   const generateQRCode = (qrToken: string) => {
     return `data:image/svg+xml;base64,${btoa(`
@@ -102,30 +128,75 @@ export const TicketsPage: React.FC = () => {
       currency: currency,
     }).format(amount / 100);
   };
+  const handleNextPage = () => {
+    if (currentPage < totalPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  console.log("limit", limit);
 
   const isUpcoming = (date: Date) => new Date(date) > new Date();
 
-  const downloadTicket = async (ticket: Ticket) => {
+  const downloadTicket = async (ticket: any) => {
+    if (!ticket) return;
+
+    const logoBase64 = await getBase64FromImage(targetLogo);
     const doc = new jsPDF();
 
-    const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`;
-    const qrImage = await QRCode.toDataURL(qrText);
+    // Header logo + title
+    const logoX = 70;
+    const logoY = 20;
+    const logoWidth = 15;
+    const logoHeight = 15;
 
-    doc.text(`Ticket Confirmation`, 10, 10);
-    doc.text(`Ticket ID: ${ticket._id.slice(-6)}`, 10, 50);
-    doc.text(`Event: ${ticket.event.title}`, 10, 20);
-    doc.text(`Date: ${formatDate(ticket.event.date)}`, 10, 30);
-    doc.text(`Venue: ${ticket.event.venue}`, 10, 40);
+    doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
 
+    doc.setFontSize(18);
+    doc.setTextColor(0);
+
+    const textX = logoX + logoWidth + 5;
+    const textY = logoY + logoHeight / 2 + 2;
+    doc.text(`${ticket.event.title}`, textX, textY);
+
+    // Ticket body
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.rect(10, 55, 190, 65);
+
+    doc.setFontSize(12);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`Event: ${ticket.event.title}`, 20, 65);
+    doc.text(`Date: ${formatDate(ticket.event.date)}`, 20, 75);
+    doc.text(`Venue: ${ticket.event.venue}`, 20, 85);
+    doc.text(`Order ID: ${ticket.order._id}`, 20, 95);
+    doc.text(`Tickets: 1`, 20, 105); // if each record = 1 ticket
     doc.text(
       `Amount Paid: ${formatCurrency(ticket.order.totalAmount)}`,
-      10,
-      70
+      20,
+      115
     );
 
-    // Draw QR code
-    doc.addImage(qrImage, "PNG", 10, 80, 50, 50);
+    // QR Code
+    const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`;
+    const qrImage = await QRCode.toDataURL(qrText);
+    doc.addImage(qrImage, "PNG", 150, 70, 40, 40);
 
+    // Footer
+    doc.setFontSize(11);
+    doc.setTextColor(80);
+    doc.text("✨ Thank you for booking with EVENTOO ✨", 105, 130, {
+      align: "center",
+    });
+
+    // Save PDF
     doc.save(`ticket_${ticket.event.title.replace(/\s+/g, "_")}.pdf`);
   };
 
@@ -189,6 +260,23 @@ export const TicketsPage: React.FC = () => {
       window.open(whatsappUrl, "_blank");
     }
   };
+  const getImage = (ticket: any) => {
+    let imageSrc = "https://via.placeholder.com/300x200";
+    if (ticket.event.image && ticket.event.image.length > 0) {
+      const img = ticket.event.image[0];
+
+      if (typeof img === "string") {
+        if (img.startsWith("http")) {
+          imageSrc = img;
+        } else {
+          imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+        }
+      } else if (typeof img === "object" && img.url) {
+        imageSrc = img.url;
+      }
+    }
+    return imageSrc;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -230,6 +318,28 @@ export const TicketsPage: React.FC = () => {
             </select>
           </div>
         </div>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <label className="mr-2 text-gray-600">Rows per page:</label>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border px-2 py-1 rounded"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          <div className="text-gray-600 text-sm">
+            Page {currentPage} of {totalPage}
+          </div>
+        </div>
 
         {/* Tickets Grid */}
         {tickets.length === 0 ? (
@@ -251,11 +361,8 @@ export const TicketsPage: React.FC = () => {
               >
                 <div className="relative">
                   <img
-                    src={`http://localhost:3000/${ticket.event.image[0].replace(
-                      "\\",
-                      "/"
-                    )}`}
-                    alt={ticket.event.title}
+                    src={getImage(ticket)}
+                    alt="Event"
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4">
@@ -331,6 +438,27 @@ export const TicketsPage: React.FC = () => {
             ))}
           </div>
         )}
+      </div>
+      <div className="flex justify-center mt-4 gap-2 flex-wrap">
+        <button
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <span className="px-3 py-1">
+          Page {currentPage} of {totalPage}
+        </span>
+
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPage}
+          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
 
       {/* QR Code Modal */}
