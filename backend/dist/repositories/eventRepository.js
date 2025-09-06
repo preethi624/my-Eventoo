@@ -154,15 +154,6 @@ class EventRepository extends baseRepository_1.BaseRepository {
     eventGet(id, limit, page, searchTerm, date, status) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
-            /*const filter: {
-              organiser: string;
-              title?: { $regex: string; $options: string };
-        
-              date?: { $gte: Date; $lt: Date };
-               status?: { $regex: string; $options: string };
-            } = {
-              organiser: id,
-            };*/
             const filter = { organiser: id };
             if (searchTerm) {
                 filter.$or = [

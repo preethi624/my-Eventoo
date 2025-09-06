@@ -25,8 +25,7 @@ import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import targetLogo from '../images/target_3484438 (2).png';
-
+import targetLogo from "../images/target_3484438 (2).png";
 
 const getBase64FromImage = (imgUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -46,8 +45,6 @@ const getBase64FromImage = (imgUrl: string): Promise<string> => {
   });
 };
 
-
-
 const MySwal = withReactContent(Swal);
 
 const MyOrderPage: React.FC = () => {
@@ -65,7 +62,7 @@ const MyOrderPage: React.FC = () => {
   const limit = 5;
 
   const user = useSelector((state: RootState) => state.auth.user);
-  
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounceSearch(searchTerm);
@@ -179,28 +176,26 @@ const MyOrderPage: React.FC = () => {
   };
 
   const getEventImage = (order: IOrder) => {
-   
     let imageSrc = "https://via.placeholder.com/300x200";
-  if (order&&order.eventDetails&& order.eventDetails.images.length > 0) {
-    const img = order.eventDetails.images[0]; 
+    if (order && order.eventDetails && order.eventDetails.images.length > 0) {
+      const img = order.eventDetails.images[0];
 
-    
-    if (typeof img === "string") {
-      if (img.startsWith("http")) {
-        return imageSrc = img; 
-      } else {
-        
-        return imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+      if (typeof img === "string") {
+        if (img.startsWith("http")) {
+          return imageSrc=img;
+        } else {
+          return imageSrc=`http://localhost:3000/${img.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+      } else if (typeof img === "object" && img.url) {
+        // Case 2: if Mongo stores { url: "..." }
+        return imageSrc= img.url;
       }
-    } else if (typeof img === "object" && img.url) {
-      // Case 2: if Mongo stores { url: "..." }
-      return imageSrc = img.url;
     }
-  }
-
-
   };
-   
+
   const handleCancelBooking = async (orderId: string) => {
     try {
       const result = await MySwal.fire({
@@ -216,8 +211,7 @@ const MyOrderPage: React.FC = () => {
 
       if (result.isConfirmed) {
         const response = await paymentRepository.findOrder(orderId);
-        
-        
+
         if (response.success) {
           setRefundId(response.refund.response.refundId);
           fetchOrders();
@@ -246,9 +240,7 @@ const MyOrderPage: React.FC = () => {
       );
     }
   };
-  
 
-  
   const handleDownloadTicket = async (orderId: string) => {
     const response = await paymentRepository.getTickets(orderId);
     const tickets = response.result;
@@ -262,24 +254,21 @@ const MyOrderPage: React.FC = () => {
 
     for (let i = 0; i < tickets.length; i++) {
       const logoX = 70;
-  const logoY = 20;
-  const logoWidth = 15;
-  const logoHeight = 15;
+      const logoY = 20;
+      const logoWidth = 15;
+      const logoHeight = 15;
 
-  // Draw logo
-  doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+      // Draw logo
+      doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
 
-  // Set font for title
-  doc.setFontSize(18);
-  doc.setTextColor(0);
+      // Set font for title
+      doc.setFontSize(18);
+      doc.setTextColor(0);
 
-  // Place event title to the right of logo
-  const textX = logoX + logoWidth + 5; // 5 is padding between image and text
-  const textY = logoY + logoHeight / 2 + 2; // vertically center align text with image
-      doc.text(`${order.eventTitle}`,textX, textY);
-      
-    
-
+     
+      const textX = logoX + logoWidth + 5; 
+      const textY = logoY + logoHeight / 2 + 2; 
+      doc.text(`${order.eventTitle}`, textX, textY);
 
       doc.setDrawColor(0);
       doc.setLineWidth(0.5);
@@ -313,7 +302,6 @@ const MyOrderPage: React.FC = () => {
 
     doc.save(`ticket_${order.eventTitle.replace(/\s+/g, "_")}.pdf`);
   };
- 
 
   if (loading) {
     return (
@@ -410,8 +398,8 @@ const MyOrderPage: React.FC = () => {
                     }}
                   />
                   <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
-    {order.bookingNumber}
-  </div>
+                    {order.bookingNumber}
+                  </div>
                 </div>
 
                 {/* Order Details */}

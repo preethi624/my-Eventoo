@@ -42,9 +42,6 @@ const HomePage: FC = () => {
 
     setEvents(response.result);
   };
-  const handleEventClick = (id: string) => {
-    navigate(`/events/${id}`);
-  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -71,14 +68,13 @@ const HomePage: FC = () => {
     navigate(`/events/${response.result._id}`);
   };
   const handleRecommendationClick = () => {
-    navigate('/recommended')
- 
-};
+    navigate("/recommended");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <UserNavbar />
-      <RecommendationSticker onClick={handleRecommendationClick}/>
+      <RecommendationSticker onClick={handleRecommendationClick} />
       <section className="relative h-screen overflow-hidden">
         <motion.div
           initial={{ scale: 1.2 }}
@@ -205,14 +201,17 @@ const HomePage: FC = () => {
             <div className="relative">
               <img
                 src={
-    event.images && event.images.length > 0
-      ? typeof event.images[0] === "string"
-        // Case 1: old image stored in local folder
-        ? `http://localhost:3000/${event.images[0].replace("\\", "/")}`
-        // Case 2: new Cloudinary image stored as object with url
-        : event.images[0].url||event.images[0]
-      : "https://via.placeholder.com/300x200"
-  }
+                  event.images && event.images.length > 0
+                    ? typeof event.images[0] === "string"
+                      ? // Case 1: old image stored in local folder
+                        `http://localhost:3000/${event.images[0].replace(
+                          "\\",
+                          "/"
+                        )}`
+                      : // Case 2: new Cloudinary image stored as object with url
+                        event.images[0].url || event.images[0]
+                    : "https://via.placeholder.com/300x200"
+                }
                 alt={event.title}
                 className="w-full h-52 object-cover"
               />

@@ -304,11 +304,9 @@ class PaymentService {
                 if (result) {
                     const paymentId = result.razorpayPaymentId;
                     const amount = result.amount;
-                    const refund = yield razorpay.payments.refund(paymentId, {
-                        amount: amount,
-                    });
                     const payment = yield razorpay.payments.fetch(paymentId);
-                    console.log("Razorpay payment:", payment);
+                    console.log("result", result);
+                    const refund = yield razorpay.payments.refund(paymentId, { amount: amount });
                     const refundId = refund.id;
                     const response = yield this._paymentRepository.updateRefund(refundId, orderId);
                     if (response.success) {

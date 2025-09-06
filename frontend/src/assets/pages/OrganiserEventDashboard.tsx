@@ -31,7 +31,7 @@ import {
 } from "recharts";
 export interface IReview {
   _id: string;
-  userId: { name: string }; // adjust if User model is different
+  userId: { name: string };
   rating: number;
   comment: string;
   createdAt: string;

@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 
 import type { User } from "../assets/pages/AdminUser";
 
-import type { IEventDTO } from "../interfaces/IEvent";
+import type { EventApiResponse, IEventDTO } from "../interfaces/IEvent";
 import type { IUser } from "../interfaces/IUser";
 import type { Organiser } from "../assets/pages/AdminOrganiser";
 import type { LoginResponse } from "../redux/thunk/adminAuthThunk";
@@ -189,7 +189,7 @@ export const blockUser = async (user: IUser) => {
 };
 export const getAllEvents = async (filters: string) => {
   try {
-    console.log("filt",filters);
+   
     
     const token = localStorage.getItem("adminToken");
 
@@ -201,7 +201,7 @@ export const getAllEvents = async (filters: string) => {
         },
       }
     );
-    console.log("respoo", response);
+   
 
     return response.data;
   } catch (error) {

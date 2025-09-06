@@ -8,7 +8,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Swal from "sweetalert2";
-import type { EventFetchResponse, IEventDTO, IEventImage } from "../../interfaces/IEvent";
+import type {
+  EventFetchResponse,
+  IEventDTO,
+  IEventImage,
+} from "../../interfaces/IEvent";
 import { organiserRepository } from "../../repositories/organiserRepositories";
 import { eventSchema } from "../../validations/eventValidations";
 import * as Yup from "yup";
@@ -45,13 +49,12 @@ export type EventEdit = {
   capacity: number;
   category: string;
   time: string;
-  images:(string|IEventImage)[]
+  images: (string | IEventImage)[];
 };
 
 type Organiser = {
   id: string;
 };
-
 
 const OrganiserEvents: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -63,7 +66,7 @@ const OrganiserEvents: React.FC = () => {
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
     []
   );
-  const [selectedVenue,setSelectedVenue]=useState("")
+  const [selectedVenue, setSelectedVenue] = useState("");
 
   const [editForm, setEditForm] = useState<EventEdit>({
     id: "",
@@ -76,8 +79,7 @@ const OrganiserEvents: React.FC = () => {
     ticketPrice: 0,
     capacity: 0,
     status: "",
-    images:[]
-    
+    images: [],
   });
   const [eventForm, setEventForm] = useState<EventForm>({
     title: "",
@@ -95,33 +97,28 @@ const OrganiserEvents: React.FC = () => {
 
   const [organiserDetails, setOrganiserDetails] = useState<any>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
-  const[venues,setVenues]=useState([])
+  const [venues, setVenues] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const [statusFilter,setStatusFilter]=useState("all");
-  const [limit,setLimit]=useState(10)
-
-  
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
     fetchEvents();
     fetchCategories();
-    fetchVenues()
-  }, [currentPage, selectedDate,statusFilter,limit]);
-  useEffect(()=>{
-    const handler=setTimeout(()=>{
-      fetchEvents()
-
-    },500)
-    return()=>clearTimeout(handler)
-
-  },[searchTerm])
-  const fetchVenues=async ()=>{
-    const response=await organiserRepository.fetchVenues();
-    console.log("venues",response);
-    setVenues(response.venues)
-    
-  }
+    fetchVenues();
+  }, [currentPage, selectedDate, statusFilter, limit]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchEvents();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+  const fetchVenues = async () => {
+    const response = await organiserRepository.fetchVenues();
+    console.log("venues", response);
+    setVenues(response.venues);
+  };
   const fetchCategories = async () => {
     const response = await categoryRepository.getCategories();
 
@@ -136,11 +133,11 @@ const OrganiserEvents: React.FC = () => {
       }
 
       if (selectedDate) params.append("date", selectedDate);
-      if(statusFilter) params.append("status",statusFilter)
+      if (statusFilter) params.append("status", statusFilter);
 
       const orgId = organiser?.id;
-      if(!orgId){
-        throw new Error("organiserId not present")
+      if (!orgId) {
+        throw new Error("organiserId not present");
       }
       const response: EventFetchResponse = await eventRepository.getEvents(
         orgId,
@@ -228,13 +225,12 @@ const OrganiserEvents: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-   
+
     try {
-      
       await eventSchema.validate(eventForm, { abortEarly: false });
 
       console.log("Valid event data:", eventForm);
-      
+
       const formData = new FormData();
       Object.keys(eventForm).forEach((key) => {
         if (key === "images") {
@@ -274,9 +270,8 @@ const OrganiserEvents: React.FC = () => {
       }
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
-        
         err.inner.forEach((error) => {
-          toast.error(error.message); 
+          toast.error(error.message);
         });
       }
     }
@@ -333,7 +328,7 @@ const OrganiserEvents: React.FC = () => {
       ticketPrice: selectedEvent.ticketPrice,
       capacity: selectedEvent.capacity,
       status: selectedEvent.status,
-      images:selectedEvent.images
+      images: selectedEvent.images,
     });
   };
   const validateEditForm = () => {
@@ -421,20 +416,20 @@ const OrganiserEvents: React.FC = () => {
     const isValid = validateEditForm();
     if (!isValid) return;
     const formData = new FormData();
-  Object.keys(editForm).forEach((key) => {
-    if (key === "images" && (editForm as any).images instanceof FileList) {
-      const files = (editForm as any).images as FileList;
-      for (let i = 0; i < files.length; i++) {
-        formData.append("images", files[i]);
+    Object.keys(editForm).forEach((key) => {
+      if (key === "images" && (editForm as any).images instanceof FileList) {
+        const files = (editForm as any).images as FileList;
+        for (let i = 0; i < files.length; i++) {
+          formData.append("images", files[i]);
+        }
+      } else {
+        const typedKey = key as keyof typeof editForm;
+        const value = editForm[typedKey];
+        if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
       }
-    } else {
-      const typedKey = key as keyof typeof editForm;
-      const value = editForm[typedKey];
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
-      }
-    }
-  });
+    });
 
     const response = await eventRepository.editEvent(id, editForm);
     if (response.success) {
@@ -467,29 +462,27 @@ const OrganiserEvents: React.FC = () => {
 
     { header: "Status", accessor: "status" },
     {
-      
-       header: "Actions",
-              accessor: "actions",
-              render: (event:any) => (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(event._id)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(event._id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                  </button>
-                  <Link to={`/organiserEvent/${event._id}`}>
+      header: "Actions",
+      accessor: "actions",
+      render: (event: any) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(event._id)}
+            className="text-blue-600 hover:text-blue-800"
+          >
+            <FaEdit />
+          </button>
+          <button
+            onClick={() => handleDelete(event._id)}
+            className="text-red-600 hover:text-red-800"
+          ></button>
+          <Link to={`/organiserEvent/${event._id}`}>
             <button className="bg-black text-white px-2 py-1 rounded text-sm hover:bg-indigo-700">
               Analytics
             </button>
           </Link>
-                </div>
-              ),
+        </div>
+      ),
     },
   ];
 
@@ -497,7 +490,7 @@ const OrganiserEvents: React.FC = () => {
     setSearchTerm("");
     setSelectedDate("");
     setCurrentPage(1);
-    setStatusFilter("")
+    setStatusFilter("");
   };
 
   return (
@@ -610,39 +603,6 @@ const OrganiserEvents: React.FC = () => {
             Next
           </button>
         </div>
-
-
-        {/*totalPage > 1 && (
-          <div className="flex justify-center mt-4 gap-2">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPage }, (_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(index + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === index + 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-300"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPage}
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )*/}
       </div>
 
       {showModal && (
@@ -725,42 +685,40 @@ const OrganiserEvents: React.FC = () => {
                 </div>
               </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  
-  <div>
-  <label className="block mb-1">Venue</label>
-  <select
-    name="venue"
-    value={eventForm.venue}
-    onChange={(e) =>
-      setEventForm({ ...eventForm, venue: e.target.value })
-    }
-    className="w-full border px-3 py-2 rounded"
-  >
-    <option value="">Select a venue</option>
-    {venues.map((venue) => (
-      <option key={venue._id} value={venue.name}>
-        {venue.name} - {venue.address}
-      </option>
-    ))}
-  </select>
-</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-1">Venue</label>
+                  <select
+                    name="venue"
+                    value={eventForm.venue}
+                    onChange={(e) =>
+                      setEventForm({ ...eventForm, venue: e.target.value })
+                    }
+                    className="w-full border px-3 py-2 rounded"
+                  >
+                    <option value="">Select a venue</option>
+                    {venues.map((venue) => (
+                      <option key={venue._id} value={venue.name}>
+                        {venue.name} - {venue.address}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-
-  {/* Capacity Input */}
-  <div>
-    <label className="block mb-1">Capacity</label>
-    <input
-      type="number"
-      name="capacity"
-      value={eventForm.capacity}
-      onChange={(e) =>
-        setEventForm({ ...eventForm, capacity: e.target.value })
-      }
-      className="w-full border px-3 py-2 rounded"
-    />
-  </div>
-</div>
+                {/* Capacity Input */}
+                <div>
+                  <label className="block mb-1">Capacity</label>
+                  <input
+                    type="number"
+                    name="capacity"
+                    value={eventForm.capacity}
+                    onChange={(e) =>
+                      setEventForm({ ...eventForm, capacity: e.target.value })
+                    }
+                    className="w-full border px-3 py-2 rounded"
+                  />
+                </div>
+              </div>
 
               <div>
                 <label className="block mb-1">Ticket Price</label>
@@ -966,38 +924,40 @@ const OrganiserEvents: React.FC = () => {
                 </select>
               </div>
               <div>
-  <label className="block mb-1">Event Image</label>
+                <label className="block mb-1">Event Image</label>
 
- 
-  {events.find((ev) => ev._id === editForm.id)?.images?.length ? (
-  <img
-    src={
-      typeof events.find((ev) => ev._id === editForm.id)?.images?.[0] === "string"
-        ? (events.find((ev) => ev._id === editForm.id)?.images?.[0] as string)
-        : (events.find((ev) => ev._id === editForm.id)?.images?.[0] as IEventImage)?.url
-    }
-    alt="Event"
-    className="w-32 h-32 object-cover rounded"
-  />
-) : null}
+                {events.find((ev) => ev._id === editForm.id)?.images?.length ? (
+                  <img
+                    src={
+                      typeof events.find((ev) => ev._id === editForm.id)
+                        ?.images?.[0] === "string"
+                        ? (events.find((ev) => ev._id === editForm.id)
+                            ?.images?.[0] as string)
+                        : (
+                            events.find((ev) => ev._id === editForm.id)
+                              ?.images?.[0] as IEventImage
+                          )?.url
+                    }
+                    alt="Event"
+                    className="w-32 h-32 object-cover rounded"
+                  />
+                ) : null}
 
-
-  {/* File input for new image */}
-  <input
-    type="file"
-    accept="image/*"
-    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        setEditForm({
-          ...editForm,
-          // store file temporarily (not in DB yet)
-          images: e.target.files,
-        } as any);
-      }
-    }}
-  />
-</div>
-
+                {/* File input for new image */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setEditForm({
+                        ...editForm,
+                        // store file temporarily (not in DB yet)
+                        images: e.target.files,
+                      } as any);
+                    }
+                  }}
+                />
+              </div>
 
               <div className="flex justify-end gap-2">
                 <button

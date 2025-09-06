@@ -138,14 +138,18 @@ const VenueManagement = () => {
   useEffect(() => {
     fetchVenues();
   }, [currentPage, searchTerm]);
-   const columns = [
+  const columns = [
     { header: "Name", accessor: "name" },
-    { header: "Location", accessor: "city", render: (venue: IVenue) => `${venue.city}, ${venue.state}` },
+    {
+      header: "Location",
+      accessor: "city",
+      render: (venue: IVenue) => `${venue.city}, ${venue.state}`,
+    },
     { header: "Capacity", accessor: "capacity" },
     { header: "Phone", accessor: "phone" },
-    { 
-      header: "Status", 
-      accessor: "status", 
+    {
+      header: "Status",
+      accessor: "status",
       render: (venue: IVenue) => (
         <span
           className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -156,7 +160,7 @@ const VenueManagement = () => {
         >
           {venue.status.charAt(0).toUpperCase() + venue.status.slice(1)}
         </span>
-      )
+      ),
     },
     {
       header: "Actions",
@@ -219,10 +223,7 @@ const VenueManagement = () => {
               </button>
             </div>
 
-           
-
             <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-             
               <DataTable data={venues} columns={columns} />
             </div>
           </div>
@@ -382,142 +383,139 @@ const VenueManagement = () => {
 
                 {/* same fields without image */}
                 <div className="mb-2">
-                <label>Venue Name</label>
-                <input
-                  name="name"
-
-                  required
-                  placeholder="Venue Name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <label>Venue Name</label>
+                  <input
+                    name="name"
+                    required
+                    placeholder="Venue Name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Address</label>
-                <textarea
-                  name="address"
-                  required
-                  placeholder="Address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <textarea
+                    name="address"
+                    required
+                    placeholder="Address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
-                
-
-                <label>City</label>
-                <input
-                  name="city"
-                  required
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <label>City</label>
+                  <input
+                    name="city"
+                    required
+                    placeholder="City"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">State</label>
-                <input
-                  name="state"
-                  required
-                  placeholder="State"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="state"
+                    required
+                    placeholder="State"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Pincode</label>
-                <input
-                  name="pincode"
-                  required
-                  placeholder="Pincode"
-                  value={formData.pincode}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="pincode"
+                    required
+                    placeholder="Pincode"
+                    value={formData.pincode}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Contact Person</label>
-                <input
-                  name="contactPerson"
-                  required
-                  placeholder="Contact Person"
-                  value={formData.contactPerson}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="contactPerson"
+                    required
+                    placeholder="Contact Person"
+                    value={formData.contactPerson}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Phone</label>
-                <input
-                  name="phone"
-                  required
-                  placeholder="Phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="phone"
+                    required
+                    placeholder="Phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Email</label>
-                <input
-                  name="email"
-                  required
-                  type="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="email"
+                    required
+                    type="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Website</label>
-                <input
-                  name="website"
-                  type="url"
-                  placeholder="Website"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="website"
+                    type="url"
+                    placeholder="Website"
+                    value={formData.website}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Capacity</label>
-                <input
-                  name="capacity"
-                  required
-                  type="number"
-                  placeholder="Capacity"
-                  value={formData.capacity}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <input
+                    name="capacity"
+                    required
+                    type="number"
+                    placeholder="Capacity"
+                    value={formData.capacity}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Description</label>
-                <textarea
-                  name="description"
-                  placeholder="Description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />
+                  <textarea
+                    name="description"
+                    placeholder="Description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
                 <div className="mb-2">
                   <label htmlFor="">Status</label>
 
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
                 </div>
 
                 <div className="flex justify-end gap-3">

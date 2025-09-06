@@ -28,6 +28,8 @@ const ForgotPassword: React.FC = () => {
         setMessage("");
       }
     } catch (err) {
+      console.log(err);
+
       setError("Something went wrong. Please try again.");
       setMessage("");
     }

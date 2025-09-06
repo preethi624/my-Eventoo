@@ -40,9 +40,7 @@ const EventPage: React.FC = () => {
   const [searchTitle, setSearchTitle] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [orgName, setOrgName] = useState("");
-  const[limit,setLimit]=useState(10)
-
-  const eventsPerPage = 6;
+  const [limit, setLimit] = useState(10);
 
   const [expandedEvents, setExpandedEvents] = useState<{
     [key: string]: boolean;
@@ -66,23 +64,14 @@ const EventPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const handler=setTimeout(()=>{
+    const handler = setTimeout(() => {
       fetchEvents();
-
-    },500)
-    return()=>clearTimeout(handler)
-    
-  }, [
-    searchLocation,
-    
-  
-    searchTitle,
-   
-    orgName,
-  ]);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchLocation, searchTitle, orgName]);
   useEffect(() => {
-  fetchEvents();
-}, [selectedCategory, maxPrice, selectedDate, currentPage,limit]);
+    fetchEvents();
+  }, [selectedCategory, maxPrice, selectedDate, currentPage, limit]);
 
   const fetchEvents = async () => {
     try {
@@ -301,25 +290,24 @@ const EventPage: React.FC = () => {
           </div>
         </div>
         <div>
-            <label className="mr-2 text-gray-600">Rows per page:</label>
-            <select
-              value={limit}
-              onChange={(e) => {
-                setLimit(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="border px-2 py-1 rounded"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
+          <label className="mr-2 text-gray-600">Rows per page:</label>
+          <select
+            value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border px-2 py-1 rounded"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
 
         {/* Event List */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          
           {events.map((event) => (
             <div
               key={event._id}
@@ -599,57 +587,26 @@ const EventPage: React.FC = () => {
         )}
       </div>
       <div className="flex justify-center mt-4 gap-2 flex-wrap">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
+        <button
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
 
-          <span className="px-3 py-1">
-            Page {currentPage} of {totalPage}
-          </span>
+        <span className="px-3 py-1">
+          Page {currentPage} of {totalPage}
+        </span>
 
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPage}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      {/*totalPage > 1 && (
-        <div className="flex justify-center mt-4 gap-2">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPage }, (_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentPage(index + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === index + 1
-                  ? "bg-black text-white"
-                  : "bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPage}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )*/}
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPage}
+          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </AdminLayout>
   );
 };

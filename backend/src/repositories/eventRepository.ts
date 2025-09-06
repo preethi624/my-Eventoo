@@ -189,15 +189,7 @@ export class EventRepository
 
   ): Promise<GetEvent | null> {
     const skip = (page - 1) * limit;
-    /*const filter: {
-      organiser: string;
-      title?: { $regex: string; $options: string };
-
-      date?: { $gte: Date; $lt: Date };
-       status?: { $regex: string; $options: string };
-    } = {
-      organiser: id,
-    };*/
+    
       const filter: FilterQuery<IEvent> = { organiser: id };
     if (searchTerm) {
 filter.$or = [

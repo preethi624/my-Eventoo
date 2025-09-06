@@ -1,4 +1,4 @@
-import { IReviewWithExtras } from "src/interface/IReview";
+
 import Review, { IReview } from "../model/review";
 import { IReviewRepository } from "./repositoryInterface/IReviewRepository";
 

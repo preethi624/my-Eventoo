@@ -22,7 +22,6 @@ export class PaymentRepository implements IPaymentRepository {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      
       const updatedEvent = await EventModel.findOneAndUpdate(
         { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
         { $inc: { availableTickets: -data.ticketCount } },
@@ -31,16 +30,21 @@ export class PaymentRepository implements IPaymentRepository {
       if (!updatedEvent) {
         throw new Error("Not enough tickets available");
       }
-      const lastOrder=await Order.findOne().sort({bookingNumber:-1}).session(session)
-       let nextBookingNumber = "BK-1000";
-    if(lastOrder?.bookingNumber){
-      const lastNumber=parseInt(lastOrder.bookingNumber.replace("BK-",""),10);
-      nextBookingNumber=`BK-${lastNumber+1}`
-    }
-      const orderData={
-        ...data,
-        bookingNumber:nextBookingNumber
+      const lastOrder = await Order.findOne()
+        .sort({ bookingNumber: -1 })
+        .session(session);
+      let nextBookingNumber = "BK-1000";
+      if (lastOrder?.bookingNumber) {
+        const lastNumber = parseInt(
+          lastOrder.bookingNumber.replace("BK-", ""),
+          10
+        );
+        nextBookingNumber = `BK-${lastNumber + 1}`;
       }
+      const orderData = {
+        ...data,
+        bookingNumber: nextBookingNumber,
+      };
       const [order] = await Order.create([orderData], { session });
       await session.commitTransaction();
       return order;
@@ -95,12 +99,11 @@ export class PaymentRepository implements IPaymentRepository {
       }
       await TicketModel.insertMany(ticketsToInsert);
       await Notification.create({
-      userId: updateOrder.userId,
-      message: `Your booking for event "${updateOrder.eventTitle}" has been confirmed! 🎉`,
-      type: "booking_confirmed",
-      isRead: false,
-    });
-
+        userId: updateOrder.userId,
+        message: `Your booking for event "${updateOrder.eventTitle}" has been confirmed! 🎉`,
+        type: "booking_confirmed",
+        isRead: false,
+      });
     }
 
     return Order.findById(updateOrder?._id).populate("eventId").exec();
@@ -166,37 +169,31 @@ export class PaymentRepository implements IPaymentRepository {
     orderId: string,
     userId: string
   ): Promise<IOrder | null> {
-   
-try {
-  const order = await Order.findOneAndUpdate(
-      { userId, _id: orderId },
-      { status: payStatus },
-      { new: true }
-    );
+    try {
+      const order = await Order.findOneAndUpdate(
+        { userId, _id: orderId },
+        { status: payStatus },
+        { new: true }
+      );
 
-    if (order && order.eventId) {
-      await EventModel.findByIdAndUpdate(order.eventId, {
-        $inc: { availableTickets: order.ticketCount },
+      if (order && order.eventId) {
+        await EventModel.findByIdAndUpdate(order.eventId, {
+          $inc: { availableTickets: order.ticketCount },
+        });
+      }
+      if (!order) throw new Error("order not found");
+      await Notification.create({
+        userId: userId,
+        message: `Your booking for event "${order.eventTitle}" failed! `,
+        type: "booking_cancelled",
+        isRead: false,
       });
+
+      return order;
+    } catch (error) {
+      console.log(error);
+      return null;
     }
-    if(!order) throw new Error("order not found")
-    await Notification.create({
-      userId: userId,
-      message: `Your booking for event "${order.eventTitle}" failed! `,
-      type: "booking_cancelled",
-      isRead: false,
-    });
-
-    return order;
-  
-} catch (error) {
-  console.log((error));
-  return null
-  
-  
-}
-
-    
   }
   async getOrdersById(userId: string): Promise<UserProfileUpdate> {
     try {
@@ -245,12 +242,14 @@ try {
       await EventModel.findByIdAndUpdate(eventId, {
         $inc: { availableTickets: ticketCount },
       });
-       await Notification.create({
-      userId: order.userId,
-      message: `Your booking for event "${order.eventTitle}" refunded with amount ${order.amount/100}! `,
-      type: "general",
-      isRead: false,
-    })
+      await Notification.create({
+        userId: order.userId,
+        message: `Your booking for event "${
+          order.eventTitle
+        }" refunded with amount ${order.amount / 100}! `,
+        type: "general",
+        isRead: false,
+      });
       return { success: true };
     } catch (error) {
       console.log(error);
@@ -265,138 +264,133 @@ try {
     return tickets as unknown as ITicket[];
   }
 
+  async getTicketDetails(
+    userId: string,
+    searchTerm = "",
+    status = "",
+    page: string,
+    limit: string
+  ): Promise<ITicketDetails> {
+    const pageNumber = parseInt(page) || 1;
+    const limitNumber = parseInt(limit) || 5;
+    const skip = (pageNumber - 1) * limitNumber;
 
- async getTicketDetails(
-  userId: string,
-  searchTerm = "",
-  status = "",
-  page: string,
-  limit: string
-): Promise<ITicketDetails> {
-  const pageNumber = parseInt(page) || 1;
-  const limitNumber = parseInt(limit) || 5;
-  const skip = (pageNumber - 1) * limitNumber;
-
-  const matchStage: PipelineStage.Match = {
-    $match: {
-      userId: new mongoose.Types.ObjectId(userId),
-    },
-  };
-
-  // Base pipeline (without pagination)
-  const basePipeline: PipelineStage[] = [
-    matchStage,
-    {
-      $lookup: {
-        from: "events",
-        localField: "eventId",
-        foreignField: "_id",
-        as: "event",
-      },
-    },
-    { $unwind: "$event" },
-    {
-      $addFields: {
-        normalizedTitle: {
-          $replaceAll: {
-            input: { $toLower: "$event.title" },
-            find: " ",
-            replacement: "",
-          },
-        },
-        normalizedVenue: {
-          $replaceAll: {
-            input: { $toLower: "$event.venue" },
-            find: " ",
-            replacement: "",
-          },
-        },
-      },
-    },
-    {
-      $lookup: {
-        from: "orders",
-        localField: "orderId",
-        foreignField: "_id",
-        as: "order",
-      },
-    },
-    { $unwind: "$order" },
-  ];
-
-  // search filter
-  if (searchTerm.trim() !== "") {
-    const cleanedSearch = searchTerm
-      .trim()
-      .replace(/\s/g, "")
-      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .toLowerCase();
-    const regex = new RegExp(cleanedSearch, "i");
-    basePipeline.push({
+    const matchStage: PipelineStage.Match = {
       $match: {
-        $or: [{ normalizedTitle: regex }, { normalizedVenue: regex }],
+        userId: new mongoose.Types.ObjectId(userId),
       },
-    });
-  }
+    };
 
-  // status filter
-  const now = new Date();
-  if (status === "upcoming") {
-    basePipeline.push({ $match: { "event.date": { $gte: now } } });
-  } else if (status === "past") {
-    basePipeline.push({ $match: { "event.date": { $lt: now } } });
-  }
-
-  // ✅ Count documents before skip/limit
-  const countPipeline = [
-    ...basePipeline,
-    { $count: "total" }
-  ];
-  const countResult = await TicketModel.aggregate(countPipeline);
-  const totalItems = countResult[0]?.total || 0;
-  const totalPages = Math.ceil(totalItems / limitNumber);
-
-  // ✅ Get paginated tickets
-  const dataPipeline = [
-    ...basePipeline,
-    {
-      $project: {
-        _id: 1,
-        userId: 1,
-        qrToken: 1,
-        issuedAt: 1,
-        checkedIn: 1,
-        orderId: "$order._id",
-        eventId: "$event._id",
-        event: {
-          _id: "$event._id",
-          title: "$event.title",
-          description: "$event.description",
-          date: "$event.date",
-          time: "$event.time",
-          venue: "$event.venue",
-          image: "$event.images",
-          category: "$event.category",
-        },
-        order: {
-          _id: "$order._id",
-          totalAmount: "$order.amount",
-          status: "$order.status",
+    // Base pipeline (without pagination)
+    const basePipeline: PipelineStage[] = [
+      matchStage,
+      {
+        $lookup: {
+          from: "events",
+          localField: "eventId",
+          foreignField: "_id",
+          as: "event",
         },
       },
-    },
-    { $skip: skip },
-    { $limit: limitNumber },
-  ];
+      { $unwind: "$event" },
+      {
+        $addFields: {
+          normalizedTitle: {
+            $replaceAll: {
+              input: { $toLower: "$event.title" },
+              find: " ",
+              replacement: "",
+            },
+          },
+          normalizedVenue: {
+            $replaceAll: {
+              input: { $toLower: "$event.venue" },
+              find: " ",
+              replacement: "",
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "orders",
+          localField: "orderId",
+          foreignField: "_id",
+          as: "order",
+        },
+      },
+      { $unwind: "$order" },
+    ];
 
-  const tickets = await TicketModel.aggregate(dataPipeline);
+    // search filter
+    if (searchTerm.trim() !== "") {
+      const cleanedSearch = searchTerm
+        .trim()
+        .replace(/\s/g, "")
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .toLowerCase();
+      const regex = new RegExp(cleanedSearch, "i");
+      basePipeline.push({
+        $match: {
+          $or: [{ normalizedTitle: regex }, { normalizedVenue: regex }],
+        },
+      });
+    }
 
-  return {
-    tickets,
-    totalPages,
-    totalItems,
-    currentPage: pageNumber,
-  };
-}
+    // status filter
+    const now = new Date();
+    if (status === "upcoming") {
+      basePipeline.push({ $match: { "event.date": { $gte: now } } });
+    } else if (status === "past") {
+      basePipeline.push({ $match: { "event.date": { $lt: now } } });
+    }
 
+    // ✅ Count documents before skip/limit
+    const countPipeline = [...basePipeline, { $count: "total" }];
+    const countResult = await TicketModel.aggregate(countPipeline);
+    const totalItems = countResult[0]?.total || 0;
+    const totalPages = Math.ceil(totalItems / limitNumber);
+
+    // ✅ Get paginated tickets
+    const dataPipeline = [
+      ...basePipeline,
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          qrToken: 1,
+          issuedAt: 1,
+          checkedIn: 1,
+          orderId: "$order._id",
+          eventId: "$event._id",
+          event: {
+            _id: "$event._id",
+            title: "$event.title",
+            description: "$event.description",
+            date: "$event.date",
+            time: "$event.time",
+            venue: "$event.venue",
+            image: "$event.images",
+            category: "$event.category",
+          },
+          order: {
+            _id: "$order._id",
+            totalAmount: "$order.amount",
+            status: "$order.status",
+          },
+        },
+      },
+      { $skip: skip },
+      { $limit: limitNumber },
+    ];
+
+    const tickets = await TicketModel.aggregate(dataPipeline);
+
+    return {
+      tickets,
+      totalPages,
+      totalItems,
+      currentPage: pageNumber,
+    };
+  }
 }

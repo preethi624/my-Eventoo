@@ -318,7 +318,7 @@ const AdminOrderDetails: React.FC = () => {
                   </p>
                 </div>
               </div>):(
-    // ❌ Show fallback if NOT confirmed
+ 
     <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
       <XCircle className="w-6 h-6 text-red-500 mx-auto mb-2" />
       <p className="font-semibold text-red-700">

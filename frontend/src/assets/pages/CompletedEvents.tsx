@@ -7,13 +7,11 @@ import type { EventFetchResponse, IEventDTO } from "../../interfaces/IEvent";
 import { eventRepository } from "../../repositories/eventRepositories";
 
 import EventCard from "../components/EventCardComponent";
-import EventHistorySticker from "../components/EventHistorySticker";
 
 const CompletedEvents: React.FC = () => {
   const [events, setEvents] = useState<IEventDTO[]>([]);
-  //const [searchLocation, setSearchLocation] = useState("");
-  //const [searchTitle, setSearchTitle] = useState("");
-  const [searchTerm,setSearchTerm]=useState("")
+
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
@@ -24,27 +22,17 @@ const CompletedEvents: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
-  }, [
-    
-    selectedCategory,
-    maxPrice,
-    selectedDate,
-    
-    currentPage,
-  ]);
-  useEffect(()=>{
-    const handler=setTimeout(()=>{
-      fetchEvents()
-
-    },500)
-    return()=>clearTimeout(handler)
-
-  },[searchTerm])
+  }, [selectedCategory, maxPrice, selectedDate, currentPage]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchEvents();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   const params = new URLSearchParams();
-  //if (searchLocation) params.append("searchLocation", searchLocation);
-  //if (searchTitle) params.append("searchTitle", searchTitle);
-  if(searchTerm) params.append("searchTerm",searchTerm)
+
+  if (searchTerm) params.append("searchTerm", searchTerm);
   if (selectedCategory) params.append("selectedCategory", selectedCategory);
   if (maxPrice) params.append("maxPrice", maxPrice.toString());
   if (selectedDate) params.append("selectedDate", selectedDate);
@@ -58,12 +46,7 @@ const CompletedEvents: React.FC = () => {
 
       if (response.success && Array.isArray(response.result?.response.events)) {
         const latestEvents = response.result.response.events.filter((event) => {
-          /*const date = new Date(event.date);
-          const dateString = date.toISOString().split("T")[0];
-          const combined = new Date(`${dateString}T${event.time}`);
-
-          return !isNaN(combined.getTime()) && combined <= new Date();*/
-          return event.status==="completed"
+          return event.status === "completed";
         });
 
         setEvents(latestEvents);
@@ -78,19 +61,18 @@ const CompletedEvents: React.FC = () => {
     }
   };
 
-
   const handleEventClick = (id: string) => {
     navigate(`/reviews/${id}`);
   };
 
-
   return (
     <div className="pt-24 min-h-screen bg-gray-100">
       <UserNavbar />
-     
 
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center mb-8">Completed Events</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">
+          Completed Events
+        </h1>
 
         <div className="flex gap-6">
           {/* Left Sidebar - Filters */}

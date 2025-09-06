@@ -350,20 +350,33 @@ export class PaymentService implements IPaymentService {
       const result = await this._paymentRepository.findOrder(orderId);
      
       
-      
+        
       
      
       
       if (result) {
+      
+        
         const paymentId = result.razorpayPaymentId;
         const amount = result.amount;
-        const refund =await razorpay.payments.refund (paymentId,{
-          amount: amount,
+       
+        
+        const payment = await razorpay.payments.fetch(paymentId);
+        console.log("result",result);
+        
+        
 
-    });
+         
+        const refund =await razorpay.payments.refund (paymentId,{amount:amount});
+  
+    
 
-         const payment = await razorpay.payments.fetch(paymentId);
-console.log("Razorpay payment:", payment);
+    
+    
+
+
+       
+
         
         
 
@@ -391,6 +404,7 @@ console.log("Razorpay payment:", payment);
       return { success: false, message: "failed to update" };
     }
   }
+
   async ticketsGet(orderId: string): Promise<GetTickets> {
     try {
       const result = await this._paymentRepository.getTickets(orderId);

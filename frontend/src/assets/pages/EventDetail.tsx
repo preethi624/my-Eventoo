@@ -7,10 +7,6 @@ import {
   FaClock,
   FaTicketAlt,
   FaUsers,
-  FaStar,
-  FaUser,
-  FaPaperPlane,
-  FaQuoteLeft,
 } from "react-icons/fa";
 
 import UserNavbar from "../components/UseNavbar";
@@ -19,70 +15,30 @@ import EventMap from "../components/EventMap";
 import { eventRepository } from "../../repositories/eventRepositories";
 import EventInfoItem from "../components/EventInfoItem";
 
-
-interface Review {
-  _id: string;
-  user: {
-    name: string;
-    _id: string;
-    avatar?: string;
-  };
-  rating: number;
-  comment: string;
-  createdAt: string;
-  eventId: string;
-}
-
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<IEventDTO | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
-  const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewStats, setReviewStats] = useState({
-    averageRating: 0,
-    totalReviews: 0,
-    ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-  });
-  
+
   const navigate = useNavigate();
-  
-  /*let imageSrc = "https://via.placeholder.com/300x200";
+
+  let imageSrc = "https://via.placeholder.com/300x200";
   if (event && event.images && event.images.length > 0) {
     const img = event.images[0];
-    if (img.startsWith("http")) {
-      imageSrc = img;
-    } else {
-      imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
-    }
-  }*/
 
- let imageSrc = "https://via.placeholder.com/300x200";
-  if (event&&event.images && event.images.length > 0) {
-    const img = event.images[0]; // take the first image
-
-    // Case 1: Cloudinary (direct URL or object with url property)
     if (typeof img === "string") {
       if (img.startsWith("http")) {
-        imageSrc = img; // Cloudinary or external full URL
+        imageSrc = img;
       } else {
-        // Local stored image (uploads/myimage.jpg)
         imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
       }
     } else if (typeof img === "object" && img.url) {
-      // Case 2: if Mongo stores { url: "..." }
       imageSrc = img.url;
     }
   }
 
-
-
-  
   useEffect(() => {
     if (id) {
       fetchEventDetail(id);
-     
     }
   }, [id]);
 
@@ -97,21 +53,6 @@ const EventDetail: React.FC = () => {
       console.error("Error fetching event:", error);
     }
   };
-
-  
-  
-
-  
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  
-
 
   if (!event) return <div className="text-center mt-20">Loading...</div>;
 
@@ -176,8 +117,6 @@ const EventDetail: React.FC = () => {
             Book Tickets
           </button>
         </div>
-
-        
       </div>
     </div>
   );

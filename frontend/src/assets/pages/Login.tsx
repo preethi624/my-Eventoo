@@ -20,7 +20,6 @@ import {
   loginUser,
   loginUserWithGoogle,
 } from "../../redux/thunk/authThunk";
-import UserNavbar from "../components/UseNavbar";
 
 const backgroundImages: string[] = [
   "https://images.unsplash.com/photo-1492684223066-81342ee5ff30",
@@ -82,7 +81,6 @@ const LoginPage: FC = () => {
   }, []);
 
   useEffect(() => {
-    
     const token = localStorage.getItem("authToken");
     if (token) {
       try {

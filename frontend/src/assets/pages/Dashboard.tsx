@@ -74,7 +74,6 @@ const Dashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<IEventDTO[]>([]);
   const [availableCategories, setAvailableCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  // Current organizer context (replace with actual user data from your auth system)
 
   const fetchOrganiser = async () => {
     const response = await organiserRepository.getOrganiserById(organiser.id);
@@ -168,11 +167,11 @@ const Dashboard = () => {
       )
 
       .map((order) => {
-       const rawAmount = Number(order.amount);
-const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
+        const rawAmount = Number(order.amount);
+        const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
 
-const commission = (totalAmount * adminPercentage) / 100;
-const organiserEarning = totalAmount - commission;
+        const commission = (totalAmount * adminPercentage) / 100;
+        const organiserEarning = totalAmount - commission;
         if (new Date(order.eventDate) < today) {
           totalEarnings += organiserEarning;
         }
@@ -219,85 +218,84 @@ const organiserEarning = totalAmount - commission;
     link.click();
   };
   const exportToPDF = (
-  orders: any[],
-  filename: string,
-  adminPercentage: number
-) => {
-  const doc = new jsPDF();
-  const today = new Date();
+    orders: any[],
+    filename: string,
+    adminPercentage: number
+  ) => {
+    const doc = new jsPDF();
+    const today = new Date();
 
-  let totalEarnings = 0;
+    let totalEarnings = 0;
 
-  const tableRows = orders.map((order) => {
-    const rawAmount = Number(order.amount);
-    const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
+    const tableRows = orders.map((order) => {
+      const rawAmount = Number(order.amount);
+      const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
 
-    const validAdminPercentage = isNaN(adminPercentage)
-      ? 0
-      : Number(adminPercentage);
+      const validAdminPercentage = isNaN(adminPercentage)
+        ? 0
+        : Number(adminPercentage);
 
-    const commission = (totalAmount * validAdminPercentage) / 100;
-    const organiserEarning = totalAmount - commission;
-    const eventDate = new Date(order.eventDate);
-    if (!isNaN(eventDate.getTime()) && eventDate < today) {
-      totalEarnings += organiserEarning;
-    }
+      const commission = (totalAmount * validAdminPercentage) / 100;
+      const organiserEarning = totalAmount - commission;
+      const eventDate = new Date(order.eventDate);
+      if (!isNaN(eventDate.getTime()) && eventDate < today) {
+        totalEarnings += organiserEarning;
+      }
 
-    return [
-      order._id || "",
-      order.username || "",
-      order.email || "",
-      order.eventTitle || "",
-      order.eventDate ? formatDate(order.eventDate) : "N/A",
-      order.orderDate ? formatDate(order.orderDate) : "N/A",
-      order.ticketCount ?? "",
-      `₹${totalAmount.toFixed(2)}`,
-      `₹${commission.toFixed(2)} (${validAdminPercentage}%)`,
-      `₹${organiserEarning.toFixed(2)}`,
+      return [
+        order._id || "",
+        order.username || "",
+        order.email || "",
+        order.eventTitle || "",
+        order.eventDate ? formatDate(order.eventDate) : "N/A",
+        order.orderDate ? formatDate(order.orderDate) : "N/A",
+        order.ticketCount ?? "",
+        `₹${totalAmount.toFixed(2)}`,
+        `₹${commission.toFixed(2)} (${validAdminPercentage}%)`,
+        `₹${organiserEarning.toFixed(2)}`,
+      ];
+    });
+    tableRows.push([]);
+    tableRows.push([
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Total Earnings:",
+      `₹${totalEarnings.toFixed(2)}`,
+    ]);
+
+    const tableHeaders = [
+      "Order ID",
+      "Buyer",
+      "Email",
+      "Event",
+      "Event Date",
+      "Order Date",
+      "Qty",
+      "Total",
+      "Admin Commission",
+      "Earnings",
     ];
-  });
-  tableRows.push([]);
-  tableRows.push([
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "Total Earnings:",
-    `₹${totalEarnings.toFixed(2)}`,
-  ]);
 
-  const tableHeaders = [
-    "Order ID",
-    "Buyer",
-    "Email",
-    "Event",
-    "Event Date",
-    "Order Date",
-    "Qty",
-    "Total",
-    "Admin Commission",
-    "Earnings",
-  ];
+    doc.setFontSize(18);
+    doc.text("Sales Report", 14, 22);
+    doc.setFontSize(12);
 
-  doc.setFontSize(18);
-  doc.text("Sales Report", 14, 22);
-  doc.setFontSize(12);
+    autoTable(doc, {
+      startY: 30,
+      head: [tableHeaders],
+      body: tableRows,
+      styles: { font: "helvetica", fontSize: 9 },
+      headStyles: { fillColor: [33, 150, 243] },
+    });
 
-  autoTable(doc, {
-    startY: 30,
-    head: [tableHeaders],
-    body: tableRows,
-    styles: { font: "helvetica", fontSize: 9 },
-    headStyles: { fillColor: [33, 150, 243] },
-  });
-
-  doc.save(`${filename}.pdf`);
-};
-
+    doc.save(`${filename}.pdf`);
+  };
 
   const formatDate = (iso: string) => {
     const date = new Date(iso);
@@ -363,7 +361,7 @@ const organiserEarning = totalAmount - commission;
             </div>
           </div>
 
-         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Calendar className="text-white" size={20} />

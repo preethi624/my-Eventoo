@@ -29,7 +29,9 @@ class PaymentRepository {
                 if (!updatedEvent) {
                     throw new Error("Not enough tickets available");
                 }
-                const lastOrder = yield order_1.default.findOne().sort({ bookingNumber: -1 }).session(session);
+                const lastOrder = yield order_1.default.findOne()
+                    .sort({ bookingNumber: -1 })
+                    .session(session);
                 let nextBookingNumber = "BK-1000";
                 if (lastOrder === null || lastOrder === void 0 ? void 0 : lastOrder.bookingNumber) {
                     const lastNumber = parseInt(lastOrder.bookingNumber.replace("BK-", ""), 10);
@@ -156,7 +158,7 @@ class PaymentRepository {
                 return order;
             }
             catch (error) {
-                console.log((error));
+                console.log(error);
                 return null;
             }
         });
@@ -309,10 +311,7 @@ class PaymentRepository {
                 basePipeline.push({ $match: { "event.date": { $lt: now } } });
             }
             // ✅ Count documents before skip/limit
-            const countPipeline = [
-                ...basePipeline,
-                { $count: "total" }
-            ];
+            const countPipeline = [...basePipeline, { $count: "total" }];
             const countResult = yield ticket_1.TicketModel.aggregate(countPipeline);
             const totalItems = ((_a = countResult[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
             const totalPages = Math.ceil(totalItems / limitNumber);

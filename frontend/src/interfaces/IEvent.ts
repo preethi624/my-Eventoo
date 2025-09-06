@@ -17,7 +17,8 @@ export interface IEventDTO {
   latitude: number;
   longitude: number;
   isBlocked:boolean;
-  availableTickets?:number
+  availableTickets?:number;
+  
 }
 
 export interface EventFetchResponse {
@@ -47,3 +48,13 @@ export interface IEventImage{
   public_id:string|null
 
 }
+export interface EventApiResponse {
+  success: boolean;
+  result?: {
+    response: {
+      events: IEventDTO[];
+      totalPages: number;
+    };
+  };
+}
+
