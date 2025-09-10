@@ -344,7 +344,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     findNear(_a, filters_1) {
         return __awaiter(this, arguments, void 0, function* ({ lat, lng }, filters) {
-            const { searchTerm, maxPrice, selectedDate, page = 1, limit = 3, } = filters;
+            const { searchTerm, maxPrice, selectedDate, } = filters;
             const query = {
                 isBlocked: false,
                 status: "published",

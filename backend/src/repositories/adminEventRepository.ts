@@ -16,7 +16,7 @@ export class AdminEventRepository implements IAdminEventRepository {
       searchTitle,
       page = 1,
       limit=6 ,
-      orgName,
+      
     } = filters;
     console.log("limit",limit);
     

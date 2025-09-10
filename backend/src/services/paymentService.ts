@@ -6,7 +6,7 @@ import {
   OrderCreate,
   OrderCreateInput,
   RazorpayPaymentResponse,
-  TicketDetails,
+  
   Update,
   UserProfileUpdate,
   VerifyResponse,
@@ -132,12 +132,21 @@ export class PaymentService implements IPaymentService {
       } else {
         return { success: false, message: "Not enough tickets to sail" };
       }
-    } catch (error: any) {
-      console.error(error);
-      return {
+    } catch (error) {
+     if (error instanceof Error) {
+    console.error('MongoDB connection error:', error.message);
+     return {
         success: false,
         message: error?.message || "not creating order",
       };
+  } else {
+    console.error('MongoDB connection error:', error);
+     return {
+        success: false,
+        message:  "not creating order",
+      };
+  }
+     
     }
   }
   async orderCreateFree(
@@ -174,8 +183,6 @@ export class PaymentService implements IPaymentService {
   }
   async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
     try {
-  
-      
       const razorpay_payment_id = data.razorpay_payment_id;
       const razorpay_order_id = data.razorpay_order_id;
       const razorpay_signature = data.razorpay_signature;
@@ -245,13 +252,15 @@ export class PaymentService implements IPaymentService {
         success: true,
         message: "Payment verified and ticket sent to email",
       };
-    } catch (error: any) {
-      console.error("Payment verification failed:", error);
-      if (error.message === "Not enough tickets available") {
+    } catch (error) {
+      if(error instanceof Error){
         return { success: false, message: error.message };
-      } else {
-        return { success: false, message: "Payment verification failed" };
+
+      }else{
+         return { success: false, message: "Payment verification failed" };
       }
+     
+     
     }
   }
 
@@ -348,41 +357,22 @@ export class PaymentService implements IPaymentService {
   async orderFind(orderId: string): Promise<Update> {
     try {
       const result = await this._paymentRepository.findOrder(orderId);
-     
-      
-        
-      
-     
-      
+
       if (result) {
-      
-        
         const paymentId = result.razorpayPaymentId;
         const amount = result.amount;
-       
-        
+
         const payment = await razorpay.payments.fetch(paymentId);
-        console.log("result",result);
+        console.log(payment);
         
-        
 
-         
-        const refund =await razorpay.payments.refund (paymentId,{amount:amount});
-  
-    
-
-    
-    
-
-
-       
-
-        
-        
+        const refund = await razorpay.payments.refund(paymentId, {
+          amount: amount,
+        });
+        console.log("refund", refund);
 
         const refundId = refund.id;
-        
-        
+
         const response = await this._paymentRepository.updateRefund(
           refundId,
           orderId
@@ -400,7 +390,8 @@ export class PaymentService implements IPaymentService {
         return { success: false, message: "failed to update" };
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
+
       return { success: false, message: "failed to update" };
     }
   }
@@ -422,8 +413,8 @@ export class PaymentService implements IPaymentService {
     userId: string,
     searchTerm: string,
     status: string,
-    page:string,
-    limit:string
+    page: string,
+    limit: string
   ): Promise<ITicketDetails> {
     try {
       const result = await this._paymentRepository.getTicketDetails(
@@ -434,7 +425,13 @@ export class PaymentService implements IPaymentService {
         limit
       );
       if (result) {
-        return { success: true, tickets: result.tickets,totalItems:result.totalItems,totalPages:result.totalPages,currentPage:result.currentPage };
+        return {
+          success: true,
+          tickets: result.tickets,
+          totalItems: result.totalItems,
+          totalPages: result.totalPages,
+          currentPage: result.currentPage,
+        };
       } else {
         return { success: false };
       }

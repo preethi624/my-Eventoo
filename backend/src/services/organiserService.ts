@@ -16,8 +16,8 @@ import {
 import { FetchOrders, GetOrder, Update } from "src/interface/IPayment";
 import { GetVenue, OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 import { MESSAGES } from "../constants/messages";
-import { OrganiserRepository } from "src/repositories/organiserRepository";
-import { IUser } from "src/interface/IUserAuth";
+
+
 import { IOrder } from "src/model/order";
 import Razorpay from "razorpay";
 import { IVenues } from "src/interface/IVenues";

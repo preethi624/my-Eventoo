@@ -5,7 +5,7 @@ import { Attendees, EditOrganiserResult, GetUsers, ProfileEdit, Reapply } from "
 import { GetVenue, OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 import { IVenues } from "src/interface/IVenues";
 import { IOrder } from "src/model/order";
-import { IVenue } from "src/model/venue";
+
 
 export interface IOrganiserService{
     orgGetById(id:string):Promise<GetOrganiser>

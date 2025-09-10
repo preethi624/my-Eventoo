@@ -183,7 +183,8 @@ export class OrganiserAuthService implements IOrgAuthService {
         };
       }
 
-      const { exp, iat, ...cleanPayload } = payload;
+      const { exp,iat, ...cleanPayload } = payload;
+      console.log("Google token exp:", exp, "issued at:", iat);
       const accessToken = this._tokenService.generateAccessToken({
         ...cleanPayload,
         role: "organiser",

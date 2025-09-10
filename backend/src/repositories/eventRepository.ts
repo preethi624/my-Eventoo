@@ -418,8 +418,7 @@ async findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]
         maxPrice,
         selectedDate,
 
-        page = 1,
-        limit = 3,
+       
       } = filters;
     
       const query: FilterQuery<IEvent> = {

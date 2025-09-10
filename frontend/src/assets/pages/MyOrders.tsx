@@ -240,7 +240,7 @@ const MyOrderPage: React.FC = () => {
       );
     }
   };
-
+  
   const handleDownloadTicket = async (orderId: string) => {
     const response = await paymentRepository.getTickets(orderId);
     const tickets = response.result;

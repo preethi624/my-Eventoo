@@ -5,12 +5,9 @@ import {
   Mail,
   Calendar,
   Users,
-  DollarSign,
+  
   Ticket,
-  Filter,
-  MoreVertical,
-  QrCode,
-  MessageSquare,
+
   IndianRupee,
 } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -41,7 +38,7 @@ export const AttendeesPage = () => {
   const [selectedEvent, setSelectedEvent] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterTicketType, setFilterTicketType] = useState("all");
+
   const [attendeesLength, setAttendeesLength] = useState(0);
   const limit = 6;
   const [currentPage, setCurrentPage] = useState(1);

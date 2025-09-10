@@ -1,7 +1,7 @@
 import { IOrganiser } from "src/interface/IOrgAuth";
 import { IOrganiserRepository } from "./repositoryInterface/IOrganiserRepository";
 import Organiser from "../model/organiser";
-import { Attendees, ProfileEdit, UserData } from "src/interface/IUser";
+import { Attendees, ProfileEdit} from "src/interface/IUser";
 import { FetchOrders, Update } from "src/interface/IPayment";
 import Order, { IOrder } from "../model/order";
 import EventModel, { IEvent } from "../model/event";
@@ -12,11 +12,11 @@ import { generateSalesTrend } from "../utils/analyticHelper";
 import { DashboardResponse } from "src/interface/event";
 import PlatformSettings from "../model/platformSettings";
 import { TicketModel } from "../model/ticket";
-import { log } from "util";
+
 import User from "../model/user";
 import { IUser } from "src/interface/IUserAuth";
 import Notification from "../model/notification";
-import { options } from "pdfkit";
+
 
 export class OrganiserRepository implements IOrganiserRepository {
   async getOrganiserById(id: string): Promise<IOrganiser | null> {
@@ -31,7 +31,7 @@ export class OrganiserRepository implements IOrganiserRepository {
     data: ProfileEdit,
     organiserId: string
   ): Promise<IOrganiser | null> {
-    const { name, email, phone, location, aboutMe, profileImage } = data;
+    const { name,  phone, location, aboutMe, profileImage } = data;
     return await Organiser.findByIdAndUpdate(
       organiserId,
       { name, phone, location, aboutMe: aboutMe, profileImage },

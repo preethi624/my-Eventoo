@@ -4,8 +4,7 @@ import UserNavbar from "../components/UseNavbar";
 import type { IEventDTO } from "../../interfaces/IEvent";
 import { eventRepository } from "../../repositories/eventRepositories";
 import EventCard from "../components/EventCardComponent";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/stroe";
+
 
 const NearEventsPage: React.FC = () => {
  

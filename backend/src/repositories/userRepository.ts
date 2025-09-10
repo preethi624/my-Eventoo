@@ -11,7 +11,7 @@ export class UserRepository implements IUserRepository {
     return await User.findById(userId);
   }
   async updateUser(data: ProfileEdit, userId: string): Promise<IUser | null> {
-    const { name, email, phone, location, aboutMe, profileImage } = data;
+    const { name, phone, location, aboutMe, profileImage } = data;
     return await User.findByIdAndUpdate(
       userId,
       { name, phone, location, aboutMe: aboutMe, profileImage },

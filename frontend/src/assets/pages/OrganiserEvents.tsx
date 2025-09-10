@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus, FaEdit } from "react-icons/fa";
 import OrganiserLayout from "../components/OrganiserLayout";
 import { eventRepository } from "../../repositories/eventRepositories";
 import { useSelector } from "react-redux";
@@ -20,7 +20,7 @@ import DataTable from "../components/DataTable";
 import { Link } from "react-router-dom";
 import { categoryRepository } from "../../repositories/categoryRepository";
 import type { RootState } from "../../redux/stroe";
-import { venueRepositories } from "../../repositories/venueRepository";
+
 
 export type EventForm = {
   title: string;
@@ -52,9 +52,7 @@ export type EventEdit = {
   images: (string | IEventImage)[];
 };
 
-type Organiser = {
-  id: string;
-};
+
 
 const OrganiserEvents: React.FC = () => {
   const [showModal, setShowModal] = useState(false);

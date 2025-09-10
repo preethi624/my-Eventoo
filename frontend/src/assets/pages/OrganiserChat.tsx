@@ -1,10 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Send,
-  Search,
-  MoreVertical,
-  Phone,
-  Video,
+ 
   Paperclip,
   Smile,
   ArrowLeft,
@@ -36,7 +33,7 @@ const OrganizerChatPage: React.FC = () => {
     }[]
   >([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
   const fetchUsers = async () => {
@@ -123,19 +120,9 @@ const OrganizerChatPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  };
+
 
   return (
     <div className="flex h-screen bg-gray-50">

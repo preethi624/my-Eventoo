@@ -57,4 +57,20 @@ export interface EventApiResponse {
     };
   };
 }
+interface IEventResponse {
+  currentPage: number;
+  events: IEventDTO[];
+  totalPages: number;
+}
+
+interface IGetAllEventsResult {
+  message: string;
+  response: IEventResponse;
+}
+
+export interface IGetAllEventsApiResponse {
+  success: boolean;
+  message: string;
+  result: IGetAllEventsResult;
+}
 

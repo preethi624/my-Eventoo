@@ -203,12 +203,12 @@ const HomePage: FC = () => {
                 src={
                   event.images && event.images.length > 0
                     ? typeof event.images[0] === "string"
-                      ? // Case 1: old image stored in local folder
+                      ? 
                         `http://localhost:3000/${event.images[0].replace(
                           "\\",
                           "/"
                         )}`
-                      : // Case 2: new Cloudinary image stored as object with url
+                      : 
                         event.images[0].url || event.images[0]
                     : "https://via.placeholder.com/300x200"
                 }

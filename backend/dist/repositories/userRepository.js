@@ -24,7 +24,7 @@ class UserRepository {
     }
     updateUser(data, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name, email, phone, location, aboutMe, profileImage } = data;
+            const { name, phone, location, aboutMe, profileImage } = data;
             return yield user_1.default.findByIdAndUpdate(userId, { name, phone, location, aboutMe: aboutMe, profileImage }, { new: true });
         });
     }

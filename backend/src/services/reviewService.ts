@@ -1,7 +1,7 @@
 import { IReviewRepository } from "src/repositories/repositoryInterface/IReviewRepository";
 import { IReviewService } from "./serviceInterface/IReviewService";
-import { IReview } from "src/model/review";
-import axios from "axios";
+
+
 import dotenv from 'dotenv';
 import { IReviewWithSentiment } from "src/interface/event";
 import { InferenceClient } from "@huggingface/inference";
@@ -11,7 +11,7 @@ const hf = new InferenceClient(process.env.HUGGING_API_KEY);
 dotenv.config()
 async function analyzeSentiment(text:string) {
   const result = await hf.textClassification({
-    model: "distilbert-base-uncased-finetuned-sst-2-english", // Good model for sentiment
+    model: "distilbert-base-uncased-finetuned-sst-2-english", 
     inputs: text,
   });
 
@@ -40,64 +40,7 @@ export class ReviewService implements IReviewService{
         }
       
     }
-    /*async reviewsFetch(eventId:string):Promise<{success:boolean,reviews?:IReviewWithSentiment[]}>{
-        try {
-            const response=await this._reviewRepository.fetchReviews(eventId);
-            /*if(response){
-                return {success:true,reviews:response}
-            }else{
-                return{success:false}
-            }
-           if(!response){
-                return {success:false}
-              }
-              const analysedReviews = await Promise.all(
-  response.map(async (review) => {
-    const plainReview: IReviewWithSentiment = {
-      _id: review._id!.toString(),
-      userId: (review.userId as any).name, // string
-      eventId: review.eventId.toString(),
-      rating: review.rating,
-      comment: review.comment,
-      createdAt: review.createdAt,
-      sentiment: "UNKNOWN",
-    };
-
-   /* try {
-      const hfResponse = await axios.post(
-        "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english",
-        { inputs: plainReview.comment },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.HUGGING_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("hf res",hfResponse);
-      
-
-      plainReview.sentiment = hfResponse.data[0][0].label;
-    } catch (error) {
-      console.error("HF API error:", error);
-      
-    }
-  analyzeSentiment(plainReview.comment)
-
-    
-  })
-  
-);
-return { success: true, reviews: analysedReviews };
-
-        } catch (error) {
-           console.log(error);
-           return {success:false}
-           
-            
-            
-        }
-    }*/
+   
    async reviewsFetch(
   eventId: string
 ): Promise<{ success: boolean; reviews?: IReviewWithSentiment[] }> {
@@ -112,7 +55,7 @@ return { success: true, reviews: analysedReviews };
       response.map(async (review) => {
         const plainReview: IReviewWithSentiment = {
           _id: review._id!.toString(),
-          userId: (review.userId as any).name, // string
+          userId: (review.userId as any).name, 
           eventId: review.eventId.toString(),
           rating: review.rating,
           comment: review.comment,

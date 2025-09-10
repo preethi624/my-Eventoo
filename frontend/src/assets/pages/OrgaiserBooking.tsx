@@ -45,9 +45,7 @@ export type EventEdit = {
   time: string;
 };
 
-type Organiser = {
-  id: string;
-};
+
 
 const OrganiserBookings: React.FC = () => {
   const navigate = useNavigate();

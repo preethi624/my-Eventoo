@@ -1,7 +1,7 @@
 import { GetOrder, IOrderFilter } from "src/interface/event";
 import { IOrderDTO } from "src/interface/IOrder";
 import { OrderDashboard } from "src/interface/IUser";
-import { IOrder } from "src/model/order";
+
 
 export interface IAdminOrderService{
     getOrders(filters:IOrderFilter):Promise<GetOrder>

@@ -3,7 +3,7 @@ import { IAdminOrderService } from "./serviceInterface/IAdminOrderService";
 import { IAdminOrderRepository } from "src/repositories/repositoryInterface/IAdminOrderRepository";
 import { OrderDashboard } from "src/interface/IUser";
 import { MESSAGES } from "../constants/messages";
-import { IOrder } from "src/model/order";
+
 import { IOrderDTO } from "src/interface/IOrder";
 
 export class AdminOrderService implements IAdminOrderService {

@@ -115,11 +115,20 @@ class PaymentService {
                 }
             }
             catch (error) {
-                console.error(error);
-                return {
-                    success: false,
-                    message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order",
-                };
+                if (error instanceof Error) {
+                    console.error('MongoDB connection error:', error.message);
+                    return {
+                        success: false,
+                        message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order",
+                    };
+                }
+                else {
+                    console.error('MongoDB connection error:', error);
+                    return {
+                        success: false,
+                        message: "not creating order",
+                    };
+                }
             }
         });
     }
@@ -305,8 +314,11 @@ class PaymentService {
                     const paymentId = result.razorpayPaymentId;
                     const amount = result.amount;
                     const payment = yield razorpay.payments.fetch(paymentId);
-                    console.log("result", result);
-                    const refund = yield razorpay.payments.refund(paymentId, { amount: amount });
+                    console.log(payment);
+                    const refund = yield razorpay.payments.refund(paymentId, {
+                        amount: amount,
+                    });
+                    console.log("refund", refund);
                     const refundId = refund.id;
                     const response = yield this._paymentRepository.updateRefund(refundId, orderId);
                     if (response.success) {
@@ -325,7 +337,7 @@ class PaymentService {
                 }
             }
             catch (error) {
-                console.error(error);
+                console.log(error);
                 return { success: false, message: "failed to update" };
             }
         });
@@ -352,7 +364,13 @@ class PaymentService {
             try {
                 const result = yield this._paymentRepository.getTicketDetails(userId, searchTerm, status, page, limit);
                 if (result) {
-                    return { success: true, tickets: result.tickets, totalItems: result.totalItems, totalPages: result.totalPages, currentPage: result.currentPage };
+                    return {
+                        success: true,
+                        tickets: result.tickets,
+                        totalItems: result.totalItems,
+                        totalPages: result.totalPages,
+                        currentPage: result.currentPage,
+                    };
                 }
                 else {
                     return { success: false };
