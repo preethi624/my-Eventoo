@@ -5,7 +5,11 @@ import { IAdminOrgRepository } from "./repositoryInterface/IAdminOrgRepository";
 import { FilterQuery } from "mongoose";
 
 export class AdminOrgRepository implements IAdminOrgRepository {
+<<<<<<< HEAD
   async getOrganiserAll(limit: number, page: number,searchTerm:string,filterStatus:string,sortBy:string): Promise<GetOrganisers> {
+=======
+  async getOrganiserAll(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetOrganisers> {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const query:FilterQuery<IOrganiser>={};
     if(searchTerm){
       query.$or=[
@@ -19,12 +23,16 @@ export class AdminOrgRepository implements IAdminOrgRepository {
       query.isBlocked=false
     }
     const skip = (page - 1) * limit;
+<<<<<<< HEAD
     const organisers = await Organiser.find(query).skip(skip).sort(
       sortBy==="newest"?{createdAt:-1}:
       sortBy==="oldest"?{createdAt:1}:
       sortBy==="nameAsc"?{name:1}:{name:-1}
     
     ).limit(limit);
+=======
+    const organisers = await Organiser.find(query).skip(skip).limit(limit);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const totalOrganisers = await Organiser.countDocuments();
     const total = totalOrganisers / limit;
     return { result: organisers, total };

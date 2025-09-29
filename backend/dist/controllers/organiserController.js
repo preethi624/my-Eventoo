@@ -179,7 +179,12 @@ class OrganiserController {
             try {
                 const query = req.query;
                 const filters = {
+<<<<<<< HEAD
                     searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
+=======
+                    nameSearch: typeof query.nameSearch === "string" ? query.nameSearch : "",
+                    locationSearch: typeof query.locationSearch === "string" ? query.locationSearch : "",
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     page: query.page ? Number(query.page) : undefined,
                     limit: query.limit && !isNaN(Number(query.limit))
                         ? Number(query.limit)
@@ -283,7 +288,10 @@ class OrganiserController {
                         currentPage: response.currentPage,
                         totalPages: response.totalPages,
                         totalAttendees: response.totalAttendees,
+<<<<<<< HEAD
                         ticketTypeStats: response.ticketTypeStats
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     });
                 }
                 else {
@@ -371,6 +379,7 @@ class OrganiserController {
             }
         });
     }
+<<<<<<< HEAD
     fetchEventOrder(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -428,6 +437,8 @@ class OrganiserController {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.OrganiserController = OrganiserController;
 //# sourceMappingURL=organiserController.js.map

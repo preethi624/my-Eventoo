@@ -172,8 +172,15 @@ export class OrganiserController implements IOrganiserController {
     try {
       const query = req.query as ParsedQs;
       const filters: OrgVenueFilter = {
+<<<<<<< HEAD
        
           searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
+=======
+        nameSearch:
+          typeof query.nameSearch === "string" ? query.nameSearch : "",
+        locationSearch:
+          typeof query.locationSearch === "string" ? query.locationSearch : "",
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
         page: query.page ? Number(query.page) : undefined,
         limit:
@@ -283,7 +290,10 @@ export class OrganiserController implements IOrganiserController {
           currentPage: response.currentPage,
           totalPages: response.totalPages,
           totalAttendees: response.totalAttendees,
+<<<<<<< HEAD
           ticketTypeStats:response.ticketTypeStats
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         });
       } else {
         res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_FETCH });
@@ -381,6 +391,7 @@ export class OrganiserController implements IOrganiserController {
       console.log(error);
     }
   }
+<<<<<<< HEAD
   async fetchEventOrder(req:Request,res:Response):Promise<void>{
     try {
       const eventId=req.params.eventId;
@@ -438,4 +449,6 @@ export class OrganiserController implements IOrganiserController {
     }
 
   }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

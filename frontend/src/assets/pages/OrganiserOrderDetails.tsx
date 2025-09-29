@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useState, useEffect } from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -9,17 +13,23 @@ import {
   User,
   Mail,
   Phone,
+<<<<<<< HEAD
   ArrowLeft,
  
   CheckCircle,
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 } from "lucide-react";
 
 import type { IOrder } from "../../interfaces/IOrder";
 
 import { organiserRepository } from "../../repositories/organiserRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
+<<<<<<< HEAD
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const OrgOrderDetailsPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -27,10 +37,13 @@ const OrgOrderDetailsPage: React.FC = () => {
   const [order, setOrder] = useState<IOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+<<<<<<< HEAD
   const MySwal = withReactContent(Swal);
   const [refundId,setRefundId]=useState("")
   console.log(refundId);
   
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   useEffect(() => {
     fetchOrderDetails();
@@ -44,7 +57,11 @@ const OrgOrderDetailsPage: React.FC = () => {
       console.log("respooo", response);
 
       if (!response.success) throw new Error("Failed to fetch order details");
+<<<<<<< HEAD
       setOrder(response.order??null);
+=======
+      setOrder(response.order);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch order details"
@@ -53,6 +70,7 @@ const OrgOrderDetailsPage: React.FC = () => {
       setLoading(false);
     }
   };
+<<<<<<< HEAD
   const handleCancel=async(orderId:string)=>{
     try {
        const result = await MySwal.fire({
@@ -125,11 +143,30 @@ const OrgOrderDetailsPage: React.FC = () => {
           </div>
         </div>
       </OrganiserLayout>
+=======
+
+  if (error || !order) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-6 bg-white rounded-lg shadow-lg">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error</h2>
+          <p className="text-gray-600">{error || "Order not found"}</p>
+          <button
+            onClick={() => navigate("/my-bookings")}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Orders
+          </button>
+        </div>
+      </div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     );
   }
 
   return (
     <OrganiserLayout>
+<<<<<<< HEAD
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
         {/* Header Section */}
         <div className="bg-white shadow-sm border-b">
@@ -313,11 +350,58 @@ const OrgOrderDetailsPage: React.FC = () => {
                           <p className="text-gray-900 font-semibold">₹{order.amount / 100}</p>
                         </div>
                       </div>
+=======
+      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="p-6 border-b">
+              <div className="flex items-start">
+                <img
+                  src={getEventImage(order)}
+                  alt={
+                    typeof order.eventId !== "string" ? order.eventId.title : ""
+                  }
+                  className="w-60 h-60 object-cover rounded-lg"
+                />
+                <div className="ml-6">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {typeof order.eventId !== "string"
+                      ? order.eventId.title
+                      : ""}
+                  </h3>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="w-10 h-10 mr-2" />
+                      <span>
+                        {formatDate(
+                          typeof order.eventId !== "string"
+                            ? order.eventId.date.toString()
+                            : ""
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="w-10 h-10 mr-2" />
+                      <span>
+                        {typeof order.eventId !== "string"
+                          ? order.eventId.venue
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Users className="w-10 h-10 mr-2" />
+                      <span>{order.ticketCount} tickets</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <CreditCard className="w-10 h-10 mr-2" />
+                      <span>Amount:{order.amount / 100} </span>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+<<<<<<< HEAD
 
             {/* Customer Details Sidebar */}
             <div className="space-y-6">
@@ -374,14 +458,66 @@ const OrgOrderDetailsPage: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">
                           {typeof order.userId !== "string" ? order.userId.location : ""}
                         </p>
+=======
+          </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="p-6 border-b">
+                <div className="flex items-start">
+                  <div className="ml-6">
+                    <div className="ml-6">
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        Purchased By...
+                      </h3>
+
+                      <div className="flex items-center text-gray-600">
+                        <User className="w-10 h-10 mr-2" />
+                        <p className="text-gray-900">
+                          {typeof order.userId !== "string"
+                            ? order.userId.name
+                            : ""}
+                        </p>
+                      </div>
+
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center text-gray-600">
+                          <Mail className="w-10 h-10 mr-2" />
+                          <p>
+                            {typeof order.userId !== "string"
+                              ? order.userId.email
+                              : ""}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <MapPin className="w-10 h-10 mr-2" />
+                          <span>
+                            {typeof order.userId !== "string"
+                              ? order.userId.location
+                              : ""}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <Phone className="w-10 h-10 mr-2" />
+                          <span>
+                            {typeof order.userId !== "string"
+                              ? order.userId.phone
+                              : ""}
+                          </span>
+                        </div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+<<<<<<< HEAD
 
               {/* Quick Actions */}
               
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             </div>
           </div>
         </div>
@@ -401,6 +537,7 @@ const formatDate = (dateString: string) => {
 };
 
 const getEventImage = (order: IOrder) => {
+<<<<<<< HEAD
   
    let imageSrc = "https://via.placeholder.com/300x200";
   if (order&& typeof order.eventId!=="string") {
@@ -423,3 +560,16 @@ const getEventImage = (order: IOrder) => {
 };
 
 export default OrgOrderDetailsPage;
+=======
+  if (order.eventId) {
+    const imagePath =
+      typeof order.eventId != "string"
+        ? order.eventId.images[0].replace(/\\/g, "/")
+        : "";
+    return `http://localhost:3000/${imagePath}`;
+  }
+  return "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
+};
+
+export default OrgOrderDetailsPage;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

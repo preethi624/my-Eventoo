@@ -28,8 +28,12 @@ class AdminUserController {
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = typeof req.query.searchTerm === "string" ? req.query.searchTerm : "";
                 const filterStatus = typeof req.query.filterStatus === "string" ? req.query.filterStatus : "";
+<<<<<<< HEAD
                 const sortBy = typeof req.query.sortBy === "string" ? req.query.sortBy : "";
                 const result = yield this._adminUserService.getUsers(limit, page, searchTerm, filterStatus, sortBy);
+=======
+                const result = yield this._adminUserService.getUsers(limit, page, searchTerm, filterStatus);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 if (result.success && result.result) {
                     const mappedUsers = result.result.map(mapUserToDTO_1.mapUserToDTO);
                     res.json({

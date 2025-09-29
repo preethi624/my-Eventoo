@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useEffect, useState, type FC } from "react";
+=======
+import React, { useEffect, useState, type FC } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { unparse } from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -74,12 +78,20 @@ const Dashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<IEventDTO[]>([]);
   const [availableCategories, setAvailableCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+<<<<<<< HEAD
 
   const fetchOrganiser = async () => {
     const response = await organiserRepository.getOrganiserById(organiser.id);
     console.log("response",response);
     
    
+=======
+  // Current organizer context (replace with actual user data from your auth system)
+
+  const fetchOrganiser = async () => {
+    const response = await organiserRepository.getOrganiserById(organiser.id);
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     setOrganiserData(response.result.result);
     setProfileImage(response.result.result.profileImage);
   };
@@ -169,11 +181,19 @@ const Dashboard = () => {
       )
 
       .map((order) => {
+<<<<<<< HEAD
         const rawAmount = Number(order.amount);
         const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
 
         const commission = (totalAmount * adminPercentage) / 100;
         const organiserEarning = totalAmount - commission;
+=======
+       const rawAmount = Number(order.amount);
+const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
+
+const commission = (totalAmount * adminPercentage) / 100;
+const organiserEarning = totalAmount - commission;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         if (new Date(order.eventDate) < today) {
           totalEarnings += organiserEarning;
         }
@@ -192,6 +212,7 @@ const Dashboard = () => {
           OrganiserEarning: `₹${organiserEarning.toFixed(2)}`,
         };
       });
+<<<<<<< HEAD
     formattedOrders.push({
   OrderID: "",
   Buyer: "",
@@ -204,6 +225,9 @@ const Dashboard = () => {
   AdminCommission: "",
   OrganiserEarning: "",
 });
+=======
+    formattedOrders.push({});
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     formattedOrders.push({
       OrderID: "",
       Buyer: "",
@@ -231,6 +255,7 @@ const Dashboard = () => {
     link.click();
   };
   const exportToPDF = (
+<<<<<<< HEAD
     orders: any[],
     filename: string,
     adminPercentage: number
@@ -309,6 +334,91 @@ const Dashboard = () => {
 
     doc.save(`${filename}.pdf`);
   };
+=======
+  orders: any[],
+  filename: string,
+  adminPercentage: number
+) => {
+  const doc = new jsPDF();
+  const today = new Date();
+
+  let totalEarnings = 0;
+
+  const tableRows = orders.map((order) => {
+    const rawAmount = Number(order.amount);
+    const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
+
+    const validAdminPercentage = isNaN(adminPercentage)
+      ? 0
+      : Number(adminPercentage);
+
+    const commission = (totalAmount * validAdminPercentage) / 100;
+    const organiserEarning = totalAmount - commission;
+
+    // Safely check event date
+    const eventDate = new Date(order.eventDate);
+    if (!isNaN(eventDate.getTime()) && eventDate < today) {
+      totalEarnings += organiserEarning;
+    }
+
+    return [
+      order._id || "",
+      order.username || "",
+      order.email || "",
+      order.eventTitle || "",
+      order.eventDate ? formatDate(order.eventDate) : "N/A",
+      order.orderDate ? formatDate(order.orderDate) : "N/A",
+      order.ticketCount ?? "",
+      `₹${totalAmount.toFixed(2)}`,
+      `₹${commission.toFixed(2)} (${validAdminPercentage}%)`,
+      `₹${organiserEarning.toFixed(2)}`,
+    ];
+  });
+
+  // Add an empty row + total
+  tableRows.push([]);
+  tableRows.push([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Total Earnings:",
+    `₹${totalEarnings.toFixed(2)}`,
+  ]);
+
+  const tableHeaders = [
+    "Order ID",
+    "Buyer",
+    "Email",
+    "Event",
+    "Event Date",
+    "Order Date",
+    "Qty",
+    "Total",
+    "Admin Commission",
+    "Earnings",
+  ];
+
+  doc.setFontSize(18);
+  doc.text("Sales Report", 14, 22);
+  doc.setFontSize(12);
+
+  autoTable(doc, {
+    startY: 30,
+    head: [tableHeaders],
+    body: tableRows,
+    styles: { font: "helvetica", fontSize: 9 },
+    headStyles: { fillColor: [33, 150, 243] },
+  });
+
+  doc.save(`${filename}.pdf`);
+};
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const formatDate = (iso: string) => {
     const date = new Date(iso);
@@ -374,6 +484,38 @@ const Dashboard = () => {
             </div>
           </div>
 
+<<<<<<< HEAD
+=======
+          {/* <div className=" mx-auto p-4 bg-white shadow-md rounded-md  lg:flex-row justify-between items-start lg:items-center">
+           
+
+        <label className="block text-sm font-medium">Select Month</label>
+        <select
+            className="w-full border rounded p-2"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            {months.map((month) => (
+              <option key={month.value} value={month.value}>
+                {month.label}
+              </option>
+            ))}
+          </select>
+          
+          <label className="block text-sm font-medium">Select Year</label>
+          <input
+            type="number"
+            className="w-full border rounded p-2"
+            placeholder="e.g. 2025"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            min="2000"
+            max="2099"
+          />
+         
+          </div>*/}
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -684,10 +826,16 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div className="text-right">
+<<<<<<< HEAD
                        
                         <div className="text-sm text-green-600 font-medium">
   ₹{(event.ticketPrice ?? event.ticketTypes[0]?.price ?? 0).toLocaleString()}
 </div>
+=======
+                        <div className="text-sm text-green-600 font-medium">
+                          ₹{event.ticketPrice.toLocaleString()}
+                        </div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                         <div
                           className={`inline-block px-2 py-1 rounded-full text-xs mt-1 ${
                             event.status === "published"

@@ -2,12 +2,17 @@ import { IEventDTO } from "src/interface/IEventDTO";
 import EventModel, { IEvent } from "../model/event";
 import { IEventRepository } from "./repositoryInterface/IEventRepository";
 import mongoose, { DeleteResult, FilterQuery } from "mongoose";
+<<<<<<< HEAD
 import { EventEdit, GetEvent, IEventFilter, Location } from "src/interface/event";
+=======
+import { EventEdit, GetEvent, IEventFilter } from "src/interface/event";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { IUser } from "src/interface/IUserAuth";
 import User from "../model/user";
 import { BaseRepository } from "./baseRepository";
 import PlatformSettings from "../model/platformSettings";
 
+<<<<<<< HEAD
 import dotenv from 'dotenv';
 dotenv.config()
 
@@ -20,6 +25,8 @@ import Notification from "../model/notification";
 
 
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export class EventRepository
   extends BaseRepository<IEvent>
   implements IEventRepository
@@ -28,6 +35,7 @@ export class EventRepository
     super(EventModel);
   }
   async getEvents(filters: IEventFilter): Promise<GetEvent | null> {
+<<<<<<< HEAD
     
 
     const {
@@ -91,6 +99,16 @@ export class EventRepository
       maxPrice,
       selectedDate,
       searchTerm,
+=======
+    console.log("filters",filters);
+    
+    const {
+      searchLocation,
+      selectedCategory,
+      maxPrice,
+      selectedDate,
+      searchTitle,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       page = 1,
       limit = 6,
     } = filters;
@@ -99,6 +117,7 @@ export class EventRepository
 
     const query: FilterQuery<IEvent> = {
       isBlocked: false,
+<<<<<<< HEAD
       status:"completed"
       
     };
@@ -111,6 +130,18 @@ export class EventRepository
     }
     if (selectedCategory) {
       query.category = { $regex: selectedCategory, $options: "i" };
+=======
+      status: "published",
+    };
+    if (searchLocation) {
+      query.venue = { $regex: searchLocation, $options: "i" };
+    }
+    if (searchTitle) {
+      query.title = { $regex: searchTitle, $options: "i" };
+    }
+    if (selectedCategory) {
+      query.category = {$regex:selectedCategory,$options:"i"};
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
     if (maxPrice != undefined && maxPrice != null) {
       query.ticketPrice = { $lte: maxPrice };
@@ -127,7 +158,12 @@ export class EventRepository
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
+<<<<<<< HEAD
     console.log("eventsee", events);
+=======
+      console.log("events",events);
+      
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     return {
       totalPages: Math.ceil(totalCount / limit),
@@ -139,6 +175,7 @@ export class EventRepository
     return await this.findById(id);
   }
   async createEvent(data: IEventDTO): Promise<IEvent> {
+<<<<<<< HEAD
     console.log("data",data);
     
     const event= await EventModel.create(data);
@@ -151,11 +188,17 @@ export class EventRepository
 
     })
     return event
+=======
+    console.log("repdata", data);
+
+    return await EventModel.create(data);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   }
   async eventDelete(id: string): Promise<DeleteResult> {
     return this.deleteById(id);
   }
   async editEvent(id: string, data: EventEdit): Promise<IEvent | null> {
+<<<<<<< HEAD
     let ticketTypes: IEvent["ticketTypes"] | undefined;
 
   if (data.ticketTypes) {
@@ -174,6 +217,15 @@ export class EventRepository
     };
     if (data.capacity !== undefined) {
       updatedData.availableTickets = data.capacity;
+=======
+    const updatedData: Partial<IEvent> = {
+      ...data,
+      date: new Date(data.date),
+      status: data.status as "draft" | "published" | "completed" | "cancelled",
+    };
+    if(data.capacity!==undefined){
+      updatedData.availableTickets=data.capacity
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
     return this.updateById(id, updatedData);
   }
@@ -195,6 +247,7 @@ export class EventRepository
     limit: number,
     page: number,
     searchTerm: string,
+<<<<<<< HEAD
     date: string,
     status:string
 
@@ -211,6 +264,23 @@ filter.$or = [
     }
     if(status&&status!="all"){
       filter.status={$regex:status,$options:"i"}
+=======
+    date: string
+  ): Promise<GetEvent | null> {
+    const skip = (page - 1) * limit;
+    const filter: {
+      organiser: string;
+      title?: { $regex: string; $options: string };
+      venue?: { $regex: string; $options: string };
+
+      date?: { $gte: Date; $lt: Date };
+    } = {
+      organiser: id,
+    };
+    if (searchTerm) {
+      filter.title = { $regex: searchTerm, $options: "i" };
+      filter.venue = { $regex: searchTerm, $options: "i" };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
 
     if (date) {
@@ -224,8 +294,12 @@ filter.$or = [
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
+<<<<<<< HEAD
     const totalEvents = await EventModel.countDocuments(filter);
     
+=======
+    const totalEvents = await EventModel.countDocuments({ organiser: id });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     return {
       events,
       totalPages: Math.ceil(totalEvents / limit),
@@ -309,6 +383,7 @@ filter.$or = [
       .sort((a, b) => b.ticketsSold - a.ticketsSold)
       .slice(0, 5);
     let organiserEarning = 0;
+<<<<<<< HEAD
     let totalAttendees = 0;
     completedEvents.forEach((event) => {
   let ticketRevenue = 0;
@@ -352,12 +427,17 @@ if (event.ticketTypes && event.ticketTypes.length > 0) {
   
   ticketRevenue = (event.ticketPrice ?? 0) * (event.ticketsSold ?? 0);
 }
+=======
+    completedEvents.forEach((event) => {
+      const ticketRevenue = event.ticketPrice * event.ticketsSold;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       const adminCutPerTicket =
         (event.ticketPrice * adminCommissionPercentage) / 100;
       const totalAdminCut = adminCutPerTicket * event.ticketsSold;
 
       organiserEarning += ticketRevenue - totalAdminCut;
     });
+<<<<<<< HEAD
    
     const totalAttendees = completedEvents.reduce(
       (sum, event) => sum + event.ticketsSold,
@@ -365,6 +445,13 @@ if (event.ticketTypes && event.ticketTypes.length > 0) {
     );*/
      const totalEvents = events.length;
 
+=======
+    const totalEvents = events.length;
+    const totalAttendees = completedEvents.reduce(
+      (sum, event) => sum + event.ticketsSold,
+      0
+    );
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const upcomingEvents = events
       .filter((event) => new Date(event.date) >= new Date())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -397,6 +484,7 @@ if (event.ticketTypes && event.ticketTypes.length > 0) {
       category: { $regex: new RegExp(`^${category}$`, "i") },
     });
   }
+<<<<<<< HEAD
   async findRecommended(
     userId: string,
     filters: IEventFilter
@@ -514,4 +602,6 @@ async findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]
    
   }
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

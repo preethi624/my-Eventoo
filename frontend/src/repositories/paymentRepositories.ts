@@ -3,7 +3,11 @@ import { AxiosError } from "axios";
 import type {
   OrderCreateInput,
   RazorpayPaymentResponse,
+<<<<<<< HEAD
   
+=======
+  UserProfile,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 } from "../interfaces/IPayment";
 import axiosInstance from "../utils/axiosUser";
 import type { IGetOrdersResponse } from "../interfaces/IOrder";
@@ -110,7 +114,11 @@ export const getOrderDetails = async (orderId: string, userId: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const getEventBooked = async () => {
+=======
+export const getEventBooked = async (): Promise<UserProfile> => {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/order`);
     if (response) {
@@ -164,12 +172,19 @@ export const getTickets = async (orderId: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const getTicketDetails = async (userId: string, queryParams: string,page:number,limit:number) => {
   try {
    
     
     const response = await axiosInstance.get(
       `${API_BASE_URL}/ticketDetails/${userId}?${queryParams}&page=${page}&limit=${limit}`
+=======
+export const getTicketDetails = async (userId: string, queryParams: string) => {
+  try {
+    const response = await axiosInstance.get(
+      `${API_BASE_URL}/ticketDetails/${userId}?${queryParams}`
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     );
     console.log("detailResponse", response);
     if (response) {
@@ -200,7 +215,10 @@ export const createFreeBooking = async (data: OrderCreateInput) => {
   }
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export const paymentRepository = {
   createOrder,
   verifyPayment,

@@ -18,16 +18,20 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const user_1 = __importDefault(require("../model/user"));
 const baseRepository_1 = require("./baseRepository");
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
+<<<<<<< HEAD
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const order_1 = __importDefault(require("../model/order"));
 const notification_1 = __importDefault(require("../model/notification"));
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 class EventRepository extends baseRepository_1.BaseRepository {
     constructor() {
         super(event_1.default);
     }
     getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
             const { selectedCategory, maxPrice, selectedDate, searchTerm, page = 1, limit = 6, } = filters;
             const skip = (page - 1) * limit;
             const query = {
@@ -39,6 +43,20 @@ class EventRepository extends baseRepository_1.BaseRepository {
                     { title: { $regex: searchTerm, $options: "i" } },
                     { venue: { $regex: searchTerm, $options: "i" } },
                 ];
+=======
+            console.log("filters", filters);
+            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, } = filters;
+            const skip = (page - 1) * limit;
+            const query = {
+                isBlocked: false,
+                status: "published",
+            };
+            if (searchLocation) {
+                query.venue = { $regex: searchLocation, $options: "i" };
+            }
+            if (searchTitle) {
+                query.title = { $regex: searchTitle, $options: "i" };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             }
             if (selectedCategory) {
                 query.category = { $regex: selectedCategory, $options: "i" };
@@ -58,6 +76,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });
+<<<<<<< HEAD
             console.log("eventsee", events);
             return {
                 totalPages: Math.ceil(totalCount / limit),
@@ -99,6 +118,9 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .limit(limit)
                 .sort({ createdAt: -1 });
             console.log("eventsee", events);
+=======
+            console.log("events", events);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             return {
                 totalPages: Math.ceil(totalCount / limit),
                 events,
@@ -113,6 +135,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     createEvent(data) {
         return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
             console.log("data", data);
             const event = yield event_1.default.create(data);
             yield notification_1.default.create({
@@ -122,6 +145,10 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 isRead: false
             });
             return event;
+=======
+            console.log("repdata", data);
+            return yield event_1.default.create(data);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         });
     }
     eventDelete(id) {
@@ -131,6 +158,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     editEvent(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
             let ticketTypes;
             if (data.ticketTypes) {
                 ticketTypes = data.ticketTypes.map((t) => {
@@ -144,6 +172,9 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 });
             }
             const updatedData = Object.assign(Object.assign({}, data), { date: new Date(data.date), status: data.status, ticketTypes });
+=======
+            const updatedData = Object.assign(Object.assign({}, data), { date: new Date(data.date), status: data.status });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             if (data.capacity !== undefined) {
                 updatedData.availableTickets = data.capacity;
             }
@@ -163,6 +194,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
             });
         });
     }
+<<<<<<< HEAD
     eventGet(id, limit, page, searchTerm, date, status) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
@@ -175,6 +207,17 @@ class EventRepository extends baseRepository_1.BaseRepository {
             }
             if (status && status != "all") {
                 filter.status = { $regex: status, $options: "i" };
+=======
+    eventGet(id, limit, page, searchTerm, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            const filter = {
+                organiser: id,
+            };
+            if (searchTerm) {
+                filter.title = { $regex: searchTerm, $options: "i" };
+                filter.venue = { $regex: searchTerm, $options: "i" };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             }
             if (date) {
                 const selectedDate = new Date(date);
@@ -186,7 +229,11 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });
+<<<<<<< HEAD
             const totalEvents = yield event_1.default.countDocuments(filter);
+=======
+            const totalEvents = yield event_1.default.countDocuments({ organiser: id });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             return {
                 events,
                 totalPages: Math.ceil(totalEvents / limit),
@@ -258,6 +305,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .sort((a, b) => b.ticketsSold - a.ticketsSold)
                 .slice(0, 5);
             let organiserEarning = 0;
+<<<<<<< HEAD
             let totalAttendees = 0;
             completedEvents.forEach((event) => {
                 var _a, _b, _c;
@@ -312,6 +360,16 @@ class EventRepository extends baseRepository_1.BaseRepository {
               0
             );*/
             const totalEvents = events.length;
+=======
+            completedEvents.forEach((event) => {
+                const ticketRevenue = event.ticketPrice * event.ticketsSold;
+                const adminCutPerTicket = (event.ticketPrice * adminCommissionPercentage) / 100;
+                const totalAdminCut = adminCutPerTicket * event.ticketsSold;
+                organiserEarning += ticketRevenue - totalAdminCut;
+            });
+            const totalEvents = events.length;
+            const totalAttendees = completedEvents.reduce((sum, event) => sum + event.ticketsSold, 0);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const upcomingEvents = events
                 .filter((event) => new Date(event.date) >= new Date())
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -349,6 +407,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
             });
         });
     }
+<<<<<<< HEAD
     findRecommended(userId, filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -432,6 +491,8 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 } }));
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.EventRepository = EventRepository;
 //# sourceMappingURL=eventRepository.js.map

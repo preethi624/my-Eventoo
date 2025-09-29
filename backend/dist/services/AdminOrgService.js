@@ -16,10 +16,17 @@ class AdminOrgService {
         this._adminOrgRepository = _adminOrgRepository;
         this.mailService = mailService;
     }
+<<<<<<< HEAD
     getOrganiser(limit, page, searchTerm, filterStatus, sortBy) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._adminOrgRepository.getOrganiserAll(limit, page, searchTerm, filterStatus, sortBy);
+=======
+    getOrganiser(limit, page, searchTerm, filterStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._adminOrgRepository.getOrganiserAll(limit, page, searchTerm, filterStatus);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 if (result) {
                     return {
                         result: result.result,

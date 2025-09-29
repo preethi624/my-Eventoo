@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useState, useRef, useEffect } from 'react';
+=======
+import React, { useState, useRef, useEffect } from 'react';
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaTimes, FaPaperPlane, FaUser } from 'react-icons/fa';
 

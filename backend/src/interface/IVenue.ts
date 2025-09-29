@@ -63,7 +63,12 @@ export interface VenueFetch{
   message?:string;
 }
 export interface OrgVenueFilter{
+<<<<<<< HEAD
  searchTerm?:string
+=======
+  nameSearch?:string;
+  locationSearch?:string;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   page?:number;
   limit?:number
 }

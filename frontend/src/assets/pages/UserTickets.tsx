@@ -18,7 +18,10 @@ import { QRCodeSVG } from "qrcode.react";
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import UserNavbar from "../components/UseNavbar";
+<<<<<<< HEAD
 import targetLogo from "../images/target_3484438 (2).png";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 interface Ticket {
   _id: string;
@@ -44,6 +47,7 @@ interface Ticket {
     status: string;
   };
 }
+<<<<<<< HEAD
 const getBase64FromImage = (imgUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -61,6 +65,8 @@ const getBase64FromImage = (imgUrl: string): Promise<string> => {
     img.onerror = reject;
   });
 };
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export const TicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -70,6 +76,7 @@ export const TicketsPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
+<<<<<<< HEAD
   const [limit, setLimit] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -79,6 +86,12 @@ export const TicketsPage: React.FC = () => {
   useEffect(() => {
     fetchTickets();
   }, [searchTerm, filterStatus, limit, currentPage]);
+=======
+
+  useEffect(() => {
+    fetchTickets();
+  }, [searchTerm, filterStatus]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const fetchTickets = async () => {
     try {
       const params = new URLSearchParams();
@@ -91,6 +104,7 @@ export const TicketsPage: React.FC = () => {
       }
       const data = await paymentRepository.getTicketDetails(
         user?.id,
+<<<<<<< HEAD
         params.toString(),
         currentPage,
         limit
@@ -99,15 +113,33 @@ export const TicketsPage: React.FC = () => {
       setTickets(data.tickets);
       setTotalPage(data.totalPages);
       setCurrentPage(data.currentPage);
+=======
+        params.toString()
+      );
+      console.log("data", data);
+      setTickets(data.result);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
+<<<<<<< HEAD
   
 
   
+=======
+
+  const generateQRCode = (qrToken: string) => {
+    return `data:image/svg+xml;base64,${btoa(`
+      <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="white"/>
+        <text x="100" y="100" text-anchor="middle" font-size="12" fill="black">QR: ${qrToken}</text>
+      </svg>
+    `)}`;
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -123,6 +155,7 @@ export const TicketsPage: React.FC = () => {
       currency: currency,
     }).format(amount / 100);
   };
+<<<<<<< HEAD
   const handleNextPage = () => {
     if (currentPage < totalPage) {
       setCurrentPage(currentPage + 1);
@@ -192,6 +225,32 @@ export const TicketsPage: React.FC = () => {
     });
 
     // Save PDF
+=======
+
+  const isUpcoming = (date: Date) => new Date(date) > new Date();
+
+  const downloadTicket = async (ticket: Ticket) => {
+    const doc = new jsPDF();
+
+    const qrText = `https://myeventsite.com/verify/${ticket.qrToken}`;
+    const qrImage = await QRCode.toDataURL(qrText);
+
+    doc.text(`Ticket Confirmation`, 10, 10);
+    doc.text(`Ticket ID: ${ticket._id.slice(-6)}`, 10, 50);
+    doc.text(`Event: ${ticket.event.title}`, 10, 20);
+    doc.text(`Date: ${formatDate(ticket.event.date)}`, 10, 30);
+    doc.text(`Venue: ${ticket.event.venue}`, 10, 40);
+
+    doc.text(
+      `Amount Paid: ${formatCurrency(ticket.order.totalAmount)}`,
+      10,
+      70
+    );
+
+    // Draw QR code
+    doc.addImage(qrImage, "PNG", 10, 80, 50, 50);
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     doc.save(`ticket_${ticket.event.title.replace(/\s+/g, "_")}.pdf`);
   };
 
@@ -255,6 +314,7 @@ export const TicketsPage: React.FC = () => {
       window.open(whatsappUrl, "_blank");
     }
   };
+<<<<<<< HEAD
   const getImage = (ticket: any) => {
     let imageSrc = "https://via.placeholder.com/300x200";
     if (ticket.event.image && ticket.event.image.length > 0) {
@@ -272,6 +332,8 @@ export const TicketsPage: React.FC = () => {
     }
     return imageSrc;
   };
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -313,6 +375,7 @@ export const TicketsPage: React.FC = () => {
             </select>
           </div>
         </div>
+<<<<<<< HEAD
         <div className="flex justify-between items-center mb-4">
           <div>
             <label className="mr-2 text-gray-600">Rows per page:</label>
@@ -335,6 +398,8 @@ export const TicketsPage: React.FC = () => {
             Page {currentPage} of {totalPage}
           </div>
         </div>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
         {/* Tickets Grid */}
         {tickets.length === 0 ? (
@@ -344,7 +409,11 @@ export const TicketsPage: React.FC = () => {
               No tickets found
             </h3>
             <p className="text-gray-600">
+<<<<<<< HEAD
               You do not have any tickets matching your search criteria.
+=======
+              You don't have any tickets matching your search criteria.
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             </p>
           </div>
         ) : (
@@ -356,8 +425,16 @@ export const TicketsPage: React.FC = () => {
               >
                 <div className="relative">
                   <img
+<<<<<<< HEAD
                     src={getImage(ticket)}
                     alt="Event"
+=======
+                    src={`http://localhost:3000/${ticket.event.image[0].replace(
+                      "\\",
+                      "/"
+                    )}`}
+                    alt={ticket.event.title}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4">
@@ -434,6 +511,7 @@ export const TicketsPage: React.FC = () => {
           </div>
         )}
       </div>
+<<<<<<< HEAD
       <div className="flex justify-center mt-4 gap-2 flex-wrap">
         <button
           onClick={handlePrevPage}
@@ -455,6 +533,8 @@ export const TicketsPage: React.FC = () => {
           Next
         </button>
       </div>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       {/* QR Code Modal */}
       {selectedTicket && (

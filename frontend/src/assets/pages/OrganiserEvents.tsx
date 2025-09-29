@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import  { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { FaPlus, FaEdit } from "react-icons/fa";
+=======
+import React, { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import OrganiserLayout from "../components/OrganiserLayout";
 import { eventRepository } from "../../repositories/eventRepositories";
 import { useSelector } from "react-redux";
@@ -8,6 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Swal from "sweetalert2";
+<<<<<<< HEAD
 import type {
   
   IEvent,
@@ -18,12 +25,21 @@ import type {
 import { organiserRepository } from "../../repositories/organiserRepositories";
 
 
+=======
+import type { EventFetchResponse, IEventDTO } from "../../interfaces/IEvent";
+import { organiserRepository } from "../../repositories/organiserRepositories";
+import { eventSchema } from "../../validations/eventValidations";
+import * as Yup from "yup";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import DataTable from "../components/DataTable";
 import { Link } from "react-router-dom";
 import { categoryRepository } from "../../repositories/categoryRepository";
 import type { RootState } from "../../redux/stroe";
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export type EventForm = {
   title: string;
   description: string;
@@ -31,16 +47,23 @@ export type EventForm = {
   time: string;
   venue: string;
   category: string;
+<<<<<<< HEAD
   //ticketPrice: string;
+=======
+  ticketPrice: string;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   capacity: string;
   images: FileList | [];
   latitude: string;
   longitude: string;
+<<<<<<< HEAD
   ticketTypes: {
     economic: { price: string; capacity: string };
     premium: { price: string; capacity: string };
     vip: { price: string; capacity: string };
   };
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 };
 
 export type EventEdit = {
@@ -52,6 +75,7 @@ export type EventEdit = {
   ticketsSold?: number;
   status: string;
   description: string;
+<<<<<<< HEAD
   ticketPrice?: number;
   capacity: number;
   category: string;
@@ -69,6 +93,27 @@ export type EventEdit = {
 const OrganiserEvents: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [events, setEvents] = useState<IEvent[]>([]);
+=======
+  ticketPrice: number;
+  capacity: number;
+  category: string;
+  time: string;
+};
+
+type Organiser = {
+  id: string;
+};
+
+/*type RootState = {
+  auth: {
+    organiser: Organiser;
+  };
+};*/
+
+const OrganiserEvents: React.FC = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [events, setEvents] = useState<IEventDTO[]>([]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const [editModal, setEditModal] = useState(false);
   const [editEventId, setEditEventID] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,6 +121,7 @@ const OrganiserEvents: React.FC = () => {
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
     []
   );
+<<<<<<< HEAD
   interface IVenue {
   _id: string;
   name: string;
@@ -84,6 +130,8 @@ const OrganiserEvents: React.FC = () => {
  
   console.log(editEventId);
   
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const [editForm, setEditForm] = useState<EventEdit>({
     id: "",
@@ -93,6 +141,7 @@ const OrganiserEvents: React.FC = () => {
     time: "",
     venue: "",
     category: "",
+<<<<<<< HEAD
     //ticketPrice: 0,
     capacity: 0,
     status: "",
@@ -105,6 +154,12 @@ const OrganiserEvents: React.FC = () => {
   });
   
   
+=======
+    ticketPrice: 0,
+    capacity: 0,
+    status: "",
+  });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const [eventForm, setEventForm] = useState<EventForm>({
     title: "",
     description: "",
@@ -112,12 +167,16 @@ const OrganiserEvents: React.FC = () => {
     time: "",
     venue: "",
     category: "",
+<<<<<<< HEAD
     //ticketPrice: "",
     ticketTypes: {
     economic: { price: "", capacity: "" },
     premium: { price: "", capacity: "" },
     vip: { price: "", capacity: "" },
   },
+=======
+    ticketPrice: "",
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     capacity: "",
     images: [],
     latitude: "",
@@ -126,15 +185,22 @@ const OrganiserEvents: React.FC = () => {
 
   const [organiserDetails, setOrganiserDetails] = useState<any>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
+<<<<<<< HEAD
   const [venues, setVenues] = useState<IVenue[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [limit, setLimit] = useState(10);
+=======
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const limit = 5;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   useEffect(() => {
     fetchEvents();
     fetchCategories();
+<<<<<<< HEAD
     fetchVenues();
   }, [currentPage, selectedDate, statusFilter, limit]);
   useEffect(() => {
@@ -148,6 +214,9 @@ const OrganiserEvents: React.FC = () => {
     console.log("venues", response);
     setVenues(response.venues);
   };
+=======
+  }, [currentPage, searchTerm, selectedDate]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const fetchCategories = async () => {
     const response = await categoryRepository.getCategories();
 
@@ -162,6 +231,7 @@ const OrganiserEvents: React.FC = () => {
       }
 
       if (selectedDate) params.append("date", selectedDate);
+<<<<<<< HEAD
       if (statusFilter) params.append("status", statusFilter);
 
       const orgId = organiser?.id;
@@ -169,6 +239,11 @@ const OrganiserEvents: React.FC = () => {
         throw new Error("organiserId not present");
       }
       const response = await eventRepository.getEvents(
+=======
+
+      const orgId = organiser?.id;
+      const response: EventFetchResponse = await eventRepository.getEvents(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         orgId,
         currentPage,
         limit,
@@ -216,6 +291,7 @@ const OrganiserEvents: React.FC = () => {
     fetchOrganiserDetails();
   }, [organiser]);
 
+<<<<<<< HEAD
   
 
   const handleSubmit = async (e: FormEvent) => {
@@ -248,6 +324,70 @@ const OrganiserEvents: React.FC = () => {
   }
 });
 
+=======
+  const validateCreateForm = () => {
+    const {
+      title,
+      category,
+      description,
+      date,
+      time,
+      venue,
+      capacity,
+      ticketPrice,
+      images,
+    } = eventForm;
+
+    if (!title || !category || !description || !date || !time || !venue) {
+      toast.error("Please fill in all required fields.");
+      return false;
+    }
+
+    if (!images || images.length === 0) {
+      toast.error("Please upload at least one image.");
+      return false;
+    }
+
+    if (Number(capacity) <= 0) {
+      toast.error("Capacity must be greater than 0.");
+      return false;
+    }
+
+    if (Number(ticketPrice) < 0) {
+      toast.error("Ticket price cannot be negative.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    //const isValid=validateCreateForm();
+    //if(!isValid)return
+    try {
+      // Validate eventForm against the schema
+      await eventSchema.validate(eventForm, { abortEarly: false });
+
+      console.log("Valid event data:", eventForm);
+      // submit to API...
+      const formData = new FormData();
+      Object.keys(eventForm).forEach((key) => {
+        if (key === "images") {
+          const files = eventForm.images as FileList;
+
+          for (let i = 0; i < files.length; i++) {
+            formData.append("images", files[i]);
+          }
+        } else {
+          const typedKey = key as keyof typeof eventForm;
+          const value = eventForm[typedKey];
+          if (typeof value === "string") {
+            formData.append(key, value);
+          }
+        }
+      });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       formData.append("organiser", organiser.id);
 
       const response = await eventRepository.createEvent(formData);
@@ -261,12 +401,16 @@ const OrganiserEvents: React.FC = () => {
           time: "",
           venue: "",
           category: "",
+<<<<<<< HEAD
           //ticketPrice: "",
             ticketTypes: {
     economic: { price: "", capacity: "" },
     premium: { price: "", capacity: "" },
     vip: { price: "", capacity: "" },
   },
+=======
+          ticketPrice: "",
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           capacity: "",
           images: [],
           latitude: "",
@@ -275,9 +419,18 @@ const OrganiserEvents: React.FC = () => {
         fetchEvents();
       }
     } catch (err) {
+<<<<<<< HEAD
       
      console.log(err);
      
+=======
+      if (err instanceof Yup.ValidationError) {
+        // Show all validation messages (or show one)
+        err.inner.forEach((error) => {
+          toast.error(error.message); // or store in state and display under each field
+        });
+      }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
   };
   const handleDelete = async (eventId: string | undefined) => {
@@ -329,6 +482,7 @@ const OrganiserEvents: React.FC = () => {
 
       venue: selectedEvent.venue,
       category: selectedEvent.category,
+<<<<<<< HEAD
       //ticketPrice: selectedEvent.ticketPrice,
       ticketTypes: {
     economic: {
@@ -353,6 +507,13 @@ const OrganiserEvents: React.FC = () => {
 
   };
   
+=======
+      ticketPrice: selectedEvent.ticketPrice,
+      capacity: selectedEvent.capacity,
+      status: selectedEvent.status,
+    });
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const validateEditForm = () => {
     const {
       title,
@@ -419,7 +580,11 @@ const OrganiserEvents: React.FC = () => {
       return false;
     }
 
+<<<<<<< HEAD
     if (ticketPrice === null || ticketPrice! < 0) {
+=======
+    if (ticketPrice === null || ticketPrice < 0) {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       toast.error("Ticket price must be 0 or greater");
       return false;
     }
@@ -437,6 +602,7 @@ const OrganiserEvents: React.FC = () => {
     }
     const isValid = validateEditForm();
     if (!isValid) return;
+<<<<<<< HEAD
     const formData = new FormData();
     Object.keys(editForm).forEach((key) => {
       if (key === "images" && (editForm as any).images instanceof FileList) {
@@ -453,6 +619,8 @@ const OrganiserEvents: React.FC = () => {
       }
     });
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const response = await eventRepository.editEvent(id, editForm);
     if (response.success) {
       toast(response.message);
@@ -464,7 +632,11 @@ const OrganiserEvents: React.FC = () => {
   };
   const handleReapply = async () => {
     const orgId = organiser?.id;
+<<<<<<< HEAD
     const response = await organiserRepository.reapply(orgId!);
+=======
+    const response = await organiserRepository.reapply(orgId);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     console.log("resp", response);
 
     if (response.success) {
@@ -489,15 +661,28 @@ const OrganiserEvents: React.FC = () => {
       render: (event: any) => (
         <div className="flex gap-2">
           <button
+<<<<<<< HEAD
             onClick={() => handleEdit(event._id)}
             className="text-blue-600 hover:text-blue-800"
+=======
+            className="text-blue-500 hover:text-blue-700"
+            onClick={() => handleEdit(event._id)}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           >
             <FaEdit />
           </button>
           <button
+<<<<<<< HEAD
             onClick={() => handleDelete(event._id)}
             className="text-red-600 hover:text-red-800"
           ></button>
+=======
+            className="text-red-500 hover:text-red-700"
+            onClick={() => handleDelete(event._id)}
+          >
+            <FaTrash />
+          </button>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           <Link to={`/organiserEvent/${event._id}`}>
             <button className="bg-black text-white px-2 py-1 rounded text-sm hover:bg-indigo-700">
               Analytics
@@ -512,7 +697,10 @@ const OrganiserEvents: React.FC = () => {
     setSearchTerm("");
     setSelectedDate("");
     setCurrentPage(1);
+<<<<<<< HEAD
     setStatusFilter("");
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   };
 
   return (
@@ -552,7 +740,11 @@ const OrganiserEvents: React.FC = () => {
       <div className="bg-white shadow-md rounded p-4 overflow-x-auto">
         <input
           type="text"
+<<<<<<< HEAD
           placeholder="Search by eventName or venue "
+=======
+          placeholder="Search by event "
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           className="border px-3 py-1 rounded w-full sm:w-64"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -563,6 +755,7 @@ const OrganiserEvents: React.FC = () => {
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
+<<<<<<< HEAD
         <select
           className="border px-3 py-1 rounded w-full sm:w-48"
           value={statusFilter}
@@ -574,12 +767,15 @@ const OrganiserEvents: React.FC = () => {
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </select>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         <button
           onClick={handleResetFilters}
           className="bg-black text-white px-8 py-1 rounded hover:bg-red-600"
         >
           ResetFlters
         </button>
+<<<<<<< HEAD
         <div className="flex justify-between items-center mb-4">
           <div>
             <label className="mr-2 text-gray-600">Rows per page:</label>
@@ -625,6 +821,42 @@ const OrganiserEvents: React.FC = () => {
             Next
           </button>
         </div>
+=======
+
+        <DataTable data={events} columns={columns} />
+
+        {totalPage > 1 && (
+          <div className="flex justify-center mt-4 gap-2">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPage }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === index + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-300"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPage}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       </div>
 
       {showModal && (
@@ -710,13 +942,19 @@ const OrganiserEvents: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-1">Venue</label>
+<<<<<<< HEAD
                   <select
+=======
+                  <input
+                    type="text"
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     name="venue"
                     value={eventForm.venue}
                     onChange={(e) =>
                       setEventForm({ ...eventForm, venue: e.target.value })
                     }
                     className="w-full border px-3 py-2 rounded"
+<<<<<<< HEAD
                   >
                     <option value="">Select a venue</option>
                     {venues.map((venue) => (
@@ -728,6 +966,11 @@ const OrganiserEvents: React.FC = () => {
                 </div>
 
                 {/* Capacity Input */}
+=======
+                  />
+                </div>
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 <div>
                   <label className="block mb-1">Capacity</label>
                   <input
@@ -742,6 +985,7 @@ const OrganiserEvents: React.FC = () => {
                 </div>
               </div>
 
+<<<<<<< HEAD
               
               <div>
   <h4 className="font-semibold mb-2">Ticket Pricing</h4>
@@ -852,6 +1096,20 @@ const OrganiserEvents: React.FC = () => {
   </div>
 </div>
 
+=======
+              <div>
+                <label className="block mb-1">Ticket Price</label>
+                <input
+                  type="number"
+                  name="ticketPrice"
+                  value={eventForm.ticketPrice}
+                  onChange={(e) =>
+                    setEventForm({ ...eventForm, ticketPrice: e.target.value })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
               <div>
                 <label className="block mb-1">Event Images</label>
@@ -1010,6 +1268,7 @@ const OrganiserEvents: React.FC = () => {
                 </div>
               </div>
 
+<<<<<<< HEAD
               
               <div>
   <h4 className="font-semibold mb-2">Ticket Pricing</h4>
@@ -1146,6 +1405,24 @@ const OrganiserEvents: React.FC = () => {
   </div>
 </div>
 
+=======
+              <div>
+                <label className="block mb-1">Ticket Price</label>
+                <input
+                  type="number"
+                  name="ticketPrice"
+                  min="0"
+                  value={editForm.ticketPrice}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      ticketPrice: Number(e.target.value),
+                    })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
               <div>
                 <label className="block mb-1">Status</label>
                 <select
@@ -1163,6 +1440,7 @@ const OrganiserEvents: React.FC = () => {
                   <option value="cancelled">cancelled</option>
                 </select>
               </div>
+<<<<<<< HEAD
               <div>
                 <label className="block mb-1">Event Image</label>
 
@@ -1198,6 +1476,8 @@ const OrganiserEvents: React.FC = () => {
                   }}
                 />
               </div>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
               <div className="flex justify-end gap-2">
                 <button

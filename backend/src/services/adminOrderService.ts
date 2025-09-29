@@ -4,8 +4,11 @@ import { IAdminOrderRepository } from "src/repositories/repositoryInterface/IAdm
 import { OrderDashboard } from "src/interface/IUser";
 import { MESSAGES } from "../constants/messages";
 
+<<<<<<< HEAD
 import { IOrderDTO } from "src/interface/IOrder";
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export class AdminOrderService implements IAdminOrderService {
   constructor(private _adminOrderRepository: IAdminOrderRepository) {}
   async getOrders(filters: IOrderFilter): Promise<GetOrder> {
@@ -66,6 +69,7 @@ export class AdminOrderService implements IAdminOrderService {
       };
     }
   }
+<<<<<<< HEAD
   async orderDetailsGet(orderId:string):Promise<{success:boolean,orders?:IOrderDTO}>{
     try {
       const response=await this._adminOrderRepository.getOrderDetails(orderId);
@@ -83,4 +87,6 @@ export class AdminOrderService implements IAdminOrderService {
       
     }
   }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

@@ -13,6 +13,7 @@ import {
   ProfileEdit,
   Reapply,
 } from "src/interface/IUser";
+<<<<<<< HEAD
 import { FetchOrders, GetOrder, Update } from "src/interface/IPayment";
 import { GetVenue, OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
 import { MESSAGES } from "../constants/messages";
@@ -25,6 +26,13 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+=======
+import { FetchOrders, GetOrder } from "src/interface/IPayment";
+import { GetVenue, OrgVenueFilter, VenueFetch } from "src/interface/IVenue";
+import { MESSAGES } from "../constants/messages";
+import { OrganiserRepository } from "src/repositories/organiserRepository";
+import { IUser } from "src/interface/IUserAuth";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class OrganiserService implements IOrganiserService {
   constructor(private _organiserRepository: IOrganiserRepository) {}
@@ -235,8 +243,11 @@ export class OrganiserService implements IOrganiserService {
           currentPage: response.currentPage,
           totalPages: response.totalPages,
           totalAttendees: response.totalAttendees,
+<<<<<<< HEAD
           ticketTypeStats:response.ticketTypeStats
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         };
       } else {
         return { success: false, message: "failed" };
@@ -311,6 +322,7 @@ export class OrganiserService implements IOrganiserService {
       throw error;
     }
   }
+<<<<<<< HEAD
   async eventOrders(eventId:string):Promise<{success:boolean,orders?:IOrder[]}>{
     try {
       const response=await this._organiserRepository.fetchEventOrders(eventId
@@ -393,4 +405,6 @@ console.log("Razorpay payment:", payment);
       
     }
   }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useState, useEffect } from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import type { FormEvent } from "react";
 import { FaEdit } from "react-icons/fa";
 import AdminLayout from "../components/AdminLayout";
@@ -7,8 +11,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Swal from "sweetalert2";
+<<<<<<< HEAD
 import DataTable from "../components/DataTable";
 import { Search, Filter, SortAsc, Sparkles } from "lucide-react";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export interface Organiser {
   _id: string;
@@ -28,11 +35,17 @@ const AdminOrganiser: React.FC = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+<<<<<<< HEAD
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [debounceSearch, setDebounceSearch] = useState(searchTerm);
   const [sortBy, setSortBy] = useState("");
   const [limit, setLimit] = useState(10);
+=======
+   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all"); 
+  const limit = 10;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const [formData, setFormData] = useState<Omit<Organiser, "_id">>({
     name: "",
@@ -42,6 +55,7 @@ const AdminOrganiser: React.FC = () => {
     status: "pending",
     isBlocked: false,
   });
+<<<<<<< HEAD
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounceSearch(searchTerm);
@@ -52,6 +66,12 @@ const AdminOrganiser: React.FC = () => {
   useEffect(() => {
     fetchOrganisers();
   }, [currentPage, debounceSearch, filterStatus, sortBy, limit]);
+=======
+
+  useEffect(() => {
+    fetchOrganisers();
+  }, [currentPage,searchTerm,filterStatus]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const fetchOrganisers = async () => {
     try {
@@ -59,13 +79,21 @@ const AdminOrganiser: React.FC = () => {
         limit,
         currentPage,
         searchTerm,
+<<<<<<< HEAD
         filterStatus,
         sortBy
+=======
+        filterStatus
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       );
 
       if (response.success && response.result) {
         setOrganisers(response.result);
+<<<<<<< HEAD
         setTotalPage(response.total??1);
+=======
+        setTotalPage(response.total);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       }
     } catch (error: any) {
       console.error("Error fetching organisers:", error);
@@ -127,11 +155,15 @@ const AdminOrganiser: React.FC = () => {
       try {
         const response = await adminRepository.organiserBlock(organiser);
         if (response.success) {
+<<<<<<< HEAD
           setOrganisers((prevOrgs) =>
             prevOrgs.map((u) =>
               u._id === organiser._id ? { ...u, isBlocked: !u.isBlocked } : u
             )
           );
+=======
+          setOrganisers(prevOrgs=>prevOrgs.map(u=>u._id===organiser._id?{...u,isBlocked:!u.isBlocked}:u))
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           if (organiser.isBlocked) {
             toast.success("Unblocked organiser successfully!");
           } else {
@@ -160,6 +192,30 @@ const AdminOrganiser: React.FC = () => {
     });
   };
 
+<<<<<<< HEAD
+=======
+  const getStatusBadge = (status: string = "pending") => {
+    const base = "px-2 py-1 rounded text-sm font-medium";
+    switch (status) {
+      case "approved":
+        return (
+          <span className={`${base} bg-green-100 text-green-800`}>
+            Approved
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className={`${base} bg-red-100 text-red-800`}>Rejected</span>
+        );
+      default:
+        return (
+          <span className={`${base} bg-yellow-100 text-yellow-800`}>
+            Pending
+          </span>
+        );
+    }
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const handleNextPage = () => {
     if (currentPage < totalPage) {
       setCurrentPage(currentPage + 1);
@@ -172,6 +228,7 @@ const AdminOrganiser: React.FC = () => {
     }
   };
 
+<<<<<<< HEAD
   const columns = [
     {
       header: "Name",
@@ -219,6 +276,8 @@ const AdminOrganiser: React.FC = () => {
     },
   ];
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   return (
     <AdminLayout>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
@@ -226,6 +285,7 @@ const AdminOrganiser: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Organisers</h2>
       </div>
+<<<<<<< HEAD
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 rounded-2xl border border-white/20 shadow-xl backdrop-blur-sm mb-6">
         <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-400/10 to-orange-400/10 rounded-full blur-xl animate-pulse delay-1000"></div>
@@ -373,6 +433,69 @@ const AdminOrganiser: React.FC = () => {
             Next
           </button>
         </div>
+=======
+       <div className="flex gap-4 mb-4">
+  {/* Search input */}
+  <input
+    type="text"
+    placeholder="Search by name or email"
+    className="border border-gray-300 rounded px-3 py-2 w-64"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+
+  {/* Filter dropdown */}
+  <select
+    className="border border-gray-300 rounded px-3 py-2"
+    value={filterStatus}
+    onChange={(e) => setFilterStatus(e.target.value)}
+  >
+    <option value="all">All</option>
+    <option value="blocked">Blocked</option>
+    <option value="unblocked">Unblocked</option>
+  </select>
+</div>
+
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {organisers.map((organiser) => (
+              <tr key={organiser._id} className="border-t">
+                <td className="p-3">{organiser.name}</td>
+                <td className="p-3">{organiser.email}</td>
+                <td className="p-3">{getStatusBadge(organiser.status)}</td>
+                <td className="p-3 space-x-2">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded"
+                    onClick={() => handleEdit(organiser)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className={`${
+                      organiser.isBlocked
+                        ? "bg-green-500 hover:bg-green-600"
+                        : "bg-yellow-500 hover:bg-yellow-600"
+                    } text-white p-2 rounded`}
+                    onClick={() => handleBlock(organiser)}
+                  >
+                    {organiser.isBlocked ? "Unblock" : "Block"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       </div>
 
       {showModal && (
@@ -460,6 +583,40 @@ const AdminOrganiser: React.FC = () => {
           </div>
         </div>
       )}
+<<<<<<< HEAD
+=======
+      {totalPage > 1 && (
+        <div className="flex justify-center mt-4 gap-2">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPage }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPage}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     </AdminLayout>
   );
 };

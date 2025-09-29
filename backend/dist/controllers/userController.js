@@ -92,6 +92,7 @@ class UserController {
             }
         });
     }
+<<<<<<< HEAD
     changePassword(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -115,6 +116,8 @@ class UserController {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.UserController = UserController;
 //# sourceMappingURL=userController.js.map

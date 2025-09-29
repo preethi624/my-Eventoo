@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import Types from 'mongoose';
 export interface IEventImage{
@@ -14,6 +15,9 @@ export interface ITicketType {
 
 export interface IEventDTO {
   
+=======
+export interface IEventDTO {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   title: string;
   description: string;
   date: Date;
@@ -22,14 +26,22 @@ export interface IEventDTO {
   category: string;
   ticketPrice: number;
   capacity: number;
+<<<<<<< HEAD
   images: string[]|IEventImage[];
   organiser: string|Types.ObjectId;
+=======
+  images: string[];
+  organiser: string;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   status: 'draft' | 'published' |'completed'| 'cancelled';
   ticketsSold: number;
   createdAt: Date;
   latitude: number;
   longitude: number;
   isBlocked:boolean;
+<<<<<<< HEAD
   embedding?:number[];
    ticketTypes: ITicketType[]
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

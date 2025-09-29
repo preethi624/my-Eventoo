@@ -7,9 +7,14 @@ import { IPaymentController } from "./controllerInterface/IPaymentController";
 import { IPaymentService } from "src/services/serviceInterface/IPaymentService";
 
 import { StatusCode } from "../constants/statusCodeEnum";
+<<<<<<< HEAD
 
 import { MESSAGES } from "../constants/messages";
 import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
+=======
+import { AuthenticatedRequest } from "./userController";
+import { MESSAGES } from "../constants/messages";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export class PaymentController implements IPaymentController {
   constructor(private _paymentService: IPaymentService) {}
   async createOrder(req: Request, res: Response): Promise<void> {
@@ -214,19 +219,29 @@ export class PaymentController implements IPaymentController {
       const userId = req.params.userId;
       const searchTerm = req.query.searchTerm as string;
       const status = req.query.status as string;
+<<<<<<< HEAD
       const page=req.query.page as string;
       const limit=req.query.limit as string;
       console.log("limitNumbr",limit);
       
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       const response = await this._paymentService.ticketDetailsGet(
         userId,
         searchTerm as string,
+<<<<<<< HEAD
         status,page,limit
       );
       if (response) {
         res.json({ tickets: response.tickets, success: true ,totalPages:response.totalPages,totalItems:response.totalItems,currentPage:response.currentPage});
+=======
+        status
+      );
+      if (response) {
+        res.json({ result: response.tickets, success: true });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       } else {
         res.json({ success: false });
       }

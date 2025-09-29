@@ -65,6 +65,7 @@ class AdminOrderService {
             }
         });
     }
+<<<<<<< HEAD
     orderDetailsGet(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -82,6 +83,8 @@ class AdminOrderService {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.AdminOrderService = AdminOrderService;
 //# sourceMappingURL=adminOrderService.js.map

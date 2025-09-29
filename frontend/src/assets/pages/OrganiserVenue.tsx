@@ -24,19 +24,32 @@ const VenuePage: React.FC = () => {
   const [venues, setVenues] = useState<IVenue[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< HEAD
   //const [nameSearch, setNameSearch] = useState("");
   //const [locationSearch, setLocationSearch] = useState("");
   const [searchTerm,setSearchTerm]=useState("");
   const limit = 6;
 
   
+=======
+  const [nameSearch, setNameSearch] = useState("");
+  const [locationSearch, setLocationSearch] = useState("");
+  const limit = 6;
+
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const navigate = useNavigate();
 
   const fetchVenues = async () => {
     const params = new URLSearchParams();
+<<<<<<< HEAD
     //if (nameSearch) params.append("nameSearch", nameSearch);
     //if (locationSearch) params.append("locationSearch", locationSearch);
     if(searchTerm) params.append("searchTerm",searchTerm)
+=======
+    if (nameSearch) params.append("nameSearch", nameSearch);
+    if (locationSearch) params.append("locationSearch", locationSearch);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     params.append("page", currentPage.toString());
     params.append("limit", limit.toString());
 
@@ -48,7 +61,11 @@ const VenuePage: React.FC = () => {
 
   useEffect(() => {
     fetchVenues();
+<<<<<<< HEAD
   }, [currentPage, searchTerm]);
+=======
+  }, [currentPage, nameSearch, locationSearch]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const handleVenueDetail = async (venueId: string) => {
     navigate(`/venue/${venueId}`);
   };
@@ -61,16 +78,38 @@ const VenuePage: React.FC = () => {
           <div className="relative">
             <input
               type="text"
+<<<<<<< HEAD
               placeholder="Search by name or venue"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
+=======
+              placeholder="Search by name..."
+              value={nameSearch}
+              onChange={(e) => {
+                setNameSearch(e.target.value);
                 setCurrentPage(1);
               }}
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg"
             />
           </div>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by name location..."
+              value={locationSearch}
+              onChange={(e) => {
+                setLocationSearch(e.target.value);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
+                setCurrentPage(1);
+              }}
+              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+<<<<<<< HEAD
          
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -111,11 +150,17 @@ const VenuePage: React.FC = () => {
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                       />
                     </svg>
+<<<<<<< HEAD
                     <span className="text-sm">{venue.address},</span>
                     <span>{venue.city}</span>
                   </div>
 
 
+=======
+                    <span className="text-sm">{venue.address}</span>
+                  </div>
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                   <div className="flex items-center text-gray-600">
                     <svg
                       className="w-4 h-4 mr-2"

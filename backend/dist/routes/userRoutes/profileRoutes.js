@@ -16,6 +16,9 @@ const router = express_1.default.Router();
 router.get("/user", middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.getUser.bind(userProfiledi_1.userController));
 router.put("/user", middleware_di_1.authMiddlewarwSet.userOnly, upload.single("image"), userProfiledi_1.userController.updateUser.bind(userProfiledi_1.userController));
 router.get("/orgs", middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.getOrgs.bind(userProfiledi_1.userController));
+<<<<<<< HEAD
 router.put('/', middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.changePassword.bind(userProfiledi_1.userController));
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 exports.default = router;
 //# sourceMappingURL=profileRoutes.js.map

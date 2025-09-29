@@ -2,16 +2,25 @@ import { type AxiosResponse } from "axios";
 import { AxiosError } from "axios";
 
 import type {
+<<<<<<< HEAD
  
   EventFetchResponse,
   IEventDTO,
   Location,
+=======
+  EventCount,
+  EventFetchResponse,
+  IEventDTO,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 } from "../interfaces/IEvent";
 import type { EventEdit } from "../assets/pages/OrganiserEvents";
 import axiosInstance from "../utils/axiosUser";
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/event`;
 
 interface CreateEvent {
@@ -28,10 +37,13 @@ interface EventGetById {
 
 export const createEvent = async (data: FormData): Promise<CreateEvent> => {
   try {
+<<<<<<< HEAD
     
     
     
     
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const response: CreateEvent = await axiosInstance.post(
       `${API_BASE_URL}/event`,
       data
@@ -76,6 +88,7 @@ export const getOrganiserEvents = async (
   }
 };
 
+<<<<<<< HEAD
 export const getCompletedEvents = async (
   filters: string
 ): Promise<EventFetchResponse> => {
@@ -92,6 +105,8 @@ export const getCompletedEvents = async (
     throw axiosError.response?.data || axiosError.message;
   }
 };
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export const getEventById = async (id: string): Promise<EventGetById> => {
   try {
     const response = await axiosInstance.get<EventGetById>(
@@ -107,6 +122,7 @@ export const editEvent = async (
   id: string,
   editForm: EventEdit
 ): Promise<CreateEvent> => {
+<<<<<<< HEAD
  
   
   try {
@@ -140,6 +156,12 @@ export const editEvent = async (
           "Content-Type":"multipart/form-data"
         }
       }
+=======
+  try {
+    const response: AxiosResponse<CreateEvent> = await axiosInstance.put(
+      `${API_BASE_URL}/event/${id}`,
+      editForm
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     );
     if (response.data) {
       return response.data;
@@ -175,6 +197,7 @@ export const getEvents = async (
   currentPage: number,
   limit: number,
   queryParams: string
+<<<<<<< HEAD
 )=> {
  
   
@@ -182,6 +205,11 @@ export const getEvents = async (
    
     
     const response = await axiosInstance.get(
+=======
+): Promise<EventFetchResponse> => {
+  try {
+    const response = await axiosInstance.get<EventFetchResponse>(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       `${API_BASE_URL}/events/${id}?limit=${limit}&page=${currentPage}&${queryParams}`
     );
 
@@ -191,7 +219,11 @@ export const getEvents = async (
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const getEventsCreated = async ()=> {
+=======
+export const getEventsCreated = async (): Promise<EventCount> => {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/eventCount`);
 
@@ -246,6 +278,7 @@ export const fetchEventsByCategory = async (category: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const findRecommended=async(filters:string)=>{
   try {
     const response=await axiosInstance.get(`${API_BASE_URL}/recommended?${filters}`);
@@ -286,6 +319,8 @@ export const fetchNearByEvents=async({latitude,longitude}:Location,filters:strin
     
   }
 }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export const eventRepository = {
   createEvent,
@@ -300,7 +335,10 @@ export const eventRepository = {
   fetchEvents,
   findEvent,
   fetchEventsByCategory,
+<<<<<<< HEAD
   findRecommended,
   fetchNearByEvents,
   getCompletedEvents
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 };

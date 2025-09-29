@@ -8,7 +8,11 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import store from './redux/stroe.ts';
+<<<<<<< HEAD
 
+=======
+import React from 'react'
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 
 

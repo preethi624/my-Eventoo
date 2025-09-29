@@ -70,6 +70,7 @@ class UserService {
             }
         });
     }
+<<<<<<< HEAD
     passwordChange(userId, newPass, currentPass) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -87,6 +88,8 @@ class UserService {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.UserService = UserService;
 //# sourceMappingURL=userService.js.map

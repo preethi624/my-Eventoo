@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ITicket, TicketModel } from "../model/ticket";
 
 import { PipelineStage } from "mongoose";
+<<<<<<< HEAD
 import Notification from "../model/notification";
 import { ITicketDetails } from "src/interface/ITicket";
 
@@ -116,18 +117,100 @@ export class PaymentRepository implements IPaymentRepository {
   }
 }
 
+=======
+
+export class PaymentRepository implements IPaymentRepository {
+ async createOrder(data: IPaymentDTO): Promise<IOrder> {
+
+
+    /*console.log("repData", data);
+
+   
+       return await Order.create(data);*/
+       const session=await mongoose.startSession();
+       session.startTransaction()
+       try {
+        const updatedEvent=await EventModel.findOneAndUpdate({ _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
+      { $inc: { availableTickets: -data.ticketCount } },
+      { new: true, session })
+      if(!updatedEvent){
+        throw new Error("Not enough tickets available")
+      }
+      const [order]=await Order.create([data],{session})
+      await session.commitTransaction();
+      return order
+        
+       } catch (error) {
+        await session.abortTransaction();
+    throw error;
+        
+       } finally {
+    session.endSession();
+  }
+
+  
+
+
+   
+  }
+  /*async createOrder(data: IPaymentDTO): Promise<IOrder> {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Reserve tickets
+    const updatedEvent = await EventModel.findOneAndUpdate(
+      { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
+      { $inc: { availableTickets: -data.ticketCount } },
+      { new: true, session }
+    );
+
+    if (!updatedEvent) {
+
+      throw new Error("Not enough tickets available");
+    }
+
+    // Create pending order
+    const order = await Order.create(
+      [{ ...data, bookingStatus: "pending" }],
+      { session }
+    );
+
+    await session.commitTransaction();
+    return order[0];
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+}*/
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   async createOrderFree(data: OrderFree): Promise<IOrder> {
     return await Order.create(data);
   }
 
+<<<<<<< HEAD
   async updatePaymentDetails(
+=======
+  /*async updatePaymentDetails(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     orderId: string,
     paymentId: string,
     signature: string,
     status: string
+<<<<<<< HEAD
   ): Promise<IOrder | null> {
     const updateOrder = await Order.findOneAndUpdate(
+=======
+   ): Promise<IOrder | null> {
+    const session=await mongoose.startSession();
+    session.startTransaction();
+    try {
+    
+     const updateOrder = await Order.findOneAndUpdate(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       { razorpayOrderId: orderId },
       {
         razorpayPaymentId: paymentId,
@@ -135,7 +218,11 @@ export class PaymentRepository implements IPaymentRepository {
         status: status,
         bookingStatus: "confirmed",
       },
+<<<<<<< HEAD
       { new: true }
+=======
+      { new: true ,session}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     );
 
     if (
@@ -144,9 +231,19 @@ export class PaymentRepository implements IPaymentRepository {
       updateOrder.ticketCount &&
       updateOrder.bookingStatus === "confirmed"
     ) {
+<<<<<<< HEAD
       await EventModel.findByIdAndUpdate(updateOrder.eventId._id, {
         $inc: { ticketsSold: updateOrder.ticketCount },
       });
+=======
+      const updatedEvent=await EventModel.findByIdAndUpdate(updateOrder.eventId._id, {
+        $inc: { ticketsSold: updateOrder.ticketCount },
+       
+      },{new:true,session});
+       if (!updatedEvent) {
+      throw new Error("Not enough tickets available");
+    }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       const ticketsToInsert = [];
       for (let i = 0; i < updateOrder.ticketCount; i++) {
         ticketsToInsert.push({
@@ -158,6 +255,7 @@ export class PaymentRepository implements IPaymentRepository {
           checkedIn: false,
         });
       }
+<<<<<<< HEAD
       await TicketModel.insertMany(ticketsToInsert);
       await Notification.create({
         userId: updateOrder.userId,
@@ -169,6 +267,197 @@ export class PaymentRepository implements IPaymentRepository {
 
     return Order.findById(updateOrder?._id).populate("eventId").exec();
   }
+=======
+      await TicketModel.insertMany(ticketsToInsert,{session});
+    }
+    await session.commitTransaction();
+    return Order.findById(updateOrder?._id).populate("eventId").exec(); 
+    
+      
+    } catch (error) {
+      await session.abortTransaction();
+      throw error
+      
+    }finally{
+      session.endSession()
+    }
+    
+  }*/
+ /*async updatePaymentDetails(
+  orderId: string,
+  paymentId: string,
+  signature: string,
+  status: string
+): Promise<IOrder | null> {
+  const session=await mongoose.startSession()
+
+  try {
+    session.startTransaction()
+    // Step 1: Update the order and confirm booking
+    const updateOrder = await Order.findOneAndUpdate(
+      { razorpayOrderId: orderId },
+      {
+        razorpayPaymentId: paymentId,
+        razorpaySignature: signature,
+        status: status,
+        bookingStatus: "confirmed",
+      },
+      { new: true,session }
+    );
+
+    if (
+      updateOrder &&
+      updateOrder.eventId &&
+      updateOrder.ticketCount &&
+      updateOrder.bookingStatus === "confirmed"
+    ) {
+      // Step 2: Atomically decrement availableTickets and increment ticketsSold
+      const updatedEvent = await EventModel.findOneAndUpdate(
+        {
+          _id: updateOrder.eventId._id,
+          availableTickets: { $gte: updateOrder.ticketCount } // Ensure enough tickets left
+        },
+        {
+          $inc: {
+            ticketsSold: updateOrder.ticketCount,
+            availableTickets: -updateOrder.ticketCount
+          }
+        },
+        { new: true,session}
+      );
+
+      if (!updatedEvent) {
+        throw new Error("Not enough tickets available");
+      }
+
+      // Step 3: Create ticket documents
+      const ticketsToInsert = [];
+      for (let i = 0; i < updateOrder.ticketCount; i++) {
+        ticketsToInsert.push({
+          userId: updateOrder.userId,
+          orderId: updateOrder._id,
+          eventId: updateOrder.eventId,
+          qrToken: uuidv4(),
+          issuedAt: new Date(),
+          checkedIn: false,
+        });
+      }
+      await TicketModel.insertMany(ticketsToInsert,{session});
+    }
+    await session.commitTransaction();
+    session.endSession()
+
+    
+
+    // Step 5: Return populated order
+    return Order.findById(updateOrder?._id).populate("eventId").exec();
+    
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession()
+    console.log(error);
+    
+    
+    throw error;
+  } 
+} */
+/*async updatePaymentDetails(
+  orderId: string,
+  paymentId: string,
+  signature: string,
+  status: string
+): Promise<IOrder | null> {
+  const session=await mongoose.startSession()
+  try {
+    session.startTransaction();
+    const order=await Order.findOne(
+      { razorpayOrderId: orderId, bookingStatus: { $ne: "confirmed" } },
+      null,
+      {session}
+    )
+     if (!order) {
+      throw new Error("Order not found or already confirmed");
+    }
+    const updatedEvent = await EventModel.findOneAndUpdate(
+      {
+        _id: order.eventId._id,
+        availableTickets: { $gte: order.ticketCount }, 
+      },
+      {
+        $inc: {
+          ticketsSold: order.ticketCount,
+          availableTickets: -order.ticketCount,
+        },
+      },
+      { new: true, session }
+    );
+    if (!updatedEvent) {
+      throw new Error("Not enough tickets available");
+    }
+    order.razorpayPaymentId = paymentId;
+    order.razorpaySignature = signature;
+    order.status = status;
+    order.bookingStatus = "confirmed";
+    await order.save({ session });
+    const ticketsToInsert = [];
+    for (let i = 0; i < order.ticketCount; i++) {
+      ticketsToInsert.push({
+        userId: order.userId,
+        orderId: order._id,
+        eventId: order.eventId,
+        qrToken: uuidv4(),
+        issuedAt: new Date(),
+        checkedIn: false,
+      });
+    }
+    await TicketModel.insertMany(ticketsToInsert, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return Order.findById(order._id).populate("eventId").exec();
+
+    
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error(error);
+    throw error;
+    
+  }
+}*/
+ async updatePaymentDetails(orderId:string,paymentId:string,signature:string,status:string):Promise<IOrder|null>{
+     
+      
+        const updateOrder=await Order.findOneAndUpdate({razorpayOrderId:orderId},{
+            razorpayPaymentId:paymentId,
+            razorpaySignature:signature,
+            status:status,
+            bookingStatus:"confirmed"
+
+        },{new:true})
+
+        if(updateOrder&&updateOrder.eventId&&updateOrder.ticketCount&&updateOrder.bookingStatus==="confirmed"){
+          await EventModel.findByIdAndUpdate(updateOrder.eventId._id,{$inc:{ticketsSold:updateOrder.ticketCount}})
+          const ticketsToInsert = [];
+          for(let i=0;i<updateOrder.ticketCount;i++){
+            ticketsToInsert.push({
+        userId: updateOrder.userId,
+        orderId: updateOrder._id,
+        eventId: updateOrder.eventId,
+        qrToken: uuidv4(),
+        issuedAt: new Date(),
+        checkedIn: false
+      });
+
+          }
+          await TicketModel.insertMany(ticketsToInsert)
+        }
+        return Order.findById(updateOrder?._id).populate("eventId").exec()
+
+    }
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   async getOrders(
     id: string,
@@ -230,6 +519,7 @@ export class PaymentRepository implements IPaymentRepository {
     orderId: string,
     userId: string
   ): Promise<IOrder | null> {
+<<<<<<< HEAD
     try {
       const order = await Order.findOneAndUpdate(
         { userId, _id: orderId },
@@ -258,6 +548,30 @@ export class PaymentRepository implements IPaymentRepository {
   }
  
 
+=======
+    console.log("orderId", orderId);
+
+   /* return await Order.findOneAndUpdate(
+      { userId, _id: orderId },
+      { status: payStatus },
+      { new: true }
+    );*/
+    const order = await Order.findOneAndUpdate(
+    { userId, _id: orderId },
+    { status: payStatus },
+    { new: true }
+  );
+
+  if (order && order.eventId) {
+    // Increment the available tickets in the event
+    await EventModel.findByIdAndUpdate(order.eventId, {
+      $inc: { availableTickets: order.ticketCount }
+    });
+  }
+
+  return order;
+  }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async getOrdersById(userId: string): Promise<UserProfileUpdate> {
     try {
       const [stats] = await Order.aggregate([
@@ -295,13 +609,18 @@ export class PaymentRepository implements IPaymentRepository {
       const order = await Order.findById(orderId);
       if (!order) throw new Error("Order not found");
       const eventId = order.eventId;
+<<<<<<< HEAD
     
+=======
+      const ticketCount = order.ticketCount;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       await Order.findByIdAndUpdate(orderId, {
         refundId: refundId,
         status: "refunded",
         bookingStatus: "cancelled",
       });
 
+<<<<<<< HEAD
     
       await EventModel.findOneAndUpdate(
       {
@@ -330,6 +649,10 @@ export class PaymentRepository implements IPaymentRepository {
         }" refunded with amount ${order.amount / 100}! `,
         type: "general",
         isRead: false,
+=======
+      await EventModel.findByIdAndUpdate(eventId, {
+        $inc: { availableTickets: ticketCount },
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       });
       return { success: true };
     } catch (error) {
@@ -348,6 +671,7 @@ export class PaymentRepository implements IPaymentRepository {
   async getTicketDetails(
     userId: string,
     searchTerm = "",
+<<<<<<< HEAD
     status = "",
     page: string,
     limit: string
@@ -356,14 +680,22 @@ export class PaymentRepository implements IPaymentRepository {
     const limitNumber = parseInt(limit) || 5;
     const skip = (pageNumber - 1) * limitNumber;
 
+=======
+    status = ""
+  ): Promise<ITicket[]> {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const matchStage: PipelineStage.Match = {
       $match: {
         userId: new mongoose.Types.ObjectId(userId),
       },
     };
+<<<<<<< HEAD
 
     // Base pipeline (without pagination)
     const basePipeline: PipelineStage[] = [
+=======
+    const pipeline: PipelineStage[] = [
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       matchStage,
       {
         $lookup: {
@@ -392,6 +724,10 @@ export class PaymentRepository implements IPaymentRepository {
           },
         },
       },
+<<<<<<< HEAD
+=======
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       {
         $lookup: {
           from: "orders",
@@ -402,8 +738,11 @@ export class PaymentRepository implements IPaymentRepository {
       },
       { $unwind: "$order" },
     ];
+<<<<<<< HEAD
 
     // search filter
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     if (searchTerm.trim() !== "") {
       const cleanedSearch = searchTerm
         .trim()
@@ -411,12 +750,17 @@ export class PaymentRepository implements IPaymentRepository {
         .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
         .toLowerCase();
       const regex = new RegExp(cleanedSearch, "i");
+<<<<<<< HEAD
       basePipeline.push({
+=======
+      pipeline.push({
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         $match: {
           $or: [{ normalizedTitle: regex }, { normalizedVenue: regex }],
         },
       });
     }
+<<<<<<< HEAD
 
     // status filter
     const now = new Date();
@@ -473,5 +817,43 @@ export class PaymentRepository implements IPaymentRepository {
       totalItems,
       currentPage: pageNumber,
     };
+=======
+    const now = new Date();
+    if (status === "upcoming") {
+      pipeline.push({ $match: { "event.date": { $gte: now } } });
+    } else if (status === "past") {
+      pipeline.push({ $match: { "event.date": { $lt: now } } });
+    }
+    pipeline.push({
+      $project: {
+        _id: 1,
+        userId: 1,
+        qrToken: 1,
+        issuedAt: 1,
+        checkedIn: 1,
+        orderId: "$order._id",
+        eventId: "$event._id",
+        event: {
+          _id: "$event._id",
+          title: "$event.title",
+          description: "$event.description",
+          date: "$event.date",
+          time: "$event.time",
+          venue: "$event.venue",
+          image: "$event.images",
+          category: "$event.category",
+        },
+        order: {
+          _id: "$order._id",
+          totalAmount: "$order.amount",
+          status: "$order.status",
+        },
+      },
+    });
+
+    const tickets = await TicketModel.aggregate(pipeline);
+
+    return tickets;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   }
 }

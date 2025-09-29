@@ -12,7 +12,10 @@ export interface IOrganiserController{
     getDashboardEvents(req:Request,res:Response):Promise<void>;
      updateTicket(req:Request,res:Response):Promise<void>;
      getUsers(req:Request,res:Response):Promise<void>;
+<<<<<<< HEAD
      fetchEventOrder(req:Request,res:Response):Promise<void>;
      cancelOrder(req:Request,res:Response):Promise<void>
      fetchVenues(req:Request,res:Response):Promise<void>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

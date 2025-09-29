@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useEffect, useState, type FC } from "react";
+=======
+import React, { useEffect, useState, type FC } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import {
   BarChart,
   Bar,

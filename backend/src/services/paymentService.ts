@@ -6,7 +6,11 @@ import {
   OrderCreate,
   OrderCreateInput,
   RazorpayPaymentResponse,
+<<<<<<< HEAD
   
+=======
+  TicketDetails,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   Update,
   UserProfileUpdate,
   VerifyResponse,
@@ -24,7 +28,10 @@ import PDFDocument from "pdfkit";
 import bwipjs from "bwip-js";
 import { ITicket } from "src/model/ticket";
 import { IEvent } from "src/model/event";
+<<<<<<< HEAD
 import { ITicketDetails } from "src/interface/ITicket";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -100,7 +107,10 @@ export class PaymentService implements IPaymentService {
       const eventId = data.eventId;
       const eventTitle = data.eventTitle;
       const email = data.email;
+<<<<<<< HEAD
       const selectedTicket=data.selectedTicket
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       const createdAt = new Date();
 
       const options = {
@@ -120,7 +130,10 @@ export class PaymentService implements IPaymentService {
         userId,
         eventId,
         eventTitle,
+<<<<<<< HEAD
         selectedTicket,
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         createdAt,
         orderId: orderId,
         email,
@@ -134,6 +147,7 @@ export class PaymentService implements IPaymentService {
       } else {
         return { success: false, message: "Not enough tickets to sail" };
       }
+<<<<<<< HEAD
     } catch (error) {
      if (error instanceof Error) {
     console.error('MongoDB connection error:', error.message);
@@ -149,6 +163,11 @@ export class PaymentService implements IPaymentService {
       };
   }
      
+=======
+    } catch (error:any) {
+      console.error(error);
+      return { success: false, message:error?.message|| "not creating order" };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
   }
   async orderCreateFree(
@@ -183,18 +202,26 @@ export class PaymentService implements IPaymentService {
       return { success: false };
     }
   }
+<<<<<<< HEAD
   async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
+=======
+  /*async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     try {
       const razorpay_payment_id = data.razorpay_payment_id;
       const razorpay_order_id = data.razorpay_order_id;
       const razorpay_signature = data.razorpay_signature;
       const secret = process.env.RAZORPAY_KEY_SECRET;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       if (!secret) {
         throw new Error(
           "RAZORPAY_KEY_SECRET is not defined in environment variables."
         );
       }
+<<<<<<< HEAD
 
       const hmac = crypto.createHmac("sha256", secret);
       hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
@@ -235,11 +262,144 @@ export class PaymentService implements IPaymentService {
         to: updatedOrder?.email,
         subject: `Your ticket for ${updatedOrder.eventTitle}`,
         html: `<h3>Thank you for booking!</h3>
+=======
+      const hmac = crypto.createHmac("sha256", secret);
+      hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+      const generatedSignature = hmac.digest("hex");
+      if (generatedSignature === razorpay_signature) {
+        const updatedOrder = await this._paymentRepository.updatePaymentDetails(
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+          "paid"
+        );
+        if (updatedOrder) {
+          console.log("updatedOrder", updatedOrder);
+          const event = updatedOrder.eventId as unknown as IEvent;
+
+          await this._eventRepository.decrementAvailableTickets(
+            updatedOrder.eventId._id.toString(),
+            updatedOrder.ticketCount
+          );
+
+          const tickets = await this._paymentRepository.getTickets(
+            updatedOrder._id
+          );
+          const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
+          const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: updatedOrder?.email,
+            subject: `Your ticket for ${updatedOrder.eventTitle}`,
+            text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(
+              tickets,
+              null,
+              2
+            )}`,
+            html: `<h3>Thank you for booking!</h3>
+        <p>Event: <b>${updatedOrder.eventTitle}</b></p>
+        <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
+        <p>Order ID: ${updatedOrder.orderId}</p>
+        <p>Venue:${event.venue}</p>
+        <p>Date:${event.date}
+        
+        `,
+
+            attachments: [
+              {
+                filename: "ticket.pdf",
+                content: pdfBuffer,
+              },
+            ],
+          };
+
+          await transporter.sendMail(mailOptions);
+          return {
+            success: true,
+            message: "Payment verified and ticket sent to email",
+          };
+        } else {
+          console.warn(
+            "No matching order found for Razorpay Order ID:",
+            razorpay_order_id
+          );
+        }
+
+        return { success: true, message: "Payment verified successfully" };
+      } else {
+        await this._paymentRepository.updatePaymentDetails(
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+          "failed"
+        );
+        return { success: false, message: "Payment not verified" };
+      }
+    } catch (error) {
+      console.error(error);
+      if (data.razorpay_order_id) {
+        await this._paymentRepository.updatePaymentDetails(
+          data.razorpay_order_id,
+          data.razorpay_payment_id || "",
+          data.razorpay_signature || "",
+          "failed"
+        );
+      }
+      return { success: false, message: "Payment not verified" };
+    }
+  }*/async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
+  try {
+    const razorpay_payment_id = data.razorpay_payment_id;
+    const razorpay_order_id = data.razorpay_order_id;
+    const razorpay_signature = data.razorpay_signature;
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!secret) {
+      throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables.");
+    }
+
+    // Step 1: Verify Razorpay signature
+    const hmac = crypto.createHmac("sha256", secret);
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+    const generatedSignature = hmac.digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return { success: false, message: "Payment verification failed" };
+    }
+
+    // Step 2: Update payment + decrement tickets inside a single transaction
+    const updatedOrder = await this._paymentRepository.updatePaymentDetails(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      "paid"
+    );
+
+    if (!updatedOrder) {
+      console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
+      return { success: false, message: "Order not found or already processed" };
+    }
+
+    const event = updatedOrder.eventId as unknown as IEvent;
+
+    // Step 3: Fetch tickets after transaction
+    const tickets = await this._paymentRepository.getTickets(updatedOrder._id);
+
+    // Step 4: Generate ticket PDF
+    const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
+
+    // Step 5: Send email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: updatedOrder?.email,
+      subject: `Your ticket for ${updatedOrder.eventTitle}`,
+      html: `<h3>Thank you for booking!</h3>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         <p>Event: <b>${updatedOrder.eventTitle}</b></p>
         <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
         <p>Order ID: ${updatedOrder.orderId}</p>
         <p>Venue: ${event.venue}</p>
         <p>Date: ${event.date}</p>`,
+<<<<<<< HEAD
         attachments: [
           {
             filename: "ticket.pdf",
@@ -265,6 +425,36 @@ export class PaymentService implements IPaymentService {
      
     }
   }
+=======
+      attachments: [
+        {
+          filename: "ticket.pdf",
+          content: pdfBuffer,
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      success: true,
+      message: "Payment verified and ticket sent to email",
+    };
+
+  } catch (error:any) {
+    
+    console.error("Payment verification failed:", error);
+    if(error.message==="Not enough tickets available"){
+      return {success:false,message:error.message}
+    }else{
+
+ return { success: false, message: "Payment verification failed" };
+    }
+   
+  }
+}
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   async paymentFailure(
     payStatus: string,
@@ -359,6 +549,7 @@ export class PaymentService implements IPaymentService {
   async orderFind(orderId: string): Promise<Update> {
     try {
       const result = await this._paymentRepository.findOrder(orderId);
+<<<<<<< HEAD
 
       if (result) {
         const paymentId = result.razorpayPaymentId;
@@ -375,6 +566,16 @@ export class PaymentService implements IPaymentService {
 
         const refundId = refund.id;
 
+=======
+      if (result) {
+        const paymentId = result.razorpayPaymentId;
+        const amount = result.amount;
+        const refund = await razorpay.payments.refund(paymentId, {
+          amount: amount,
+        });
+
+        const refundId = refund.id;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         const response = await this._paymentRepository.updateRefund(
           refundId,
           orderId
@@ -392,12 +593,19 @@ export class PaymentService implements IPaymentService {
         return { success: false, message: "failed to update" };
       }
     } catch (error) {
+<<<<<<< HEAD
       console.log(error);
 
       return { success: false, message: "failed to update" };
     }
   }
 
+=======
+      console.error(error);
+      return { success: false, message: "failed to update" };
+    }
+  }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async ticketsGet(orderId: string): Promise<GetTickets> {
     try {
       const result = await this._paymentRepository.getTickets(orderId);
@@ -414,14 +622,20 @@ export class PaymentService implements IPaymentService {
   async ticketDetailsGet(
     userId: string,
     searchTerm: string,
+<<<<<<< HEAD
     status: string,
     page: string,
     limit: string
   ): Promise<ITicketDetails> {
+=======
+    status: string
+  ): Promise<TicketDetails> {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     try {
       const result = await this._paymentRepository.getTicketDetails(
         userId,
         searchTerm,
+<<<<<<< HEAD
         status,
         page,
         limit
@@ -434,6 +648,12 @@ export class PaymentService implements IPaymentService {
           totalPages: result.totalPages,
           currentPage: result.currentPage,
         };
+=======
+        status
+      );
+      if (result) {
+        return { success: true, tickets: result };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       } else {
         return { success: false };
       }

@@ -1,5 +1,9 @@
 import  type { FC } from 'react';
+<<<<<<< HEAD
 
+=======
+import React from 'react';
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 import { FaSearch } from 'react-icons/fa';
 

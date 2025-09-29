@@ -25,7 +25,12 @@ import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+<<<<<<< HEAD
 import targetLogo from "../images/target_3484438 (2).png";
+=======
+import targetLogo from '../images/target_3484438 (2).png';
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const getBase64FromImage = (imgUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -45,6 +50,11 @@ const getBase64FromImage = (imgUrl: string): Promise<string> => {
   });
 };
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 const MySwal = withReactContent(Swal);
 
 const MyOrderPage: React.FC = () => {
@@ -62,7 +72,11 @@ const MyOrderPage: React.FC = () => {
   const limit = 5;
 
   const user = useSelector((state: RootState) => state.auth.user);
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounceSearch(searchTerm);
@@ -147,8 +161,11 @@ const MyOrderPage: React.FC = () => {
         return status;
     }
   };
+<<<<<<< HEAD
   console.log(refundId);
   
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const getBookingStatusDisplay = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -178,6 +195,7 @@ const MyOrderPage: React.FC = () => {
   };
 
   const getEventImage = (order: IOrder) => {
+<<<<<<< HEAD
     let imageSrc = "https://via.placeholder.com/300x200";
     if (order && order.eventDetails && order.eventDetails.images.length > 0) {
       const img = order.eventDetails.images[0];
@@ -197,6 +215,22 @@ const MyOrderPage: React.FC = () => {
       }
     }
     return imageSrc
+=======
+    // Priority: eventDetails.image > eventDetails.images[0] > default placeholder
+
+    if (order.eventDetails?.images && order.eventDetails.images.length > 0) {
+      const imagePath = order.eventDetails.images[0];
+      if(imagePath.startsWith("http")){
+         return imagePath;
+
+      }else{
+        return  `http://localhost:3000/${imagePath.replace(/\\/g, "/")}`;
+      }
+     
+    }
+    // Default placeholder image
+    return `https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format`;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   };
 
   const handleCancelBooking = async (orderId: string) => {
@@ -214,7 +248,10 @@ const MyOrderPage: React.FC = () => {
 
       if (result.isConfirmed) {
         const response = await paymentRepository.findOrder(orderId);
+<<<<<<< HEAD
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         if (response.success) {
           setRefundId(response.refund.response.refundId);
           fetchOrders();
@@ -243,6 +280,11 @@ const MyOrderPage: React.FC = () => {
       );
     }
   };
+<<<<<<< HEAD
+=======
+  console.log("refundid", refundId);
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   
   const handleDownloadTicket = async (orderId: string) => {
     const response = await paymentRepository.getTickets(orderId);
@@ -257,6 +299,7 @@ const MyOrderPage: React.FC = () => {
 
     for (let i = 0; i < tickets.length; i++) {
       const logoX = 70;
+<<<<<<< HEAD
       const logoY = 20;
       const logoWidth = 15;
       const logoHeight = 15;
@@ -272,6 +315,26 @@ const MyOrderPage: React.FC = () => {
       const textX = logoX + logoWidth + 5; 
       const textY = logoY + logoHeight / 2 + 2; 
       doc.text(`${order.eventTitle}`, textX, textY);
+=======
+  const logoY = 20;
+  const logoWidth = 15;
+  const logoHeight = 15;
+
+  // Draw logo
+  doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+
+  // Set font for title
+  doc.setFontSize(18);
+  doc.setTextColor(0);
+
+  // Place event title to the right of logo
+  const textX = logoX + logoWidth + 5; // 5 is padding between image and text
+  const textY = logoY + logoHeight / 2 + 2; // vertically center align text with image
+      doc.text(`${order.eventTitle}`,textX, textY);
+      
+    
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       doc.setDrawColor(0);
       doc.setLineWidth(0.5);
@@ -305,6 +368,10 @@ const MyOrderPage: React.FC = () => {
 
     doc.save(`ticket_${order.eventTitle.replace(/\s+/g, "_")}.pdf`);
   };
+<<<<<<< HEAD
+=======
+ 
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   if (loading) {
     return (
@@ -390,7 +457,11 @@ const MyOrderPage: React.FC = () => {
             <div className="p-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Event Image */}
+<<<<<<< HEAD
                 <div className="flex-shrink-0 relative">
+=======
+                <div className="flex-shrink-0">
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                   <img
                     src={getEventImage(order)}
                     alt={order.eventTitle}
@@ -400,9 +471,12 @@ const MyOrderPage: React.FC = () => {
                         "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
                     }}
                   />
+<<<<<<< HEAD
                   <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
                     {order.bookingNumber}
                   </div>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 </div>
 
                 {/* Order Details */}
@@ -416,10 +490,13 @@ const MyOrderPage: React.FC = () => {
                         Order ID: {order.orderId}
                       </p>
                       <p className="text-sm text-gray-500 mb-2">
+<<<<<<< HEAD
                         Booking Number: {order.bookingNumber}
                       </p>
 
                       <p className="text-sm text-gray-500 mb-2">
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                         Razorpay ID: {order.razorpayOrderId}
                       </p>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
@@ -467,7 +544,11 @@ const MyOrderPage: React.FC = () => {
                       <p>Refund ID: {order.refundId}</p>
                     )}
 
+<<<<<<< HEAD
                    {/*} <div>
+=======
+                    <div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                       <p className="text-sm text-gray-500">Tickets</p>
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4 text-gray-400" />
@@ -476,6 +557,7 @@ const MyOrderPage: React.FC = () => {
                           {order.ticketCount > 1 ? "s" : ""}
                         </span>
                       </div>
+<<<<<<< HEAD
                     </div>*/}
                     <div>
   <p className="text-sm text-gray-500">Tickets</p>
@@ -518,6 +600,10 @@ const MyOrderPage: React.FC = () => {
 
                     <div>
                     
+=======
+                    </div>
+                    <div>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                       <p className="text-sm text-gray-500">Total Amount</p>
                       <p className="font-semibold text-lg text-green-600">
                         {formatCurrency(order.amount, order.currency)}

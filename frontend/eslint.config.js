@@ -22,10 +22,14 @@ export default defineConfig([
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
+<<<<<<< HEAD
       //"react/prop-types": "off",
       //"@typescript-eslint/no-explicit-any": "off",
       "react/prop-types": "off", // disable prop-types for TS
       "react/react-in-jsx-scope": "off", // ✅ no need for React import in React 17+
+=======
+      "react/prop-types": "off",
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       "@typescript-eslint/no-explicit-any": "off",
     },
   },

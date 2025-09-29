@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useEffect, useState } from "react";
+=======
+import React, { useEffect, useState } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 import OrganiserLayout from "../components/OrganiserLayout";
 
@@ -45,7 +49,19 @@ export type EventEdit = {
   time: string;
 };
 
+<<<<<<< HEAD
 
+=======
+type Organiser = {
+  id: string;
+};
+
+/*type RootState = {
+  auth: {
+    organiser: Organiser;
+  };
+};*/
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const OrganiserBookings: React.FC = () => {
   const navigate = useNavigate();
@@ -59,12 +75,20 @@ const OrganiserBookings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
+<<<<<<< HEAD
   //const limit = 5;
   const [limit, setLimit] = useState(5);
 
   useEffect(() => {
     fetchOrders();
   }, [currentPage, searchTerm, statusFilter, selectedDate, limit]);
+=======
+  const limit = 5;
+
+  useEffect(() => {
+    fetchOrders();
+  }, [currentPage, searchTerm, statusFilter, selectedDate]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const fetchOrders = async () => {
     try {
@@ -76,9 +100,12 @@ const OrganiserBookings: React.FC = () => {
       if (selectedDate) params.append("date", selectedDate);
 
       const orgId = organiser?.id;
+<<<<<<< HEAD
       if(!orgId){
         throw new Error("no orgId")
       }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       const response = await organiserRepository.fetchBookings(
         orgId,
         currentPage,
@@ -184,6 +211,7 @@ const OrganiserBookings: React.FC = () => {
       </div>
 
       <div className="bg-white shadow-md rounded p-4 overflow-x-auto">
+<<<<<<< HEAD
         <div className="flex justify-between items-center mb-4">
           <div>
             <label className="mr-2 text-gray-600">Rows per page:</label>
@@ -230,6 +258,41 @@ const OrganiserBookings: React.FC = () => {
             Next
           </button>
         </div>
+=======
+        <DataTable data={orders} columns={orderColumns} />
+
+        {totalPage > 1 && (
+          <div className="flex justify-center mt-4 gap-2">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPage }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === index + 1
+                    ? "bg-black text-white"
+                    : "bg-gray-300"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPage}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       </div>
     </OrganiserLayout>
   );

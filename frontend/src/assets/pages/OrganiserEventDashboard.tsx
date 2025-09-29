@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useState, useEffect } from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { useParams } from "react-router-dom";
 import {
   Calendar,
@@ -9,11 +13,24 @@ import {
   TrendingUp,
   Clock,
   Tag,
+<<<<<<< HEAD
   
   CheckCircle,
   XCircle,
   AlertCircle,
  
+=======
+  Camera,
+  Edit,
+  Trash2,
+  Eye,
+  Share2,
+  Settings,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Download,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 } from "lucide-react";
 import {
   LineChart,
@@ -29,6 +46,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+<<<<<<< HEAD
 export interface IReview {
   _id: string;
   userId: { name: string };
@@ -63,6 +81,17 @@ const EventDashboard = () => {
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
+=======
+import { organiserRepository } from "../../repositories/organiserRepositories";
+import OrganiserLayout from "../components/OrganiserLayout";
+
+const EventDashboard = () => {
+  const { id } = useParams<{ id: string }>();
+  const [eventData, setEventData] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,6 +112,7 @@ const EventDashboard = () => {
     };
 
     fetchData();
+<<<<<<< HEAD
     fetchReviews()
     fetchOrders()
   }, [id]);
@@ -117,12 +147,25 @@ const EventDashboard = () => {
     }
   }
 
+=======
+  }, [id]);
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   if (loading)
     return <div className="text-center py-10 text-gray-600">Loading...</div>;
   if (!eventData || !stats)
     return <div className="text-center py-10 text-red-600">No event found</div>;
 
+<<<<<<< HEAD
   
+=======
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const formatDate = (date: Date | string) => {
     return new Intl.DateTimeFormat("en-IN", {
@@ -147,13 +190,29 @@ const EventDashboard = () => {
     }
   };
 
+<<<<<<< HEAD
  
+=======
+  const getBookingStatusIcon = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case "pending":
+        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
+      case "cancelled":
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const salesData = stats.salesTrend || [];
   const ticketStatusData = [
     { name: "Sold", value: eventData.ticketsSold, color: "#10B981" },
     { name: "Available", value: eventData.availableTickets, color: "#3B82F6" },
   ];
+<<<<<<< HEAD
   
   const columns = [
     { header: "Order ID", accessor: "orderId" },
@@ -183,6 +242,23 @@ const EventDashboard = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
+=======
+  const bookingStatusData = [
+    { name: "Confirmed", count: stats.confirmed },
+    { name: "Pending", count: stats.pending },
+    { name: "Cancelled", count: stats.cancelled },
+  ];
+
+  return (
+    <OrganiserLayout>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                   <h1 className="text-3xl font-bold text-gray-900">
                     {eventData.title}
                   </h1>
@@ -200,6 +276,7 @@ const EventDashboard = () => {
                     </span>
                   )}
                 </div>
+<<<<<<< HEAD
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-600">
                   <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                     <Calendar className="w-5 h-5 text-blue-500" />
@@ -216,11 +293,30 @@ const EventDashboard = () => {
                   <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                     <Tag className="w-5 h-5 text-purple-500" />
                     <span className="font-medium">{eventData.category}</span>
+=======
+                <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(eventData.date)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{eventData.time}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    <span>{eventData.venue}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Tag className="w-4 h-4" />
+                    <span>{eventData.category}</span>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                   </div>
                 </div>
               </div>
             </div>
           </div>
+<<<<<<< HEAD
 
           {/* Tab Navigation */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-6">
@@ -497,9 +593,105 @@ const EventDashboard = () => {
             </div>
           </div>
         </div>
+=======
+        </div>
+
+        {/* === Replace this section dynamically === */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow border">
+            <h4 className="text-sm text-gray-500 mb-1">Confirmed Bookings</h4>
+            <p className="text-2xl font-bold text-green-600">
+              {stats?.confirmed ?? 0}
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow border">
+            <h4 className="text-sm text-gray-500 mb-1">Pending Bookings</h4>
+            <p className="text-2xl font-bold text-yellow-600">
+              {stats?.pending ?? 0}
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow border">
+            <h4 className="text-sm text-gray-500 mb-1">Cancelled Bookings</h4>
+            <p className="text-2xl font-bold text-red-600">
+              {stats?.cancelled ?? 0}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8">
+  <h3 className="text-lg font-semibold mb-3 text-gray-700">Sales Trend</h3>
+  <div className="h-72 bg-white p-4 rounded-lg shadow border">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={salesData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis
+          dataKey="date"
+          tickFormatter={(dateStr) =>
+            new Date(dateStr).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+            })
+          }
+        />
+        <YAxis />
+        <Tooltip
+          labelFormatter={(value) =>
+            `Date: ${new Date(value).toLocaleDateString("en-IN")}`
+          }
+        />
+        <Line
+          type="monotone"
+          dataKey="sales"
+          stroke="#3B82F6"
+          strokeWidth={2}
+          dot={{ r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+<h3 className="text-lg font-semibold mt-10 mb-3 text-gray-700">
+  Ticket Category Breakdown
+</h3>
+<div className="h-72 bg-white p-4 rounded-lg shadow border">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={ticketStatusData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="value" fill="#10B981" />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+<PieChart width={300} height={250}>
+  <Pie
+    data={ticketStatusData}
+    cx="50%"
+    cy="50%"
+    outerRadius={80}
+    fill="#8884d8"
+    dataKey="value"
+    label={({ name, percent }) =>
+      `${name} (${(percent * 100).toFixed(0)}%)`
+    }
+  >
+    {ticketStatusData.map((entry, index) => (
+      <Cell key={`cell-${index}`} fill={entry.color} />
+    ))}
+  </Pie>
+</PieChart>
+
+        {/* === End dynamic section === */}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       </div>
     </OrganiserLayout>
   );
 };
 
+<<<<<<< HEAD
 export default EventDashboard;
+=======
+export default EventDashboard;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

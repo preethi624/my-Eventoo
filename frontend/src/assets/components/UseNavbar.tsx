@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 import React, { useRef, useState } from "react";
+=======
+import React, { useRef } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { logout } from "../../redux/slices/authSlices";
 import type { AppDispatch, RootState } from "../../redux/stroe";
 import targetLogo from "../images/target_3484438 (2).png";
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export interface CustomJwtPayload {
   name?: string;
   email?: string;
@@ -13,7 +21,10 @@ export interface CustomJwtPayload {
 const UserNavbar: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+<<<<<<< HEAD
   const [menuOpen, setMenuOpen] = useState(false);
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const handleLogout = () => {
     if (intervalRef.current) {
@@ -34,6 +45,7 @@ const UserNavbar: React.FC = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur shadow-md">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+<<<<<<< HEAD
         <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-800">
           <img src={targetLogo} alt="Logo" className="h-6 w-6" />
           EVENTOO
@@ -75,12 +87,23 @@ const UserNavbar: React.FC = () => {
             menuOpen ? "flex" : "hidden"
           }`}
         >
+=======
+       <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-800">
+  <img src={targetLogo} alt="Logo" className="h-6 w-6" />
+  EVENTOO
+</Link>
+        <div className="flex items-center gap-4">
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           <Link
             to="/about"
             className="text-gray-700 hover:text-blue-600 font-medium"
           >
             About Us
           </Link>
+<<<<<<< HEAD
+=======
+          
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
           {isLoggedin && (
             <>
@@ -114,12 +137,15 @@ const UserNavbar: React.FC = () => {
               >
                 Chat
               </Link>
+<<<<<<< HEAD
               <Link
                 to="/userNotifications"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Notifications
               </Link>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
               <Link to={`/userProfile`}>
                 <span className="text-sm font-semibold text-gray-800">

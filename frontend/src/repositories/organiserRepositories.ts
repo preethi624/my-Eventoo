@@ -1,6 +1,7 @@
 import axios from "axios";
 import { AxiosError } from "axios";
 
+<<<<<<< HEAD
 
 import axiosInstance from "../utils/axiosUser";
 import type { OrgOrder } from "../interfaces/IPayment";
@@ -13,6 +14,24 @@ export const getOrganiserById = async (
 ) => {
   try {
     const response = await axiosInstance.get(
+=======
+import type { IOrganiser } from "../interfaces/IOrganiser";
+import axiosInstance from "../utils/axiosUser";
+import type { FetchOrders, OrgOrder } from "../interfaces/IPayment";
+import type { GetVenue } from "../interfaces/IVenue";
+const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/organiser`;
+interface GetOrganiserById {
+  success?: boolean;
+  result: IOrganiser;
+  message?: string;
+}
+
+export const getOrganiserById = async (
+  id: string
+): Promise<GetOrganiserById> => {
+  try {
+    const response = await axiosInstance.get<GetOrganiserById>(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       `${API_BASE_URL}/organiser/${id}`
     );
 
@@ -71,7 +90,11 @@ export const fetchBookings = async (
   page: number,
   limit: number,
   queryParams: string
+<<<<<<< HEAD
 ) => {
+=======
+): Promise<FetchOrders> => {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   try {
     console.log("Query Params:", queryParams);
 
@@ -96,8 +119,11 @@ export const fetchBookings = async (
 };
 export const getOrderDetails = async (orderId: string): Promise<OrgOrder> => {
   try {
+<<<<<<< HEAD
    
     
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const response = await axiosInstance.get(
       `${API_BASE_URL}/orgOrders/${orderId}`
     );
@@ -139,7 +165,11 @@ export const getVenues = async (filters: string) => {
     const response = await axiosInstance.get(
       `${API_BASE_URL}/venues/?${filters}`
     );
+<<<<<<< HEAD
    
+=======
+    console.log("responseDetails", response);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     if (response) {
       return {
@@ -207,7 +237,10 @@ export const fetchAttendees = async (
   limit: number
 ) => {
   try {
+<<<<<<< HEAD
     
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const response = await axiosInstance.get(
       `${API_BASE_URL}/order/${eventId}/${organiserId}`,
       { params: { searchTerm, filterStatus, currentPage, limit } }
@@ -274,6 +307,7 @@ export const fetchUsers = async () => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const getEventOrders=async(eventId:string)=>{
   try {
       const response=await axiosInstance.get(`${API_BASE_URL}/eventOrder/${eventId}`);
@@ -333,6 +367,8 @@ export const fetchVenues=async()=>{
 
 }
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export const organiserRepository = {
   getOrganiserById,
@@ -348,7 +384,10 @@ export const organiserRepository = {
   getDashboardEvents,
   updateTicket,
   fetchUsers,
+<<<<<<< HEAD
   getEventOrders,
   cancelOrder,
   fetchVenues
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 };

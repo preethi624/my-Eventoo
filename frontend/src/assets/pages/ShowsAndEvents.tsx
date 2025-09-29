@@ -7,23 +7,36 @@ import type { EventFetchResponse, IEventDTO } from "../../interfaces/IEvent";
 import { eventRepository } from "../../repositories/eventRepositories";
 
 import EventCard from "../components/EventCardComponent";
+<<<<<<< HEAD
 import EventHistorySticker from "../components/EventHistorySticker";
 
 const ShowsAndEvents: React.FC = () => {
   const [events, setEvents] = useState<IEventDTO[]>([]);
  
   const [searchTerm,setSearchTerm]=useState("")
+=======
+
+const ShowsAndEvents: React.FC = () => {
+  const [events, setEvents] = useState<IEventDTO[]>([]);
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchTitle, setSearchTitle] = useState("");
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+<<<<<<< HEAD
   const eventsPerPage = 3;
+=======
+  const eventsPerPage = 6;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   useEffect(() => {
     fetchEvents();
   }, [
+<<<<<<< HEAD
     
     selectedCategory,
     maxPrice,
@@ -43,6 +56,19 @@ const ShowsAndEvents: React.FC = () => {
   const params = new URLSearchParams();
   
   if(searchTerm) params.append("searchTerm",searchTerm)
+=======
+    searchLocation,
+    selectedCategory,
+    maxPrice,
+    selectedDate,
+    searchTitle,
+    currentPage,
+  ]);
+
+  const params = new URLSearchParams();
+  if (searchLocation) params.append("searchLocation", searchLocation);
+  if (searchTitle) params.append("searchTitle", searchTitle);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   if (selectedCategory) params.append("selectedCategory", selectedCategory);
   if (maxPrice) params.append("maxPrice", maxPrice.toString());
   if (selectedDate) params.append("selectedDate", selectedDate);
@@ -64,7 +90,11 @@ const ShowsAndEvents: React.FC = () => {
         });
 
         setEvents(latestEvents);
+<<<<<<< HEAD
         setTotalPages(response.result.response.events.length);
+=======
+        setTotalPages(response.result.response.totalPages);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       } else {
         console.error("Unexpected API result format:", response);
         setEvents([]);
@@ -75,6 +105,7 @@ const ShowsAndEvents: React.FC = () => {
     }
   };
 
+<<<<<<< HEAD
 
   const handleEventClick = (id: string) => {
     navigate(`/events/${id}`);
@@ -82,11 +113,19 @@ const ShowsAndEvents: React.FC = () => {
   const handleAllEventsClick = () => {
     navigate('/completed'); 
   };
+=======
+  const handleEventClick = (id: string) => {
+    navigate(`/events/${id}`);
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <div className="pt-24 min-h-screen bg-gray-100">
       <UserNavbar />
+<<<<<<< HEAD
       <EventHistorySticker onClick={handleAllEventsClick}/>
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">Upcoming Events</h1>
@@ -121,11 +160,28 @@ const ShowsAndEvents: React.FC = () => {
               className="w-full p-2 border rounded"
             />
 
+<<<<<<< HEAD
             <input
               type="text"
               placeholder="Search by event name or Location"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+=======
+            {/* Location Filter */}
+            <input
+              type="text"
+              placeholder="Search by location"
+              value={searchLocation}
+              onChange={(e) => setSearchLocation(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+            {/*Title Filter*/}
+            <input
+              type="text"
+              placeholder="Search by event name"
+              value={searchTitle}
+              onChange={(e) => setSearchTitle(e.target.value)}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
               className="w-full p-2 border rounded"
             />
 
@@ -143,7 +199,11 @@ const ShowsAndEvents: React.FC = () => {
                 setSelectedCategory("");
                 setMaxPrice(null);
                 setSelectedDate("");
+<<<<<<< HEAD
                 setSearchTerm("");
+=======
+                setSearchLocation("");
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
               }}
               className="w-full p-2 bg-gray-200 rounded hover:bg-gray-300"
             >

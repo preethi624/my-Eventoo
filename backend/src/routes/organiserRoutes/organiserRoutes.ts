@@ -32,10 +32,13 @@ router.get(
   organiserController.fetchBooking.bind(organiserController)
 );
 router.get(
+<<<<<<< HEAD
   "/eventOrder/:eventId",authMiddlewarwSet.organiserOnly,organiserController.fetchEventOrder.bind(organiserController)
 
 )
 router.get(
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   "/orgOrders/:orderId",
   authMiddlewarwSet.organiserOnly,
   organiserController.getOrderDetails.bind(organiserController)
@@ -80,7 +83,10 @@ router.get(
   authMiddlewarwSet.organiserOnly,
   organiserController.getUsers.bind(organiserController)
 );
+<<<<<<< HEAD
 router.post('/order/:orderId',authMiddlewarwSet.organiserOnly,organiserController.cancelOrder.bind(organiserController))
 router.get('/venues',authMiddlewarwSet.organiserOnly,organiserController.fetchVenues.bind(organiserController))
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export default router;

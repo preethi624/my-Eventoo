@@ -82,7 +82,10 @@ class PaymentService {
                 const eventId = data.eventId;
                 const eventTitle = data.eventTitle;
                 const email = data.email;
+<<<<<<< HEAD
                 const selectedTicket = data.selectedTicket;
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 const createdAt = new Date();
                 const options = {
                     amount: totalPrice * 100,
@@ -100,7 +103,10 @@ class PaymentService {
                     userId,
                     eventId,
                     eventTitle,
+<<<<<<< HEAD
                     selectedTicket,
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     createdAt,
                     orderId: orderId,
                     email,
@@ -117,6 +123,7 @@ class PaymentService {
                 }
             }
             catch (error) {
+<<<<<<< HEAD
                 if (error instanceof Error) {
                     console.error('MongoDB connection error:', error.message);
                     return {
@@ -131,6 +138,10 @@ class PaymentService {
                         message: "not creating order",
                     };
                 }
+=======
+                console.error(error);
+                return { success: false, message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order" };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             }
         });
     }
@@ -166,7 +177,105 @@ class PaymentService {
             }
         });
     }
+<<<<<<< HEAD
     paymentVerify(data) {
+=======
+    /*async paymentVerify(data: RazorpayPaymentResponse): Promise<VerifyResponse> {
+      try {
+        const razorpay_payment_id = data.razorpay_payment_id;
+        const razorpay_order_id = data.razorpay_order_id;
+        const razorpay_signature = data.razorpay_signature;
+        const secret = process.env.RAZORPAY_KEY_SECRET;
+        if (!secret) {
+          throw new Error(
+            "RAZORPAY_KEY_SECRET is not defined in environment variables."
+          );
+        }
+        const hmac = crypto.createHmac("sha256", secret);
+        hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+        const generatedSignature = hmac.digest("hex");
+        if (generatedSignature === razorpay_signature) {
+          const updatedOrder = await this._paymentRepository.updatePaymentDetails(
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            "paid"
+          );
+          if (updatedOrder) {
+            console.log("updatedOrder", updatedOrder);
+            const event = updatedOrder.eventId as unknown as IEvent;
+  
+            await this._eventRepository.decrementAvailableTickets(
+              updatedOrder.eventId._id.toString(),
+              updatedOrder.ticketCount
+            );
+  
+            const tickets = await this._paymentRepository.getTickets(
+              updatedOrder._id
+            );
+            const pdfBuffer = await generateTicketPDF(updatedOrder, tickets);
+            const mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: updatedOrder?.email,
+              subject: `Your ticket for ${updatedOrder.eventTitle}`,
+              text: `Thank you for your booking! Here are your ticket details:\n\n${JSON.stringify(
+                tickets,
+                null,
+                2
+              )}`,
+              html: `<h3>Thank you for booking!</h3>
+          <p>Event: <b>${updatedOrder.eventTitle}</b></p>
+          <p>Tickets: <b>${updatedOrder.ticketCount}</b></p>
+          <p>Order ID: ${updatedOrder.orderId}</p>
+          <p>Venue:${event.venue}</p>
+          <p>Date:${event.date}
+          
+          `,
+  
+              attachments: [
+                {
+                  filename: "ticket.pdf",
+                  content: pdfBuffer,
+                },
+              ],
+            };
+  
+            await transporter.sendMail(mailOptions);
+            return {
+              success: true,
+              message: "Payment verified and ticket sent to email",
+            };
+          } else {
+            console.warn(
+              "No matching order found for Razorpay Order ID:",
+              razorpay_order_id
+            );
+          }
+  
+          return { success: true, message: "Payment verified successfully" };
+        } else {
+          await this._paymentRepository.updatePaymentDetails(
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            "failed"
+          );
+          return { success: false, message: "Payment not verified" };
+        }
+      } catch (error) {
+        console.error(error);
+        if (data.razorpay_order_id) {
+          await this._paymentRepository.updatePaymentDetails(
+            data.razorpay_order_id,
+            data.razorpay_payment_id || "",
+            data.razorpay_signature || "",
+            "failed"
+          );
+        }
+        return { success: false, message: "Payment not verified" };
+      }
+    }*/ paymentVerify(data) {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const razorpay_payment_id = data.razorpay_payment_id;
@@ -176,12 +285,17 @@ class PaymentService {
                 if (!secret) {
                     throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables.");
                 }
+<<<<<<< HEAD
+=======
+                // Step 1: Verify Razorpay signature
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 const hmac = crypto_1.default.createHmac("sha256", secret);
                 hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
                 const generatedSignature = hmac.digest("hex");
                 if (generatedSignature !== razorpay_signature) {
                     return { success: false, message: "Payment verification failed" };
                 }
+<<<<<<< HEAD
                 const updatedOrder = yield this._paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, "paid");
                 if (!updatedOrder) {
                     console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
@@ -193,6 +307,20 @@ class PaymentService {
                 const event = updatedOrder.eventId;
                 const tickets = yield this._paymentRepository.getTickets(updatedOrder._id);
                 const pdfBuffer = yield generateTicketPDF(updatedOrder, tickets);
+=======
+                // Step 2: Update payment + decrement tickets inside a single transaction
+                const updatedOrder = yield this._paymentRepository.updatePaymentDetails(razorpay_order_id, razorpay_payment_id, razorpay_signature, "paid");
+                if (!updatedOrder) {
+                    console.warn("No matching order found for Razorpay Order ID:", razorpay_order_id);
+                    return { success: false, message: "Order not found or already processed" };
+                }
+                const event = updatedOrder.eventId;
+                // Step 3: Fetch tickets after transaction
+                const tickets = yield this._paymentRepository.getTickets(updatedOrder._id);
+                // Step 4: Generate ticket PDF
+                const pdfBuffer = yield generateTicketPDF(updatedOrder, tickets);
+                // Step 5: Send email
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: updatedOrder === null || updatedOrder === void 0 ? void 0 : updatedOrder.email,
@@ -217,7 +345,12 @@ class PaymentService {
                 };
             }
             catch (error) {
+<<<<<<< HEAD
                 if (error instanceof Error) {
+=======
+                console.error("Payment verification failed:", error);
+                if (error.message === "Not enough tickets available") {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     return { success: false, message: error.message };
                 }
                 else {
@@ -314,12 +447,18 @@ class PaymentService {
                 if (result) {
                     const paymentId = result.razorpayPaymentId;
                     const amount = result.amount;
+<<<<<<< HEAD
                     const payment = yield razorpay.payments.fetch(paymentId);
                     console.log(payment);
                     const refund = yield razorpay.payments.refund(paymentId, {
                         amount: amount,
                     });
                     console.log("refund", refund);
+=======
+                    const refund = yield razorpay.payments.refund(paymentId, {
+                        amount: amount,
+                    });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     const refundId = refund.id;
                     const response = yield this._paymentRepository.updateRefund(refundId, orderId);
                     if (response.success) {
@@ -338,7 +477,11 @@ class PaymentService {
                 }
             }
             catch (error) {
+<<<<<<< HEAD
                 console.log(error);
+=======
+                console.error(error);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 return { success: false, message: "failed to update" };
             }
         });
@@ -360,6 +503,7 @@ class PaymentService {
             }
         });
     }
+<<<<<<< HEAD
     ticketDetailsGet(userId, searchTerm, status, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -372,6 +516,14 @@ class PaymentService {
                         totalPages: result.totalPages,
                         currentPage: result.currentPage,
                     };
+=======
+    ticketDetailsGet(userId, searchTerm, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._paymentRepository.getTicketDetails(userId, searchTerm, status);
+                if (result) {
+                    return { success: true, tickets: result };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 }
                 else {
                     return { success: false };

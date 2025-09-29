@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useEffect, useState } from "react";
+=======
+import React, { useEffect, useState } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { Check, Plus } from "lucide-react";
 import { adminRepository } from "../../repositories/adminRepositories";
 import type { IVenue } from "../../interfaces/IVenue";
@@ -6,7 +10,10 @@ import type { IVenue } from "../../interfaces/IVenue";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 import AdminLayout from "../components/AdminLayout";
+<<<<<<< HEAD
 import DataTable from "../components/DataTable";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const defaultForm = {
   name: "",
@@ -138,6 +145,7 @@ const VenueManagement = () => {
   useEffect(() => {
     fetchVenues();
   }, [currentPage, searchTerm]);
+<<<<<<< HEAD
   const columns = [
     { header: "Name", accessor: "name" },
     {
@@ -191,6 +199,8 @@ const VenueManagement = () => {
   console.log(totalVenues);
   
   
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <>
@@ -227,8 +237,98 @@ const VenueManagement = () => {
               </button>
             </div>
 
+<<<<<<< HEAD
             <div className="overflow-x-auto bg-white shadow-md rounded-lg">
               <DataTable data={venues} columns={columns} />
+=======
+            {/*
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search venues by name or city..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+      </div>*/}
+
+            <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Location
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Capacity
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Phone
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {venues.map((venue) => (
+                    <tr key={venue._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {venue.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {venue.city}, {venue.state}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {venue.capacity}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {venue.phone}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            venue.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {venue.status.charAt(0).toUpperCase() +
+                            venue.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedVenue(venue);
+                            setFormData(venue); // Prefill form
+                            setShowEditModal(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteVenue(venue._id)}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             </div>
           </div>
         </div>
@@ -386,6 +486,7 @@ const VenueManagement = () => {
                 <h2 className="text-xl font-semibold">Edit Venue</h2>
 
                 {/* same fields without image */}
+<<<<<<< HEAD
                 <div className="mb-2">
                   <label>Venue Name</label>
                   <input
@@ -521,6 +622,107 @@ const VenueManagement = () => {
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
+=======
+                <input
+                  name="name"
+                  required
+                  placeholder="Venue Name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <textarea
+                  name="address"
+                  required
+                  placeholder="Address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="city"
+                  required
+                  placeholder="City"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="state"
+                  required
+                  placeholder="State"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="pincode"
+                  required
+                  placeholder="Pincode"
+                  value={formData.pincode}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="contactPerson"
+                  required
+                  placeholder="Contact Person"
+                  value={formData.contactPerson}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="phone"
+                  required
+                  placeholder="Phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="email"
+                  required
+                  type="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="website"
+                  type="url"
+                  placeholder="Website"
+                  value={formData.website}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  name="capacity"
+                  required
+                  type="number"
+                  placeholder="Capacity"
+                  value={formData.capacity}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
                 <div className="flex justify-end gap-3">
                   <button

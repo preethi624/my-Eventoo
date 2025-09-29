@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import  { useState, useEffect } from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import type { FormEvent } from "react";
 import { FaEdit } from "react-icons/fa";
 import AdminLayout from "../components/AdminLayout";
@@ -8,8 +12,11 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Swal from "sweetalert2";
 import type { IUser } from "../../interfaces/IUser";
+<<<<<<< HEAD
 import { Search, Filter, SortAsc, Sparkles } from "lucide-react";
 import DataTable from "../components/DataTable";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export interface User {
   _id: string;
@@ -25,15 +32,20 @@ const AdminUser: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+<<<<<<< HEAD
   const [sortBy, setSortBy] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [debounceSearch, setDebounceSearch] = useState(searchTerm);
   const [limit, setLimit] = useState(10);
+=======
+const [filterStatus, setFilterStatus] = useState("all"); 
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
+<<<<<<< HEAD
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -55,6 +67,17 @@ const AdminUser: React.FC = () => {
         filterStatus,
         sortBy
       );
+=======
+  const limit = 10;
+
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage,searchTerm,filterStatus]);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await adminRepository.getAllUsers(limit, currentPage,searchTerm,filterStatus);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       console.log("response", response);
 
       if (response.success && response.result) {
@@ -116,12 +139,17 @@ const AdminUser: React.FC = () => {
         const response = await adminRepository.blockUser(user);
 
         if (response.success) {
+<<<<<<< HEAD
           setUsers((prevUsers) =>
             prevUsers.map((u) =>
               u._id === user._id ? { ...u, isBlocked: !u.isBlocked } : u
             )
           );
 
+=======
+          setUsers(prevUsers=>prevUsers.map(u=>u._id===user._id?{...u,isBlocked:!u.isBlocked}:u))
+          
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           if (user.isBlocked) {
             toast.success("Unblocked user successfully!");
           } else {
@@ -153,6 +181,7 @@ const AdminUser: React.FC = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+<<<<<<< HEAD
   const columns = [
     {
       header: "Name",
@@ -198,6 +227,8 @@ const AdminUser: React.FC = () => {
       ),
     },
   ];
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <AdminLayout>
@@ -205,6 +236,7 @@ const AdminUser: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Users</h2>
       </div>
+<<<<<<< HEAD
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 rounded-2xl border border-white/20 shadow-xl backdrop-blur-sm mb-6">
         <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-400/10 to-orange-400/10 rounded-full blur-xl animate-pulse delay-1000"></div>
@@ -348,6 +380,70 @@ const AdminUser: React.FC = () => {
             Next
           </button>
         </div>
+=======
+      <div className="flex gap-4 mb-4">
+  {/* Search input */}
+  <input
+    type="text"
+    placeholder="Search by name or email"
+    className="border border-gray-300 rounded px-3 py-2 w-64"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+
+  {/* Filter dropdown */}
+  <select
+    className="border border-gray-300 rounded px-3 py-2"
+    value={filterStatus}
+    onChange={(e) => setFilterStatus(e.target.value)}
+  >
+    <option value="all">All</option>
+    <option value="blocked">Blocked</option>
+    <option value="unblocked">Unblocked</option>
+  </select>
+</div>
+
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-300 rounded shadow">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="text-left p-3 border-b">Name</th>
+              <th className="text-left p-3 border-b">Email</th>
+              <th className="text-left p-3 border-b">Status</th>
+              <th className="text-left p-3 border-b">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id} className="hover:bg-gray-50">
+                <td className="p-3 border-b">{user.name}</td>
+                <td className="p-3 border-b">{user.email}</td>
+                <td className="p-3 border-b">
+                  <button
+                    onClick={() => handleToggleBlock(user)}
+                    className={`px-3 py-1 rounded text-sm font-medium ${
+                      user.isBlocked
+                        ? "bg-green-500 text-white"
+                        : "bg-yellow-500 text-black"
+                    }`}
+                  >
+                    {user.isBlocked ? "Unblock" : "Block"}
+                  </button>
+                </td>
+                <td className="p-3 border-b flex gap-2">
+                  <button
+                    onClick={() => handleEdit(user)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                  >
+                    <FaEdit />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       </div>
 
       {showModal && (
@@ -418,6 +514,41 @@ const AdminUser: React.FC = () => {
           </div>
         </div>
       )}
+<<<<<<< HEAD
+=======
+
+      {totalPage > 1 && (
+        <div className="flex justify-center mt-4 gap-2">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPage }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPage}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     </AdminLayout>
   );
 };

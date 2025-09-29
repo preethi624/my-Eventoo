@@ -2,7 +2,11 @@ import axios, { AxiosError } from "axios";
 
 import type { User } from "../assets/pages/AdminUser";
 
+<<<<<<< HEAD
 import type {  IEventDTO } from "../interfaces/IEvent";
+=======
+import type { IEventDTO } from "../interfaces/IEvent";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import type { IUser } from "../interfaces/IUser";
 import type { Organiser } from "../assets/pages/AdminOrganiser";
 import type { LoginResponse } from "../redux/thunk/adminAuthThunk";
@@ -20,8 +24,11 @@ interface GetOrganisers {
   success: boolean;
   result?: Organiser[];
   message?: string;
+<<<<<<< HEAD
   total?:number
   
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 interface EditOrganiser {
   success: boolean;
@@ -32,7 +39,15 @@ interface EditUser {
   success: boolean;
   message: string;
 }
+<<<<<<< HEAD
 
+=======
+interface GetEvents {
+  success: boolean;
+  result?: IEventDTO[];
+  message?: string;
+}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 interface EditEvent {
   success: boolean;
   message: string;
@@ -69,13 +84,21 @@ export const getAllOrganisers = async (
   limit: number,
   currentPage: number,
   searchTerm:string,
+<<<<<<< HEAD
   filterStatus:string,
   sortBy:string
+=======
+  filterStatus:string
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 ): Promise<GetOrganisers> => {
   try {
     const token = localStorage.getItem("adminToken");
     const response = await axios.get(
+<<<<<<< HEAD
       `${API_BASE_URL}/organisers?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}&&sortBy=${sortBy}`,
+=======
+      `${API_BASE_URL}/organisers?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}`,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -128,6 +151,7 @@ export const organiserBlock = async (
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const getAllUsers = async (limit: number, currentPage: number,searchTerm:string,filterStatus:string,sortBy:string) => {
   try {
     console.log("filter status",filterStatus);
@@ -135,6 +159,13 @@ export const getAllUsers = async (limit: number, currentPage: number,searchTerm:
     const token = localStorage.getItem("adminToken");
     const response = await axios.get(
       `${API_BASE_URL}/users?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}&&sortBy=${sortBy}`,
+=======
+export const getAllUsers = async (limit: number, currentPage: number,searchTerm:string,filterStatus:string) => {
+  try {
+    const token = localStorage.getItem("adminToken");
+    const response = await axios.get(
+      `${API_BASE_URL}/users?limit=${limit}&&page=${currentPage}&&searchTerm=${searchTerm}&&filterStatus=${filterStatus}`,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -186,11 +217,17 @@ export const blockUser = async (user: IUser) => {
 };
 export const getAllEvents = async (filters: string) => {
   try {
+<<<<<<< HEAD
    
     
     const token = localStorage.getItem("adminToken");
 
     const response = await axios.get(
+=======
+    const token = localStorage.getItem("adminToken");
+
+    const response = await axios.get<GetEvents>(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       `${API_BASE_URL}/events/?${filters}`,
       {
         headers: {
@@ -198,7 +235,11 @@ export const getAllEvents = async (filters: string) => {
         },
       }
     );
+<<<<<<< HEAD
    
+=======
+    console.log("respoo", response);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     return response.data;
   } catch (error) {
@@ -392,6 +433,7 @@ const getDashboardOrders = async (params: Record<string, string>) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+<<<<<<< HEAD
 export const fetchOrderById=async(orderId:string)=>{
   try {
     
@@ -417,6 +459,8 @@ export const fetchOrderById=async(orderId:string)=>{
     throw axiosError.response?.data || axiosError.message;
   }
 }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export const adminRepository = {
   adminLogin,
@@ -438,5 +482,8 @@ export const adminRepository = {
   getDashboard,
   fetchUsers,
   getDashboardOrders,
+<<<<<<< HEAD
   fetchOrderById
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 };

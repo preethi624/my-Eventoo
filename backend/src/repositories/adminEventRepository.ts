@@ -4,7 +4,10 @@ import { IAdminEventRepository } from "./repositoryInterface/IAdminEventReposito
 import { FilterQuery, PipelineStage } from "mongoose";
 import { AdminDashboard } from "src/interface/IAdmin";
 import PlatformSettings from "../model/platformSettings";
+<<<<<<< HEAD
 import Notification from "../model/notification";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class AdminEventRepository implements IAdminEventRepository {
   async getEventsAll(filters: IEventFilter): Promise<GetEvent | null> {
@@ -15,11 +18,17 @@ export class AdminEventRepository implements IAdminEventRepository {
       selectedDate,
       searchTitle,
       page = 1,
+<<<<<<< HEAD
       limit=6 ,
       
     } = filters;
     console.log("limit",limit);
     
+=======
+      limit = 6,
+      orgName,
+    } = filters;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     const skip = (page - 1) * limit;
 
@@ -86,6 +95,7 @@ export class AdminEventRepository implements IAdminEventRepository {
     };
   }
   async eventEdit(id: string, formData: EditEvent): Promise<IEvent | null> {
+<<<<<<< HEAD
     try {
       const event=await EventModel.findByIdAndUpdate(id, formData, { new: true });
       if(!event) throw new Error("event not found")
@@ -115,10 +125,19 @@ export class AdminEventRepository implements IAdminEventRepository {
        const id = event._id;
     if (!event.isBlocked) {
       const event=await EventModel.findByIdAndUpdate(
+=======
+    return await EventModel.findByIdAndUpdate(id, formData, { new: true });
+  }
+  async blockEvent(event: IEvent): Promise<IEvent | null> {
+    const id = event._id;
+    if (!event.isBlocked) {
+      return await EventModel.findByIdAndUpdate(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         id,
         { isBlocked: true },
         { new: true }
       );
+<<<<<<< HEAD
       if(!event) throw new Error("event not found")
       
      await Notification.create({
@@ -131,10 +150,15 @@ export class AdminEventRepository implements IAdminEventRepository {
 
     } else {
       const event=await EventModel.findByIdAndUpdate(
+=======
+    } else {
+      return await EventModel.findByIdAndUpdate(
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         id,
         { isBlocked: false },
         { new: true }
       );
+<<<<<<< HEAD
       if(!event) throw new Error("event not found")
       await Notification.create({
       organizerId:event.organiser,
@@ -154,6 +178,9 @@ export class AdminEventRepository implements IAdminEventRepository {
     }
    
      
+=======
+    }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   }
   async getDashboard(): Promise<AdminDashboard> {
     const categoryColors: Record<string, string> = {
@@ -219,7 +246,11 @@ export class AdminEventRepository implements IAdminEventRepository {
       ...cat,
       color: categoryColors[cat.name] || "#9CA3AF",
     }));
+<<<<<<< HEAD
    /* const completedEvents = await EventModel.find({ status: "completed" });
+=======
+    const completedEvents = await EventModel.find({ status: "completed" });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     let adminEarning = 0;
     completedEvents.forEach((event) => {
       const totalTickets = event.ticketsSold;
@@ -227,6 +258,7 @@ export class AdminEventRepository implements IAdminEventRepository {
       const totalAdmin = adminPerTicket * totalTickets;
 
       adminEarning += totalAdmin;
+<<<<<<< HEAD
     });*/
     const completedEvents = await EventModel.find({ status: "completed" });
 let adminEarning = 0;
@@ -249,6 +281,9 @@ completedEvents.forEach((event) => {
   }
 });
 
+=======
+    });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const activeEvents = await EventModel.find({
       status: "published",
       isBlocked: false,

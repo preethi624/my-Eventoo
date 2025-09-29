@@ -1,8 +1,13 @@
 import { IOrganiser } from "src/interface/IOrgAuth";
 import { IOrganiserRepository } from "./repositoryInterface/IOrganiserRepository";
 import Organiser from "../model/organiser";
+<<<<<<< HEAD
 import { Attendees, ProfileEdit} from "src/interface/IUser";
 import { FetchOrders, Update } from "src/interface/IPayment";
+=======
+import { Attendees, ProfileEdit } from "src/interface/IUser";
+import { FetchOrders } from "src/interface/IPayment";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import Order, { IOrder } from "../model/order";
 import EventModel, { IEvent } from "../model/event";
 import Venue, { IVenue } from "../model/venue";
@@ -12,12 +17,18 @@ import { generateSalesTrend } from "../utils/analyticHelper";
 import { DashboardResponse } from "src/interface/event";
 import PlatformSettings from "../model/platformSettings";
 import { TicketModel } from "../model/ticket";
+<<<<<<< HEAD
 
 import User from "../model/user";
 import { IUser } from "src/interface/IUserAuth";
 import Notification from "../model/notification";
 import { access } from "fs";
 
+=======
+import { log } from "util";
+import User from "../model/user";
+import { IUser } from "src/interface/IUserAuth";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class OrganiserRepository implements IOrganiserRepository {
   async getOrganiserById(id: string): Promise<IOrganiser | null> {
@@ -32,7 +43,11 @@ export class OrganiserRepository implements IOrganiserRepository {
     data: ProfileEdit,
     organiserId: string
   ): Promise<IOrganiser | null> {
+<<<<<<< HEAD
     const { name,  phone, location, aboutMe, profileImage } = data;
+=======
+    const { name, email, phone, location, aboutMe, profileImage } = data;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     return await Organiser.findByIdAndUpdate(
       organiserId,
       { name, phone, location, aboutMe: aboutMe, profileImage },
@@ -113,6 +128,7 @@ export class OrganiserRepository implements IOrganiserRepository {
       filters.limit && filters.page ? (filters.page - 1) * filters.limit : 0;
 
     const query: FilterQuery<IVenue> = {};
+<<<<<<< HEAD
     if (filters.searchTerm) {
      
       query.$or=[
@@ -121,6 +137,14 @@ export class OrganiserRepository implements IOrganiserRepository {
       ]
     }
     
+=======
+    if (filters.nameSearch) {
+      query.name = { $regex: filters.nameSearch, $options: "i" };
+    }
+    if (filters.locationSearch) {
+      query.city = { $regex: filters.locationSearch, $options: "i" };
+    }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const venues = await Venue.find(query)
       .skip(skip)
       .limit(Number(filters.limit));
@@ -162,6 +186,7 @@ export class OrganiserRepository implements IOrganiserRepository {
             name: "$user.name",
             email: "$user.email",
           },
+<<<<<<< HEAD
           ticketType:"$selectedTicket.type"
         },
       },
@@ -181,13 +206,21 @@ export class OrganiserRepository implements IOrganiserRepository {
     },{})
     console.log("ticket type stats",orders);
     
+=======
+        },
+      },
+    ]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     const stats = {
       confirmed: orders.filter((o) => o.bookingStatus === "confirmed").length,
       pending: orders.filter((o) => o.bookingStatus === "pending").length,
       cancelled: orders.filter((o) => o.bookingStatus === "cancelled").length,
       salesTrend: generateSalesTrend(orders),
+<<<<<<< HEAD
       ticketTypes:ticketTypeStats
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     };
 
     return { event, orders, stats };
@@ -200,7 +233,11 @@ export class OrganiserRepository implements IOrganiserRepository {
     page: number,
     limit: number
   ): Promise<Attendees> {
+<<<<<<< HEAD
    
+=======
+    console.log("page", page);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     const settings = await PlatformSettings.findOne();
     const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
@@ -214,7 +251,11 @@ export class OrganiserRepository implements IOrganiserRepository {
       createdAt?: { $gte: Date };
     } = {
       eventId: new mongoose.Types.ObjectId(eventId),
+<<<<<<< HEAD
       
+=======
+      createdAt: { $gte: startDate },
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     };
     if (filterStatus && filterStatus !== "all") {
       matchStage.bookingStatus = filterStatus;
@@ -249,8 +290,11 @@ export class OrganiserRepository implements IOrganiserRepository {
       },
       { $unwind: "$userDetails" },
     ];
+<<<<<<< HEAD
  
     
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     if (searchTerm) {
       pipeline.push({
@@ -274,6 +318,7 @@ export class OrganiserRepository implements IOrganiserRepository {
         bookingStatus: 1,
         orderId: 1,
         amount: 1,
+<<<<<<< HEAD
         ticketType:"$selectedTicket.type"
       },
     };
@@ -291,6 +336,10 @@ export class OrganiserRepository implements IOrganiserRepository {
 ];
 const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
 
+=======
+      },
+    };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const countRevenuePipeline = [...pipeline, projectStage];
     const allAttendees = await Order.aggregate(countRevenuePipeline);
     const totalAttendees = allAttendees.length;
@@ -309,8 +358,11 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       { $limit: limit },
     ];
     const attendee = await Order.aggregate(paginatedPipeline);
+<<<<<<< HEAD
    
     
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     return {
       attendees: attendee,
@@ -318,7 +370,10 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       currentPage: page,
       totalPages: Math.ceil(totalAttendees / limit),
       totalAttendees: totalAttendees,
+<<<<<<< HEAD
       ticketTypeStats
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     };
   }
 
@@ -361,6 +416,7 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       enDate = new Date(endDate);
     } else if (month || year) {
       const targetYear = parseInt(year ?? new Date().getFullYear().toString());
+<<<<<<< HEAD
       const targetMonth = month ? parseInt(month) : 0;
 
       stDate = new Date(targetYear, targetMonth, 1);
@@ -606,6 +662,8 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       enDate = new Date(endDate);
     } else if (month || year) {
       const targetYear = parseInt(year ?? new Date().getFullYear().toString());
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       const targetMonth = month ? parseInt(month) : 0;
 
@@ -790,8 +848,11 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       },
       { $sort: { createdAt: -1 } },
     ]);
+<<<<<<< HEAD
     console.log("organiser earning",organiserEarning);
     
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     return {
       events,
@@ -804,7 +865,11 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       upcomingEvents,
       orderDetails,
     };
+<<<<<<< HEAD
   }*/
+=======
+  }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async updateTicket(qrToken: string): Promise<{ message: string }> {
     const ticket = await TicketModel.findOne({ qrToken: qrToken });
     if (!ticket) {
@@ -826,6 +891,7 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       throw error;
     }
   }
+<<<<<<< HEAD
   async fetchEventOrders(eventId:string):Promise<IOrder[]|null>{
     try {
       return await Order.find({eventId:eventId}).lean().populate("userId","name email");
@@ -884,4 +950,6 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
           
         }
       }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

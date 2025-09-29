@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 
+=======
+import React from "react";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { useNavigate } from "react-router-dom";
 
 import type { FC } from "react";
@@ -14,7 +18,10 @@ import { eventRepository } from "../../repositories/eventRepositories";
 import Chatbot from "../components/Chatbot";
 import { categoryRepository } from "../../repositories/categoryRepository";
 import SearchBar from "../components/SearchBar";
+<<<<<<< HEAD
 import RecommendationSticker from "../components/Recommendation";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const HomePage: FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,10 +32,17 @@ const HomePage: FC = () => {
     []
   );
 
+<<<<<<< HEAD
   
 
   useEffect(() => {
     //setIsVisible(true);
+=======
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     fetchCategories();
     fetchEventsByCategory("Music");
     setSelectedCategory("Music");
@@ -42,6 +56,12 @@ const HomePage: FC = () => {
 
     setEvents(response.result);
   };
+<<<<<<< HEAD
+=======
+  const handleEventClick = (id: string) => {
+    navigate(`/events/${id}`);
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -67,14 +87,20 @@ const HomePage: FC = () => {
 
     navigate(`/events/${response.result._id}`);
   };
+<<<<<<< HEAD
   const handleRecommendationClick = () => {
     navigate("/recommended");
   };
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <UserNavbar />
+<<<<<<< HEAD
       <RecommendationSticker onClick={handleRecommendationClick} />
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       <section className="relative h-screen overflow-hidden">
         <motion.div
           initial={{ scale: 1.2 }}
@@ -202,6 +228,7 @@ const HomePage: FC = () => {
               <img
                 src={
                   event.images && event.images.length > 0
+<<<<<<< HEAD
                     ? typeof event.images[0] === "string"
                       ? 
                         `http://localhost:3000/${event.images[0].replace(
@@ -210,6 +237,12 @@ const HomePage: FC = () => {
                         )}`
                       : 
                         event.images[0].url 
+=======
+                    ? `http://localhost:3000/${event.images[0].replace(
+                        "\\",
+                        "/"
+                      )}`
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     : "https://via.placeholder.com/300x200"
                 }
                 alt={event.title}

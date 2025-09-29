@@ -4,8 +4,11 @@ import { IUser } from "./IUserAuth";
 import { IOrganiser } from "./IOrgAuth";
 
 import { IAdminOrder } from "./IAdmin";
+<<<<<<< HEAD
 import { IReview } from "src/model/review";
 import { IEventImage, ITicketType } from "./IEventDTO";
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export interface EventGet {
   message: string;
@@ -31,6 +34,7 @@ export interface EventEdit {
   ticketsSold?: number;
   status: string;
   description: string;
+<<<<<<< HEAD
   ticketPrice?: number;
   capacity?: number;
   category: string;
@@ -40,6 +44,12 @@ export interface EventEdit {
 
  
 
+=======
+  ticketPrice: number;
+  capacity: number;
+  category: string;
+  time: string;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 export interface EditEvent {
   title: string;
@@ -50,7 +60,10 @@ export interface EditEvent {
   venue: string;
   capacity: number;
   status: string;
+<<<<<<< HEAD
    images?:IEventImage[]
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 export interface EventEdit {
   message: string;
@@ -85,8 +98,11 @@ export interface IEventFilter {
   page?: number;
   limit?: number;
   orgName?: string;
+<<<<<<< HEAD
   searchTerm?:string;
   status?:string
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 export interface EventCount {
   count?: number;
@@ -128,7 +144,10 @@ export interface DashboardStats {
     date: string;
     sales: number;
   }[];
+<<<<<<< HEAD
   ticketTypes:{count:number,tickets:number,revenue:number}
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 
 export type DashboardResponse = {
@@ -175,6 +194,7 @@ export interface EventByCat {
   result?: IEvent[];
   success?: boolean;
 }
+<<<<<<< HEAD
 
 export interface Location {
   lat: number;
@@ -191,3 +211,5 @@ _id: string;
 }
 
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

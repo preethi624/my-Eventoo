@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+<<<<<<< HEAD
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -21,6 +22,11 @@ const cosine_1 = require("../utils/cosine");
 const axios_1 = __importDefault(require("axios"));
 const cloudinary_1 = __importDefault(require("../config/cloudinary"));
 const hf = new inference_1.InferenceClient(process.env.HUGGING_API_KEY);
+=======
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EventService = void 0;
+const messages_1 = require("../constants/messages");
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 class EventService {
     constructor(_eventRepository) {
         this._eventRepository = _eventRepository;
@@ -46,6 +52,7 @@ class EventService {
             }
         });
     }
+<<<<<<< HEAD
     completedGet(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -67,6 +74,8 @@ class EventService {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     eventGetById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -91,6 +100,7 @@ class EventService {
     eventCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+<<<<<<< HEAD
                 const text = `${data.category} ${data.description} ${data.venue}`;
                 const output = yield hf.featureExtraction({
                     model: "sentence-transformers/all-MiniLM-L6-v2",
@@ -120,6 +130,9 @@ class EventService {
                         coordinates: [longitude, latitude]
                     } });
                 const result = yield this._eventRepository.createEvent(eventPayload);
+=======
+                const result = yield this._eventRepository.createEvent(data);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 if (result) {
                     return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE };
                 }
@@ -150,6 +163,7 @@ class EventService {
             }
         });
     }
+<<<<<<< HEAD
     eventEdit(id, data, file) {
         return __awaiter(this, void 0, void 0, function* () {
             const existingEvent = yield this._eventRepository.findById(id);
@@ -180,6 +194,23 @@ class EventService {
             data.images = normalizedImages;
             const updatedEvent = yield this._eventRepository.editEvent(id, data);
             return updatedEvent;
+=======
+    eventEdit(id, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._eventRepository.editEvent(id, data);
+                if (result) {
+                    return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE };
+                }
+                else {
+                    return { success: false, message: messages_1.MESSAGES.EVENT.FAILED_TO_UPDATE };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false, message: "failed to edit event" };
+            }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         });
     }
     statusCheck(email) {
@@ -199,10 +230,17 @@ class EventService {
             }
         });
     }
+<<<<<<< HEAD
     getEvent(id, limit, page, searchTerm, date, status) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._eventRepository.eventGet(id, limit, page, searchTerm, date, status);
+=======
+    getEvent(id, limit, page, searchTerm, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._eventRepository.eventGet(id, limit, page, searchTerm, date);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 if (response) {
                     return {
                         response,
@@ -320,6 +358,7 @@ class EventService {
             }
         });
     }
+<<<<<<< HEAD
     getRecommended(userId, filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -366,6 +405,8 @@ class EventService {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.EventService = EventService;
 //# sourceMappingURL=eventService.js.map

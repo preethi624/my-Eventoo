@@ -9,7 +9,11 @@ import Order from "../model/order";
 
 import { FilterQuery } from "mongoose";
 dotenv.config();
+<<<<<<< HEAD
 const ai = new GoogleGenerativeAI(process.env.GEMINI || "");
+=======
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class ChatRepository implements IChatRepository {
   async createChat(
@@ -117,8 +121,12 @@ export class ChatRepository implements IChatRepository {
         }
       }
 
+<<<<<<< HEAD
       
 const prompt = `
+=======
+      const prompt = `
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 You are an assistant for an Event Management System.
 
 User asked: "${userMessage}"
@@ -126,6 +134,7 @@ User asked: "${userMessage}"
 System Data:
 ${relevantData}
 
+<<<<<<< HEAD
 Your task:
 - Always respond only in bullet points.
 - Each bullet should be short, clear, and easy to scan.
@@ -135,6 +144,11 @@ Your task:
 `;
 
 
+=======
+Respond clearly, helpfully, and friendly.
+`;
+
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent({
         contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -151,4 +165,8 @@ Your task:
       };
     }
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

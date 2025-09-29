@@ -6,8 +6,12 @@ export interface OrderCreateInput{
     userId:string;
     eventId:string;
     eventTitle:string;
+<<<<<<< HEAD
     email?:string;
     selectedTicket?:{type:string,capacity:number,price:number,sold?:number}|null
+=======
+    email?:string
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 export interface RazorpayPaymentResponse {
   razorpay_payment_id: string;
@@ -19,7 +23,11 @@ export interface GetOrders{
     message:string;
     order?:IOrder[]
 }
+<<<<<<< HEAD
 export interface UserPro{
+=======
+export interface UserProfile{
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   totalSpent?:number;
 
   eventsBooked?:number;

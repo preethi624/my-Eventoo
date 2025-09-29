@@ -15,13 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminEventRepository = void 0;
 const event_1 = __importDefault(require("../model/event"));
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
+<<<<<<< HEAD
 const notification_1 = __importDefault(require("../model/notification"));
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 class AdminEventRepository {
     getEventsAll(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
+<<<<<<< HEAD
             const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, } = filters;
             console.log("limit", limit);
+=======
+            const { searchLocation, selectedCategory, maxPrice, selectedDate, searchTitle, page = 1, limit = 6, orgName, } = filters;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const skip = (page - 1) * limit;
             const query = {};
             if (searchLocation) {
@@ -80,6 +87,7 @@ class AdminEventRepository {
     }
     eventEdit(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
             try {
                 const event = yield event_1.default.findByIdAndUpdate(id, formData, { new: true });
                 if (!event)
@@ -96,10 +104,14 @@ class AdminEventRepository {
                 console.log(error);
                 return null;
             }
+=======
+            return yield event_1.default.findByIdAndUpdate(id, formData, { new: true });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         });
     }
     blockEvent(event) {
         return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
             try {
                 const id = event._id;
                 if (!event.isBlocked) {
@@ -130,6 +142,14 @@ class AdminEventRepository {
             catch (error) {
                 console.log(error);
                 return null;
+=======
+            const id = event._id;
+            if (!event.isBlocked) {
+                return yield event_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+            }
+            else {
+                return yield event_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             }
         });
     }
@@ -193,6 +213,7 @@ class AdminEventRepository {
                 { $project: { name: "$_id", value: 1, _id: 0 } },
             ]);
             const categories = eventCategories.map((cat) => (Object.assign(Object.assign({}, cat), { color: categoryColors[cat.name] || "#9CA3AF" })));
+<<<<<<< HEAD
             /* const completedEvents = await EventModel.find({ status: "completed" });
              let adminEarning = 0;
              completedEvents.forEach((event) => {
@@ -223,6 +244,15 @@ class AdminEventRepository {
                     const adminCut = revenue * commissionRate;
                     adminEarning += adminCut;
                 }
+=======
+            const completedEvents = yield event_1.default.find({ status: "completed" });
+            let adminEarning = 0;
+            completedEvents.forEach((event) => {
+                const totalTickets = event.ticketsSold;
+                const adminPerTicket = event.ticketPrice * commissionRate;
+                const totalAdmin = adminPerTicket * totalTickets;
+                adminEarning += totalAdmin;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             });
             const activeEvents = yield event_1.default.find({
                 status: "published",

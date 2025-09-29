@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 import  { useState, useRef, useEffect } from "react";
 import {
   Send,
  
+=======
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Send,
+  Search,
+  MoreVertical,
+  Phone,
+  Video,
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   Paperclip,
   Smile,
   ArrowLeft,
@@ -18,7 +28,10 @@ const OrganizerChatPage: React.FC = () => {
     _id?: string;
     name?: string;
     email?: string;
+<<<<<<< HEAD
     isOnline?:boolean
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   }>({});
   const [users, setUsers] = useState<
     { _id: string; name: string; email: string }[]
@@ -34,7 +47,11 @@ const OrganizerChatPage: React.FC = () => {
     }[]
   >([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+<<<<<<< HEAD
   
+=======
+  const [searchQuery, setSearchQuery] = useState("");
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
   const fetchUsers = async () => {
@@ -121,9 +138,25 @@ const OrganizerChatPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+<<<<<<< HEAD
   
 
 
+=======
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -132,7 +165,20 @@ const OrganizerChatPage: React.FC = () => {
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">Users</h1>
+<<<<<<< HEAD
           
+=======
+          {/*<div className="mt-3 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>*/}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         </div>
 
         {/* Chat List */}
@@ -197,7 +243,21 @@ const OrganizerChatPage: React.FC = () => {
                     </h2>
                   </div>
                 </div>
+<<<<<<< HEAD
                
+=======
+                {/*<div className="flex items-center space-x-2">
+                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                    <Phone className="w-5 h-5" />
+                  </button>
+                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                    <Video className="w-5 h-5" />
+                  </button>
+                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                    <MoreVertical className="w-5 h-5" />
+                  </button>
+                </div>*/}
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
               </div>
             </div>
 

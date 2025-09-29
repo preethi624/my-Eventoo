@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 
 /*export interface IEventImage {
   url: string;
   public_id: string | null;
 }
+=======
+import mongoose, { Document, Schema } from "mongoose";
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export interface IEvent extends Document {
   title: string;
@@ -13,7 +17,11 @@ export interface IEvent extends Document {
   category: string;
   ticketPrice: number;
   capacity: number;
+<<<<<<< HEAD
   images: (string|IEventImage)[];
+=======
+  images: string[];
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   organiser: mongoose.Types.ObjectId;
   status: "draft" | "published" | "completed" | "cancelled";
 
@@ -24,11 +32,14 @@ export interface IEvent extends Document {
   latitude: number;
   longitude: number;
   isBlocked: boolean;
+<<<<<<< HEAD
   embedding:number[];
   location:{
     type:"Point",
     coordinates:[number,number]
   }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 
 const eventSchema: Schema<IEvent> = new Schema<IEvent>(
@@ -50,11 +61,16 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
     category: { type: String, required: true },
     ticketPrice: { type: Number, required: true },
     capacity: { type: Number, required: true },
+<<<<<<< HEAD
     images: {
       type: [Schema.Types.Mixed],  
       default: [],
     },
     organiser: { type: mongoose.Schema.Types.ObjectId, ref: "Organiser" },
+=======
+    images: { type: [String], default: [] },
+    organiser: { type: mongoose.Schema.Types.ObjectId, ref: "organiser" },
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     status: {
       type: String,
       enum: ["draft", "published", "completed", "cancelled"],
@@ -67,6 +83,7 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
     latitude: { type: Number, default: 9.9312 },
     longitude: { type: Number, default: 76.2673 },
     isBlocked: { type: Boolean, default: false },
+<<<<<<< HEAD
     embedding:[Number],
     location: {
   type: {
@@ -79,6 +96,8 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
     default: [0, 0]
   }
 }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   },
   { timestamps: true }
 );
@@ -88,6 +107,7 @@ eventSchema.pre<IEvent>("save", function (next) {
   }
   next();
 });
+<<<<<<< HEAD
 eventSchema.index({ location: "2dsphere" });
 
 
@@ -228,8 +248,13 @@ eventSchema.pre<IEvent>("save", function (next) {
 });
 
 eventSchema.index({ location: "2dsphere" });
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const EventModel = mongoose.model<IEvent>("Event", eventSchema);
 
 export default EventModel;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

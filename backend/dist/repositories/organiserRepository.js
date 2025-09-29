@@ -22,7 +22,10 @@ const analyticHelper_1 = require("../utils/analyticHelper");
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
 const ticket_1 = require("../model/ticket");
 const user_1 = __importDefault(require("../model/user"));
+<<<<<<< HEAD
 const notification_1 = __importDefault(require("../model/notification"));
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 class OrganiserRepository {
     getOrganiserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -37,7 +40,11 @@ class OrganiserRepository {
     }
     updateOrganiser(data, organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
             const { name, phone, location, aboutMe, profileImage } = data;
+=======
+            const { name, email, phone, location, aboutMe, profileImage } = data;
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             return yield organiser_1.default.findByIdAndUpdate(organiserId, { name, phone, location, aboutMe: aboutMe, profileImage }, { new: true });
         });
     }
@@ -104,11 +111,19 @@ class OrganiserRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = filters.limit && filters.page ? (filters.page - 1) * filters.limit : 0;
             const query = {};
+<<<<<<< HEAD
             if (filters.searchTerm) {
                 query.$or = [
                     { name: { $regex: filters.searchTerm, $options: "i" } },
                     { city: { $regex: filters.searchTerm, $options: "i" } }
                 ];
+=======
+            if (filters.nameSearch) {
+                query.name = { $regex: filters.nameSearch, $options: "i" };
+            }
+            if (filters.locationSearch) {
+                query.city = { $regex: filters.locationSearch, $options: "i" };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             }
             const venues = yield venue_1.default.find(query)
                 .skip(skip)
@@ -153,6 +168,7 @@ class OrganiserRepository {
                             name: "$user.name",
                             email: "$user.email",
                         },
+<<<<<<< HEAD
                         ticketType: "$selectedTicket.type"
                     },
                 },
@@ -170,12 +186,20 @@ class OrganiserRepository {
                 return acc;
             }, {});
             console.log("ticket type stats", orders);
+=======
+                    },
+                },
+            ]);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const stats = {
                 confirmed: orders.filter((o) => o.bookingStatus === "confirmed").length,
                 pending: orders.filter((o) => o.bookingStatus === "pending").length,
                 cancelled: orders.filter((o) => o.bookingStatus === "cancelled").length,
                 salesTrend: (0, analyticHelper_1.generateSalesTrend)(orders),
+<<<<<<< HEAD
                 ticketTypes: ticketTypeStats
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             };
             return { event, orders, stats };
         });
@@ -183,12 +207,20 @@ class OrganiserRepository {
     fetchAttendees(eventId, organiserId, searchTerm, filterStatus, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
+<<<<<<< HEAD
+=======
+            console.log("page", page);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const settings = yield platformSettings_1.default.findOne();
             const adminCommissionPercentage = (_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10;
             const startDate = new Date();
             startDate.setDate(startDate.getDate() - 30);
             const matchStage = {
                 eventId: new mongoose_1.default.Types.ObjectId(eventId),
+<<<<<<< HEAD
+=======
+                createdAt: { $gte: startDate },
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             };
             if (filterStatus && filterStatus !== "all") {
                 matchStage.bookingStatus = filterStatus;
@@ -241,6 +273,7 @@ class OrganiserRepository {
                     bookingStatus: 1,
                     orderId: 1,
                     amount: 1,
+<<<<<<< HEAD
                     ticketType: "$selectedTicket.type"
                 },
             };
@@ -257,6 +290,10 @@ class OrganiserRepository {
                 }
             ];
             const ticketTypeStats = yield order_1.default.aggregate(ticketTypeStatsPipeline);
+=======
+                },
+            };
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const countRevenuePipeline = [...pipeline, projectStage];
             const allAttendees = yield order_1.default.aggregate(countRevenuePipeline);
             const totalAttendees = allAttendees.length;
@@ -281,7 +318,10 @@ class OrganiserRepository {
                 currentPage: page,
                 totalPages: Math.ceil(totalAttendees / limit),
                 totalAttendees: totalAttendees,
+<<<<<<< HEAD
                 ticketTypeStats
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             };
         });
     }
@@ -298,6 +338,7 @@ class OrganiserRepository {
                 const targetYear = parseInt(year !== null && year !== void 0 ? year : new Date().getFullYear().toString());
                 const targetMonth = month ? parseInt(month) : 0;
                 stDate = new Date(targetYear, targetMonth, 1);
+<<<<<<< HEAD
                 enDate = month
                     ? new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999)
                     : new Date(targetYear, 11, 31, 23, 59, 59, 999);
@@ -309,10 +350,28 @@ class OrganiserRepository {
                 enDate = new Date();
             }
             else {
+=======
+                if (month) {
+                    enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+                }
+                else {
+                    enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+                }
+            }
+            else if (!month && !year) {
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 const targetYear = parseInt(new Date().getFullYear().toString());
                 stDate = new Date(targetYear, 0, 1);
                 enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
             }
+<<<<<<< HEAD
+=======
+            else {
+                const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
+                stDate = new Date();
+                stDate.setDate(stDate.getDate() - days);
+            }
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const eventMatchCondition = {
                 "EventDetails.organiser": new mongoose_1.default.Types.ObjectId(organiserId),
                 "EventDetails.status": "completed",
@@ -366,7 +425,10 @@ class OrganiserRepository {
                     $sort: { month: 1 },
                 },
             ]);
+<<<<<<< HEAD
             console.log("data", data);
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const settings = yield platformSettings_1.default.findOne();
             const adminCommissionPercentage = (_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10;
             const adjustedData = data.map((item) => ({
@@ -379,6 +441,7 @@ class OrganiserRepository {
             const topEvents = [...events]
                 .sort((a, b) => b.ticketsSold - a.ticketsSold)
                 .slice(0, 5);
+<<<<<<< HEAD
             const upcomingEvents = yield event_1.default.find({
                 organiser: organiserId,
                 date: { $gte: new Date() }
@@ -386,6 +449,12 @@ class OrganiserRepository {
                 .sort({ date: 1 })
                 .limit(5);
             console.log("upcomings", events);
+=======
+            const upcomingEvents = events
+                .filter((event) => new Date(event.date) >= new Date())
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                .slice(0, 5);
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const earningAggregation = yield order_1.default.aggregate([
                 {
                     $lookup: {
@@ -401,9 +470,13 @@ class OrganiserRepository {
                 },
                 {
                     $addFields: {
+<<<<<<< HEAD
                         ticketPrice: {
                             $ifNull: ["$selectedTicket.price", "$EventDetails.ticketPrice"]
                         },
+=======
+                        ticketPrice: "$EventDetails.ticketPrice",
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                         quantity: "$ticketCount",
                         commissionRate: adminCommissionPercentage,
                     },
@@ -488,6 +561,7 @@ class OrganiserRepository {
             };
         });
     }
+<<<<<<< HEAD
     /*async dashboardEvents(
        organiserId: string,
        timeFrame: "7d" | "30d" | "90d",
@@ -726,6 +800,8 @@ class OrganiserRepository {
          orderDetails,
        };
      }*/
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     updateTicket(qrToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const ticket = yield ticket_1.TicketModel.findOne({ qrToken: qrToken });
@@ -753,6 +829,7 @@ class OrganiserRepository {
             }
         });
     }
+<<<<<<< HEAD
     fetchEventOrders(eventId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -811,6 +888,8 @@ class OrganiserRepository {
             }
         });
     }
+=======
+>>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.OrganiserRepository = OrganiserRepository;
 //# sourceMappingURL=organiserRepository.js.map
