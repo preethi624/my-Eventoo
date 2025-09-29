@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -10,9 +10,7 @@ import {
   Mail,
   Phone,
   ArrowLeft,
-  Download,
-  Share2,
-  Clock,
+ 
   CheckCircle,
 } from "lucide-react";
 
@@ -31,6 +29,8 @@ const OrgOrderDetailsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const MySwal = withReactContent(Swal);
   const [refundId,setRefundId]=useState("")
+  console.log(refundId);
+  
 
   useEffect(() => {
     fetchOrderDetails();
@@ -44,7 +44,7 @@ const OrgOrderDetailsPage: React.FC = () => {
       console.log("respooo", response);
 
       if (!response.success) throw new Error("Failed to fetch order details");
-      setOrder(response.order);
+      setOrder(response.order??null);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch order details"
@@ -67,7 +67,9 @@ const OrgOrderDetailsPage: React.FC = () => {
       });
       if(result.isConfirmed){
         const response=await organiserRepository.cancelOrder(orderId);
-        setRefundId(response.refundId);
+       
+        
+        setRefundId(response.refund);
        fetchOrderDetails()
 
       }else{
@@ -268,10 +270,38 @@ const OrgOrderDetailsPage: React.FC = () => {
                         <div className="bg-green-100 rounded-lg p-2">
                           <Users className="w-5 h-5 text-green-600" />
                         </div>
-                        <div>
+                        <div >
                           <p className="text-sm font-medium text-green-600">Tickets</p>
+                            
+                          
                           <p className="text-gray-900 font-semibold">{order.ticketCount} tickets</p>
+                          
                         </div>
+                          {order.selectedTicket && (
+  <span
+    className={`inline-block px-3 py-1 text-xs font-bold rounded-full mt-1 self-start shadow-md
+      ${
+        order?.selectedTicket?.type === "VIP"
+          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border border-purple-600"
+          : ""
+      }
+      ${
+        order?.selectedTicket?.type === "Premium"
+          ? "bg-gradient-to-r from-blue-500 to-cyan-400 text-white border border-blue-600"
+          : ""
+      }
+      ${
+        order?.selectedTicket?.type === "Economic"
+          ? "bg-gradient-to-r from-green-500 to-lime-400 text-white border border-green-600"
+          : ""
+      }
+    `}
+  >
+    {order.selectedTicket.type}
+  </span>
+)}
+
+                        
                       </div>
 
                       <div className="flex items-start space-x-3 p-3 bg-orange-50 rounded-xl">
@@ -373,7 +403,7 @@ const formatDate = (dateString: string) => {
 const getEventImage = (order: IOrder) => {
   
    let imageSrc = "https://via.placeholder.com/300x200";
-  if (order&&order.eventId) {
+  if (order&& typeof order.eventId!=="string") {
     const img = order.eventId.images[0]; 
 
     
@@ -388,6 +418,7 @@ const getEventImage = (order: IOrder) => {
       // Case 2: if Mongo stores { url: "..." }
       return imageSrc = img.url;
     }
+    return imageSrc
   }
 };
 

@@ -29,7 +29,7 @@ const VenuePage: React.FC = () => {
   const [searchTerm,setSearchTerm]=useState("");
   const limit = 6;
 
-  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+  
   const navigate = useNavigate();
 
   const fetchVenues = async () => {

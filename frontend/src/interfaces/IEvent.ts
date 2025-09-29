@@ -1,4 +1,15 @@
-
+export interface ITicketType {
+  type: string
+  price: number;
+  capacity: number;
+  sold?:number;
+  economic?:{price:number,cpacity:number};
+  premium?:{price:number,capacity:number};
+  vip?:{price:number,capacity:number}
+  
+  
+  
+}
 export interface IEventDTO {
     _id:string
   title: string;
@@ -18,7 +29,34 @@ export interface IEventDTO {
   longitude: number;
   isBlocked:boolean;
   availableTickets?:number;
+ ticketTypes: ITicketType[]
   
+}
+export interface IEvent{
+  _id:string
+  title: string;
+  description: string;
+  date: Date;
+  time: string;
+  venue: string;
+  category: string;
+  ticketPrice: number;
+  capacity: number;
+  images: (string|IEventImage)[];
+  organiser: string;
+  status: 'draft' | 'published' |'completed'| 'cancelled';
+  ticketsSold: number;
+  createdAt: Date;
+  latitude: number;
+  longitude: number;
+  isBlocked:boolean;
+  availableTickets?:number;
+ ticketTypes: {
+    economic: { price: string; capacity: string };
+    premium: { price: string; capacity: string };
+    vip: { price: string; capacity: string };
+  };
+
 }
 
 export interface EventFetchResponse {

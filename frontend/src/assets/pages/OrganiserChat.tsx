@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import  { useState, useRef, useEffect } from "react";
 import {
   Send,
  
@@ -18,6 +18,7 @@ const OrganizerChatPage: React.FC = () => {
     _id?: string;
     name?: string;
     email?: string;
+    isOnline?:boolean
   }>({});
   const [users, setUsers] = useState<
     { _id: string; name: string; email: string }[]

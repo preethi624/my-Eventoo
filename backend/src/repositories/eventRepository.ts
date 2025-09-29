@@ -156,10 +156,21 @@ export class EventRepository
     return this.deleteById(id);
   }
   async editEvent(id: string, data: EventEdit): Promise<IEvent | null> {
-    const updatedData: Partial<IEvent> = {
+    let ticketTypes: IEvent["ticketTypes"] | undefined;
+
+  if (data.ticketTypes) {
+    ticketTypes = data.ticketTypes.map((t) => ({
+      type: t.type,
+      price: t.price,
+      capacity: t.capacity,
+      sold: t.sold ?? 0, // ensure sold is always defined
+    }));
+  }
+    const updatedData:Partial<IEvent>= {
       ...data,
       date: new Date(data.date),
       status: data.status as "draft" | "published" | "completed" | "cancelled",
+      ticketTypes
     };
     if (data.capacity !== undefined) {
       updatedData.availableTickets = data.capacity;
@@ -298,19 +309,62 @@ filter.$or = [
       .sort((a, b) => b.ticketsSold - a.ticketsSold)
       .slice(0, 5);
     let organiserEarning = 0;
+    let totalAttendees = 0;
     completedEvents.forEach((event) => {
-      const ticketRevenue = event.ticketPrice * event.ticketsSold;
+  let ticketRevenue = 0;
+  let totalAdminCut = 0;
+  let attendees = 0;
+
+  if (event.ticketTypes && event.ticketTypes.length > 0) {
+    // ✅ Multiple ticket types
+    event.ticketTypes.forEach((t) => {
+      const revenue = (t.price ?? 0) * (t.sold ?? 0);
+      const adminCut = revenue * (adminCommissionPercentage / 100);
+
+      ticketRevenue += revenue;
+      totalAdminCut += adminCut;
+      attendees += t.sold ?? 0;
+    });
+  } else {
+    // ✅ Old model (single ticket price)
+    const revenue = (event.ticketPrice ?? 0) * (event.ticketsSold ?? 0);
+    const adminCut = revenue * (adminCommissionPercentage / 100);
+
+    ticketRevenue += revenue;
+    totalAdminCut += adminCut;
+    attendees += event.ticketsSold ?? 0;
+  }
+
+  organiserEarning += ticketRevenue - totalAdminCut;
+  totalAttendees += attendees;
+});
+    /*completedEvents.forEach((event) => {
+      //const ticketRevenue = event.ticketPrice * event.ticketsSold;
+      let ticketRevenue = 0;
+
+if (event.ticketTypes && event.ticketTypes.length > 0) {
+  
+  ticketRevenue = event.ticketTypes.reduce(
+    (sum, t) => sum + (t.price ?? 0) * (t.sold ?? 0),
+    0
+  );
+} else {
+  
+  ticketRevenue = (event.ticketPrice ?? 0) * (event.ticketsSold ?? 0);
+}
       const adminCutPerTicket =
         (event.ticketPrice * adminCommissionPercentage) / 100;
       const totalAdminCut = adminCutPerTicket * event.ticketsSold;
 
       organiserEarning += ticketRevenue - totalAdminCut;
     });
-    const totalEvents = events.length;
+   
     const totalAttendees = completedEvents.reduce(
       (sum, event) => sum + event.ticketsSold,
       0
-    );
+    );*/
+     const totalEvents = events.length;
+
     const upcomingEvents = events
       .filter((event) => new Date(event.date) >= new Date())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

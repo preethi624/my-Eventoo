@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import  { useEffect } from "react";
+import { Routes, Route} from "react-router-dom";
 
 import "./App.css";
 import LoginPage from "./assets/pages/Login";
-//import Home from './assets/pages/Home';
+
 import SignupPage from "./assets/pages/Signup";
 
 import VerifyOtpOrg from "./assets/pages/VerifyOtpOrg";
@@ -27,12 +27,12 @@ import MyOrdersPage from "./assets/pages/MyOrders";
 import { useSelector } from "react-redux";
 import type { RootState } from "./redux/stroe";
 import type { CustomJwtPayload } from "./interfaces/IUser";
-import { io } from "socket.io-client";
+
 import { useDispatch } from "react-redux";
 import { logout } from "./redux/slices/authSlices";
 import OrderDetailsPage from "./assets/pages/OrderDetails";
 import UserProfile from "./assets/pages/userProfile";
-import OrganiserProfile from "./assets/pages/organiserProfile";
+
 import OrganiserBookings from "./assets/pages/OrgaiserBooking";
 import OrgOrderDetailsPage from "./assets/pages/OrganiserOrderDetails";
 import ProtectedRoute from "./assets/components/ProtectedRoute";
@@ -54,6 +54,7 @@ import ReviewPage from "./assets/pages/ReviewPage";
 import NotificationPage from "./assets/pages/OrganiserNotification";
 import UserNotificationPage from "./assets/pages/UserNotification";
 import AdminOrderDetails from "./assets/pages/AdminOrderDetails";
+import OrganiserProfile from "./assets/pages/OrganiserProfile";
 
 function App() {
   const dispatch = useDispatch();
@@ -167,7 +168,7 @@ function App() {
       />
       <Route
         path="/organiserProfile"
-        element={<ProtectedRoute element={<OrganiserProfile />} />}
+        element={<ProtectedRoute element={<OrganiserProfile/>} />}
       />
       <Route
         path="/organiserBookings"

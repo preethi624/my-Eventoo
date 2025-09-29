@@ -219,7 +219,7 @@ export class AdminEventRepository implements IAdminEventRepository {
       ...cat,
       color: categoryColors[cat.name] || "#9CA3AF",
     }));
-    const completedEvents = await EventModel.find({ status: "completed" });
+   /* const completedEvents = await EventModel.find({ status: "completed" });
     let adminEarning = 0;
     completedEvents.forEach((event) => {
       const totalTickets = event.ticketsSold;
@@ -227,7 +227,28 @@ export class AdminEventRepository implements IAdminEventRepository {
       const totalAdmin = adminPerTicket * totalTickets;
 
       adminEarning += totalAdmin;
+    });*/
+    const completedEvents = await EventModel.find({ status: "completed" });
+let adminEarning = 0;
+
+completedEvents.forEach((event) => {
+  if (event.ticketTypes && event.ticketTypes.length > 0) {
+    // ✅ New model: multiple ticket types
+    event.ticketTypes.forEach((t) => {
+      const revenue = (t.price ?? 0) * (t.sold ?? 0);
+      const adminCut = revenue * commissionRate;
+      adminEarning += adminCut;
     });
+  } else {
+    // ✅ Old model: single ticket price
+    const totalTickets = event.ticketsSold ?? 0;
+    const ticketPrice = event.ticketPrice ?? 0;
+    const revenue = ticketPrice * totalTickets;
+    const adminCut = revenue * commissionRate;
+    adminEarning += adminCut;
+  }
+});
+
     const activeEvents = await EventModel.find({
       status: "published",
       isBlocked: false,

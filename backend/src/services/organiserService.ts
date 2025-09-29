@@ -235,6 +235,8 @@ export class OrganiserService implements IOrganiserService {
           currentPage: response.currentPage,
           totalPages: response.totalPages,
           totalAttendees: response.totalAttendees,
+          ticketTypeStats:response.ticketTypeStats
+
         };
       } else {
         return { success: false, message: "failed" };

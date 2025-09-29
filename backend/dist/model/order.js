@@ -98,6 +98,15 @@ const orderSchema = new mongoose_1.Schema({
         required: true,
         unique: true,
     },
+    selectedTicket: {
+        type: {
+            type: String,
+            required: true,
+        },
+        capacity: { type: Number, required: true },
+        price: { type: Number, required: true },
+        sold: { type: Number, default: 0 },
+    },
 });
 const Order = mongoose_1.default.model("Order", orderSchema);
 exports.default = Order;

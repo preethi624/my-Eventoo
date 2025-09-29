@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Calendar, History, Sparkles } from 'lucide-react';
 
 interface EventHistoryStickerProps {

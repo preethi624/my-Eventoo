@@ -193,13 +193,36 @@ class AdminEventRepository {
                 { $project: { name: "$_id", value: 1, _id: 0 } },
             ]);
             const categories = eventCategories.map((cat) => (Object.assign(Object.assign({}, cat), { color: categoryColors[cat.name] || "#9CA3AF" })));
+            /* const completedEvents = await EventModel.find({ status: "completed" });
+             let adminEarning = 0;
+             completedEvents.forEach((event) => {
+               const totalTickets = event.ticketsSold;
+               const adminPerTicket = event.ticketPrice * commissionRate;
+               const totalAdmin = adminPerTicket * totalTickets;
+         
+               adminEarning += totalAdmin;
+             });*/
             const completedEvents = yield event_1.default.find({ status: "completed" });
             let adminEarning = 0;
             completedEvents.forEach((event) => {
-                const totalTickets = event.ticketsSold;
-                const adminPerTicket = event.ticketPrice * commissionRate;
-                const totalAdmin = adminPerTicket * totalTickets;
-                adminEarning += totalAdmin;
+                var _a, _b;
+                if (event.ticketTypes && event.ticketTypes.length > 0) {
+                    // ✅ New model: multiple ticket types
+                    event.ticketTypes.forEach((t) => {
+                        var _a, _b;
+                        const revenue = ((_a = t.price) !== null && _a !== void 0 ? _a : 0) * ((_b = t.sold) !== null && _b !== void 0 ? _b : 0);
+                        const adminCut = revenue * commissionRate;
+                        adminEarning += adminCut;
+                    });
+                }
+                else {
+                    // ✅ Old model: single ticket price
+                    const totalTickets = (_a = event.ticketsSold) !== null && _a !== void 0 ? _a : 0;
+                    const ticketPrice = (_b = event.ticketPrice) !== null && _b !== void 0 ? _b : 0;
+                    const revenue = ticketPrice * totalTickets;
+                    const adminCut = revenue * commissionRate;
+                    adminEarning += adminCut;
+                }
             });
             const activeEvents = yield event_1.default.find({
                 status: "published",

@@ -8,6 +8,7 @@
    
     "sourceMap": true,                // optional: useful for debugging
     "resolveJsonModule": true,
+    "noEmitOnError": false,
    
     
     /* Visit https://aka.ms/tsconfig to read more about this file */

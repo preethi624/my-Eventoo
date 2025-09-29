@@ -73,6 +73,8 @@ export const TicketsPage: React.FC = () => {
   const [limit, setLimit] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  console.log(loading);
+  
 
   useEffect(() => {
     fetchTickets();
@@ -103,16 +105,9 @@ export const TicketsPage: React.FC = () => {
       setLoading(false);
     }
   };
-  console.log("tot", totalPage);
+  
 
-  const generateQRCode = (qrToken: string) => {
-    return `data:image/svg+xml;base64,${btoa(`
-      <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" fill="white"/>
-        <text x="100" y="100" text-anchor="middle" font-size="12" fill="black">QR: ${qrToken}</text>
-      </svg>
-    `)}`;
-  };
+  
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -349,7 +344,7 @@ export const TicketsPage: React.FC = () => {
               No tickets found
             </h3>
             <p className="text-gray-600">
-              You don't have any tickets matching your search criteria.
+              You do not have any tickets matching your search criteria.
             </p>
           </div>
         ) : (

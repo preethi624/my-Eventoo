@@ -1,22 +1,18 @@
 import axios from "axios";
 import { AxiosError } from "axios";
 
-import type { IOrganiser } from "../interfaces/IOrganiser";
+
 import axiosInstance from "../utils/axiosUser";
-import type { FetchOrders, OrgOrder } from "../interfaces/IPayment";
+import type { OrgOrder } from "../interfaces/IPayment";
 import type { GetVenue } from "../interfaces/IVenue";
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/organiser`;
-interface GetOrganiserById {
-  success?: boolean;
-  result: IOrganiser;
-  message?: string;
-}
+
 
 export const getOrganiserById = async (
   id: string
-): Promise<GetOrganiserById> => {
+) => {
   try {
-    const response = await axiosInstance.get<GetOrganiserById>(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/organiser/${id}`
     );
 
@@ -75,7 +71,7 @@ export const fetchBookings = async (
   page: number,
   limit: number,
   queryParams: string
-): Promise<FetchOrders> => {
+) => {
   try {
     console.log("Query Params:", queryParams);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   Calendar,
@@ -37,9 +37,15 @@ export interface IReview {
   createdAt: string;
   sentiment?:string
 }
+interface ticketTypeStats{
+  count:number;
+  tickets:number;
+  revenue:number
+}
 interface Stats {
   salesTrend: { date: string; sales: number}[];
-  pending:string,cancelled:string,confirmed:string 
+  pending:string,cancelled:string,confirmed:string ;
+  ticketTypes:{ecnomic:ticketTypeStats;premium:ticketTypeStats;vip:ticketTypeStats}
 
 }
 
@@ -157,11 +163,21 @@ const EventDashboard = () => {
     { header: "Payment Status", accessor: "status" },
     { header: "Order Date", accessor:"createdAt"}
   ];
+  const ticketTypeData = Object.entries(stats.ticketTypes || {}).map(
+  ([type, data]: [string, any]) => ({
+    name: type,         
+    orders: data.count, 
+    tickets: data.tickets,
+    revenue: data.revenue / 100, 
+  })
+);
+
 
   return (
     <OrganiserLayout>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
         <div className="max-w-7xl mx-auto">
+          
           {/* Header */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -243,10 +259,37 @@ const EventDashboard = () => {
             <div className="p-6">
               {activeTab === "overview" && (
                 <div className="space-y-6">
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+  {stats.ticketTypes&&Object.keys(stats.ticketTypes).length > 0 &&<h3 className="text-xl font-semibold mb-4 text-gray-800">Ticket Type Breakdown</h3>}
+  {stats.ticketTypes&&Object.keys(stats.ticketTypes).length > 0 &&<table className="w-full text-left border-collapse">
+    <thead>
+      <tr className="bg-gray-100 text-gray-600 text-sm">
+        <th className="p-3">Type</th>
+        <th className="p-3">Orders</th>
+        <th className="p-3">Tickets</th>
+        <th className="p-3">Revenue (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {ticketTypeData.map((t) => (
+        <tr key={t.name} className="border-b">
+          <td className="p-3 capitalize">{t.name}</td>
+          <td className="p-3">{t.orders}</td>
+          <td className="p-3">{t.tickets}</td>
+          <td className="p-3">₹{t.revenue}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>}
+</div>
+
                   {/* Stats Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
                     <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl shadow-lg text-white">
+                      
                       <div className="flex items-center justify-between">
+                        
                         <div>
                           <h4 className="text-sm font-medium opacity-90 mb-1">Confirmed Bookings</h4>
                           <p className="text-3xl font-bold">

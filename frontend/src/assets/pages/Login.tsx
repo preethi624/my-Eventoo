@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import type { FC, FormEvent } from "react";
 
@@ -139,16 +139,16 @@ const LoginPage: FC = () => {
 
     if (validateForm()) {
       if (userType === "user") {
-        let result: ThunkResult;
-        result = await dispatch(loginUser(formData));
+       
+        const result:ThunkResult = await dispatch(loginUser(formData));
         if (result.success) {
           navigate("/home");
         } else {
           toast.error(result.message);
         }
       } else {
-        let result: ThunkResult;
-        result = await dispatch(loginOrganiser(formData));
+      
+        const result:ThunkResult = await dispatch(loginOrganiser(formData));
         if (result.success) {
           navigate("/dashboard");
         } else {
@@ -377,7 +377,7 @@ const LoginPage: FC = () => {
               </motion.div>
 
               <p className="mt-6 text-center text-sm text-gray-600">
-                Don't have an account?{" "}
+               Don&apos;t have an account?{" "}
                 <Link
                   to="/register"
                   className="font-medium text-blue-600 hover:text-blue-500"

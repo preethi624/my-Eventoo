@@ -2,7 +2,7 @@ import { type AxiosResponse } from "axios";
 import { AxiosError } from "axios";
 
 import type {
-  EventCount,
+ 
   EventFetchResponse,
   IEventDTO,
   Location,
@@ -28,6 +28,8 @@ interface EventGetById {
 
 export const createEvent = async (data: FormData): Promise<CreateEvent> => {
   try {
+    
+    
     
     
     const response: CreateEvent = await axiosInstance.post(
@@ -173,13 +175,13 @@ export const getEvents = async (
   currentPage: number,
   limit: number,
   queryParams: string
-): Promise<EventFetchResponse> => {
+)=> {
  
   
   try {
    
     
-    const response = await axiosInstance.get<EventFetchResponse>(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/events/${id}?limit=${limit}&page=${currentPage}&${queryParams}`
     );
 
@@ -189,7 +191,7 @@ export const getEvents = async (
     throw axiosError.response?.data || axiosError.message;
   }
 };
-export const getEventsCreated = async (): Promise<EventCount> => {
+export const getEventsCreated = async ()=> {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/eventCount`);
 

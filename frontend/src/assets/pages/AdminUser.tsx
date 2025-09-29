@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { FaEdit } from "react-icons/fa";
 import AdminLayout from "../components/AdminLayout";

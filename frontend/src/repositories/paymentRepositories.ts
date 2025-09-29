@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import type {
   OrderCreateInput,
   RazorpayPaymentResponse,
-  UserProfile,
+  
 } from "../interfaces/IPayment";
 import axiosInstance from "../utils/axiosUser";
 import type { IGetOrdersResponse } from "../interfaces/IOrder";
@@ -110,7 +110,7 @@ export const getOrderDetails = async (orderId: string, userId: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
-export const getEventBooked = async (): Promise<UserProfile> => {
+export const getEventBooked = async () => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/order`);
     if (response) {

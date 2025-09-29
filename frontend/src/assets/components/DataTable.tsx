@@ -1,5 +1,5 @@
 // components/DataTable.tsx
-import React from 'react';
+
 
 interface Column<T> {
   header: string;

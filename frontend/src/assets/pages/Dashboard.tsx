@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type FC } from "react";
+import  { useEffect, useState, type FC } from "react";
 import { unparse } from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -77,7 +77,9 @@ const Dashboard = () => {
 
   const fetchOrganiser = async () => {
     const response = await organiserRepository.getOrganiserById(organiser.id);
-
+    console.log("response",response);
+    
+   
     setOrganiserData(response.result.result);
     setProfileImage(response.result.result.profileImage);
   };
@@ -190,7 +192,18 @@ const Dashboard = () => {
           OrganiserEarning: `₹${organiserEarning.toFixed(2)}`,
         };
       });
-    formattedOrders.push({});
+    formattedOrders.push({
+  OrderID: "",
+  Buyer: "",
+  Email: "",
+  Event: "",
+  EventDate: "",
+  OrderDate: "",
+  Quantity: "",
+  totalAmount: "",
+  AdminCommission: "",
+  OrganiserEarning: "",
+});
     formattedOrders.push({
       OrderID: "",
       Buyer: "",
@@ -671,9 +684,10 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div className="text-right">
+                       
                         <div className="text-sm text-green-600 font-medium">
-                          ₹{event.ticketPrice.toLocaleString()}
-                        </div>
+  ₹{(event.ticketPrice ?? event.ticketTypes[0]?.price ?? 0).toLocaleString()}
+</div>
                         <div
                           className={`inline-block px-2 py-1 rounded-full text-xs mt-1 ${
                             event.status === "published"

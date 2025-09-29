@@ -20,14 +20,67 @@ const uuid_1 = require("uuid");
 const ticket_1 = require("../model/ticket");
 const notification_1 = __importDefault(require("../model/notification"));
 class PaymentRepository {
+    /*async createOrder(data: IPaymentDTO): Promise<IOrder> {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const updatedEvent = await EventModel.findOneAndUpdate(
+          { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
+          //{ $inc: { availableTickets: -data.ticketCount } },
+          {$inc: { "selectedTicket.capacity": -data.ticketCount }},
+          { new: true, session }
+        );
+        if (!updatedEvent) {
+          throw new Error("Not enough tickets available");
+        }
+        const lastOrder = await Order.findOne()
+          .sort({ bookingNumber: -1 })
+          .session(session);
+        let nextBookingNumber = "BK-1000";
+        if (lastOrder?.bookingNumber) {
+          const lastNumber = parseInt(
+            lastOrder.bookingNumber.replace("BK-", ""),
+            10
+          );
+          nextBookingNumber = `BK-${lastNumber + 1}`;
+        }
+        const orderData = {
+          ...data,
+          bookingNumber: nextBookingNumber,
+        };
+        const [order] = await Order.create([orderData], { session });
+        await session.commitTransaction();
+        return order;
+      } catch (error) {
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
+      }
+    }*/
     createOrder(data) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const session = yield mongoose_1.default.startSession();
             session.startTransaction();
             try {
-                const updatedEvent = yield event_1.default.findOneAndUpdate({ _id: data.eventId, availableTickets: { $gte: data.ticketCount } }, { $inc: { availableTickets: -data.ticketCount } }, { new: true, session });
+                const updatedEvent = yield event_1.default.findOneAndUpdate({
+                    _id: data.eventId,
+                    "ticketTypes.type": (_a = data.selectedTicket) === null || _a === void 0 ? void 0 : _a.type,
+                    "ticketTypes.capacity": { $gte: data.ticketCount },
+                }, {
+                    $inc: {
+                        ticketsSold: data.ticketCount,
+                        "ticketTypes.$[elem].sold": data.ticketCount,
+                        availableTickets: -data.ticketCount,
+                    },
+                }, {
+                    new: true,
+                    session,
+                    arrayFilters: [{ "elem.type": (_b = data.selectedTicket) === null || _b === void 0 ? void 0 : _b.type }],
+                });
                 if (!updatedEvent) {
-                    throw new Error("Not enough tickets available");
+                    throw new Error("Not enough tickets available for the selected type");
                 }
                 const lastOrder = yield order_1.default.findOne()
                     .sort({ bookingNumber: -1 })
@@ -200,20 +253,30 @@ class PaymentRepository {
     }
     updateRefund(refundId, orderId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 console.log("refundid", refundId);
                 const order = yield order_1.default.findById(orderId);
                 if (!order)
                     throw new Error("Order not found");
                 const eventId = order.eventId;
-                const ticketCount = order.ticketCount;
                 yield order_1.default.findByIdAndUpdate(orderId, {
                     refundId: refundId,
                     status: "refunded",
                     bookingStatus: "cancelled",
                 });
-                yield event_1.default.findByIdAndUpdate(eventId, {
-                    $inc: { availableTickets: ticketCount },
+                yield event_1.default.findOneAndUpdate({
+                    _id: eventId,
+                    "ticketTypes.type": (_a = order.selectedTicket) === null || _a === void 0 ? void 0 : _a.type,
+                }, {
+                    $inc: {
+                        ticketsSold: -order.ticketCount,
+                        "ticketTypes.$[elem].sold": -order.ticketCount,
+                        availableTickets: order.ticketCount,
+                    },
+                }, {
+                    new: true,
+                    arrayFilters: [{ "elem.type": (_b = order.selectedTicket) === null || _b === void 0 ? void 0 : _b.type }],
                 });
                 yield notification_1.default.create({
                     userId: order.userId,

@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-import React from "react";
+
 import type { IReview } from "../pages/OrganiserEventDashboard";
 
 
@@ -42,7 +42,7 @@ const ReviewSentimentChart = ({ reviews }: { reviews: IReview[]|undefined }) => 
         dataKey="value"
         label
       >
-        {data.map((entry, index) => (
+        {data.map((_, index) => (
           <Cell key={index} fill={COLORS[index % COLORS.length]} />
         ))}
       </Pie>

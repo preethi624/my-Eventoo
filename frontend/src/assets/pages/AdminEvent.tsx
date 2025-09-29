@@ -14,6 +14,23 @@ const truncate = (text: string, maxLength: number) => {
   }
   return text;
 };
+interface ITicketType {
+  type: string;
+  price: number;
+  capacity: number;
+}
+type FormDataType = {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  venue: string;
+  capacity: number;
+  status: "draft" | "published" | "completed" | "cancelled";
+  ticketPrice?: number;        // for old events
+  ticketTypes?: ITicketType[]; // for new events
+};
+
 export interface EventData {
   id: string;
   title: string;
@@ -52,7 +69,7 @@ const EventPage: React.FC = () => {
     }));
   };
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     title: "",
     description: "",
     date: "",
@@ -61,6 +78,7 @@ const EventPage: React.FC = () => {
     status: "draft",
     time: "",
     ticketPrice: 0,
+    ticketTypes: []
   });
 
   useEffect(() => {
@@ -155,6 +173,7 @@ const EventPage: React.FC = () => {
       status: "draft",
       time: "",
       ticketPrice: 0,
+      ticketTypes: []
     });
   };
   const handleNextPage = () => {
@@ -410,7 +429,22 @@ const EventPage: React.FC = () => {
                       d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
-                  <span>TicketPrice: {event.ticketPrice}</span>
+                  {/*<span>TicketPrice: {event.ticketPrice}</span>*/}
+                  <div>
+  <p className="font-medium">Tickets</p>
+  {event.ticketTypes && event.ticketTypes.length > 0 ? (
+    event.ticketTypes.map((t) => (
+      <span key={t.type} className="block text-gray-700">
+        {t.type}: ₹{t.price} (Capacity: {t.capacity})
+      </span>
+    ))
+  ) : (
+    <span className="block text-gray-700">
+      Ticket Price: ₹{event.ticketPrice}
+    </span>
+  )}
+</div>
+
                 </div>
               </div>
               <div className="mt-4 flex space-x-2">
@@ -428,6 +462,7 @@ const EventPage: React.FC = () => {
                       status: event.status,
                       time: event.time,
                       ticketPrice: event.ticketPrice,
+                      ticketTypes: event.ticketTypes
                     });
                     setIsModalOpen(true);
                   }}
@@ -531,20 +566,59 @@ const EventPage: React.FC = () => {
                   required
                 />
                 <p>TicketPrice</p>
-                <input
-                  type="number"
-                  name="Price"
-                  value={formData.ticketPrice}
-                  placeholder="TicketPrice"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      ticketPrice: Number(e.target.value),
-                    })
-                  }
-                  className="w-full px-4 py-2 border rounded"
-                  required
-                />
+               
+                {formData.ticketTypes&& formData.ticketTypes.length > 0 ? (
+ 
+  (formData.ticketTypes??[]).map((ticket, idx) => (
+    <div key={idx} className="flex gap-2 mb-2">
+      <select
+        value={ticket.type}
+        onChange={(e) => {
+          const newTickets = [...(formData.ticketTypes??[])];
+          newTickets[idx].type = e.target.value;
+          setFormData({ ...formData, ticketTypes: newTickets });
+        }}
+      >
+        <option value="Economic">Economic</option>
+        <option value="Premium">Premium</option>
+        <option value="VIP">VIP</option>
+      </select>
+
+      <input
+        type="number"
+        value={ticket.price}
+        placeholder="Price"
+        onChange={(e) => {
+          const newTickets = [...(formData.ticketTypes??[])];
+          newTickets[idx].price = Number(e.target.value);
+          setFormData({ ...formData, ticketTypes: newTickets });
+        }}
+      />
+
+      <input
+        type="number"
+        value={ticket.capacity}
+        placeholder="Capacity"
+        onChange={(e) => {
+          const newTickets = [...(formData.ticketTypes??[])];
+          newTickets[idx].capacity = Number(e.target.value);
+          setFormData({ ...formData, ticketTypes: newTickets });
+        }}
+      />
+    </div>
+  ))
+) : (
+  // Old format: single price
+  <input
+    type="number"
+    value={formData.ticketPrice}
+    placeholder="Ticket Price"
+    onChange={(e) =>
+      setFormData({ ...formData, ticketPrice: Number(e.target.value) })
+    }
+  />
+)}
+
 
                 <select
                   value={formData.status}

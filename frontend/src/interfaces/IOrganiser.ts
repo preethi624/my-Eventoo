@@ -5,9 +5,11 @@ export interface IOrganiser {
     isBlocked: boolean;
     name?:string;
     authMethod?:string;
-    result?:[]
+    
   
 }
+
+
 export interface OrganiserDetails{
     name: string;
   email: string;
@@ -19,7 +21,7 @@ export interface OrganiserDetails{
   authMethod?:string;
   status:string;
 }
-export interface OrganiserProfile{
+export interface OrganiserPro{
   count?:number;
   success?:boolean;
   

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type FC } from "react";
+import  { useEffect, useState, type FC } from "react";
 import {
   BarChart,
   Bar,

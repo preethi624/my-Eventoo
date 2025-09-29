@@ -6,11 +6,12 @@ import type { RootState } from "../../redux/stroe";
 import { userRepository } from "../../repositories/userRepositories";
 
 import { paymentRepository } from "../../repositories/paymentRepositories";
-import type { UserProfile } from "../../interfaces/IPayment";
+
 import UserNavbar from "../components/UseNavbar";
+import type { UserPro } from "../../interfaces/IPayment";
 
 
-const UserProfile: React.FC = () => {
+export const UserProfile: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -27,7 +28,7 @@ const UserProfile: React.FC = () => {
     aboutMe: "",
   });
   const [profileImage, setProfileImage] = useState(user?.profileImage || "");
-  const [userStats, setUserStats] = useState<UserProfile>({
+  const [userStats, setUserStats] = useState<UserPro>({
     eventsBooked: 0,
     totalSpent: 0,
   });
@@ -74,7 +75,7 @@ const UserProfile: React.FC = () => {
         throw new Error("not any user found");
       }
       const response = await userRepository.getUserById();
-      console.log("responseee", response);
+    
 
       setUserData(response.user.user);
       setProfileImage(response.user.user.profileImage);
@@ -135,9 +136,11 @@ const UserProfile: React.FC = () => {
         setNewPassword("");
         setConfirmPassword("");
       } else {
-        setPasswordMessage("❌ " + response.message);
+        setPasswordMessage("❌ Failed to change password ");
       }
     } catch (error) {
+      console.log(error);
+      
       setPasswordMessage("❌ Failed to change password");
     }
   }

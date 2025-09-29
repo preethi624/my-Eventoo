@@ -1,5 +1,5 @@
 // components/EventCard.tsx
-import React from "react";
+
 import {
   FaCalendar,
   FaClock,
@@ -68,9 +68,41 @@ const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
         </div>
 
         <div className="flex justify-between items-center mt-4">
-          <div className="text-black font-semibold text-lg">
+          {event.ticketPrice?<div className="text-black font-semibold text-lg">
             ₹{event.ticketPrice}
-          </div>
+          </div>:<div className="mt-3 border-t pt-3">
+          <h3 className="text-md font-semibold mb-2 flex items-center">
+            <FaTicketAlt className="mr-2" /> Ticket Types
+          </h3>
+          {/*<ul className="space-y-1 text-sm text-gray-700">
+            {event.ticketTypes?.map((t, i) => (
+              <li
+                key={i}
+                className="flex justify-between bg-gray-100 px-3 py-2 rounded-md"
+              >
+                <span className="capitalize">{t.type}</span>
+                <span>
+                  ₹{t.price} ({t.capacity - t.sold} left)
+                </span>
+              </li>
+            ))}
+          </ul>*/}
+          <ul className="space-y-1 text-sm text-gray-700">
+  {Object.entries(event.ticketTypes).map(([key, value], i) => (
+    <li
+      key={i}
+      className="flex justify-between bg-gray-100 px-3 py-2 rounded-md"
+    >
+      <span className="capitalize">{key}</span>
+      <span>
+        ₹{value.price} ({Number(value.capacity) - Number((value as any).sold ?? 0)} left)
+      </span>
+    </li>
+  ))}
+</ul>
+
+        </div>}
+          
           <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded hover:bg-blue-700 transition">
             <FaTicketAlt />
             {event.status != "completed" ? "BookNow" : "Reviews"}

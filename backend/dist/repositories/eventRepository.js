@@ -131,7 +131,19 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     editEvent(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updatedData = Object.assign(Object.assign({}, data), { date: new Date(data.date), status: data.status });
+            let ticketTypes;
+            if (data.ticketTypes) {
+                ticketTypes = data.ticketTypes.map((t) => {
+                    var _a;
+                    return ({
+                        type: t.type,
+                        price: t.price,
+                        capacity: t.capacity,
+                        sold: (_a = t.sold) !== null && _a !== void 0 ? _a : 0, // ensure sold is always defined
+                    });
+                });
+            }
+            const updatedData = Object.assign(Object.assign({}, data), { date: new Date(data.date), status: data.status, ticketTypes });
             if (data.capacity !== undefined) {
                 updatedData.availableTickets = data.capacity;
             }
@@ -246,14 +258,60 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 .sort((a, b) => b.ticketsSold - a.ticketsSold)
                 .slice(0, 5);
             let organiserEarning = 0;
+            let totalAttendees = 0;
             completedEvents.forEach((event) => {
-                const ticketRevenue = event.ticketPrice * event.ticketsSold;
-                const adminCutPerTicket = (event.ticketPrice * adminCommissionPercentage) / 100;
-                const totalAdminCut = adminCutPerTicket * event.ticketsSold;
+                var _a, _b, _c;
+                let ticketRevenue = 0;
+                let totalAdminCut = 0;
+                let attendees = 0;
+                if (event.ticketTypes && event.ticketTypes.length > 0) {
+                    // ✅ Multiple ticket types
+                    event.ticketTypes.forEach((t) => {
+                        var _a, _b, _c;
+                        const revenue = ((_a = t.price) !== null && _a !== void 0 ? _a : 0) * ((_b = t.sold) !== null && _b !== void 0 ? _b : 0);
+                        const adminCut = revenue * (adminCommissionPercentage / 100);
+                        ticketRevenue += revenue;
+                        totalAdminCut += adminCut;
+                        attendees += (_c = t.sold) !== null && _c !== void 0 ? _c : 0;
+                    });
+                }
+                else {
+                    // ✅ Old model (single ticket price)
+                    const revenue = ((_a = event.ticketPrice) !== null && _a !== void 0 ? _a : 0) * ((_b = event.ticketsSold) !== null && _b !== void 0 ? _b : 0);
+                    const adminCut = revenue * (adminCommissionPercentage / 100);
+                    ticketRevenue += revenue;
+                    totalAdminCut += adminCut;
+                    attendees += (_c = event.ticketsSold) !== null && _c !== void 0 ? _c : 0;
+                }
                 organiserEarning += ticketRevenue - totalAdminCut;
+                totalAttendees += attendees;
             });
+            /*completedEvents.forEach((event) => {
+              //const ticketRevenue = event.ticketPrice * event.ticketsSold;
+              let ticketRevenue = 0;
+        
+        if (event.ticketTypes && event.ticketTypes.length > 0) {
+          
+          ticketRevenue = event.ticketTypes.reduce(
+            (sum, t) => sum + (t.price ?? 0) * (t.sold ?? 0),
+            0
+          );
+        } else {
+          
+          ticketRevenue = (event.ticketPrice ?? 0) * (event.ticketsSold ?? 0);
+        }
+              const adminCutPerTicket =
+                (event.ticketPrice * adminCommissionPercentage) / 100;
+              const totalAdminCut = adminCutPerTicket * event.ticketsSold;
+        
+              organiserEarning += ticketRevenue - totalAdminCut;
+            });
+           
+            const totalAttendees = completedEvents.reduce(
+              (sum, event) => sum + event.ticketsSold,
+              0
+            );*/
             const totalEvents = events.length;
-            const totalAttendees = completedEvents.reduce((sum, event) => sum + event.ticketsSold, 0);
             const upcomingEvents = events
                 .filter((event) => new Date(event.date) >= new Date())
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

@@ -1,0 +1,17 @@
+# dependencies
+node_modules
+npm-debug.log
+yarn.lock
+
+# build outputs (already copied manually in multi-stage)
+build
+
+.env
+
+# docker
+Dockerfile
+.dockerignore
+
+# git
+.git
+.gitignore

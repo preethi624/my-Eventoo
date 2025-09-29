@@ -72,6 +72,11 @@ export interface OrderDashboard{
   totalAdminEarning?:number
 
 }
+interface TicketTypeStat {
+  count: number;
+  tickets: number;
+  revenue: number;
+}
 export interface Attendees{
   attendees?:{ id: string; 
       name: string;
@@ -88,6 +93,7 @@ export interface Attendees{
       currentPage?:number;
       totalPages?:number;
       totalAttendees?:number
+      ticketTypeStats?:Record<string,TicketTypeStat>[]
 }
 export interface GetUser{
   users:IUser[];

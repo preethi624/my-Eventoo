@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import OrganiserLayout from "../components/OrganiserLayout";
@@ -9,13 +9,15 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Swal from "sweetalert2";
 import type {
-  EventFetchResponse,
-  IEventDTO,
+  
+  IEvent,
+ 
   IEventImage,
+ 
 } from "../../interfaces/IEvent";
 import { organiserRepository } from "../../repositories/organiserRepositories";
-import { eventSchema } from "../../validations/eventValidations";
-import * as Yup from "yup";
+
+
 import DataTable from "../components/DataTable";
 import { Link } from "react-router-dom";
 import { categoryRepository } from "../../repositories/categoryRepository";
@@ -29,11 +31,16 @@ export type EventForm = {
   time: string;
   venue: string;
   category: string;
-  ticketPrice: string;
+  //ticketPrice: string;
   capacity: string;
   images: FileList | [];
   latitude: string;
   longitude: string;
+  ticketTypes: {
+    economic: { price: string; capacity: string };
+    premium: { price: string; capacity: string };
+    vip: { price: string; capacity: string };
+  };
 };
 
 export type EventEdit = {
@@ -45,18 +52,23 @@ export type EventEdit = {
   ticketsSold?: number;
   status: string;
   description: string;
-  ticketPrice: number;
+  ticketPrice?: number;
   capacity: number;
   category: string;
   time: string;
   images: (string | IEventImage)[];
+  ticketTypes:{
+    economic: { price: string; capacity: string };
+    premium: { price: string; capacity: string };
+    vip: { price: string; capacity: string };
+  };
 };
 
 
 
 const OrganiserEvents: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-  const [events, setEvents] = useState<IEventDTO[]>([]);
+  const [events, setEvents] = useState<IEvent[]>([]);
   const [editModal, setEditModal] = useState(false);
   const [editEventId, setEditEventID] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,7 +76,14 @@ const OrganiserEvents: React.FC = () => {
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
     []
   );
-  const [selectedVenue, setSelectedVenue] = useState("");
+  interface IVenue {
+  _id: string;
+  name: string;
+  address: string;
+}
+ 
+  console.log(editEventId);
+  
 
   const [editForm, setEditForm] = useState<EventEdit>({
     id: "",
@@ -74,11 +93,18 @@ const OrganiserEvents: React.FC = () => {
     time: "",
     venue: "",
     category: "",
-    ticketPrice: 0,
+    //ticketPrice: 0,
     capacity: 0,
     status: "",
     images: [],
+    ticketTypes: {
+    economic: { price: "", capacity: "" },
+    premium: { price: "", capacity: "" },
+    vip: { price: "", capacity: "" },
+  },
   });
+  
+  
   const [eventForm, setEventForm] = useState<EventForm>({
     title: "",
     description: "",
@@ -86,7 +112,12 @@ const OrganiserEvents: React.FC = () => {
     time: "",
     venue: "",
     category: "",
-    ticketPrice: "",
+    //ticketPrice: "",
+    ticketTypes: {
+    economic: { price: "", capacity: "" },
+    premium: { price: "", capacity: "" },
+    vip: { price: "", capacity: "" },
+  },
     capacity: "",
     images: [],
     latitude: "",
@@ -95,7 +126,7 @@ const OrganiserEvents: React.FC = () => {
 
   const [organiserDetails, setOrganiserDetails] = useState<any>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
-  const [venues, setVenues] = useState([]);
+  const [venues, setVenues] = useState<IVenue[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -137,7 +168,7 @@ const OrganiserEvents: React.FC = () => {
       if (!orgId) {
         throw new Error("organiserId not present");
       }
-      const response: EventFetchResponse = await eventRepository.getEvents(
+      const response = await eventRepository.getEvents(
         orgId,
         currentPage,
         limit,
@@ -185,66 +216,38 @@ const OrganiserEvents: React.FC = () => {
     fetchOrganiserDetails();
   }, [organiser]);
 
-  const validateCreateForm = () => {
-    const {
-      title,
-      category,
-      description,
-      date,
-      time,
-      venue,
-      capacity,
-      ticketPrice,
-      images,
-    } = eventForm;
-
-    if (!title || !category || !description || !date || !time || !venue) {
-      toast.error("Please fill in all required fields.");
-      return false;
-    }
-
-    if (!images || images.length === 0) {
-      toast.error("Please upload at least one image.");
-      return false;
-    }
-
-    if (Number(capacity) <= 0) {
-      toast.error("Capacity must be greater than 0.");
-      return false;
-    }
-
-    if (Number(ticketPrice) < 0) {
-      toast.error("Ticket price cannot be negative.");
-      return false;
-    }
-
-    return true;
-  };
+  
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      await eventSchema.validate(eventForm, { abortEarly: false });
+      if(!organiser||!organiser.id){
+        throw new Error("organiser not found")
+      }
+     
 
       console.log("Valid event data:", eventForm);
 
       const formData = new FormData();
+      
       Object.keys(eventForm).forEach((key) => {
-        if (key === "images") {
-          const files = eventForm.images as FileList;
+  if (key === "images") {
+    const files = eventForm.images as FileList;
+    for (let i = 0; i < files.length; i++) {
+      formData.append("images", files[i]);
+    }
+  } else if (key === "ticketTypes") {
+    formData.append("ticketTypes", JSON.stringify(eventForm.ticketTypes));
+  } else {
+    const typedKey = key as keyof typeof eventForm;
+    const value = eventForm[typedKey];
+    if (value !== undefined && value !== null) {
+      formData.append(key, String(value));
+    }
+  }
+});
 
-          for (let i = 0; i < files.length; i++) {
-            formData.append("images", files[i]);
-          }
-        } else {
-          const typedKey = key as keyof typeof eventForm;
-          const value = eventForm[typedKey];
-          if (typeof value === "string") {
-            formData.append(key, value);
-          }
-        }
-      });
       formData.append("organiser", organiser.id);
 
       const response = await eventRepository.createEvent(formData);
@@ -258,7 +261,12 @@ const OrganiserEvents: React.FC = () => {
           time: "",
           venue: "",
           category: "",
-          ticketPrice: "",
+          //ticketPrice: "",
+            ticketTypes: {
+    economic: { price: "", capacity: "" },
+    premium: { price: "", capacity: "" },
+    vip: { price: "", capacity: "" },
+  },
           capacity: "",
           images: [],
           latitude: "",
@@ -267,11 +275,9 @@ const OrganiserEvents: React.FC = () => {
         fetchEvents();
       }
     } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        err.inner.forEach((error) => {
-          toast.error(error.message);
-        });
-      }
+      
+     console.log(err);
+     
     }
   };
   const handleDelete = async (eventId: string | undefined) => {
@@ -323,12 +329,30 @@ const OrganiserEvents: React.FC = () => {
 
       venue: selectedEvent.venue,
       category: selectedEvent.category,
-      ticketPrice: selectedEvent.ticketPrice,
+      //ticketPrice: selectedEvent.ticketPrice,
+      ticketTypes: {
+    economic: {
+      price: selectedEvent.ticketTypes?.economic?.price?.toString() || "",
+      capacity: selectedEvent.ticketTypes?.economic?.capacity?.toString() || "",
+      
+    },
+    premium: {
+      price: selectedEvent.ticketTypes?.premium?.price?.toString() || "",
+      capacity: selectedEvent.ticketTypes?.premium?.capacity?.toString() || "",
+    },
+    vip: {
+      price: selectedEvent.ticketTypes?.vip?.price?.toString() || "",
+      capacity: selectedEvent.ticketTypes?.vip?.capacity?.toString() || "",
+    },
+  },
       capacity: selectedEvent.capacity,
       status: selectedEvent.status,
       images: selectedEvent.images,
     });
+   
+
   };
+  
   const validateEditForm = () => {
     const {
       title,
@@ -395,7 +419,7 @@ const OrganiserEvents: React.FC = () => {
       return false;
     }
 
-    if (ticketPrice === null || ticketPrice < 0) {
+    if (ticketPrice === null || ticketPrice! < 0) {
       toast.error("Ticket price must be 0 or greater");
       return false;
     }
@@ -440,7 +464,7 @@ const OrganiserEvents: React.FC = () => {
   };
   const handleReapply = async () => {
     const orgId = organiser?.id;
-    const response = await organiserRepository.reapply(orgId);
+    const response = await organiserRepository.reapply(orgId!);
     console.log("resp", response);
 
     if (response.success) {
@@ -718,18 +742,116 @@ const OrganiserEvents: React.FC = () => {
                 </div>
               </div>
 
+              
               <div>
-                <label className="block mb-1">Ticket Price</label>
-                <input
-                  type="number"
-                  name="ticketPrice"
-                  value={eventForm.ticketPrice}
-                  onChange={(e) =>
-                    setEventForm({ ...eventForm, ticketPrice: e.target.value })
-                  }
-                  className="w-full border px-3 py-2 rounded"
-                />
-              </div>
+  <h4 className="font-semibold mb-2">Ticket Pricing</h4>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {/* Economic */}
+    <div>
+      <label className="block mb-1">Economic Price</label>
+      <input
+        type="number"
+        value={eventForm.ticketTypes.economic.price}
+        onChange={(e) =>
+          setEventForm({
+            ...eventForm,
+            ticketTypes: {
+              ...eventForm.ticketTypes,
+              economic: { ...eventForm.ticketTypes.economic, price: e.target.value },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      <label className="block mb-1">Economic Capacity</label>
+      <input
+        type="number"
+        value={eventForm.ticketTypes.economic.capacity}
+        onChange={(e) =>
+          setEventForm({
+            ...eventForm,
+            ticketTypes: {
+              ...eventForm.ticketTypes,
+              economic: { ...eventForm.ticketTypes.economic, capacity: e.target.value },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+    </div>
+
+    {/* Premium */}
+    <div>
+      <label className="block mb-1">Premium Price</label>
+      <input
+        type="number"
+        value={eventForm.ticketTypes.premium.price}
+        onChange={(e) =>
+          setEventForm({
+            ...eventForm,
+            ticketTypes: {
+              ...eventForm.ticketTypes,
+              premium: { ...eventForm.ticketTypes.premium, price: e.target.value },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      <label className="block mb-1">Premium Capacity</label>
+      <input
+        type="number"
+        value={eventForm.ticketTypes.premium.capacity}
+        onChange={(e) =>
+          setEventForm({
+            ...eventForm,
+            ticketTypes: {
+              ...eventForm.ticketTypes,
+              premium: { ...eventForm.ticketTypes.premium, capacity: e.target.value },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+    </div>
+
+    {/* VIP */}
+    <div>
+      <label className="block mb-1">VIP Price</label>
+      <input
+        type="number"
+        value={eventForm.ticketTypes.vip.price}
+        onChange={(e) =>
+          setEventForm({
+            ...eventForm,
+            ticketTypes: {
+              ...eventForm.ticketTypes,
+              vip: { ...eventForm.ticketTypes.vip, price: e.target.value },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      <label className="block mb-1">VIP Capacity</label>
+      <input
+        type="number"
+        value={eventForm.ticketTypes.vip.capacity}
+        onChange={(e) =>
+          setEventForm({
+            ...eventForm,
+            ticketTypes: {
+              ...eventForm.ticketTypes,
+              vip: { ...eventForm.ticketTypes.vip, capacity: e.target.value },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      
+    </div>
+  </div>
+</div>
+
 
               <div>
                 <label className="block mb-1">Event Images</label>
@@ -888,22 +1010,142 @@ const OrganiserEvents: React.FC = () => {
                 </div>
               </div>
 
+              
               <div>
-                <label className="block mb-1">Ticket Price</label>
-                <input
-                  type="number"
-                  name="ticketPrice"
-                  min="0"
-                  value={editForm.ticketPrice}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      ticketPrice: Number(e.target.value),
-                    })
-                  }
-                  className="w-full border px-3 py-2 rounded"
-                />
-              </div>
+  <h4 className="font-semibold mb-2">Ticket Pricing</h4>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {/* Economic */}
+    <div>
+      <label className="block mb-1">Economic Price</label>
+      <input
+        type="number"
+        min="0"
+        value={editForm.ticketTypes.economic.price}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            ticketTypes: {
+              ...editForm.ticketTypes,
+              economic: {
+                ...editForm.ticketTypes.economic,
+                price: e.target.value,
+              },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      <label className="block mb-1">Economic Capacity</label>
+      <input
+        type="number"
+        min="0"
+        value={editForm.ticketTypes.economic.capacity}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            ticketTypes: {
+              ...editForm.ticketTypes,
+              economic: {
+                ...editForm.ticketTypes.economic,
+                capacity: e.target.value,
+              },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      
+    </div>
+
+    {/* Premium */}
+    <div>
+      <label className="block mb-1">Premium Price</label>
+      <input
+        type="number"
+        min="0"
+        value={editForm.ticketTypes.premium.price}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            ticketTypes: {
+              ...editForm.ticketTypes,
+              premium: {
+                ...editForm.ticketTypes.premium,
+                price: e.target.value,
+              },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      <label className="block mb-1">Premium Capacity</label>
+      <input
+        type="number"
+        min="0"
+        value={editForm.ticketTypes.premium.capacity}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            ticketTypes: {
+              ...editForm.ticketTypes,
+              premium: {
+                ...editForm.ticketTypes.premium,
+                capacity: e.target.value,
+              },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      
+    </div>
+
+    {/* VIP */}
+    <div>
+      <label className="block mb-1">VIP Price</label>
+      <input
+        type="number"
+        min="0"
+        value={editForm.ticketTypes.vip.price}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            ticketTypes: {
+              ...editForm.ticketTypes,
+              vip: {
+                ...editForm.ticketTypes.vip,
+                price: e.target.value,
+              },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      <label className="block mb-1">VIP Capacity</label>
+      <input
+        type="number"
+        min="0"
+        value={editForm.ticketTypes.vip.capacity}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            ticketTypes: {
+              ...editForm.ticketTypes,
+              vip: {
+                ...editForm.ticketTypes.vip,
+                capacity: e.target.value,
+              },
+            },
+          })
+        }
+        className="w-full border px-3 py-2 rounded"
+      />
+      
+    </div>
+  </div>
+</div>
+
               <div>
                 <label className="block mb-1">Status</label>
                 <select

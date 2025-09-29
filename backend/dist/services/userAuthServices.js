@@ -168,6 +168,7 @@ class UserAuthService {
                     };
                 }
                 const { exp, iat } = payload, cleanPayload = __rest(payload, ["exp", "iat"]);
+                console.log("expired at", exp, iat);
                 const accessToken = this._tokenService.generateAccessToken(Object.assign(Object.assign({}, cleanPayload), { role: "user", id: user._id }));
                 const refreshToken = this._tokenService.generateRefreshToken(Object.assign(Object.assign({}, cleanPayload), { role: "user", id: user._id }));
                 return { success: true, accessToken, refreshToken, message: "success" };

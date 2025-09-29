@@ -147,6 +147,8 @@ const MyOrderPage: React.FC = () => {
         return status;
     }
   };
+  console.log(refundId);
+  
   const getBookingStatusDisplay = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -194,6 +196,7 @@ const MyOrderPage: React.FC = () => {
         return imageSrc= img.url;
       }
     }
+    return imageSrc
   };
 
   const handleCancelBooking = async (orderId: string) => {
@@ -464,7 +467,7 @@ const MyOrderPage: React.FC = () => {
                       <p>Refund ID: {order.refundId}</p>
                     )}
 
-                    <div>
+                   {/*} <div>
                       <p className="text-sm text-gray-500">Tickets</p>
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4 text-gray-400" />
@@ -473,8 +476,48 @@ const MyOrderPage: React.FC = () => {
                           {order.ticketCount > 1 ? "s" : ""}
                         </span>
                       </div>
-                    </div>
+                    </div>*/}
                     <div>
+  <p className="text-sm text-gray-500">Tickets</p>
+  <div className="flex flex-col">
+    {/* Ticket count (existing) */}
+    <div className="flex items-center gap-1">
+      <Users className="w-4 h-4 text-gray-400" />
+      <span className="font-medium">
+        {order.ticketCount} {order.ticketCount > 1 ? "Tickets" : "Ticket"}
+      </span>
+      {order.eventDetails.ticketTypes && (
+      <span
+    className={`inline-block px-3 py-1 text-xs font-bold rounded-full mt-1 self-start shadow-md
+      ${
+        order?.selectedTicket?.type === "VIP"
+          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border border-purple-600"
+          : ""
+      }
+      ${
+        order?.selectedTicket?.type === "Premium"
+          ? "bg-gradient-to-r from-blue-500 to-cyan-400 text-white border border-blue-600"
+          : ""
+      }
+      ${
+        order?.selectedTicket?.type === "Economic"
+          ? "bg-gradient-to-r from-green-500 to-lime-400 text-white border border-green-600"
+          : ""
+      }
+    `}
+  >
+        {order.selectedTicket?.type ?? "No type"}
+      </span>
+    )}
+    </div>
+
+    {/* Ticket type (new, with badge) */}
+    
+  </div>
+</div>
+
+                    <div>
+                    
                       <p className="text-sm text-gray-500">Total Amount</p>
                       <p className="font-semibold text-lg text-green-600">
                         {formatCurrency(order.amount, order.currency)}

@@ -113,7 +113,35 @@ class EventController {
             try {
                 const files = req.files;
                 console.log("from cloud", files);
-                const eventData = Object.assign(Object.assign({}, req.body), { images: (files === null || files === void 0 ? void 0 : files.map((file) => ({
+                let ticketTypes = req.body.ticketTypes;
+                if (typeof ticketTypes === "string") {
+                    try {
+                        const parsed = JSON.parse(ticketTypes);
+                        // If frontend sends as object {economic:{}, premium:{}, vip:{}}
+                        if (!Array.isArray(parsed)) {
+                            ticketTypes = Object.entries(parsed).map(([key, value]) => {
+                                const v = value;
+                                return {
+                                    type: key,
+                                    price: Number(v.price),
+                                    capacity: Number(v.capacity),
+                                };
+                            });
+                        }
+                        else {
+                            // Already an array, just map to ensure numbers
+                            ticketTypes = parsed.map((t) => ({
+                                type: t.type,
+                                price: Number(t.price),
+                                capacity: Number(t.capacity),
+                            }));
+                        }
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
+                }
+                const eventData = Object.assign(Object.assign({}, req.body), { ticketTypes, images: (files === null || files === void 0 ? void 0 : files.map((file) => ({
                         url: file.path,
                         public_id: file.filename
                     }))) || [] });
@@ -156,12 +184,83 @@ class EventController {
             }
         });
     }
+    /*async editEvent(
+      req: Request<{ id: string }, unknown, EventEdit>,
+      res: Response
+    ): Promise<void> {
+      try {
+       
+        const file = req.file as Express.Multer.File|undefined;
+       
+        
+  
+        const data = req.body;
+        const id = req.params.id;
+       
+        const response = await this._eventService.eventEdit(id, data,file);
+        if (response) {
+          res.json({ success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE });
+        } else {
+          res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: MESSAGES.EVENT.FAILED_TO_UPDATE,
+        });
+      }
+    }*/
     editEvent(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const file = req.file;
-                const data = req.body;
+                const data = Object.assign({}, req.body);
                 const id = req.params.id;
+                // 🔹 Clean numeric fields if frontend sends "undefined" or ""
+                if (String(data.ticketPrice).trim() === "undefined" ||
+                    String(data.ticketPrice).trim() === "" ||
+                    data.ticketPrice == null) {
+                    delete data.ticketPrice;
+                }
+                else {
+                    data.ticketPrice = Number(data.ticketPrice); // ensure it's number
+                }
+                if (String(data.capacity) === "undefined" ||
+                    String(data.capacity) === "" ||
+                    data.capacity == null) {
+                    delete data.capacity;
+                }
+                else {
+                    data.capacity = Number(data.capacity);
+                }
+                // 🔹 Handle ticketTypes if sent
+                if (typeof data.ticketTypes === "string") {
+                    try {
+                        const parsed = JSON.parse(data.ticketTypes);
+                        if (!Array.isArray(parsed)) {
+                            data.ticketTypes = Object.entries(parsed).map(([key, value]) => {
+                                const v = value;
+                                return {
+                                    type: key,
+                                    price: Number(v.price),
+                                    capacity: Number(v.capacity),
+                                };
+                            });
+                        }
+                        else {
+                            data.ticketTypes = parsed.map((t) => ({
+                                type: t.type,
+                                price: Number(t.price),
+                                capacity: Number(t.capacity),
+                            }));
+                        }
+                    }
+                    catch (err) {
+                        console.error("TicketTypes parse failed:", err);
+                        delete data.ticketTypes;
+                    }
+                }
                 const response = yield this._eventService.eventEdit(id, data, file);
                 if (response) {
                     res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE });

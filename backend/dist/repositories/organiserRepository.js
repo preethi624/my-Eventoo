@@ -153,14 +153,29 @@ class OrganiserRepository {
                             name: "$user.name",
                             email: "$user.email",
                         },
+                        ticketType: "$selectedTicket.type"
                     },
                 },
             ]);
+            const ticketTypeStats = orders.reduce((acc, order) => {
+                const type = order.ticketType;
+                if (type) {
+                    if (!acc[type]) {
+                        acc[type] = { count: 0, tickets: 0, revenue: 0 };
+                    }
+                    acc[type].count += 1;
+                    acc[type].tickets += order.ticketCount;
+                    acc[type].revenue += order.amount;
+                }
+                return acc;
+            }, {});
+            console.log("ticket type stats", orders);
             const stats = {
                 confirmed: orders.filter((o) => o.bookingStatus === "confirmed").length,
                 pending: orders.filter((o) => o.bookingStatus === "pending").length,
                 cancelled: orders.filter((o) => o.bookingStatus === "cancelled").length,
                 salesTrend: (0, analyticHelper_1.generateSalesTrend)(orders),
+                ticketTypes: ticketTypeStats
             };
             return { event, orders, stats };
         });
@@ -226,8 +241,22 @@ class OrganiserRepository {
                     bookingStatus: 1,
                     orderId: 1,
                     amount: 1,
+                    ticketType: "$selectedTicket.type"
                 },
             };
+            const ticketTypeStatsPipeline = [
+                ...pipeline,
+                projectStage,
+                {
+                    $group: {
+                        _id: "$ticketType",
+                        count: { $sum: 1 },
+                        tickets: { $sum: "$ticketCount" },
+                        revenue: { $sum: "$amount" },
+                    }
+                }
+            ];
+            const ticketTypeStats = yield order_1.default.aggregate(ticketTypeStatsPipeline);
             const countRevenuePipeline = [...pipeline, projectStage];
             const allAttendees = yield order_1.default.aggregate(countRevenuePipeline);
             const totalAttendees = allAttendees.length;
@@ -252,6 +281,7 @@ class OrganiserRepository {
                 currentPage: page,
                 totalPages: Math.ceil(totalAttendees / limit),
                 totalAttendees: totalAttendees,
+                ticketTypeStats
             };
         });
     }
@@ -336,6 +366,7 @@ class OrganiserRepository {
                     $sort: { month: 1 },
                 },
             ]);
+            console.log("data", data);
             const settings = yield platformSettings_1.default.findOne();
             const adminCommissionPercentage = (_a = settings === null || settings === void 0 ? void 0 : settings.adminCommissionPercentage) !== null && _a !== void 0 ? _a : 10;
             const adjustedData = data.map((item) => ({
@@ -370,7 +401,9 @@ class OrganiserRepository {
                 },
                 {
                     $addFields: {
-                        ticketPrice: "$EventDetails.ticketPrice",
+                        ticketPrice: {
+                            $ifNull: ["$selectedTicket.price", "$EventDetails.ticketPrice"]
+                        },
                         quantity: "$ticketCount",
                         commissionRate: adminCommissionPercentage,
                     },
@@ -455,6 +488,244 @@ class OrganiserRepository {
             };
         });
     }
+    /*async dashboardEvents(
+       organiserId: string,
+       timeFrame: "7d" | "30d" | "90d",
+       startDate?: string,
+       endDate?: string,
+       category?: string,
+       month?: string,
+       year?: string
+     ): Promise<{
+       events: IEvent[];
+       data: {
+         month: number;
+         revenue: number;
+         events: number;
+       }[];
+       adminCommissionPercentage: number;
+       organiserEarning: number;
+       totalEvents: number;
+       totalAttendees: number;
+       topEvents: IEvent[];
+       upcomingEvents: IEvent[];
+       orderDetails: {
+         name: string;
+         email: string;
+         eventTitle: string;
+         eventDate: Date;
+         orderDate: Date;
+         amount: number;
+         ticketCount: number;
+       }[];
+     }> {
+       let stDate: Date;
+       let enDate: Date | undefined;
+   
+       if (startDate && endDate) {
+         stDate = new Date(startDate);
+         enDate = new Date(endDate);
+       } else if (month || year) {
+         const targetYear = parseInt(year ?? new Date().getFullYear().toString());
+   
+         const targetMonth = month ? parseInt(month) : 0;
+   
+         stDate = new Date(targetYear, targetMonth, 1);
+   
+         if (month) {
+           enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+         } else {
+           enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+         }
+       } else if (!month && !year) {
+         const targetYear = parseInt(new Date().getFullYear().toString());
+         stDate = new Date(targetYear, 0, 1);
+         enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+       } else {
+         const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
+         stDate = new Date();
+         stDate.setDate(stDate.getDate() - days);
+       }
+   
+       const eventMatchCondition: Record<string, unknown> = {
+         "EventDetails.organiser": new mongoose.Types.ObjectId(organiserId),
+         "EventDetails.status": "completed",
+         createdAt: enDate ? { $gte: stDate, $lte: enDate } : { $gte: stDate },
+       };
+   
+       if (category) {
+         eventMatchCondition["EventDetails.category"] = category;
+       }
+       const eventQuery: Record<string, unknown> = {
+         organiser: organiserId,
+         date: enDate ? { $gte: stDate, $lte: enDate } : { $gte: stDate },
+       };
+   
+       if (category) {
+         eventQuery.category = category;
+       }
+   
+       const data = await Order.aggregate([
+         {
+           $lookup: {
+             from: "events",
+             localField: "eventId",
+             foreignField: "_id",
+             as: "EventDetails",
+           },
+         },
+         {
+           $unwind: "$EventDetails",
+         },
+         { $match: eventMatchCondition },
+         {
+           $project: {
+             month: { $month: "$createdAt" },
+             revenue: "$amount",
+           },
+         },
+         {
+           $group: {
+             _id: "$month",
+             totalRevenue: { $sum: "$revenue" },
+             totalEvents: { $sum: 1 },
+           },
+         },
+         {
+           $project: {
+             month: "$_id",
+             revenue: "$totalRevenue",
+             events: "$totalEvents",
+             _id: 0,
+           },
+         },
+         {
+           $sort: { month: 1 },
+         },
+       ]);
+   
+       const settings = await PlatformSettings.findOne();
+       const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
+       const adjustedData = data.map((item) => ({
+         month: item.month,
+         events: item.events,
+         revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100,
+       }));
+   
+       const events = await EventModel.find(eventQuery);
+   
+       const totalEvents = events.length;
+       const topEvents = [...events]
+         .sort((a, b) => b.ticketsSold - a.ticketsSold)
+         .slice(0, 5);
+   
+       const upcomingEvents = events
+         .filter((event) => new Date(event.date) >= new Date())
+         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+         .slice(0, 5);
+       const earningAggregation = await Order.aggregate([
+         {
+           $lookup: {
+             from: "events",
+             localField: "eventId",
+             foreignField: "_id",
+             as: "EventDetails",
+           },
+         },
+         { $unwind: "$EventDetails" },
+         {
+           $match: eventMatchCondition,
+         },
+         {
+           $addFields: {
+             ticketPrice: "$EventDetails.ticketPrice",
+             quantity: "$ticketCount",
+             commissionRate: adminCommissionPercentage,
+           },
+         },
+         {
+           $addFields: {
+             organiserEarning: {
+               $subtract: [
+                 { $multiply: ["$ticketPrice", "$quantity"] },
+                 {
+                   $multiply: [
+                     {
+                       $divide: [
+                         {
+                           $multiply: ["$ticketPrice", adminCommissionPercentage],
+                         },
+                         100,
+                       ],
+                     },
+                     "$quantity",
+                   ],
+                 },
+               ],
+             },
+           },
+         },
+         {
+           $group: {
+             _id: null,
+             totalEarning: { $sum: "$organiserEarning" },
+             totalAttendees: { $sum: "$ticketCount" },
+           },
+         },
+       ]);
+       const organiserEarning = earningAggregation[0]?.totalEarning ?? 0;
+       const totalAttendees = earningAggregation[0]?.totalAttendees ?? 0;
+       const orderDetails = await Order.aggregate([
+         {
+           $lookup: {
+             from: "events",
+             localField: "eventId",
+             foreignField: "_id",
+             as: "EventDetails",
+           },
+         },
+         { $unwind: "$EventDetails" },
+         {
+           $lookup: {
+             from: "users",
+             localField: "userId",
+             foreignField: "_id",
+             as: "user",
+           },
+         },
+         { $unwind: "$user" },
+         {
+           $match: eventMatchCondition,
+         },
+         {
+           $project: {
+             username: "$user.name",
+             email: "$user.email",
+             eventTitle: "$EventDetails.title",
+             eventDate: "$EventDetails.date",
+             orderDate: "$createdAt",
+   
+             amount: 1,
+             ticketCount: 1,
+           },
+         },
+         { $sort: { createdAt: -1 } },
+       ]);
+       console.log("organiser earning",organiserEarning);
+       
+   
+       return {
+         events,
+         data: adjustedData,
+         adminCommissionPercentage,
+         organiserEarning,
+         totalEvents,
+         totalAttendees,
+         topEvents,
+         upcomingEvents,
+         orderDetails,
+       };
+     }*/
     updateTicket(qrToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const ticket = yield ticket_1.TicketModel.findOne({ qrToken: qrToken });

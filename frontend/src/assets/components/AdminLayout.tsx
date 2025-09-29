@@ -1,4 +1,4 @@
-import React from "react";
+
 import type { ReactNode } from "react";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slices/adminSlices";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { adminRepository } from "../../repositories/adminRepositories";
 import type { IVenue } from "../../interfaces/IVenue";
@@ -187,6 +187,10 @@ const VenueManagement = () => {
       ),
     },
   ];
+  console.log(selectedVenue);
+  console.log(totalVenues);
+  
+  
 
   return (
     <>

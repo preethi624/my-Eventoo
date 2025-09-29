@@ -1,4 +1,4 @@
-import { Document, ObjectId, Types } from "mongoose";
+import {  Types } from "mongoose";
 import { IEvent } from "src/model/event";
 import { IOrder } from "src/model/order";
 import { ITicket } from "src/model/ticket";
@@ -17,6 +17,7 @@ export interface OrderCreateInput{
     eventId:string;
     eventTitle:string;
     email?:string;
+    selectedTicket?:{type:string,capacity:number,price:number,sold?:number}
 
 }
 export interface IPaymentDTO{
@@ -32,7 +33,8 @@ export interface IPaymentDTO{
             eventTitle:string;
             createdAt:Date;
             orderId:string;
-            email?:string
+            email?:string;
+            selectedTicket?:{type:string,capacity:number,price:number,sold?:number}
           
 
 }

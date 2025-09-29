@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 
 import UserNavbar from "../components/UseNavbar";
-import type { IEventDTO } from "../../interfaces/IEvent";
+import { type IEventDTO } from "../../interfaces/IEvent";
 import { eventRepository } from "../../repositories/eventRepositories";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/stroe";
@@ -23,18 +23,49 @@ import { paymentRepository } from "../../repositories/paymentRepositories";
 import type { RazorpayPaymentResponse } from "../../interfaces/IPayment";
 
 const EventBooking: React.FC = () => {
+   
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<IEventDTO | null>(null);
+  const [selectedType, setSelectedType] = useState<string>(
+     ""
+  );
   const [ticketCount, setTicketCount] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
   const [paymentStatus, setPaymentStatus] = useState("");
   const [bookingStep, setBookingStep] = useState(1);
+  const[selectedTicket,setSelectedTicket]=useState<{type:string,capacity:number,price:number,sold?:number}|null>(null)
+ 
   const [bookingData, setBookingData] = useState({
     name: "",
     email: "",
     phone: "",
   });
+  useEffect(() => {
+  if (event?.ticketTypes?.length) {
+    setSelectedType(event.ticketTypes[0].type);
+  }
+}, [event]);
+useEffect(() => {
+  if (!event) return;
+
+  if (event.ticketTypes && event.ticketTypes.length > 0) {
+    
+    const selectedTicket = event.ticketTypes.find(
+      (t) => t.type === selectedType
+    );
+    if (selectedTicket) {
+      setSelectedTicket(selectedTicket)
+      setTotalPrice(selectedTicket.price * ticketCount);
+    }
+  } else {
+   
+    setTotalPrice(ticketCount * (event.ticketPrice || 0));
+  }
+}, [event, selectedType, ticketCount]);
+console.log("selected tickets",selectedTicket);
+
+
 
   let imageSrc = "https://via.placeholder.com/300x200";
   if (event && event.images && event.images.length > 0) {
@@ -76,11 +107,11 @@ const EventBooking: React.FC = () => {
     }
   }, [eventId]);
 
-  useEffect(() => {
+ /* useEffect(() => {
     if (event) {
       setTotalPrice(ticketCount * (event.ticketPrice || 0));
     }
-  }, [ticketCount, event]);
+  }, [ticketCount, event])*/
   useEffect(() => {
     if (user) {
       console.log("user", user);
@@ -191,7 +222,7 @@ const EventBooking: React.FC = () => {
       const isValid = validateForm();
       if (!isValid) return;
     }
-    if (totalPrice === 0) {
+    if (totalPrice === 0&&!event?.ticketTypes) {
       await handleFreebooking();
       setBookingStep(4);
       return;
@@ -231,6 +262,7 @@ const EventBooking: React.FC = () => {
       const orderData = await paymentRepository.createOrder({
         totalPrice: totalPrice,
         ticketCount: ticketCount,
+        selectedTicket:selectedTicket,
         eventId,
         userId,
         eventTitle,
@@ -376,7 +408,7 @@ const EventBooking: React.FC = () => {
     </div>
   );
 
-  const renderTicketSelection = () => (
+  /*const renderTicketSelection = () => (
     <div className="bg-white rounded-lg shadow p-12">
       <h2 className="text-xl font-bold mb-4">Select Tickets</h2>
 
@@ -476,9 +508,145 @@ const EventBooking: React.FC = () => {
         </button>
       </div>
     </div>
+  );*/
+  const renderTicketSelection = () => {
+ 
+ const currentTicket = event.ticketTypes.find(
+    (t) => t.type === selectedType
   );
 
+ 
+
+  const availableTickets =
+    currentTicket?.capacity && currentTicket?.sold !== undefined
+      ? currentTicket.capacity - currentTicket.sold
+      : 0;
+
+  return (
+    <div className="bg-white rounded-lg shadow p-12">
+      <h2 className="text-xl font-bold mb-4">Select Tickets</h2>
+
+      {/* Event Info */}
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+        <div className="flex items-center">
+          <img
+            src={imageSrc}
+            alt={event.title}
+            className="w-20 h-16 object-cover rounded mr-4"
+          />
+          <div>
+            <h3 className="font-semibold">{event.title}</h3>
+            <div className="text-sm text-gray-600 flex items-center">
+              <FaCalendar className="mr-1" size={12} />
+              {new Date(event.date).toLocaleDateString()} at {event.time}
+            </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-lg font-semibold">
+            ₹{currentTicket?.price || 0}
+          </div>
+          <div className="text-sm text-gray-600">{selectedType} ticket</div>
+        </div>
+      </div>
+
+      {/* Ticket Type Selector */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Ticket Type
+        </label>
+        <select
+          value={selectedType}
+          onChange={(e) => {
+            setSelectedType(e.target.value);
+            setTicketCount(1); // reset count when changing type
+          }}
+          className="border rounded p-2 w-full"
+        >
+          {event.ticketTypes.map((t) => (
+            <option key={t.type} value={t.type}>
+              {t.type} - ₹{t.price} ({t.capacity - (t.sold ?? 0)} left)
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Ticket Counter */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Number of Tickets
+        </label>
+        <div className="flex items-center">
+          <button
+            className="px-3 py-1 border border-gray-300 rounded-l bg-gray-100"
+            onClick={() => ticketCount > 1 && setTicketCount(ticketCount - 1)}
+          >
+            -
+          </button>
+          <input
+            type="number"
+            min="1"
+            max={availableTickets}
+            value={ticketCount}
+            onChange={handleTicketChange}
+            className="w-16 text-center border-t border-b border-gray-300 py-1"
+          />
+          <button
+            className="px-3 py-1 border border-gray-300 rounded-r bg-gray-100"
+            onClick={() => {
+              if (ticketCount < availableTickets) {
+                setTicketCount(ticketCount + 1);
+              }
+            }}
+          >
+            +
+          </button>
+          <span className="ml-4 text-sm text-gray-600">
+            {availableTickets} tickets available
+          </span>
+        </div>
+      </div>
+
+      {/* Price Summary */}
+      <div className="bg-gray-50 p-4 rounded mb-6">
+        <div className="flex justify-between mb-2">
+          <span>
+            Price ({ticketCount} × ₹{currentTicket?.price || 0})
+          </span>
+          <span>₹{ticketCount * (currentTicket?.price || 0)}</span>
+        </div>
+        <div className="flex justify-between mb-2">
+          <span>Booking Fee</span>
+          <span>₹0</span>
+        </div>
+        <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
+          <span>Total</span>
+          <span>₹{ticketCount * (currentTicket?.price || 0)}</span>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-between">
+        <button
+          onClick={handlePreviousStep}
+          className="flex items-center text-blue-600 hover:text-blue-800"
+        >
+          <FaArrowLeft className="mr-2" /> Back to Event
+        </button>
+        <button
+          onClick={handleNextStep}
+          className="bg-black hover:bg-[#006666] text-white px-6 py-2 rounded"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
   const renderUserDetails = () => (
+    
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-bold mb-4">Contact Information</h2>
 

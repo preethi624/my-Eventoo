@@ -100,6 +100,7 @@ export class PaymentService implements IPaymentService {
       const eventId = data.eventId;
       const eventTitle = data.eventTitle;
       const email = data.email;
+      const selectedTicket=data.selectedTicket
       const createdAt = new Date();
 
       const options = {
@@ -119,6 +120,7 @@ export class PaymentService implements IPaymentService {
         userId,
         eventId,
         eventTitle,
+        selectedTicket,
         createdAt,
         orderId: orderId,
         email,

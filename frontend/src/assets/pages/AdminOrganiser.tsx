@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { FaEdit } from "react-icons/fa";
 import AdminLayout from "../components/AdminLayout";
@@ -65,7 +65,7 @@ const AdminOrganiser: React.FC = () => {
 
       if (response.success && response.result) {
         setOrganisers(response.result);
-        setTotalPage(response.total);
+        setTotalPage(response.total??1);
       }
     } catch (error: any) {
       console.error("Error fetching organisers:", error);

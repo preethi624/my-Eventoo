@@ -41,16 +41,30 @@ const OrderDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
-let imagePath = "https://via.placeholder.com/300x200";
-  if (order && order.eventId.images.length > 0) {
+
+ let imageSrc = "https://via.placeholder.com/300x200";
+
+if (order && order.eventId && typeof order.eventId !== "string") {
+  if (order.eventId.images.length > 0) {
     const img = order.eventId.images[0];
-    const imageUrl = typeof img === "string" ? img : img.url;
-    if (imageUrl.startsWith("http")) {
-      imagePath = imageUrl;
-    } else {
-      imagePath = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+
+    if (typeof img === "string") {
+      if (img.startsWith("http")) {
+        imageSrc = img;
+      } else {
+        imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+      }
+    } else if (typeof img === "object" && img.url) {
+      imageSrc = img.url;
     }
   }
+}
+console.log("orr",order?.selectedTicket?.type);
+console.log(loading);
+
+
+
+
 
  
 
@@ -83,7 +97,7 @@ let imagePath = "https://via.placeholder.com/300x200";
     const tickets = response.result;
     if (!tickets || tickets.length === 0) return;
 
-    //const order = orders.find((o) => o._id === orderId);
+   
     if (!order) return;
     const logoBase64 = await getBase64FromImage(targetLogo);
 
@@ -95,16 +109,16 @@ let imagePath = "https://via.placeholder.com/300x200";
       const logoWidth = 15;
       const logoHeight = 15;
 
-      // Draw logo
+     
       doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
 
-      // Set font for title
+    
       doc.setFontSize(18);
       doc.setTextColor(0);
 
-      // Place event title to the right of logo
-      const textX = logoX + logoWidth + 5; // 5 is padding between image and text
-      const textY = logoY + logoHeight / 2 + 2; // vertically center align text with image
+     
+      const textX = logoX + logoWidth + 5; 
+      const textY = logoY + logoHeight / 2 + 2; 
       doc.text(`${order.eventTitle}`, textX, textY);
 
       doc.setDrawColor(0);
@@ -169,7 +183,7 @@ let imagePath = "https://via.placeholder.com/300x200";
         currency: "INR",
         name: typeof order.eventId !== "string" ? order.eventId.title : "Event",
         description: "Event Booking",
-        image: getEventImage(order),
+        image:imageSrc,
         order_id: order.razorpayOrderId,
         handler: async function (response: any) {
           const verificationResponse = await paymentRepository.verifyPayment({
@@ -200,6 +214,8 @@ let imagePath = "https://via.placeholder.com/300x200";
       setError("Failed to initiate Razorpay payment");
     }
   };
+  console.log("order",order);
+  
 
   if (error || !order) {
     return (
@@ -221,6 +237,7 @@ let imagePath = "https://via.placeholder.com/300x200";
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      
       <div className="max-w-3xl mx-auto">
         <button
           onClick={() => navigate("/my-bookings")}
@@ -251,13 +268,13 @@ let imagePath = "https://via.placeholder.com/300x200";
           <div className="p-6 border-b">
             <div className="flex items-start">
               <img
-                src={getEventImage(order)}
+                src={imageSrc}
                 alt={
                   typeof order.eventId !== "string" ? order.eventId.title : ""
                 }
                 className="w-32 h-32 object-cover rounded-lg"
               />
-              <div className="ml-6">
+              <div className="ml-6 flex-1">
                 <h3 className="text-xl font-bold text-gray-900">
                   {typeof order.eventId !== "string" ? order.eventId.title : ""}
                 </h3>
@@ -286,7 +303,16 @@ let imagePath = "https://via.placeholder.com/300x200";
                   </div>
                 </div>
               </div>
+              <div className="flex items-center text-gray-600">
+  <span className="px-3 py-1 rounded-full text-sm font-semibold 
+    bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md">
+    {order.selectedTicket?.type}
+  </span>
+</div>
+
+              
             </div>
+            
           </div>
 
           {/* Payment Details */}
@@ -338,7 +364,7 @@ let imagePath = "https://via.placeholder.com/300x200";
                 onClick={() => handleDownloadTicket(order._id)}
                 className="px-6 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
               >
-                {/* <Download className="w-5 h-5 mr-2" />*/}
+              
                 Download Ticket
               </button>
             )}
@@ -349,7 +375,7 @@ let imagePath = "https://via.placeholder.com/300x200";
   );
 };
 
-// Helper functions
+
 const getStatusBackgroundColor = (status: string) => {
   switch (status) {
     case "paid":
@@ -393,15 +419,6 @@ const formatCurrency = (amount: number) => {
   }).format(amount / 100);
 };
 
-const getEventImage = (order: IOrder) => {
-  if (order.eventId) {
-    const imagePath =
-      typeof order.eventId != "string"
-        ? order.eventId.images[0].replace(/\\/g, "/")
-        : "";
-    return `${imagePath}`;
-  }
-  return "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
-};
+
 
 export default OrderDetailsPage;

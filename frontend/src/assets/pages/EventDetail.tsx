@@ -100,23 +100,51 @@ const EventDetail: React.FC = () => {
         </div>
 
         <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow mt-6">
-          <div>
+          {event.ticketPrice?<div>
             <h3 className="text-black text-2xl font-bold">
               ₹{event.ticketPrice}
             </h3>
             <p className="text-sm text-gray-500">
               {event.availableTickets} tickets remaining
             </p>
-          </div>
-
-          <button
-            className="flex items-center bg-black hover:bg-gray-700 text-white px-5 py-2 rounded-lg text-lg"
-            onClick={handleBooking}
+          </div>:(
+    // Case 2: Multiple Ticket Types
+    <div className="w-full">
+      <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+        <FaTicketAlt className="text-black" /> Ticket Options
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {event.ticketTypes.map((t, i) => (
+          <div
+            key={i}
+            className="flex justify-between items-center border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition"
           >
-            <FaTicketAlt className="mr-2" />
-            Book Tickets
-          </button>
+            <div className="flex flex-col">
+              <span className="capitalize font-medium text-gray-800">
+                {t.type}
+              </span>
+              <span className="text-sm text-gray-500">
+                {t.capacity - (t.sold??0)} left
+              </span>
+            </div>
+            <span className="text-lg font-bold text-black">₹{t.price}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+         
         </div>
+         <div className="flex justify-center mt-6">
+        <button
+          className="flex items-center bg-black hover:bg-gray-700 text-white px-8 py-3 rounded-lg text-lg shadow"
+          onClick={handleBooking}
+        >
+          <FaTicketAlt className="mr-2" />
+          Book Tickets
+        </button>
+      </div>
       </div>
     </div>
   );

@@ -5,6 +5,12 @@ export interface IEventImage{
   public_id:string|null
 
 }
+export interface ITicketType {
+  type: string;
+  price: number;
+  capacity: number;
+  sold?:number;
+}
 
 export interface IEventDTO {
   
@@ -25,4 +31,5 @@ export interface IEventDTO {
   longitude: number;
   isBlocked:boolean;
   embedding?:number[];
+   ticketTypes: ITicketType[]
 }

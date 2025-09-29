@@ -5,7 +5,7 @@ import { IOrganiser } from "./IOrgAuth";
 
 import { IAdminOrder } from "./IAdmin";
 import { IReview } from "src/model/review";
-import { IEventImage } from "./IEventDTO";
+import { IEventImage, ITicketType } from "./IEventDTO";
 
 export interface EventGet {
   message: string;
@@ -31,11 +31,15 @@ export interface EventEdit {
   ticketsSold?: number;
   status: string;
   description: string;
-  ticketPrice: number;
-  capacity: number;
+  ticketPrice?: number;
+  capacity?: number;
   category: string;
   time: string;
   images:IEventImage[];
+  ticketTypes?:ITicketType[]
+
+ 
+
 }
 export interface EditEvent {
   title: string;
@@ -124,6 +128,7 @@ export interface DashboardStats {
     date: string;
     sales: number;
   }[];
+  ticketTypes:{count:number,tickets:number,revenue:number}
 }
 
 export type DashboardResponse = {

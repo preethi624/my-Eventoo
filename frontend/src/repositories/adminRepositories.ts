@@ -2,13 +2,12 @@ import axios, { AxiosError } from "axios";
 
 import type { User } from "../assets/pages/AdminUser";
 
-import type { EventApiResponse, IEventDTO } from "../interfaces/IEvent";
+import type {  IEventDTO } from "../interfaces/IEvent";
 import type { IUser } from "../interfaces/IUser";
 import type { Organiser } from "../assets/pages/AdminOrganiser";
 import type { LoginResponse } from "../redux/thunk/adminAuthThunk";
 import type { VenueUpdate } from "../interfaces/IVenue";
 import type { AdminDashboard } from "../interfaces/IAdmin";
-import axiosInstance from "../utils/axiosUser";
 
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/admin`;
 
@@ -21,6 +20,8 @@ interface GetOrganisers {
   success: boolean;
   result?: Organiser[];
   message?: string;
+  total?:number
+  
 }
 interface EditOrganiser {
   success: boolean;
@@ -31,11 +32,7 @@ interface EditUser {
   success: boolean;
   message: string;
 }
-interface GetEvents {
-  success: boolean;
-  result?: IEventDTO[];
-  message?: string;
-}
+
 interface EditEvent {
   success: boolean;
   message: string;
@@ -193,7 +190,7 @@ export const getAllEvents = async (filters: string) => {
     
     const token = localStorage.getItem("adminToken");
 
-    const response = await axios.get<GetEvents>(
+    const response = await axios.get(
       `${API_BASE_URL}/events/?${filters}`,
       {
         headers: {

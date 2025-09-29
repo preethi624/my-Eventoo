@@ -1,10 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Send,
-  Search,
-  MoreVertical,
-  Phone,
-  Video,
+  
   Paperclip,
   Smile,
   ArrowLeft,
@@ -23,6 +20,7 @@ const UserChatPage: React.FC = () => {
     _id?: string;
     name?: string;
     email?: string;
+    isOnline?:boolean
   }>({});
   const [organisers, setOrganisers] = useState<
     { _id: string; name: string; email: string }[]
@@ -37,7 +35,7 @@ const UserChatPage: React.FC = () => {
       receiverId: string;
     }[]
   >([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const user = useSelector((state: RootState) => state.auth.user);
   const fetchOrganisers = async () => {
@@ -125,19 +123,9 @@ const UserChatPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  };
+  
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -146,16 +134,7 @@ const UserChatPage: React.FC = () => {
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">Organisers</h1>
-         {/*} <div className="mt-3 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search conversations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>*/}
+         
         </div>
 
         {/* Chat List */}

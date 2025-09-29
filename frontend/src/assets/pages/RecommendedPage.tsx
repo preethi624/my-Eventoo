@@ -22,6 +22,8 @@ const RecommendedEventsPage: React.FC = () => {
   const [loadingEvents, setLoadingEvents] = useState(false);
   
   console.log("user", user);
+  console.log(selectedCategory);
+  
   
   const userId = user?.id;
   const eventsPerPage = 1;
@@ -36,6 +38,10 @@ const RecommendedEventsPage: React.FC = () => {
   useEffect(() => {
     fetchEvents();
   }, [selectedDate, maxPrice, currentPage]);
+  console.log(nearByEvents);
+  console.log(loadingNearby);
+  
+  
 
   const params = new URLSearchParams();
   if (searchTerm) params.append("searchTerm", searchTerm);
@@ -55,6 +61,7 @@ const RecommendedEventsPage: React.FC = () => {
       const events = await eventRepository.findRecommended( params.toString());
       console.log("events", events);
       setEvents(events.events);
+      setTotalPages(events.totalPage)
     } catch (error) {
       console.log(error);
     } finally {

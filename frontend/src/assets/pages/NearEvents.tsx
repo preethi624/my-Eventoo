@@ -55,6 +55,8 @@ const NearEventsPage: React.FC = () => {
             },params.toString());
             console.log("response", response);
             setNearByEvents(response.data);
+           setTotalPages(response.totalPage);
+           setLoadingEvents(true)
             
           
 

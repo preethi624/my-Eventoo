@@ -1,7 +1,7 @@
 // pages/organizer/CheckIn.tsx
 import { useState } from "react";
 
-import React from "react";
+
 
 import QrScanner from "../components/QRScanner";
 

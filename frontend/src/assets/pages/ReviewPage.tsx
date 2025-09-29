@@ -220,7 +220,7 @@ const ReviewPage: React.FC = () => {
                       
                       <div>
                         <span className="font-bold text-gray-800 text-lg">
-                          {review.userId || "Anonymous"}
+                          {review.userId?.name || "Anonymous"}
                         </span>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-yellow-500 text-lg">

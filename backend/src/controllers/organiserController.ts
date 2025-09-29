@@ -283,6 +283,7 @@ export class OrganiserController implements IOrganiserController {
           currentPage: response.currentPage,
           totalPages: response.totalPages,
           totalAttendees: response.totalAttendees,
+          ticketTypeStats:response.ticketTypeStats
         });
       } else {
         res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_FETCH });

@@ -1,10 +1,13 @@
 // First, create the RecommendationSticker component in a separate file
 // RecommendationSticker.tsx
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { HiSparkles } from "react-icons/hi2";
+type RecommendationStickerProps = {
+  onClick: () => void;
+};
 
-const RecommendationSticker = ({ onClick }) => {
+const RecommendationSticker: React.FC<RecommendationStickerProps> = ({ onClick }) => {
   return (
     <motion.div
       className="fixed bottom-6 left-6 z-50 cursor-pointer"

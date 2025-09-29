@@ -82,6 +82,7 @@ class PaymentService {
                 const eventId = data.eventId;
                 const eventTitle = data.eventTitle;
                 const email = data.email;
+                const selectedTicket = data.selectedTicket;
                 const createdAt = new Date();
                 const options = {
                     amount: totalPrice * 100,
@@ -99,6 +100,7 @@ class PaymentService {
                     userId,
                     eventId,
                     eventTitle,
+                    selectedTicket,
                     createdAt,
                     orderId: orderId,
                     email,
@@ -215,8 +217,7 @@ class PaymentService {
                 };
             }
             catch (error) {
-                console.error("Payment verification failed:", error);
-                if (error.message === "Not enough tickets available") {
+                if (error instanceof Error) {
                     return { success: false, message: error.message };
                 }
                 else {

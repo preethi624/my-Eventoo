@@ -20,7 +20,7 @@ dotenv_1.default.config();
 function analyzeSentiment(text) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield hf.textClassification({
-            model: "distilbert-base-uncased-finetuned-sst-2-english", // Good model for sentiment
+            model: "distilbert-base-uncased-finetuned-sst-2-english",
             inputs: text,
         });
         return result;
@@ -47,64 +47,6 @@ class ReviewService {
             }
         });
     }
-    /*async reviewsFetch(eventId:string):Promise<{success:boolean,reviews?:IReviewWithSentiment[]}>{
-        try {
-            const response=await this._reviewRepository.fetchReviews(eventId);
-            /*if(response){
-                return {success:true,reviews:response}
-            }else{
-                return{success:false}
-            }
-           if(!response){
-                return {success:false}
-              }
-              const analysedReviews = await Promise.all(
-  response.map(async (review) => {
-    const plainReview: IReviewWithSentiment = {
-      _id: review._id!.toString(),
-      userId: (review.userId as any).name, // string
-      eventId: review.eventId.toString(),
-      rating: review.rating,
-      comment: review.comment,
-      createdAt: review.createdAt,
-      sentiment: "UNKNOWN",
-    };
-
-   /* try {
-      const hfResponse = await axios.post(
-        "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english",
-        { inputs: plainReview.comment },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.HUGGING_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("hf res",hfResponse);
-      
-
-      plainReview.sentiment = hfResponse.data[0][0].label;
-    } catch (error) {
-      console.error("HF API error:", error);
-      
-    }
-  analyzeSentiment(plainReview.comment)
-
-    
-  })
-  
-);
-return { success: true, reviews: analysedReviews };
-
-        } catch (error) {
-           console.log(error);
-           return {success:false}
-           
-            
-            
-        }
-    }*/
     reviewsFetch(eventId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -115,7 +57,7 @@ return { success: true, reviews: analysedReviews };
                 const analysedReviews = yield Promise.all(response.map((review) => __awaiter(this, void 0, void 0, function* () {
                     const plainReview = {
                         _id: review._id.toString(),
-                        userId: review.userId.name, // string
+                        userId: review.userId.name,
                         eventId: review.eventId.toString(),
                         rating: review.rating,
                         comment: review.comment,

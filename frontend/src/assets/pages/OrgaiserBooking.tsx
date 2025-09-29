@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 
 import OrganiserLayout from "../components/OrganiserLayout";
 
@@ -76,6 +76,9 @@ const OrganiserBookings: React.FC = () => {
       if (selectedDate) params.append("date", selectedDate);
 
       const orgId = organiser?.id;
+      if(!orgId){
+        throw new Error("no orgId")
+      }
       const response = await organiserRepository.fetchBookings(
         orgId,
         currentPage,
