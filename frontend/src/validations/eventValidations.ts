@@ -46,17 +46,9 @@ export const eventSchema = Yup.object().shape({
     .required('Ticket price is required')
     .min(0, 'Ticket price cannot be negative'),
 
-<<<<<<< HEAD
   images: Yup.array()
   .of(Yup.mixed<File>())
   .min(1, 'Please upload at least one image')
   .required('Please upload at least one image'),
 
-=======
-  images: Yup.mixed()
-    .required('Please upload at least one image')
-    .test('is-not-empty', 'Please upload at least one image', (value) => {
-      return value && value.length > 0;
-    }),
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 });
