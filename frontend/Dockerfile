@@ -11,8 +11,10 @@ RUN npm install
 
 # Copy rest of the code
 COPY . .
-COPY .env ./ 
+#COPY .env ./ 
 # Build the app
+ARG FRONTEND_VITE_REACT_APP_API_BASE_URL
+ENV VITE_REACT_APP_API_BASE_URL=$FRONTEND_VITE_REACT_APP_API_BASE_URL
 RUN npm run build
 
 # Stage 2: Serve with Nginx
