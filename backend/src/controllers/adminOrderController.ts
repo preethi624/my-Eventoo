@@ -86,7 +86,6 @@ export class AdminOrderController implements IAdminOrderController {
         .json({ message: MESSAGES.COMMON.SERVER_ERROR });
     }
   }
-<<<<<<< HEAD
   async getOrderDetails(req:Request,res:Response):Promise<void>{
     const orderId=req.params.orderId;
     console.log("oreerId",orderId);
@@ -106,6 +105,4 @@ export class AdminOrderController implements IAdminOrderController {
     }
 
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

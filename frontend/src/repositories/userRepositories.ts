@@ -45,7 +45,6 @@ export const fetchOrganisers = async () => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
-<<<<<<< HEAD
 export const changePassword=async(currentPass:string,newPass:string)=>{
  
   
@@ -67,15 +66,10 @@ export const changePassword=async(currentPass:string,newPass:string)=>{
   }
 
 }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export const userRepository = {
   getUserById,
   updateUser,
   fetchOrganisers,
-<<<<<<< HEAD
   changePassword
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 };

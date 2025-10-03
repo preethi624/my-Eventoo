@@ -1,26 +1,13 @@
-<<<<<<< HEAD
 import  { useState, useMemo, useEffect } from "react";
-=======
-import React, { useState, useMemo, useEffect } from "react";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import {
   Search,
   UserCheck,
   Mail,
   Calendar,
   Users,
-<<<<<<< HEAD
   
   Ticket,
 
-=======
-  DollarSign,
-  Ticket,
-  Filter,
-  MoreVertical,
-  QrCode,
-  MessageSquare,
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   IndianRupee,
 } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -51,11 +38,6 @@ export const AttendeesPage = () => {
   const [selectedEvent, setSelectedEvent] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-<<<<<<< HEAD
-
-=======
-  const [filterTicketType, setFilterTicketType] = useState("all");
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const [attendeesLength, setAttendeesLength] = useState(0);
   const limit = 6;
   const [currentPage, setCurrentPage] = useState(1);

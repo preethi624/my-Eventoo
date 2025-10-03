@@ -4,20 +4,12 @@ import { Camera, Mail, Phone, MapPin, Edit2, Check, X } from "lucide-react";
 import type { RootState } from "../../redux/stroe";
 
 import { organiserRepository } from "../../repositories/organiserRepositories";
-<<<<<<< HEAD
 
 import { eventRepository } from "../../repositories/eventRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
 import type { OrganiserPro } from "../../interfaces/IOrganiser";
 
 export const OrganiserProfile: React.FC = () => {
-=======
-import type { OrganiserProfile } from "../../interfaces/IOrganiser";
-import { eventRepository } from "../../repositories/eventRepositories";
-import OrganiserLayout from "../components/OrganiserLayout";
-
-const OrganiserProfile: React.FC = () => {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const organiser = useSelector((state: RootState) => state.auth.user);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -31,11 +23,7 @@ const OrganiserProfile: React.FC = () => {
   const [profileImage, setProfileImage] = useState(
     organiser?.profileImage || ""
   );
-<<<<<<< HEAD
   const [organiserStats, setOrganiserStats] = useState<OrganiserPro>({
-=======
-  const [organiserStats, setOrganiserStats] = useState<OrganiserProfile>({
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     count: 0,
   });
 

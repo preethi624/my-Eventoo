@@ -4,7 +4,6 @@ import User from "../model/user";
 
 import { IAdminUserRepository } from "./repositoryInterface/IAdminUserRepository";
 import { FilterQuery } from "mongoose";
-<<<<<<< HEAD
 import Notification from "../model/notification";
 
 
@@ -12,13 +11,6 @@ export class AdminUserRepository implements IAdminUserRepository {
   async getUserAll(limit: number, page: number,searchTerm:string,filterStatus:string,sortBy:string): Promise<GetUser> {
     const query:FilterQuery<IUser>={};
     
-=======
-import { options } from "pdfkit";
-
-export class AdminUserRepository implements IAdminUserRepository {
-  async getUserAll(limit: number, page: number,searchTerm:string,filterStatus:string): Promise<GetUser> {
-    const query:FilterQuery<IUser>={};
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     if(searchTerm){
       query.$or=[
         {name:{$regex:searchTerm,$options:"i"}},
@@ -31,7 +23,6 @@ export class AdminUserRepository implements IAdminUserRepository {
       query.isBlocked=false
     }
     const skip = (page - 1) * limit;
-<<<<<<< HEAD
     const users = await User.find(query).sort(
       sortBy==="newest"?{createdAt:-1}:
       sortBy==="oldest"?{createdAt:1}:
@@ -40,16 +31,10 @@ export class AdminUserRepository implements IAdminUserRepository {
     ).skip(skip).limit(limit).lean();
     const totalUser = await User.countDocuments();
     const total =totalUser / limit;
-=======
-    const users = await User.find(query).skip(skip).limit(limit).lean();
-    const totalUser = await User.countDocuments();
-    const total = totalUser / limit;
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     return { users, total };
   }
   async editUser(id: string, formData: EditUser): Promise<IUser | null> {
-<<<<<<< HEAD
     try {
        const user= await User.findByIdAndUpdate(id, formData, { new: true });
       await Notification.create({
@@ -67,23 +52,15 @@ export class AdminUserRepository implements IAdminUserRepository {
       
     }
    
-=======
-    return await User.findByIdAndUpdate(id, formData, { new: true });
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   }
   async blockUser(user: IUser): Promise<IUser | null> {
     const id = user._id;
     if (!user.isBlocked) {
-<<<<<<< HEAD
       const user=await User.findByIdAndUpdate(
-=======
-      return await User.findByIdAndUpdate(
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         id,
         { isBlocked: true },
         { new: true }
       );
-<<<<<<< HEAD
       await Notification.create({
             userId:id,
             type:"general",
@@ -93,15 +70,10 @@ export class AdminUserRepository implements IAdminUserRepository {
              return user
     } else {
       const user=await User.findByIdAndUpdate(
-=======
-    } else {
-      return await User.findByIdAndUpdate(
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         id,
         { isBlocked: false },
         { new: true }
       );
-<<<<<<< HEAD
       await Notification.create({
             userId:id,
             type:"general",
@@ -109,8 +81,6 @@ export class AdminUserRepository implements IAdminUserRepository {
             isRead:false
              })
              return user
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
   }
   async getDashboardUsers(): Promise<DashboardUsers> {

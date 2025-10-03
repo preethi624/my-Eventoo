@@ -8,10 +8,7 @@
    
     "sourceMap": true,                // optional: useful for debugging
     "resolveJsonModule": true,
-<<<<<<< HEAD
     "noEmitOnError": false,
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
    
     
     /* Visit https://aka.ms/tsconfig to read more about this file */
@@ -123,5 +120,7 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": ["src"],                 // only compile your source files
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

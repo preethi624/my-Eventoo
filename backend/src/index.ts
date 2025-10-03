@@ -22,11 +22,8 @@ import adminOrderRoutes from "./routes/adminRoutes/adminOrderRoutes";
 import adminVenueRoutes from "./routes/adminRoutes/adminVenueRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import messageRoutes from "./routes/messageRoutes";
-<<<<<<< HEAD
 import reviewRoutes from "./routes/reviewRoutes";
 import notificationRoutes from "./routes/notificationRoutes"
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db";
@@ -46,7 +43,7 @@ function broadcastOnlineUsers() {
 
 config();
 
-const app: Application = express();
+export const app: Application = express();
 const httpServer = createServer(app);
 export const io = new Server(httpServer, {
   cors: {
@@ -82,7 +79,6 @@ app.use((req, res, next) => {
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Routes
-<<<<<<< HEAD
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/auth", organiserRoutes);
 app.use("/api/v1/auth", authRoutes);
@@ -104,27 +100,6 @@ app.use("/api/v1/message", messageRoutes);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/review",reviewRoutes);
 app.use("/api/v1/notification",notificationRoutes)
-=======
-app.use("/api/auth", userRoutes);
-app.use("/api/auth", organiserRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/category", categoryRoutes);
-
-app.use("/api/event", eventRoutes);
-app.use("/api/event", eventOrgRoutes);
-app.use("/api/organiser", orgRoutes);
-app.use("/api/user", userProfileRoutes);
-
-app.use("/api/admin", adminAuthRoutes);
-app.use("/api/admin", adminUserRoutes);
-app.use("/api/admin", adminEventRoutes);
-app.use("/api/admin", adminOrgRoutes);
-app.use("/api/admin", adminOrderRoutes);
-app.use("/api/admin", adminVenueRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/message", messageRoutes);
-app.use("/api/chat", chatRoutes);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 

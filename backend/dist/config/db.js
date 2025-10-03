@@ -20,16 +20,12 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log('MongoDB connected');
     }
     catch (error) {
-<<<<<<< HEAD
         if (error instanceof Error) {
             console.error('MongoDB connection error:', error.message);
         }
         else {
             console.error('MongoDB connection error:', error);
         }
-=======
-        console.error('MongoDB connection error:', error.message);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         process.exit(1);
     }
 });

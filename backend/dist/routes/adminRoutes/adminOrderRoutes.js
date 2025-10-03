@@ -9,9 +9,6 @@ const adminOrderdi_1 = require("../../container/adminOrderdi");
 const router = express_1.default.Router();
 router.get("/order", middleware_di_1.authMiddlewarwSet.adminOnly, adminOrderdi_1.adminOrderController.getAllOrders.bind(adminOrderdi_1.adminOrderController));
 router.get("/dashboardOrders", middleware_di_1.authMiddlewarwSet.adminOnly, adminOrderdi_1.adminOrderController.getDashboardOrders.bind(adminOrderdi_1.adminOrderController));
-<<<<<<< HEAD
 router.get('/details/:orderId', middleware_di_1.authMiddlewarwSet.adminOnly, adminOrderdi_1.adminOrderController.getOrderDetails.bind(adminOrderdi_1.adminOrderController));
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 exports.default = router;
 //# sourceMappingURL=adminOrderRoutes.js.map

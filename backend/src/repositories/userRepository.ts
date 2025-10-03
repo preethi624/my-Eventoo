@@ -4,21 +4,14 @@ import { IUserRepository } from "./repositoryInterface/IUserRepository";
 import { ProfileEdit } from "src/interface/IUser";
 import { IOrganiser } from "src/interface/IOrgAuth";
 import Organiser from "../model/organiser";
-<<<<<<< HEAD
 import bcrypt from "bcrypt";
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class UserRepository implements IUserRepository {
   async getUser(userId: string): Promise<IUser | null> {
     return await User.findById(userId);
   }
   async updateUser(data: ProfileEdit, userId: string): Promise<IUser | null> {
-<<<<<<< HEAD
     const { name, phone, location, aboutMe, profileImage } = data;
-=======
-    const { name, email, phone, location, aboutMe, profileImage } = data;
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     return await User.findByIdAndUpdate(
       userId,
       { name, phone, location, aboutMe: aboutMe, profileImage },
@@ -33,7 +26,6 @@ export class UserRepository implements IUserRepository {
       throw error;
     }
   }
-<<<<<<< HEAD
   async changePassword(userId:string,newPass:string,currentPass:string):Promise<{success:boolean}|undefined>{
     try {
       console.log("new",newPass);
@@ -59,6 +51,4 @@ export class UserRepository implements IUserRepository {
     return { success: false };
     }
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

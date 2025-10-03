@@ -3,16 +3,8 @@ import { IUserController } from "./controllerInterface/IUserController";
 import { IUserService } from "src/services/serviceInterface/IUserService";
 
 import { MESSAGES } from "../constants/messages";
-<<<<<<< HEAD
 import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 
-=======
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export class UserController implements IUserController {
   constructor(private _userService: IUserService) {}
   async getUser(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -81,7 +73,6 @@ export class UserController implements IUserController {
       console.log(error);
     }
   }
-<<<<<<< HEAD
   async changePassword(req:AuthenticatedRequest,res:Response):Promise<void>{
     const userId=req.user?.id;
     const newPass=String(req.body.newPass);
@@ -103,6 +94,4 @@ export class UserController implements IUserController {
       
     }
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

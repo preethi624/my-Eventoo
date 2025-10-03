@@ -9,14 +9,11 @@ router.get(
   eventController.getEvents.bind(eventController)
 );
 router.get(
-<<<<<<< HEAD
   "/completed",
   authMiddlewarwSet.userAndOrganiser,
   eventController.getCompleted.bind(eventController)
 );
 router.get(
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   "/event/:id",
   authMiddlewarwSet.userOnly,
   eventController.getEventById.bind(eventController)
@@ -36,7 +33,6 @@ router.get(
   authMiddlewarwSet.userOnly,
   eventController.findEventsByCat.bind(eventController)
 );
-<<<<<<< HEAD
 router.get(
   "/recommended",authMiddlewarwSet.userOnly,eventController.findRecommended.bind(eventController)
 
@@ -44,7 +40,5 @@ router.get(
 router.get(
   "/near",authMiddlewarwSet.userOnly,eventController.findNear.bind(eventController)
 )
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export default router;

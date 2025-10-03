@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 
 import type { IOrder } from "../../interfaces/IOrder";
 import type { RootState } from "../../redux/stroe";
-<<<<<<< HEAD
 import targetLogo from "../images/target_3484438 (2).png";
 import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
@@ -34,8 +33,6 @@ const getBase64FromImage = (imgUrl: string): Promise<string> => {
     img.onerror = reject;
   });
 };
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const OrderDetailsPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -44,7 +41,6 @@ const OrderDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
-<<<<<<< HEAD
 
  let imageSrc = "https://via.placeholder.com/300x200";
 
@@ -72,19 +68,6 @@ console.log(loading);
 
  
 
-=======
-   let imagePath = "https://via.placeholder.com/300x200";
-    if (order&&order.eventId.images.length>0) {
-    const img = order.eventId.images[0];
-    if (img.startsWith("http")) {
-      
-      imagePath = img;
-    } else {
-    
-      imagePath = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
-    }
-  }
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   useEffect(() => {
     fetchOrderDetails();
@@ -109,7 +92,6 @@ console.log(loading);
 
     loadRazorpayScript();
   }, []);
-<<<<<<< HEAD
   const handleDownloadTicket = async (orderId: string) => {
     const response = await paymentRepository.getTickets(orderId);
     const tickets = response.result;
@@ -171,8 +153,6 @@ console.log(loading);
 
     doc.save(`ticket_${order.eventTitle.replace(/\s+/g, "_")}.pdf`);
   };
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const fetchOrderDetails = async () => {
     try {
@@ -203,11 +183,7 @@ console.log(loading);
         currency: "INR",
         name: typeof order.eventId !== "string" ? order.eventId.title : "Event",
         description: "Event Booking",
-<<<<<<< HEAD
         image:imageSrc,
-=======
-        image: getEventImage(order),
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         order_id: order.razorpayOrderId,
         handler: async function (response: any) {
           const verificationResponse = await paymentRepository.verifyPayment({
@@ -238,11 +214,8 @@ console.log(loading);
       setError("Failed to initiate Razorpay payment");
     }
   };
-<<<<<<< HEAD
   console.log("order",order);
   
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   if (error || !order) {
     return (
@@ -264,10 +237,7 @@ console.log(loading);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-<<<<<<< HEAD
       
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       <div className="max-w-3xl mx-auto">
         <button
           onClick={() => navigate("/my-bookings")}
@@ -298,21 +268,13 @@ console.log(loading);
           <div className="p-6 border-b">
             <div className="flex items-start">
               <img
-<<<<<<< HEAD
                 src={imageSrc}
-=======
-                src={getEventImage(order)}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 alt={
                   typeof order.eventId !== "string" ? order.eventId.title : ""
                 }
                 className="w-32 h-32 object-cover rounded-lg"
               />
-<<<<<<< HEAD
               <div className="ml-6 flex-1">
-=======
-              <div className="ml-6">
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 <h3 className="text-xl font-bold text-gray-900">
                   {typeof order.eventId !== "string" ? order.eventId.title : ""}
                 </h3>
@@ -341,7 +303,6 @@ console.log(loading);
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
               <div className="flex items-center text-gray-600">
   <span className="px-3 py-1 rounded-full text-sm font-semibold 
     bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md">
@@ -352,9 +313,6 @@ console.log(loading);
               
             </div>
             
-=======
-            </div>
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           </div>
 
           {/* Payment Details */}
@@ -403,17 +361,10 @@ console.log(loading);
             )}
             {order.status === "paid" && (
               <button
-<<<<<<< HEAD
                 onClick={() => handleDownloadTicket(order._id)}
                 className="px-6 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
               >
               
-=======
-                // onClick={() => handleDownloadTicket(order._id)}
-                className="px-6 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-              >
-                {/* <Download className="w-5 h-5 mr-2" />*/}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 Download Ticket
               </button>
             )}
@@ -424,11 +375,6 @@ console.log(loading);
   );
 };
 
-<<<<<<< HEAD
-
-=======
-// Helper functions
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 const getStatusBackgroundColor = (status: string) => {
   switch (status) {
     case "paid":
@@ -472,19 +418,5 @@ const formatCurrency = (amount: number) => {
   }).format(amount / 100);
 };
 
-<<<<<<< HEAD
-
-=======
-const getEventImage = (order: IOrder) => {
-  if (order.eventId) {
-    const imagePath =
-      typeof order.eventId != "string"
-        ? order.eventId.images[0].replace(/\\/g, "/")
-        : "";
-    return `${imagePath}`;
-  }
-  return "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
-};
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export default OrderDetailsPage;

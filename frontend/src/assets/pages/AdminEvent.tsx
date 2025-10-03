@@ -14,7 +14,6 @@ const truncate = (text: string, maxLength: number) => {
   }
   return text;
 };
-<<<<<<< HEAD
 interface ITicketType {
   type: string;
   price: number;
@@ -32,8 +31,6 @@ type FormDataType = {
   ticketTypes?: ITicketType[]; // for new events
 };
 
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export interface EventData {
   id: string;
   title: string;
@@ -60,12 +57,7 @@ const EventPage: React.FC = () => {
   const [searchTitle, setSearchTitle] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [orgName, setOrgName] = useState("");
-<<<<<<< HEAD
   const [limit, setLimit] = useState(10);
-=======
-
-  const eventsPerPage = 6;
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const [expandedEvents, setExpandedEvents] = useState<{
     [key: string]: boolean;
@@ -77,11 +69,7 @@ const EventPage: React.FC = () => {
     }));
   };
 
-<<<<<<< HEAD
   const [formData, setFormData] = useState<FormDataType>({
-=======
-  const [formData, setFormData] = useState({
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     title: "",
     description: "",
     date: "",
@@ -90,7 +78,6 @@ const EventPage: React.FC = () => {
     status: "draft",
     time: "",
     ticketPrice: 0,
-<<<<<<< HEAD
     ticketTypes: []
   });
 
@@ -103,21 +90,6 @@ const EventPage: React.FC = () => {
   useEffect(() => {
     fetchEvents();
   }, [selectedCategory, maxPrice, selectedDate, currentPage, limit]);
-=======
-  });
-
-  useEffect(() => {
-    fetchEvents();
-  }, [
-    searchLocation,
-    selectedCategory,
-    maxPrice,
-    selectedDate,
-    searchTitle,
-    currentPage,
-    orgName,
-  ]);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const fetchEvents = async () => {
     try {
@@ -129,11 +101,7 @@ const EventPage: React.FC = () => {
       if (selectedDate) params.append("selectedDate", selectedDate);
       if (orgName) params.append("orgName", orgName);
       params.append("page", currentPage.toString());
-<<<<<<< HEAD
       params.append("limit", limit.toString());
-=======
-      params.append("limit", eventsPerPage.toString());
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       const response = await adminRepository.getAllEvents(params.toString());
       console.log("resoo", response);
@@ -205,10 +173,7 @@ const EventPage: React.FC = () => {
       status: "draft",
       time: "",
       ticketPrice: 0,
-<<<<<<< HEAD
       ticketTypes: []
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     });
   };
   const handleNextPage = () => {
@@ -343,7 +308,6 @@ const EventPage: React.FC = () => {
             </div>
           </div>
         </div>
-<<<<<<< HEAD
         <div>
           <label className="mr-2 text-gray-600">Rows per page:</label>
           <select
@@ -360,8 +324,6 @@ const EventPage: React.FC = () => {
             <option value={50}>50</option>
           </select>
         </div>
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
         {/* Event List */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -467,7 +429,6 @@ const EventPage: React.FC = () => {
                       d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
-<<<<<<< HEAD
                   {/*<span>TicketPrice: {event.ticketPrice}</span>*/}
                   <div>
   <p className="font-medium">Tickets</p>
@@ -484,9 +445,6 @@ const EventPage: React.FC = () => {
   )}
 </div>
 
-=======
-                  <span>TicketPrice: {event.ticketPrice}</span>
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 </div>
               </div>
               <div className="mt-4 flex space-x-2">
@@ -504,10 +462,7 @@ const EventPage: React.FC = () => {
                       status: event.status,
                       time: event.time,
                       ticketPrice: event.ticketPrice,
-<<<<<<< HEAD
                       ticketTypes: event.ticketTypes
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     });
                     setIsModalOpen(true);
                   }}
@@ -611,7 +566,6 @@ const EventPage: React.FC = () => {
                   required
                 />
                 <p>TicketPrice</p>
-<<<<<<< HEAD
                
                 {formData.ticketTypes&& formData.ticketTypes.length > 0 ? (
  
@@ -665,22 +619,6 @@ const EventPage: React.FC = () => {
   />
 )}
 
-=======
-                <input
-                  type="number"
-                  name="Price"
-                  value={formData.ticketPrice}
-                  placeholder="TicketPrice"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      ticketPrice: Number(e.target.value),
-                    })
-                  }
-                  className="w-full px-4 py-2 border rounded"
-                  required
-                />
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
                 <select
                   value={formData.status}
@@ -722,7 +660,6 @@ const EventPage: React.FC = () => {
           </div>
         )}
       </div>
-<<<<<<< HEAD
       <div className="flex justify-center mt-4 gap-2 flex-wrap">
         <button
           onClick={handlePrevPage}
@@ -744,39 +681,6 @@ const EventPage: React.FC = () => {
           Next
         </button>
       </div>
-=======
-      {totalPage > 1 && (
-        <div className="flex justify-center mt-4 gap-2">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPage }, (_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentPage(index + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === index + 1
-                  ? "bg-black text-white"
-                  : "bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPage}
-            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     </AdminLayout>
   );
 };

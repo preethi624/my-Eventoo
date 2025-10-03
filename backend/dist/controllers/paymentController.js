@@ -34,10 +34,6 @@ class PaymentController {
             }
             catch (error) {
                 console.error("Error in createOrder:", error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
-                    success: false,
-                    message: error.message || messages_1.MESSAGES.COMMON.SERVER_ERROR,
-                });
             }
         });
     }
@@ -67,6 +63,7 @@ class PaymentController {
             try {
                 const data = req.body;
                 const response = yield this._paymentService.paymentVerify(data);
+                console.log("controller", response);
                 if (response.success) {
                     res.json({ message: "Payment verified successfully", success: true });
                 }
@@ -76,10 +73,6 @@ class PaymentController {
             }
             catch (error) {
                 console.error("Error in payment verification :", error);
-                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
-                    success: false,
-                    message: error.message,
-                });
             }
         });
     }
@@ -237,18 +230,12 @@ class PaymentController {
                 const userId = req.params.userId;
                 const searchTerm = req.query.searchTerm;
                 const status = req.query.status;
-<<<<<<< HEAD
                 const page = req.query.page;
                 const limit = req.query.limit;
                 console.log("limitNumbr", limit);
                 const response = yield this._paymentService.ticketDetailsGet(userId, searchTerm, status, page, limit);
                 if (response) {
                     res.json({ tickets: response.tickets, success: true, totalPages: response.totalPages, totalItems: response.totalItems, currentPage: response.currentPage });
-=======
-                const response = yield this._paymentService.ticketDetailsGet(userId, searchTerm, status);
-                if (response) {
-                    res.json({ result: response.tickets, success: true });
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 }
                 else {
                     res.json({ success: false });

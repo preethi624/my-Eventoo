@@ -21,12 +21,7 @@ class EventController {
             try {
                 const query = req.query;
                 const filters = {
-<<<<<<< HEAD
                     searchTerm: typeof query.searchTerm === "string" ? query.searchTerm : "",
-=======
-                    searchLocation: typeof query.searchLocation === "string" ? query.searchLocation : "",
-                    searchTitle: typeof query.searchTitle === "string" ? query.searchTitle : "",
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     selectedCategory: typeof query.selectedCategory === "string"
                         ? query.selectedCategory
                         : "",
@@ -55,7 +50,6 @@ class EventController {
             }
         });
     }
-<<<<<<< HEAD
     getCompleted(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -90,8 +84,6 @@ class EventController {
             }
         });
     }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     getEventById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -120,7 +112,6 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const files = req.files;
-<<<<<<< HEAD
                 console.log("from cloud", files);
                 let ticketTypes = req.body.ticketTypes;
                 if (typeof ticketTypes === "string") {
@@ -154,9 +145,6 @@ class EventController {
                         url: file.path,
                         public_id: file.filename
                     }))) || [] });
-=======
-                const eventData = Object.assign(Object.assign({}, req.body), { images: (files === null || files === void 0 ? void 0 : files.map((file) => file.path)) || [] });
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 const response = yield this._eventService.eventCreate(eventData);
                 if (response.success) {
                     res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE });
@@ -196,7 +184,6 @@ class EventController {
             }
         });
     }
-<<<<<<< HEAD
     /*async editEvent(
       req: Request<{ id: string }, unknown, EventEdit>,
       res: Response
@@ -276,16 +263,6 @@ class EventController {
                 }
                 const response = yield this._eventService.eventEdit(id, data, file);
                 if (response) {
-=======
-    editEvent(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log("req", req.body);
-                const data = req.body;
-                const id = req.params.id;
-                const response = yield this._eventService.eventEdit(id, data);
-                if (response.success) {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     res.json({ success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_UPDATE });
                 }
                 else {
@@ -332,12 +309,8 @@ class EventController {
                 const page = req.query.page ? parseInt(req.query.page, 10) : 1;
                 const searchTerm = req.query.searchTerm;
                 const date = req.query.date;
-<<<<<<< HEAD
                 const status = req.query.status;
                 const response = yield this._eventService.getEvent(id, limit, page, searchTerm, date, status);
-=======
-                const response = yield this._eventService.getEvent(id, limit, page, searchTerm, date);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 console.log("response", response);
                 if (response) {
                     res.json({ result: response, success: true });
@@ -487,7 +460,6 @@ class EventController {
             }
         });
     }
-<<<<<<< HEAD
     findRecommended(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -550,8 +522,6 @@ class EventController {
             }
         });
     }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.EventController = EventController;
 //# sourceMappingURL=eventController.js.map

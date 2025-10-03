@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-<<<<<<< HEAD
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,11 +19,6 @@ const razorpay = new razorpay_1.default({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-=======
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrganiserService = void 0;
-const messages_1 = require("../constants/messages");
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 class OrganiserService {
     constructor(_organiserRepository) {
         this._organiserRepository = _organiserRepository;
@@ -229,10 +223,7 @@ class OrganiserService {
                         currentPage: response.currentPage,
                         totalPages: response.totalPages,
                         totalAttendees: response.totalAttendees,
-<<<<<<< HEAD
                         ticketTypeStats: response.ticketTypeStats
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                     };
                 }
                 else {
@@ -304,7 +295,6 @@ class OrganiserService {
             }
         });
     }
-<<<<<<< HEAD
     eventOrders(eventId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -374,8 +364,6 @@ class OrganiserService {
             }
         });
     }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.OrganiserService = OrganiserService;
 //# sourceMappingURL=organiserService.js.map

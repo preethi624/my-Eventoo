@@ -78,7 +78,6 @@ class AdminOrderController {
             }
         });
     }
-<<<<<<< HEAD
     getOrderDetails(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const orderId = req.params.orderId;
@@ -97,8 +96,6 @@ class AdminOrderController {
             }
         });
     }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.AdminOrderController = AdminOrderController;
 //# sourceMappingURL=adminOrderController.js.map

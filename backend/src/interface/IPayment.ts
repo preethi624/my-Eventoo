@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import {  Types } from "mongoose";
-=======
-import { Document, ObjectId, Types } from "mongoose";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { IEvent } from "src/model/event";
 import { IOrder } from "src/model/order";
 import { ITicket } from "src/model/ticket";
@@ -21,10 +17,7 @@ export interface OrderCreateInput{
     eventId:string;
     eventTitle:string;
     email?:string;
-<<<<<<< HEAD
     selectedTicket?:{type:string,capacity:number,price:number,sold?:number}
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 }
 export interface IPaymentDTO{
@@ -40,12 +33,8 @@ export interface IPaymentDTO{
             eventTitle:string;
             createdAt:Date;
             orderId:string;
-<<<<<<< HEAD
             email?:string;
             selectedTicket?:{type:string,capacity:number,price:number,sold?:number}
-=======
-            email?:string
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
           
 
 }

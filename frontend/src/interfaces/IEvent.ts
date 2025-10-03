@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export interface ITicketType {
   type: string
   price: number;
@@ -11,9 +10,6 @@ export interface ITicketType {
   
   
 }
-=======
-
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export interface IEventDTO {
     _id:string
   title: string;
@@ -24,11 +20,7 @@ export interface IEventDTO {
   category: string;
   ticketPrice: number;
   capacity: number;
-<<<<<<< HEAD
   images: (string|IEventImage)[];
-=======
-  images: string[];
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   organiser: string;
   status: 'draft' | 'published' |'completed'| 'cancelled';
   ticketsSold: number;
@@ -36,7 +28,6 @@ export interface IEventDTO {
   latitude: number;
   longitude: number;
   isBlocked:boolean;
-<<<<<<< HEAD
   availableTickets?:number;
  ticketTypes: ITicketType[]
   
@@ -66,9 +57,6 @@ export interface IEvent{
     vip: { price: string; capacity: string };
   };
 
-=======
-  availableTickets?:number
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 
 export interface EventFetchResponse {
@@ -89,7 +77,6 @@ export interface EventCount{
 
 }
 
-<<<<<<< HEAD
 export interface Location {
   latitude: number;
   longitude: number;
@@ -125,5 +112,3 @@ export interface IGetAllEventsApiResponse {
   result: IGetAllEventsResult;
 }
 
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

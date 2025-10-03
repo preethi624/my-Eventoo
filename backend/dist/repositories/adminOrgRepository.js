@@ -15,11 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminOrgRepository = void 0;
 const organiser_1 = __importDefault(require("../model/organiser"));
 class AdminOrgRepository {
-<<<<<<< HEAD
     getOrganiserAll(limit, page, searchTerm, filterStatus, sortBy) {
-=======
-    getOrganiserAll(limit, page, searchTerm, filterStatus) {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         return __awaiter(this, void 0, void 0, function* () {
             const query = {};
             if (searchTerm) {
@@ -35,13 +31,9 @@ class AdminOrgRepository {
                 query.isBlocked = false;
             }
             const skip = (page - 1) * limit;
-<<<<<<< HEAD
             const organisers = yield organiser_1.default.find(query).skip(skip).sort(sortBy === "newest" ? { createdAt: -1 } :
                 sortBy === "oldest" ? { createdAt: 1 } :
                     sortBy === "nameAsc" ? { name: 1 } : { name: -1 }).limit(limit);
-=======
-            const organisers = yield organiser_1.default.find(query).skip(skip).limit(limit);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const totalOrganisers = yield organiser_1.default.countDocuments();
             const total = totalOrganisers / limit;
             return { result: organisers, total };

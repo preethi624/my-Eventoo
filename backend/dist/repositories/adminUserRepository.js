@@ -14,14 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminUserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
-<<<<<<< HEAD
 const notification_1 = __importDefault(require("../model/notification"));
 class AdminUserRepository {
     getUserAll(limit, page, searchTerm, filterStatus, sortBy) {
-=======
-class AdminUserRepository {
-    getUserAll(limit, page, searchTerm, filterStatus) {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         return __awaiter(this, void 0, void 0, function* () {
             const query = {};
             if (searchTerm) {
@@ -37,13 +32,9 @@ class AdminUserRepository {
                 query.isBlocked = false;
             }
             const skip = (page - 1) * limit;
-<<<<<<< HEAD
             const users = yield user_1.default.find(query).sort(sortBy === "newest" ? { createdAt: -1 } :
                 sortBy === "oldest" ? { createdAt: 1 } :
                     sortBy === "nameAsc" ? { name: 1 } : { name: -1 }).skip(skip).limit(limit).lean();
-=======
-            const users = yield user_1.default.find(query).skip(skip).limit(limit).lean();
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const totalUser = yield user_1.default.countDocuments();
             const total = totalUser / limit;
             return { users, total };
@@ -51,7 +42,6 @@ class AdminUserRepository {
     }
     editUser(id, formData) {
         return __awaiter(this, void 0, void 0, function* () {
-<<<<<<< HEAD
             try {
                 const user = yield user_1.default.findByIdAndUpdate(id, formData, { new: true });
                 yield notification_1.default.create({
@@ -66,16 +56,12 @@ class AdminUserRepository {
                 console.log(error);
                 return null;
             }
-=======
-            return yield user_1.default.findByIdAndUpdate(id, formData, { new: true });
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         });
     }
     blockUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = user._id;
             if (!user.isBlocked) {
-<<<<<<< HEAD
                 const user = yield user_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
                 yield notification_1.default.create({
                     userId: id,
@@ -94,12 +80,6 @@ class AdminUserRepository {
                     isRead: false
                 });
                 return user;
-=======
-                return yield user_1.default.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
-            }
-            else {
-                return yield user_1.default.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             }
         });
     }

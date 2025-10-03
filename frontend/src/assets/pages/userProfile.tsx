@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-<<<<<<< HEAD
 import { Camera, Mail, Phone, MapPin, Edit2, Check, X,Key,Lock } from "lucide-react";
-=======
-import { Camera, Mail, Phone, MapPin, Edit2, Check, X } from "lucide-react";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import type { RootState } from "../../redux/stroe";
 
 import { userRepository } from "../../repositories/userRepositories";
 
 import { paymentRepository } from "../../repositories/paymentRepositories";
-<<<<<<< HEAD
 
 import UserNavbar from "../components/UseNavbar";
 import type { UserPro } from "../../interfaces/IPayment";
@@ -23,13 +18,6 @@ export const UserProfile: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
 
-=======
-import type { UserProfile } from "../../interfaces/IPayment";
-import UserNavbar from "../components/UseNavbar";
-
-const UserProfile: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
@@ -40,11 +28,7 @@ const UserProfile: React.FC = () => {
     aboutMe: "",
   });
   const [profileImage, setProfileImage] = useState(user?.profileImage || "");
-<<<<<<< HEAD
   const [userStats, setUserStats] = useState<UserPro>({
-=======
-  const [userStats, setUserStats] = useState<UserProfile>({
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     eventsBooked: 0,
     totalSpent: 0,
   });
@@ -91,11 +75,7 @@ const UserProfile: React.FC = () => {
         throw new Error("not any user found");
       }
       const response = await userRepository.getUserById();
-<<<<<<< HEAD
     
-=======
-      console.log("responseee", response);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       setUserData(response.user.user);
       setProfileImage(response.user.user.profileImage);
@@ -138,7 +118,6 @@ const UserProfile: React.FC = () => {
       console.error("Failed to update profile:", error);
     }
   };
-<<<<<<< HEAD
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       setPasswordMessage("❌ New passwords do not match");
@@ -165,8 +144,6 @@ const UserProfile: React.FC = () => {
       setPasswordMessage("❌ Failed to change password");
     }
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -344,7 +321,6 @@ const UserProfile: React.FC = () => {
             </p>
           )}
         </div>
-<<<<<<< HEAD
         <div className="mt-6 bg-white rounded-2xl shadow-lg p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <Lock className="w-5 h-5 mr-2 text-purple-600" />
@@ -403,8 +379,6 @@ const UserProfile: React.FC = () => {
             </button>
           </div>
         </div>
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       </div>
     </div>
   );

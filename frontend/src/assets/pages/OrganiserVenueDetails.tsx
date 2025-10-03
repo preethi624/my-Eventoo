@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { organiserRepository } from "../../repositories/organiserRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
-<<<<<<< HEAD
 import type { IVenue } from "../../interfaces/IVenue";
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export interface Venue {
   _id: string;
@@ -30,11 +27,7 @@ export interface Venue {
 const VenueDetailsPage: React.FC = () => {
   const { venueId } = useParams<{ venueId: string }>();
   const navigate = useNavigate();
-<<<<<<< HEAD
   const [venue, setVenue] = useState<IVenue | null>(null);
-=======
-  const [venue, setVenue] = useState<Venue | null>(null);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -49,15 +42,10 @@ const VenueDetailsPage: React.FC = () => {
         }
 
         const response = await organiserRepository.getVenueById(venueId);
-<<<<<<< HEAD
         console.log("ress",response);
         
 
         setVenue(response.venue ??null);
-=======
-
-        setVenue(response.venue);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       } catch (error) {
         console.error("Error fetching venue details:", error);
       } finally {
@@ -84,13 +72,7 @@ const VenueDetailsPage: React.FC = () => {
     }
   };
 
-<<<<<<< HEAD
   
-=======
-  const handleBooking = () => {
-    navigate(`/book-venue/${venue?._id}`);
-  };
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   if (loading) {
     return (

@@ -1,14 +1,8 @@
-<<<<<<< HEAD
 import { IEventDTO } from "./IEventDTO";
 import { IOrganiser } from "./IOrgAuth";
 import { IUser } from "./IUserAuth";
 
 
-=======
-import { IOrganiser } from "./IOrgAuth";
-import { IUser } from "./IUserAuth";
-
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export interface UserGet{
     user?:IUser;
     success:boolean;
@@ -78,14 +72,11 @@ export interface OrderDashboard{
   totalAdminEarning?:number
 
 }
-<<<<<<< HEAD
 interface TicketTypeStat {
   count: number;
   tickets: number;
   revenue: number;
 }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export interface Attendees{
   attendees?:{ id: string; 
       name: string;
@@ -102,10 +93,7 @@ export interface Attendees{
       currentPage?:number;
       totalPages?:number;
       totalAttendees?:number
-<<<<<<< HEAD
       ticketTypeStats?:Record<string,TicketTypeStat>[]
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 export interface GetUser{
   users:IUser[];
@@ -119,7 +107,6 @@ export interface GetUsers{
 export interface GetOrgs{
   organisers?:IOrganiser[];
   success?:boolean;
-<<<<<<< HEAD
 }
 export interface Recommend{
   event?:IEventDTO;
@@ -131,6 +118,3 @@ export interface UserData{
   name:string;
   email:string
 }
-=======
-}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe

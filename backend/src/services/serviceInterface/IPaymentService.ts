@@ -1,8 +1,5 @@
-import { GetOrder, GetOrders, GetTickets, OrderCreate, OrderCreateInput, RazorpayPaymentResponse, TicketDetails, Update, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
-<<<<<<< HEAD
+import { GetOrder, GetOrders, GetTickets, OrderCreate, OrderCreateInput, RazorpayPaymentResponse,  Update, UserProfileUpdate, VerifyResponse } from "src/interface/IPayment";
 import { ITicketDetails } from "src/interface/ITicket";
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export interface IPaymentService{
     orderCreate(data:OrderCreateInput):Promise<OrderCreate>;
      orderCreateFree(data:OrderCreateInput):Promise<{success?:boolean}>
@@ -13,11 +10,7 @@ export interface IPaymentService{
   ordersGetById(userId:string):Promise<UserProfileUpdate>;
   orderFind(orderId:string):Promise<Update>;
   ticketsGet(orderId:string):Promise<GetTickets>;
-<<<<<<< HEAD
    ticketDetailsGet(userId:string,searchTerm:string,status:string,page:string,limit:string):Promise<ITicketDetails>
-=======
-   ticketDetailsGet(userId:string,searchTerm:string,status:string):Promise<TicketDetails>
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
  
 
 

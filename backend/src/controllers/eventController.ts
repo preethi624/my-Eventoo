@@ -7,25 +7,16 @@ import { ParsedQs } from "qs";
 
 import { StatusCode } from "../constants/statusCodeEnum";
 import { MESSAGES } from "../constants/messages";
-<<<<<<< HEAD
 import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 
 
 
-=======
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class EventController implements IEventController {
   constructor(private _eventService: IEventService) {}
 
   async getEvents(req: Request, res: Response): Promise<void> {
     try {
-<<<<<<< HEAD
       
       
       const query = req.query as ParsedQs;
@@ -33,14 +24,6 @@ export class EventController implements IEventController {
        
          searchTerm:typeof query.searchTerm==="string"?query.searchTerm:"",
         
-=======
-      const query = req.query as ParsedQs;
-      const filters: IEventFilter = {
-        searchLocation:
-          typeof query.searchLocation === "string" ? query.searchLocation : "",
-        searchTitle:
-          typeof query.searchTitle === "string" ? query.searchTitle : "",
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         selectedCategory:
           typeof query.selectedCategory === "string"
             ? query.selectedCategory
@@ -51,11 +34,8 @@ export class EventController implements IEventController {
         page: query.page ? Number(query.page) : undefined,
         limit: query.limit ? Number(query.limit) : undefined,
       };
-<<<<<<< HEAD
     
       
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       
       
 
@@ -76,7 +56,6 @@ export class EventController implements IEventController {
         message: MESSAGES.EVENT.FAILED_TO_FETCH,
       });
     }
-<<<<<<< HEAD
   } async getCompleted(req: Request, res: Response): Promise<void> {
     try {
       const query = req.query as ParsedQs;
@@ -115,9 +94,6 @@ export class EventController implements IEventController {
     }
   }
 
-=======
-  }
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async getEventById(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;
@@ -144,7 +120,6 @@ export class EventController implements IEventController {
   ): Promise<void> {
     try {
       const files = req.files as Express.Multer.File[];
-<<<<<<< HEAD
       console.log("from cloud",files);
       let ticketTypes = req.body.ticketTypes;
  
@@ -184,12 +159,6 @@ if (typeof ticketTypes === "string") {
           url:file.path,
           public_id:file.filename
         })) || [],
-=======
-
-      const eventData = {
-        ...req.body,
-        images: files?.map((file: Express.Multer.File) => file.path) || [],
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       };
 
       const response = await this._eventService.eventCreate(eventData);
@@ -225,16 +194,11 @@ if (typeof ticketTypes === "string") {
       });
     }
   }
-<<<<<<< HEAD
   /*async editEvent(
-=======
-  async editEvent(
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     req: Request<{ id: string }, unknown, EventEdit>,
     res: Response
   ): Promise<void> {
     try {
-<<<<<<< HEAD
      
       const file = req.file as Express.Multer.File|undefined;
      
@@ -245,14 +209,6 @@ if (typeof ticketTypes === "string") {
      
       const response = await this._eventService.eventEdit(id, data,file);
       if (response) {
-=======
-      console.log("req", req.body);
-
-      const data = req.body;
-      const id = req.params.id;
-      const response = await this._eventService.eventEdit(id, data);
-      if (response.success) {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         res.json({ success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE });
       } else {
         res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE });
@@ -264,7 +220,6 @@ if (typeof ticketTypes === "string") {
         message: MESSAGES.EVENT.FAILED_TO_UPDATE,
       });
     }
-<<<<<<< HEAD
   }*/
  async editEvent(
   req: Request<{ id: string }, unknown, EventEdit>,
@@ -338,9 +293,6 @@ if (typeof ticketTypes === "string") {
   }
 }
 
-=======
-  }
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async checkStatus(
     req: Request<unknown, unknown, object>,
     res: Response
@@ -370,25 +322,17 @@ if (typeof ticketTypes === "string") {
         : 5;
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const searchTerm = req.query.searchTerm as string;
-<<<<<<< HEAD
      
       
       const date = req.query.date as string;
       const status=req.query.status as string
-=======
-      const date = req.query.date as string;
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       const response = await this._eventService.getEvent(
         id,
         limit,
         page,
         searchTerm,
-<<<<<<< HEAD
         date,status
-=======
-        date
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       );
       console.log("response", response);
 
@@ -520,7 +464,6 @@ if (typeof ticketTypes === "string") {
       });
     }
   }
-<<<<<<< HEAD
   async findRecommended(req:AuthenticatedRequest,res:Response):Promise<void>{
     const userId=req.user?.id;
     
@@ -594,6 +537,4 @@ if (typeof ticketTypes === "string") {
       
     }
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

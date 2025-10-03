@@ -4,10 +4,7 @@ import Order, { IOrder } from "../model/order";
 import { IAdminOrderRepository } from "./repositoryInterface/IAdminOrderRepository";
 import { OrderDashboard } from "src/interface/IUser";
 import PlatformSettings from "../model/platformSettings";
-<<<<<<< HEAD
 import { IOrderDTO } from "src/interface/IOrder";
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export class AdminOrderRepository implements IAdminOrderRepository {
   async getOrdersAll(filters: {
@@ -28,11 +25,8 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       organiser = "",
       user = "",
     } = filters;
-<<<<<<< HEAD
     console.log("limit",limit);
     
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
     const skip = (page - 1) * limit;
 
@@ -52,11 +46,7 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       match.createdAt = { $gte: date, $lt: nextDay };
     }
 
-<<<<<<< HEAD
     
-=======
-    // Build aggregation pipeline
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const pipeline: PipelineStage[] = [
       {
         $lookup: {
@@ -135,35 +125,16 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     month?: string,
     year?: string
   ): Promise<OrderDashboard> {
-<<<<<<< HEAD
     
     let stDate: Date;
     let enDate: Date | undefined;
 
     
    if (startDate && endDate) {
-=======
-    /*let stDate: Date;
-  let enDate: Date | undefined;
-
-  if (startDate && endDate) {
-    stDate = new Date(startDate);
-    enDate = new Date(endDate);
-  } else {
-    const days = timeFrame === '7d' ? 7 : timeFrame === '30d' ? 30 : 90;
-    stDate = new Date();
-    stDate.setDate(stDate.getDate() - days);
-  }*/
-    let stDate: Date;
-    let enDate: Date | undefined;
-
-    if (startDate && endDate) {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       stDate = new Date(startDate);
       enDate = new Date(endDate);
     } else if (month || year) {
       const targetYear = parseInt(year ?? new Date().getFullYear().toString());
-<<<<<<< HEAD
       const targetMonth = month ? parseInt(month) : 0;
 
       stDate = new Date(targetYear, targetMonth, 1);
@@ -179,26 +150,6 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       const targetYear = parseInt(new Date().getFullYear().toString());
       stDate = new Date(targetYear, 0, 1);
       enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-=======
-
-      const targetMonth = month ? parseInt(month) : 0;
-
-      stDate = new Date(targetYear, targetMonth, 1);
-
-      if (month) {
-        enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
-      } else {
-        enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-      }
-    } else if (!month && !year) {
-      const targetYear = parseInt(new Date().getFullYear().toString());
-      stDate = new Date(targetYear, 0, 1);
-      enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-    } else {
-      const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
-      stDate = new Date();
-      stDate.setDate(stDate.getDate() - days);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     }
 
     const eventMatchCondition: Record<string, unknown> = {
@@ -211,10 +162,7 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     }
 
     const orders = await Order.aggregate([
-<<<<<<< HEAD
     
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       { $sort: { createdAt: -1 } },
       { $limit: 5 },
       {
@@ -279,10 +227,7 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
 
     const salesReport = await Order.aggregate([
-<<<<<<< HEAD
      
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       {
         $lookup: {
           from: "events",
@@ -348,7 +293,6 @@ export class AdminOrderRepository implements IAdminOrderRepository {
 
     return { orders, salesReport, totalAdminEarning };
   }
-<<<<<<< HEAD
   async getOrderDetails(orderId:string):Promise<IOrderDTO|null>{
     try {
       const order=await Order.findById(orderId).populate("userId","name email").populate({
@@ -370,6 +314,4 @@ export class AdminOrderRepository implements IAdminOrderRepository {
     }
 
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

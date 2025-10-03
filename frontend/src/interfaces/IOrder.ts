@@ -1,5 +1,4 @@
 import type { IEventDTO } from "./IEvent";
-<<<<<<< HEAD
 import type { IUser } from "./IUser";
 export interface ITicketType {
   type: string;
@@ -13,17 +12,11 @@ export interface ITicketType {
   
   
 }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 export interface IOrder{
     _id:string
 
-<<<<<<< HEAD
     userId:string|IUser;
-=======
-    userId:string;
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     eventId:string|IEventDTO;
     amount:number;
     currency:string;
@@ -38,14 +31,10 @@ export interface IOrder{
     orders?:IOrder;
     orderId:string;
     bookingStatus?:string|undefined;
-<<<<<<< HEAD
     refundId?:string;
     bookingNumber:string
     ticketTypes?:ITicketType[]
     selectedTicket?:{type:string,capacity:number,price:number,sold?:number}|null
-=======
-    refundId?:string
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
    
 }
 export interface IGetOrdersResponse {

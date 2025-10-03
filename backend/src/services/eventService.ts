@@ -11,7 +11,6 @@ import {
   EventFind,
   EventGet,
   IEventFilter,
-<<<<<<< HEAD
   Location,
   StatusCheck,
 } from "../interface/event";
@@ -26,12 +25,6 @@ import axios from "axios";
 import cloudinary from "../config/cloudinary";
 import { IEvent } from "src/model/event";
 const hf = new InferenceClient (process.env.HUGGING_API_KEY);
-=======
-  StatusCheck,
-} from "../interface/event";
-import { IEventDTO } from "src/interface/IEventDTO";
-import { MESSAGES } from "../constants/messages";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 export class EventService implements IEventService {
   constructor(private _eventRepository: IEventRepository) {}
   async eventGet(filters: IEventFilter): Promise<EventGet> {
@@ -53,7 +46,6 @@ export class EventService implements IEventService {
       return { success: false, message: "not getting events" };
     }
   }
-<<<<<<< HEAD
   async completedGet(filters: IEventFilter): Promise<EventGet> {
     try {
       const response = await this._eventRepository.getCompleted(filters);
@@ -73,8 +65,6 @@ export class EventService implements IEventService {
       return { success: false, message: "not getting events" };
     }
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async eventGetById(id: string): Promise<EventById> {
     try {
       const result = await this._eventRepository.getEventById(id);
@@ -92,7 +82,6 @@ export class EventService implements IEventService {
       return { success: false, message: MESSAGES.EVENT.FAILED_TO_FETCH };
     }
   }
-<<<<<<< HEAD
   
 
 
@@ -149,22 +138,6 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
   }
 }
 
-=======
-  async eventCreate(data: IEventDTO): Promise<CreateEvent> {
-    try {
-      const result = await this._eventRepository.createEvent(data);
-
-      if (result) {
-        return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
-      } else {
-        return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-      }
-    } catch (error) {
-      console.error(error);
-      return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-    }
-  }
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async eventDelete(id: string): Promise<CreateEvent> {
     try {
       const result = await this._eventRepository.eventDelete(id);
@@ -179,7 +152,6 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
       return { success: false, message: "failed to delete event" };
     }
   }
-<<<<<<< HEAD
   
 async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promise<IEvent| null> {
   const existingEvent = await this._eventRepository.findById(id);
@@ -219,22 +191,6 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
 }
 
 
-=======
-  async eventEdit(id: string, data: EventEdit): Promise<CreateEvent> {
-    try {
-      const result = await this._eventRepository.editEvent(id, data);
-      if (result) {
-        return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE };
-      } else {
-        return { success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE };
-      }
-    } catch (error) {
-      console.log(error);
-
-      return { success: false, message: "failed to edit event" };
-    }
-  }
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   async statusCheck(email: object): Promise<StatusCheck> {
     try {
       const result = await this._eventRepository.statusCheck(email);
@@ -253,12 +209,8 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
     limit: number,
     page: number,
     searchTerm: string,
-<<<<<<< HEAD
     date: string,
     status:string
-=======
-    date: string
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   ): Promise<EventGet> {
     try {
       const response = await this._eventRepository.eventGet(
@@ -266,11 +218,7 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
         limit,
         page,
         searchTerm,
-<<<<<<< HEAD
         date,status
-=======
-        date
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       );
 
       if (response) {
@@ -373,7 +321,6 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
       return { success: false };
     }
   }
-<<<<<<< HEAD
   async getRecommended(userId:string,filters:IEventFilter):Promise<Recommend>{
     try {
       const response=await this._eventRepository.findRecommended(userId,filters);
@@ -421,6 +368,4 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
       return{success:false}
     }
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

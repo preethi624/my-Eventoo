@@ -17,16 +17,10 @@ export class AdminUserController implements IAdminUserController {
         : 5;
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const searchTerm=typeof req.query.searchTerm==="string"?req.query.searchTerm:"";
-<<<<<<< HEAD
       const filterStatus=typeof req.query.filterStatus==="string"?req.query.filterStatus:"";
       const sortBy=typeof req.query.sortBy==="string"?req.query.sortBy:""
 
       const result = await this._adminUserService.getUsers(limit, page,searchTerm,filterStatus,sortBy);
-=======
-      const filterStatus=typeof req.query.filterStatus==="string"?req.query.filterStatus:""
-
-      const result = await this._adminUserService.getUsers(limit, page,searchTerm,filterStatus);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
       if (result.success && result.result) {
         const mappedUsers: IUserDTO[] = result.result.map(mapUserToDTO);

@@ -93,7 +93,6 @@ const orderSchema = new mongoose_1.Schema({
     },
     refundId: { type: String },
     email: { type: String },
-<<<<<<< HEAD
     bookingNumber: {
         type: String, // or Number, depending on your format
         required: true,
@@ -108,8 +107,6 @@ const orderSchema = new mongoose_1.Schema({
         price: { type: Number, required: true },
         sold: { type: Number, default: 0 },
     },
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 });
 const Order = mongoose_1.default.model("Order", orderSchema);
 exports.default = Order;

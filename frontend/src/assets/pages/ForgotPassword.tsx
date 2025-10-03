@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import  { useState } from "react";
-=======
-import React, { useState } from "react";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { useNavigate } from "react-router-dom";
 
 import { authRepository } from "../../repositories/authRepositories";
@@ -32,11 +28,8 @@ const ForgotPassword: React.FC = () => {
         setMessage("");
       }
     } catch (err) {
-<<<<<<< HEAD
       console.log(err);
 
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       setError("Something went wrong. Please try again.");
       setMessage("");
     }

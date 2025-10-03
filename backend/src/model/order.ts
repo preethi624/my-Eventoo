@@ -18,11 +18,8 @@ export interface IOrder extends Document {
 
   refundId: string;
   email: string;
-<<<<<<< HEAD
   bookingNumber:string
   selectedTicket:{type:string,capacity:number,price:number,sold?:number}
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 const orderSchema: Schema<IOrder> = new Schema<IOrder>({
   eventTitle: {
@@ -84,7 +81,6 @@ const orderSchema: Schema<IOrder> = new Schema<IOrder>({
 
   refundId: { type: String },
   email: { type: String },
-<<<<<<< HEAD
   bookingNumber: {
     type: String, // or Number, depending on your format
     required: true,
@@ -99,8 +95,6 @@ const orderSchema: Schema<IOrder> = new Schema<IOrder>({
     price: { type: Number, required: true },
     sold: { type: Number, default: 0 },
   },
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 });
 const Order = mongoose.model<IOrder>("Order", orderSchema);
 export default Order;

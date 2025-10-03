@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
-=======
-import React, { useState, useEffect } from "react";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 import type { FC, FormEvent } from "react";
 
@@ -24,10 +20,6 @@ import {
   loginUser,
   loginUserWithGoogle,
 } from "../../redux/thunk/authThunk";
-<<<<<<< HEAD
-=======
-import UserNavbar from "../components/UseNavbar";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 const backgroundImages: string[] = [
   "https://images.unsplash.com/photo-1492684223066-81342ee5ff30",
@@ -89,10 +81,6 @@ const LoginPage: FC = () => {
   }, []);
 
   useEffect(() => {
-<<<<<<< HEAD
-=======
-    
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
@@ -151,26 +139,16 @@ const LoginPage: FC = () => {
 
     if (validateForm()) {
       if (userType === "user") {
-<<<<<<< HEAD
        
         const result:ThunkResult = await dispatch(loginUser(formData));
-=======
-        let result: ThunkResult;
-        result = await dispatch(loginUser(formData));
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         if (result.success) {
           navigate("/home");
         } else {
           toast.error(result.message);
         }
       } else {
-<<<<<<< HEAD
       
         const result:ThunkResult = await dispatch(loginOrganiser(formData));
-=======
-        let result: ThunkResult;
-        result = await dispatch(loginOrganiser(formData));
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         if (result.success) {
           navigate("/dashboard");
         } else {
@@ -399,11 +377,7 @@ const LoginPage: FC = () => {
               </motion.div>
 
               <p className="mt-6 text-center text-sm text-gray-600">
-<<<<<<< HEAD
                Don&apos;t have an account?{" "}
-=======
-                Don't have an account?{" "}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 <Link
                   to="/register"
                   className="font-medium text-blue-600 hover:text-blue-500"

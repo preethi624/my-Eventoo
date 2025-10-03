@@ -33,7 +33,6 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-<<<<<<< HEAD
 /*export interface IEventImage {
   url: string;
   public_id: string | null;
@@ -137,9 +136,6 @@ const ticketTypeSchema = new mongoose_1.Schema({
     capacity: { type: Number, required: true },
     sold: { type: Number, default: 0 },
 }, { _id: false });
-=======
-const mongoose_1 = __importStar(require("mongoose"));
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 const eventSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
@@ -156,7 +152,6 @@ const eventSchema = new mongoose_1.Schema({
     time: { type: String, required: true },
     venue: { type: String, required: true },
     category: { type: String, required: true },
-<<<<<<< HEAD
     ticketTypes: {
         type: [ticketTypeSchema],
         default: [],
@@ -168,12 +163,6 @@ const eventSchema = new mongoose_1.Schema({
         default: [],
     },
     organiser: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Organiser" },
-=======
-    ticketPrice: { type: Number, required: true },
-    capacity: { type: Number, required: true },
-    images: { type: [String], default: [] },
-    organiser: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "organiser" },
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     status: {
         type: String,
         enum: ["draft", "published", "completed", "cancelled"],
@@ -184,7 +173,6 @@ const eventSchema = new mongoose_1.Schema({
     latitude: { type: Number, default: 9.9312 },
     longitude: { type: Number, default: 76.2673 },
     isBlocked: { type: Boolean, default: false },
-<<<<<<< HEAD
     embedding: [Number],
     location: {
         type: {
@@ -214,15 +202,6 @@ eventSchema.pre("save", function (next) {
     next();
 });
 eventSchema.index({ location: "2dsphere" });
-=======
-}, { timestamps: true });
-eventSchema.pre("save", function (next) {
-    if (this.isNew) {
-        this.availableTickets = this.capacity;
-    }
-    next();
-});
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 const EventModel = mongoose_1.default.model("Event", eventSchema);
 exports.default = EventModel;
 //# sourceMappingURL=event.js.map

@@ -20,10 +20,7 @@ class AdminOrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { searchTerm = "", statusFilter = "", selectedDate = "", page = 1, limit = 6, organiser = "", user = "", } = filters;
-<<<<<<< HEAD
             console.log("limit", limit);
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const skip = (page - 1) * limit;
             const match = {};
             // Filter by booking status
@@ -38,10 +35,6 @@ class AdminOrderRepository {
                 nextDay.setDate(date.getDate() + 1);
                 match.createdAt = { $gte: date, $lt: nextDay };
             }
-<<<<<<< HEAD
-=======
-            // Build aggregation pipeline
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const pipeline = [
                 {
                     $lookup: {
@@ -108,20 +101,6 @@ class AdminOrderRepository {
     getDashboardOrders(timeFrame, startDate, endDate, category, month, year) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-<<<<<<< HEAD
-=======
-            /*let stDate: Date;
-          let enDate: Date | undefined;
-        
-          if (startDate && endDate) {
-            stDate = new Date(startDate);
-            enDate = new Date(endDate);
-          } else {
-            const days = timeFrame === '7d' ? 7 : timeFrame === '30d' ? 30 : 90;
-            stDate = new Date();
-            stDate.setDate(stDate.getDate() - days);
-          }*/
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             let stDate;
             let enDate;
             if (startDate && endDate) {
@@ -132,7 +111,6 @@ class AdminOrderRepository {
                 const targetYear = parseInt(year !== null && year !== void 0 ? year : new Date().getFullYear().toString());
                 const targetMonth = month ? parseInt(month) : 0;
                 stDate = new Date(targetYear, targetMonth, 1);
-<<<<<<< HEAD
                 enDate = month
                     ? new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999)
                     : new Date(targetYear, 11, 31, 23, 59, 59, 999);
@@ -144,28 +122,10 @@ class AdminOrderRepository {
                 enDate = new Date();
             }
             else {
-=======
-                if (month) {
-                    enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
-                }
-                else {
-                    enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-                }
-            }
-            else if (!month && !year) {
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 const targetYear = parseInt(new Date().getFullYear().toString());
                 stDate = new Date(targetYear, 0, 1);
                 enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
             }
-<<<<<<< HEAD
-=======
-            else {
-                const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
-                stDate = new Date();
-                stDate.setDate(stDate.getDate() - days);
-            }
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             const eventMatchCondition = {
                 "eventDetails.status": "completed",
                 createdAt: enDate ? { $gte: stDate, $lte: enDate } : { $gte: stDate },
@@ -297,7 +257,6 @@ class AdminOrderRepository {
             return { orders, salesReport, totalAdminEarning };
         });
     }
-<<<<<<< HEAD
     getOrderDetails(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -317,8 +276,6 @@ class AdminOrderRepository {
             }
         });
     }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.AdminOrderRepository = AdminOrderRepository;
 //# sourceMappingURL=adminOrderRepository.js.map

@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-
-=======
-import React from "react";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
 interface AdminNavbarProps {
   email: string;

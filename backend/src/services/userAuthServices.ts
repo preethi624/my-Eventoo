@@ -177,11 +177,8 @@ export class UserAuthService implements IUserAuthService {
       }
 
       const { exp, iat, ...cleanPayload } = payload;
-<<<<<<< HEAD
       console.log("expired at",exp,iat);
       
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       const accessToken = this._tokenService.generateAccessToken({
         ...cleanPayload,
         role: "user",

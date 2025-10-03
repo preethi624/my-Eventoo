@@ -51,7 +51,6 @@ export class UserService implements IUserService {
       throw error;
     }
   }
-<<<<<<< HEAD
   async passwordChange(userId:string,newPass:string,currentPass:string):Promise<{success:boolean}>{
     try {
       const response=await this._userRepository.changePassword(userId,newPass,currentPass);
@@ -69,6 +68,4 @@ export class UserService implements IUserService {
     }
 
   }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }

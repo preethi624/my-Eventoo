@@ -12,14 +12,11 @@ export interface IEventController{
       getOrgEvents(req:Request,res:Response):Promise<void>
        findEvent(req:Request,res:Response):Promise<void>
         findEventsByCat(req:Request,res:Response):Promise<void>
-<<<<<<< HEAD
         findRecommended(req:Request,res:Response):Promise<void>
         findNear(req:Request,res:Response):Promise<void>
          getCompleted(req: Request, res: Response): Promise<void>
      
         
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
     
 
 }

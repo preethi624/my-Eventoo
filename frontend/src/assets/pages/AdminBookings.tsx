@@ -52,7 +52,6 @@ const AdminBookings: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [orgSearch, setOrgSearch] = useState("");
   const [userSearch, setUserSearch] = useState("");
-<<<<<<< HEAD
   const [limit, setLimit] = useState(10);
 
   useEffect(() => {
@@ -64,21 +63,6 @@ const AdminBookings: React.FC = () => {
     }, 500);
     return () => clearTimeout(handler);
   }, [searchTerm, orgSearch, userSearch]);
-=======
-
-  const limit = 10;
-
-  useEffect(() => {
-    fetchOrders();
-  }, [
-    currentPage,
-    searchTerm,
-    statusFilter,
-    selectedDate,
-    orgSearch,
-    userSearch,
-  ]);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 
   const fetchOrders = async () => {
     try {
@@ -121,11 +105,7 @@ const AdminBookings: React.FC = () => {
   };
 
   const handleDetails = async (orderId: string) => {
-<<<<<<< HEAD
     navigate(`/adminOrderDetails/${orderId}`);
-=======
-    navigate(`/orgOrderDetails/:${orderId}`);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
   };
   const handleResetFilters = () => {
     setSearchTerm("");
@@ -170,10 +150,6 @@ const AdminBookings: React.FC = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">
-<<<<<<< HEAD
-=======
-        {/* Left Sidebar with Filters */}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         <div className="w-full md:w-1/4 flex flex-col gap-4 mt-12">
           <input
             type="text"
@@ -220,7 +196,6 @@ const AdminBookings: React.FC = () => {
           </button>
         </div>
 
-<<<<<<< HEAD
         <div className="w-full md:w-3/4 bg-white shadow-md rounded p-4 overflow-x-auto">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -266,43 +241,6 @@ const AdminBookings: React.FC = () => {
               Next
             </button>
           </div>
-=======
-        {/* Right Content with Table and Pagination */}
-        <div className="w-full md:w-3/4 bg-white shadow-md rounded p-4 overflow-x-auto">
-          <DataTable data={orders} columns={orderColumns} />
-
-          {totalPage > 1 && (
-            <div className="flex justify-center mt-4 gap-2 flex-wrap">
-              <button
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-                className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPage }, (_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`px-3 py-1 rounded ${
-                    currentPage === index + 1
-                      ? "bg-black text-white"
-                      : "bg-gray-300"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPage}
-                className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          )}
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
         </div>
       </div>
     </AdminLayout>

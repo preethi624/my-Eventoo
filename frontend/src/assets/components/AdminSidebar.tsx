@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-
-=======
-import React from "react";
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 import { Link, useLocation } from "react-router-dom";
 import {
   FaHome,
@@ -11,12 +6,7 @@ import {
   FaCalendarAlt,
   FaMapMarkerAlt,
   FaTicketAlt,
-<<<<<<< HEAD
   
-=======
-  FaChartBar,
-  FaUserCircle,
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 } from "react-icons/fa";
 
 interface MenuItem {
@@ -35,20 +25,11 @@ const AdminSidebar: React.FC = () => {
     { path: "/admin/events", icon: <FaCalendarAlt />, label: "Events" },
     { path: "/admin/venues", icon: <FaMapMarkerAlt />, label: "Venues" },
     { path: "/admin/bookings", icon: <FaTicketAlt />, label: "Bookings" },
-<<<<<<< HEAD
     
   ];
 
   return (
     <div className=" min-h-screen w-64 bg-[#1a2634] text-white">
-=======
-    { path: "/admin/reports", icon: <FaChartBar />, label: "Reports" },
-    { path: "/admin/profile", icon: <FaUserCircle />, label: "Profile" },
-  ];
-
-  return (
-    <div className="min-h-screen w-64 bg-[#1a2634] text-white">
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
       <nav className="flex flex-col py-4">
         {menuItems.map((item) => (
           <Link

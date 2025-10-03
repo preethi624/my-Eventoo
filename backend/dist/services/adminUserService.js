@@ -15,17 +15,10 @@ class AdminUserService {
     constructor(_adminUserRepository) {
         this._adminUserRepository = _adminUserRepository;
     }
-<<<<<<< HEAD
     getUsers(limit, page, searchTerm, filterStatus, sortBy) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._adminUserRepository.getUserAll(limit, page, searchTerm, filterStatus, sortBy);
-=======
-    getUsers(limit, page, searchTerm, filterStatus) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const result = yield this._adminUserRepository.getUserAll(limit, page, searchTerm, filterStatus);
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
                 if (result) {
                     return {
                         result: result.users,

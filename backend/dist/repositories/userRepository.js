@@ -15,10 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
 const organiser_1 = __importDefault(require("../model/organiser"));
-<<<<<<< HEAD
 const bcrypt_1 = __importDefault(require("bcrypt"));
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 class UserRepository {
     getUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -27,11 +24,7 @@ class UserRepository {
     }
     updateUser(data, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-<<<<<<< HEAD
             const { name, phone, location, aboutMe, profileImage } = data;
-=======
-            const { name, email, phone, location, aboutMe, profileImage } = data;
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
             return yield user_1.default.findByIdAndUpdate(userId, { name, phone, location, aboutMe: aboutMe, profileImage }, { new: true });
         });
     }
@@ -46,7 +39,6 @@ class UserRepository {
             }
         });
     }
-<<<<<<< HEAD
     changePassword(userId, newPass, currentPass) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -71,8 +63,6 @@ class UserRepository {
             }
         });
     }
-=======
->>>>>>> a535fdf4047c75fc4aa927066293c6ed49b650fe
 }
 exports.UserRepository = UserRepository;
 //# sourceMappingURL=userRepository.js.map
