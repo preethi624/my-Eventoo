@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Calendar,
   MapPin,
@@ -7,6 +8,11 @@ import {
   CreditCard,
   ArrowLeft,
   AlertCircle,
+  Download,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Ticket
 } from "lucide-react";
 import { paymentRepository } from "../../repositories/paymentRepositories";
 import { useSelector } from "react-redux";
@@ -16,6 +22,8 @@ import type { RootState } from "../../redux/stroe";
 import targetLogo from "../images/target_3484438 (2).png";
 import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
+import UserNavbar from "../components/UseNavbar";
+
 const getBase64FromImage = (imgUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -42,36 +50,28 @@ const OrderDetailsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
 
- let imageSrc = "https://via.placeholder.com/300x200";
+  let imageSrc = "https://via.placeholder.com/300x200";
 
-if (order && order.eventId && typeof order.eventId !== "string") {
-  if (order.eventId.images.length > 0) {
-    const img = order.eventId.images[0];
+  if (order && order.eventId && typeof order.eventId !== "string") {
+    if (order.eventId.images.length > 0) {
+      const img = order.eventId.images[0];
 
-    if (typeof img === "string") {
-      if (img.startsWith("http")) {
-        imageSrc = img;
-      } else {
-        imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+      if (typeof img === "string") {
+        if (img.startsWith("http")) {
+          imageSrc = img;
+        } else {
+          imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+        }
+      } else if (typeof img === "object" && img.url) {
+        imageSrc = img.url;
       }
-    } else if (typeof img === "object" && img.url) {
-      imageSrc = img.url;
     }
   }
-}
-console.log("orr",order?.selectedTicket?.type);
-console.log(loading);
-
-
-
-
-
- 
-
 
   useEffect(() => {
     fetchOrderDetails();
   }, [orderId]);
+
   useEffect(() => {
     const loadRazorpayScript = () => {
       return new Promise((resolve) => {
@@ -92,12 +92,12 @@ console.log(loading);
 
     loadRazorpayScript();
   }, []);
+
   const handleDownloadTicket = async (orderId: string) => {
     const response = await paymentRepository.getTickets(orderId);
     const tickets = response.result;
     if (!tickets || tickets.length === 0) return;
 
-   
     if (!order) return;
     const logoBase64 = await getBase64FromImage(targetLogo);
 
@@ -109,16 +109,13 @@ console.log(loading);
       const logoWidth = 15;
       const logoHeight = 15;
 
-     
       doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
 
-    
       doc.setFontSize(18);
       doc.setTextColor(0);
 
-     
-      const textX = logoX + logoWidth + 5; 
-      const textY = logoY + logoHeight / 2 + 2; 
+      const textX = logoX + logoWidth + 5;
+      const textY = logoY + logoHeight / 2 + 2;
       doc.text(`${order.eventTitle}`, textX, textY);
 
       doc.setDrawColor(0);
@@ -183,7 +180,7 @@ console.log(loading);
         currency: "INR",
         name: typeof order.eventId !== "string" ? order.eventId.title : "Event",
         description: "Event Booking",
-        image:imageSrc,
+        image: imageSrc,
         order_id: order.razorpayOrderId,
         handler: async function (response: any) {
           const verificationResponse = await paymentRepository.verifyPayment({
@@ -214,178 +211,270 @@ console.log(loading);
       setError("Failed to initiate Razorpay payment");
     }
   };
-  console.log("order",order);
-  
 
-  if (error || !order) {
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "paid":
+        return <CheckCircle className="w-8 h-8" />;
+      case "created":
+        return <Clock className="w-8 h-8" />;
+      case "failed":
+        return <XCircle className="w-8 h-8" />;
+      default:
+        return <AlertCircle className="w-8 h-8" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "paid":
+        return "from-green-500 to-emerald-500";
+      case "created":
+        return "from-yellow-500 to-orange-500";
+      case "failed":
+        return "from-red-500 to-pink-500";
+      default:
+        return "from-gray-500 to-slate-500";
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-6 bg-white rounded-lg shadow-lg">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error</h2>
-          <p className="text-gray-600">{error || "Order not found"}</p>
-          <button
-            onClick={() => navigate("/my-bookings")}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Back to Orders
-          </button>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="relative">
+          <div className="w-20 h-20 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1s" }}></div>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      
-      <div className="max-w-3xl mx-auto">
-        <button
-          onClick={() => navigate("/my-bookings")}
-          className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+  if (error || !order) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative group max-w-md w-full"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Orders
-        </button>
-
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          {/* Order Status Banner */}
-          <div className={`p-4 ${getStatusBackgroundColor(order.status)}`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-white">Order Status</p>
-                <h2 className="text-2xl font-bold text-white">
-                  {getStatusDisplay(order.status)}
-                </h2>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-white">Order ID</p>
-                <p className="text-lg font-mono text-white">{order.orderId}</p>
-              </div>
-            </div>
+          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-pink-600 rounded-3xl blur-xl opacity-50"></div>
+          <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 p-12 text-center shadow-2xl">
+            <AlertCircle className="w-20 h-20 text-red-400 mx-auto mb-6" />
+            <h2 className="text-3xl font-black text-white mb-4">Error</h2>
+            <p className="text-gray-400 text-lg mb-8">{error || "Order not found"}</p>
+            <button
+              onClick={() => navigate("/my-bookings")}
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold transition-all shadow-2xl shadow-purple-500/50"
+            >
+              Back to Orders
+            </button>
           </div>
+        </motion.div>
+      </div>
+    );
+  }
 
-          {/* Event Details */}
-          <div className="p-6 border-b">
-            <div className="flex items-start">
-              <img
-                src={imageSrc}
-                alt={
-                  typeof order.eventId !== "string" ? order.eventId.title : ""
-                }
-                className="w-32 h-32 object-cover rounded-lg"
-              />
-              <div className="ml-6 flex-1">
-                <h3 className="text-xl font-bold text-gray-900">
-                  {typeof order.eventId !== "string" ? order.eventId.title : ""}
-                </h3>
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    <span>
-                      {formatDate(
-                        typeof order.eventId !== "string"
-                          ? order.eventId.date.toString()
-                          : ""
+  return (
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      <UserNavbar/>
+      {/* Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
+      </div>
+
+      {/* Floating Orbs */}
+      <div className="fixed top-20 left-10 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" />
+      <div className="fixed bottom-20 right-10 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" style={{ animationDelay: "2s" }} />
+
+      <div className="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          {/* Back Button */}
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => navigate("/my-bookings")}
+            className="flex items-center gap-3 text-gray-300 hover:text-white mb-8 transition-colors group px-6 py-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 hover:border-purple-500/50"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-semibold">Back to Orders</span>
+          </motion.button>
+
+          {/* Main Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative group"
+          >
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+
+            <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
+              
+              {/* Status Banner */}
+              <div className={`relative p-8 bg-gradient-to-r ${getStatusColor(order.status)}`}>
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    {getStatusIcon(order.status)}
+                    <div>
+                      <p className="text-sm font-semibold text-white/80 uppercase tracking-wider">Order Status</p>
+                      <h2 className="text-4xl font-black text-white mt-1">
+                        {getStatusDisplay(order.status)}
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-white/80 uppercase tracking-wider">Order ID</p>
+                    <p className="text-xl font-mono text-white font-bold mt-1">{order.orderId}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Details Section */}
+              <div className="p-8 border-b border-white/10">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="relative group/img flex-shrink-0">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-0 group-hover/img:opacity-40 transition-opacity"></div>
+                    <img
+                      src={imageSrc}
+                      alt={typeof order.eventId !== "string" ? order.eventId.title : ""}
+                      className="relative w-full md:w-48 h-48 object-cover rounded-2xl shadow-2xl"
+                    />
+                  </div>
+                  
+                  <div className="flex-1 space-y-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="text-3xl font-black text-white">
+                        {typeof order.eventId !== "string" ? order.eventId.title : ""}
+                      </h3>
+                      {order.selectedTicket?.type && (
+                        <span className="px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg whitespace-nowrap">
+                          {order.selectedTicket.type}
+                        </span>
                       )}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <MapPin className="w-5 h-5 mr-2" />
-                    <span>
-                      {typeof order.eventId !== "string"
-                        ? order.eventId.venue
-                        : ""}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <Users className="w-5 h-5 mr-2" />
-                    <span>{order.ticketCount} tickets</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                        <div className="p-2 bg-purple-500/20 rounded-lg">
+                          <Calendar className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 font-semibold uppercase">Date</p>
+                          <span className="text-white font-semibold">
+                            {formatDate(typeof order.eventId !== "string" ? order.eventId.date.toString() : "")}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                        <div className="p-2 bg-blue-500/20 rounded-lg">
+                          <MapPin className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 font-semibold uppercase">Venue</p>
+                          <span className="text-white font-semibold line-clamp-1">
+                            {typeof order.eventId !== "string" ? order.eventId.venue : ""}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                        <div className="p-2 bg-pink-500/20 rounded-lg">
+                          <Users className="w-5 h-5 text-pink-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 font-semibold uppercase">Tickets</p>
+                          <span className="text-white font-semibold">{order.ticketCount} tickets</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                        <div className="p-2 bg-green-500/20 rounded-lg">
+                          <Ticket className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 font-semibold uppercase">Amount</p>
+                          <span className="text-white font-semibold text-lg">
+                            {formatCurrency(order.amount)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center text-gray-600">
-  <span className="px-3 py-1 rounded-full text-sm font-semibold 
-    bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md">
-    {order.selectedTicket?.type}
-  </span>
-</div>
 
-              
-            </div>
-            
-          </div>
-
-          {/* Payment Details */}
-          <div className="p-6 border-b">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">
-              Payment Details
-            </h4>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Payment Method</p>
-                  <p className="font-medium text-gray-900">Online Payment</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Transaction ID</p>
-                  <p className="font-medium text-gray-900">
-                    {order.razorpayOrderId || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Amount</p>
-                  <p className="font-medium text-gray-900">
-                    {formatCurrency(order.amount)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Payment Date</p>
-                  <p className="font-medium text-gray-900">
-                    {formatDate(order.createdAt.toString())}
-                  </p>
+              {/* Payment Details */}
+              <div className="p-8 border-b border-white/10">
+                <h4 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  Payment Details
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
+                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Payment Method</p>
+                    <p className="font-bold text-white text-lg">Online Payment</p>
+                  </div>
+                  
+                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
+                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Transaction ID</p>
+                    <p className="font-mono text-white text-sm break-all">
+                      {order.razorpayOrderId || "N/A"}
+                    </p>
+                  </div>
+                  
+                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
+                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Total Amount</p>
+                    <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 text-2xl">
+                      {formatCurrency(order.amount)}
+                    </p>
+                  </div>
+                  
+                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
+                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Payment Date</p>
+                    <p className="font-semibold text-white">
+                      {formatDate(order.createdAt.toString())}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="p-6 flex justify-end space-x-4">
-            {order.status !== "paid" && (
-              <button
-                onClick={handleRepayment}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
-              >
-                <CreditCard className="w-5 h-5 mr-2" />
-                Retry Payment
-              </button>
-            )}
-            {order.status === "paid" && (
-              <button
-                onClick={() => handleDownloadTicket(order._id)}
-                className="px-6 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-              >
-              
-                Download Ticket
-              </button>
-            )}
-          </div>
+              {/* Action Buttons */}
+              <div className="p-8 flex flex-col sm:flex-row justify-end gap-4">
+                {order.status !== "paid" && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleRepayment}
+                    className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-3 shadow-2xl shadow-green-500/50"
+                  >
+                    <CreditCard className="w-5 h-5" />
+                    Retry Payment
+                  </motion.button>
+                )}
+                {order.status === "paid" && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleDownloadTicket(order._id)}
+                    className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-3 shadow-2xl shadow-purple-500/50"
+                  >
+                    <Download className="w-5 h-5" />
+                    Download Ticket
+                  </motion.button>
+                )}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
   );
-};
-
-const getStatusBackgroundColor = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "bg-green-600";
-    case "created":
-      return "bg-yellow-600";
-    case "failed":
-      return "bg-red-600";
-    default:
-      return "bg-gray-600";
-  }
 };
 
 const getStatusDisplay = (status: string) => {
@@ -417,6 +506,5 @@ const formatCurrency = (amount: number) => {
     currency: "INR",
   }).format(amount / 100);
 };
-
 
 export default OrderDetailsPage;

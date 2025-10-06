@@ -53,6 +53,7 @@ import NotificationPage from "./assets/pages/OrganiserNotification";
 import UserNotificationPage from "./assets/pages/UserNotification";
 import AdminOrderDetails from "./assets/pages/AdminOrderDetails";
 import OrganiserProfile from "./assets/pages/OrganiserProfile";
+import AboutUsPage from "./assets/pages/About";
 
 function App() {
   const dispatch = useDispatch();
@@ -106,6 +107,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
        <Route path="/completed" element={<ProtectedRoute element={<CompletedEvents/>} />} />
         <Route path="/reviews/:id" element={<ProtectedRoute element={<ReviewPage/>} />} />
+        <Route path="/about" element={<AboutUsPage/>} />
 
 
       <Route

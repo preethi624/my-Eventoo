@@ -1,4 +1,4 @@
-import  { useEffect, useState, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import { unparse } from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -24,6 +24,9 @@ import {
   Download,
   IndianRupee,
   ChevronDown,
+  Sparkles,
+  FileText,
+  Filter,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/stroe";
@@ -34,11 +37,14 @@ import type { IEventDTO } from "../../interfaces/IEvent";
 import OrganiserLayout from "../components/OrganiserLayout";
 import type { IconType } from "react-icons/lib";
 import { categoryRepository } from "../../repositories/categoryRepository";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 interface StatCardProps {
   title: string;
   value: string | number;
   icon: IconType;
+  gradient: string;
+  trend?: string;
 }
 
 const Dashboard = () => {
@@ -77,12 +83,12 @@ const Dashboard = () => {
 
   const fetchOrganiser = async () => {
     const response = await organiserRepository.getOrganiserById(organiser.id);
-    console.log("response",response);
-    
-   
+    console.log("response", response);
+
     setOrganiserData(response.result.result);
     setProfileImage(response.result.result.profileImage);
   };
+
   const months = [
     { value: "", label: "All Months" },
     { value: "0", label: "January" },
@@ -142,6 +148,7 @@ const Dashboard = () => {
     fetchEvents(selectedTimeframe, fromDate, toDate, selectedCategory);
     fetchCategories();
   }, [selectedTimeframe, selectedCategory, selectedMonth, selectedYear]);
+
   const fetchCategories = async () => {
     const response = await categoryRepository.getCategories();
     console.log("cat", response);
@@ -167,7 +174,6 @@ const Dashboard = () => {
         (a, b) =>
           new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
       )
-
       .map((order) => {
         const rawAmount = Number(order.amount);
         const totalAmount = isNaN(rawAmount) ? 0 : rawAmount / 100;
@@ -185,7 +191,6 @@ const Dashboard = () => {
           Event: order.eventTitle,
           EventDate: order.eventDate ? formatDate(order.eventDate) : "N/A",
           OrderDate: order.orderDate ? formatDate(order.orderDate) : "N/A",
-
           Quantity: order.ticketCount,
           totalAmount: `₹${order.amount / 100}`,
           AdminCommission: `₹${commission.toFixed(2)} (${adminPercentage}%)`,
@@ -193,17 +198,17 @@ const Dashboard = () => {
         };
       });
     formattedOrders.push({
-  OrderID: "",
-  Buyer: "",
-  Email: "",
-  Event: "",
-  EventDate: "",
-  OrderDate: "",
-  Quantity: "",
-  totalAmount: "",
-  AdminCommission: "",
-  OrganiserEarning: "",
-});
+      OrderID: "",
+      Buyer: "",
+      Email: "",
+      Event: "",
+      EventDate: "",
+      OrderDate: "",
+      Quantity: "",
+      totalAmount: "",
+      AdminCommission: "",
+      OrganiserEarning: "",
+    });
     formattedOrders.push({
       OrderID: "",
       Buyer: "",
@@ -230,6 +235,7 @@ const Dashboard = () => {
     link.setAttribute("download", `${filename}.csv`);
     link.click();
   };
+
   const exportToPDF = (
     orders: any[],
     filename: string,
@@ -318,7 +324,6 @@ const Dashboard = () => {
     return `${day}-${month}-${year}`;
   };
 
-  // Event type distribution for organizer's events
   const eventTypeCounts = events.reduce(
     (acc: Record<string, number>, event) => {
       acc[event.category] = (acc[event.category] || 0) + 1;
@@ -331,68 +336,118 @@ const Dashboard = () => {
     ([type, count], index) => ({
       name: type,
       value: Math.round((count / totalEvents) * 100),
-      color: ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"][index % 5],
+      color: [
+        "#3B82F6",
+        "#10B981",
+        "#F59E0B",
+        "#EF4444",
+        "#8B5CF6",
+        "#EC4899",
+        "#14B8A6",
+      ][index % 7],
     })
   );
 
-  const StatCard: FC<StatCardProps> = ({ title, value, icon: Icon }) => (
-    <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <h3 className="text-3xl font-bold text-gray-900 mt-1">{value}</h3>
-        </div>
-        <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 rounded-2xl">
-          <Icon className="text-white" size={24} />
+  const StatCard: FC<StatCardProps> = ({
+    title,
+    value,
+    icon: Icon,
+    gradient,
+    trend,
+  }) => (
+    <div className="group relative bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-slate-700/50 hover:shadow-2xl hover:border-blue-500/50 transition-all duration-500 hover:scale-[1.02] overflow-hidden">
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${gradient}`}></div>
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">
+              {title}
+            </p>
+            <h3 className="text-4xl font-bold text-white">
+              {value}
+            </h3>
+            {trend && (
+              <p className="text-emerald-400 text-sm font-semibold mt-2 flex items-center gap-1">
+                <TrendingUp size={14} />
+                {trend}
+              </p>
+            )}
+          </div>
+          <div className={`${gradient} p-4 rounded-2xl shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+            <Icon className="text-white" size={28} />
+          </div>
         </div>
       </div>
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
     </div>
   );
 
   return (
     <OrganiserLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center">
-            <img
-              src={
-                profileImage
-                  ? `http://localhost:3000/uploads/${profileImage}`
-                  : "https://dummyimage.com/128x128/cccccc/ffffff&text=Organiser"
-              }
-              alt={organiserData.name}
-              className="w-16 h-16 rounded-full border-4 border-white shadow-lg mr-4"
-            />
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-1">
-                My Events Dashboard
-              </h1>
-              <p className="text-gray-600">
-                Welcome back, {organiserData.name}! Here are your event
-                insights.
-              </p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        {/* Modern Dark Header */}
+        <div className="relative overflow-hidden border-b border-slate-700/50">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>
+          
+          <div className="relative max-w-7xl mx-auto px-6 py-8">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                  <img
+                    src={
+                      profileImage
+                        ? `http://localhost:3000/uploads/${profileImage}`
+                        : "https://dummyimage.com/128x128/cccccc/ffffff&text=Organiser"
+                    }
+                    alt={organiserData.name}
+                    className="relative w-20 h-20 rounded-full border-4 border-slate-700 shadow-2xl object-cover"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-slate-800 shadow-lg"></div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h1 className="text-4xl font-bold text-white">
+                      Dashboard
+                    </h1>
+                    <Sparkles className="text-yellow-400 animate-pulse" size={24} />
+                  </div>
+                  <p className="text-gray-400 text-lg">
+                    Welcome back, <span className="font-semibold text-blue-400">{organiserData.name}</span>! 
+                    <span className="ml-2">🚀</span>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Calendar className="text-white" size={20} />
+        <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+          {/* Dark Filters Section */}
+          <div className="bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-slate-700/50 hover:border-blue-500/30 transition-all duration-500">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur opacity-50"></div>
+                <div className="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Filter className="text-white" size={22} />
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-800">
-                Time Period Filters
-              </h3>
+              <div>
+                <h3 className="text-2xl font-bold text-white">Smart Filters</h3>
+                <p className="text-gray-400 text-sm">Customize your data view</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Month Filter */}
+            {/* Month & Year Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-700 tracking-wide uppercase">
+                <label className="block text-sm font-bold text-gray-300 tracking-wide uppercase flex items-center gap-2">
+                  <Calendar size={16} className="text-blue-400" />
                   Select Month
                 </label>
                 <div className="relative group">
                   <select
-                    className="w-full bg-white/90 backdrop-blur-sm border-2 border-gray-200/60 rounded-2xl px-6 py-4 text-gray-800 font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 appearance-none cursor-pointer hover:border-blue-400 hover:shadow-lg group-hover:bg-white"
+                    className="w-full bg-slate-700/50 border-2 border-slate-600/50 rounded-2xl px-6 py-4 text-white font-medium focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-300 appearance-none cursor-pointer hover:border-blue-400 hover:bg-slate-700"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                   >
@@ -403,22 +458,22 @@ const Dashboard = () => {
                     ))}
                   </select>
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                      <ChevronDown className="text-white" size={14} />
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <ChevronDown className="text-white" size={16} />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Year Filter */}
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-700 tracking-wide uppercase">
+                <label className="block text-sm font-bold text-gray-300 tracking-wide uppercase flex items-center gap-2">
+                  <Calendar size={16} className="text-purple-400" />
                   Select Year
                 </label>
                 <div className="relative group">
                   <input
                     type="number"
-                    className="w-full bg-white/90 backdrop-blur-sm border-2 border-gray-200/60 rounded-2xl px-6 py-4 text-gray-800 font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:border-blue-400 hover:shadow-lg group-hover:bg-white placeholder-gray-400"
+                    className="w-full bg-slate-700/50 border-2 border-slate-600/50 rounded-2xl px-6 py-4 text-white font-medium focus:ring-4 focus:ring-purple-500/30 focus:border-purple-500 transition-all duration-300 hover:border-purple-400 hover:bg-slate-700 placeholder-gray-500"
                     placeholder="e.g. 2025"
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
@@ -426,54 +481,38 @@ const Dashboard = () => {
                     max="2099"
                   />
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center shadow-md opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
-                      <Calendar className="text-white" size={12} />
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                      <Calendar className="text-white" size={14} />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Decorative gradient line */}
-            <div className="mt-6 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-20"></div>
-          </div>
-
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 mt-10 ">
-            <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-              <div className="flex gap-3 items-center">
-                <label className="text-sm">From:</label>
+            {/* Date Range & Quick Filters */}
+            <div className="flex flex-wrap gap-4 items-end">
+              <div className="flex-1 min-w-[200px] space-y-2">
+                <label className="text-sm font-semibold text-gray-300">From Date</label>
                 <input
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="border px-2 py-1 rounded"
+                  className="w-full bg-slate-700/50 border-2 border-slate-600/50 rounded-xl px-4 py-3 text-white focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                 />
+              </div>
 
-                <label className="text-sm ml-2">To:</label>
+              <div className="flex-1 min-w-[200px] space-y-2">
+                <label className="text-sm font-semibold text-gray-300">To Date</label>
                 <input
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="border px-2 py-1 rounded"
+                  className="w-full bg-slate-700/50 border-2 border-slate-600/50 rounded-xl px-4 py-3 text-white focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                 />
-
-                <button
-                  onClick={() =>
-                    fetchEvents(
-                      selectedTimeframe,
-                      fromDate,
-                      toDate,
-                      selectedCategory
-                    )
-                  }
-                  className="bg-blue-500  text-white px-4 py-1 rounded hover:bg-blue-700 text-sm ml-2"
-                >
-                  Apply
-                </button>
               </div>
 
               <select
-                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="px-5 py-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 font-medium hover:border-blue-400 transition-all text-white min-w-[150px]"
                 value={selectedTimeframe}
                 onChange={(e) => setSelectedTimeframe(e.target.value)}
               >
@@ -481,10 +520,11 @@ const Dashboard = () => {
                 <option value="30d">Last 30 days</option>
                 <option value="90d">Last 90 days</option>
               </select>
+
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="px-5 py-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-500 font-medium hover:border-purple-400 transition-all text-white min-w-[180px]"
               >
                 <option value="">All Categories</option>
                 {availableCategories.map(
@@ -495,62 +535,87 @@ const Dashboard = () => {
                   )
                 )}
               </select>
+
               <button
-                className="bg-blue-500 text-white px-6 py-1 rounded-xl hover:bg-blue-700 transition-colors flex items-center"
+                onClick={() =>
+                  fetchEvents(
+                    selectedTimeframe,
+                    fromDate,
+                    toDate,
+                    selectedCategory
+                  )
+                }
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Apply Filters
+              </button>
+            </div>
+
+            {/* Export Buttons */}
+            <div className="flex gap-4 mt-6 pt-6 border-t border-slate-700/50">
+              <button
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-4 rounded-2xl hover:from-emerald-700 hover:to-teal-800 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
                 onClick={() =>
                   exportToCSV(orders, "dashboard_report", adminPercentage)
                 }
               >
-                <Download size={16} className="mr-2" />
-                Export Sales Report
+                <FileText size={20} />
+                Export CSV Report
               </button>
               <button
-                className="bg-blue-500 text-white px-6 py-.2 rounded-xl hover:bg-red-700 transition-colors flex items-center"
+                className="flex-1 bg-gradient-to-r from-rose-600 to-pink-700 text-white px-6 py-4 rounded-2xl hover:from-rose-700 hover:to-pink-800 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
                 onClick={() =>
                   exportToPDF(orders, "dashboard_report", adminPercentage)
                 }
               >
-                <Download size={16} className="mr-2" />
+                <Download size={20} />
                 Export PDF Report
               </button>
             </div>
+
+            <div className="mt-6 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-50"></div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard
-              title="My Total Events"
+              title="Total Events"
               value={totalEvents.toString()}
               icon={Calendar}
+              gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+              trend="+12% this month"
             />
             <StatCard
               title="Total Attendees"
               value={totalAttendees.toLocaleString()}
               icon={Users}
+              gradient="bg-gradient-to-br from-purple-500 to-purple-600"
+              trend="+8% this month"
             />
             <StatCard
-              title="My Revenue"
-              value={`₹${organiserEarning.toFixed(1)}`}
+              title="Revenue Earned"
+              value={`₹${organiserEarning.toLocaleString()}`}
               icon={IndianRupee}
+              gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
+              trend="+23% this month"
             />
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Revenue Chart */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+            <div className="lg:col-span-2 bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-slate-700/50 hover:border-blue-500/30 transition-all duration-500">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  My Revenue Overview
-                </h3>
-                <div className="flex items-center space-x-2">
-                  <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                  <span className="text-sm text-gray-600">
-                    Revenue from my events
-                  </span>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Revenue Analytics</h3>
+                  <p className="text-gray-400 text-sm">Track your earnings over time</p>
+                </div>
+                <div className="flex items-center gap-3 bg-blue-500/20 px-4 py-2 rounded-full border border-blue-500/30">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-semibold text-blue-400">Live Data</span>
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={320}>
                 <AreaChart
                   data={revenueData.map((d) => ({
                     ...(d as { month: string; revenue: number }),
@@ -565,19 +630,28 @@ const Dashboard = () => {
                       x2="0"
                       y2="1"
                     >
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="month" stroke="#666" />
-                  <YAxis stroke="#666" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#9CA3AF"
+                    style={{ fontSize: '12px', fontWeight: 600 }}
+                  />
+                  <YAxis 
+                    stroke="#9CA3AF"
+                    style={{ fontSize: '12px', fontWeight: 600 }}
+                  />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "white",
-                      border: "none",
-                      borderRadius: "12px",
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #475569",
+                      borderRadius: "16px",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                      padding: "12px 16px",
+                      color: "#fff"
                     }}
                   />
                   <Area
@@ -592,21 +666,22 @@ const Dashboard = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Event Types */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                My Event Types
-              </h3>
+            {/* Event Types Pie Chart */}
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-slate-700/50 hover:border-purple-500/30 transition-all duration-500">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-white mb-1">Event Distribution</h3>
+                <p className="text-gray-400 text-sm">By category</p>
+              </div>
               {eventTypeData.length > 0 ? (
                 <>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <PieChart>
                       <Pie
                         data={eventTypeData}
                         cx="50%"
                         cy="50%"
                         innerRadius={60}
-                        outerRadius={120}
+                        outerRadius={100}
                         paddingAngle={5}
                         dataKey="value"
                       >
@@ -614,25 +689,32 @@ const Dashboard = () => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: "#1e293b",
+                          border: "1px solid #475569",
+                          borderRadius: "12px",
+                          color: "#fff"
+                        }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-6 space-y-3">
                     {eventTypeData.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between"
+                        className="flex items-center justify-between p-3 bg-slate-700/30 rounded-xl hover:bg-slate-700/50 transition-all border border-slate-600/30"
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
                           <div
-                            className={`w-3 h-3 rounded-full mr-3`}
+                            className="w-4 h-4 rounded-full shadow-md"
                             style={{ backgroundColor: item.color }}
                           ></div>
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm font-semibold text-gray-200">
                             {item.name}
                           </span>
                         </div>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-bold text-white bg-slate-700/50 px-3 py-1 rounded-full">
                           {item.value}%
                         </span>
                       </div>
@@ -642,126 +724,183 @@ const Dashboard = () => {
               ) : (
                 <div className="flex items-center justify-center h-64 text-gray-500">
                   <div className="text-center">
-                    <Calendar size={48} className="mx-auto mb-4 opacity-50" />
-                    <p>No events created yet</p>
-                    <p className="text-sm">
-                      Create your first event to see analytics
-                    </p>
+                    <Calendar size={48} className="mx-auto mb-4 opacity-30" />
+                    <p className="font-semibold text-gray-400">No events yet</p>
+                    <p className="text-sm text-gray-500">Create your first event</p>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Upcoming Events & Top Performers */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Upcoming Events */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-slate-700/50 hover:border-blue-500/30 transition-all duration-500">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  My Upcoming Events
-                </h3>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Upcoming Events</h3>
+                  <p className="text-gray-400 text-sm">Your scheduled events</p>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Calendar className="text-white" size={20} />
+                </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 {upcomingEvents.length > 0 ? (
                   upcomingEvents.map((event) => (
                     <div
                       key={event._id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
+                      className="group relative bg-slate-700/30 rounded-2xl p-5 hover:bg-slate-700/50 transition-all duration-300 border border-slate-600/30 hover:border-blue-500/50"
                     >
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">
-                          {event.title}
-                        </h4>
-                        <div className="flex items-center text-sm text-gray-600 mt-1">
-                          <Calendar size={14} className="mr-1" />
-                          <span>{formatDate(event.date.toString())}</span>
-                          <Clock size={14} className="ml-3 mr-1" />
-                          <span>{event.time}</span>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-bold text-white text-lg mb-3 group-hover:text-blue-400 transition-colors">
+                            {event.title}
+                          </h4>
+                          <div className="space-y-2">
+                            <div className="flex items-center text-sm text-gray-300">
+                              <div className="w-8 h-8 bg-slate-600/50 rounded-lg flex items-center justify-center mr-2">
+                                <Calendar size={14} className="text-blue-400" />
+                              </div>
+                              <span className="font-medium">{formatDate(event.date.toString())}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-300">
+                              <div className="w-8 h-8 bg-slate-600/50 rounded-lg flex items-center justify-center mr-2">
+                                <Clock size={14} className="text-purple-400" />
+                              </div>
+                              <span className="font-medium">{event.time}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-300">
+                              <div className="w-8 h-8 bg-slate-600/50 rounded-lg flex items-center justify-center mr-2">
+                                <MapPin size={14} className="text-pink-400" />
+                              </div>
+                              <span className="font-medium">{event.venue}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center text-sm text-gray-600 mt-1">
-                          <MapPin size={14} className="mr-1" />
-                          <span>{event.venue}</span>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-emerald-400 mb-2">
+                            ₹{(event.ticketPrice ?? event.ticketTypes[0]?.price ?? 0).toLocaleString()}
+                          </div>
+                          <div
+                            className={`inline-block px-4 py-2 rounded-full text-xs font-bold shadow-md ${
+                              event.status === "published"
+                                ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white"
+                                : "bg-gradient-to-r from-yellow-500 to-orange-600 text-white"
+                            }`}
+                          >
+                            {event.status}
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                       
-                        <div className="text-sm text-green-600 font-medium">
-  ₹{(event.ticketPrice ?? event.ticketTypes[0]?.price ?? 0).toLocaleString()}
-</div>
-                        <div
-                          className={`inline-block px-2 py-1 rounded-full text-xs mt-1 ${
-                            event.status === "published"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {event.status}
-                        </div>
-                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Calendar size={48} className="mx-auto mb-4 opacity-50" />
-                    <p>No upcoming events</p>
-                    <p className="text-sm">
-                      Create your next event to see it here
-                    </p>
+                  <div className="text-center py-16 text-gray-500">
+                    <div className="w-20 h-20 bg-slate-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Calendar size={40} className="text-gray-600" />
+                    </div>
+                    <p className="font-semibold text-lg text-gray-400">No upcoming events</p>
+                    <p className="text-sm mt-2 text-gray-500">Create your next event to see it here</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Top Performing Events */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                My Top Performing Events
-              </h3>
-              <div className="space-y-4">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-slate-700/50 hover:border-yellow-500/30 transition-all duration-500">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Top Performers</h3>
+                  <p className="text-gray-400 text-sm">Best earning events</p>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <TrendingUp className="text-white" size={20} />
+                </div>
+              </div>
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 {topEvents.length > 0 ? (
                   topEvents.map((event, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-4 border border-gray-200 rounded-2xl hover:border-blue-300 transition-colors"
+                      className="group relative bg-slate-700/30 rounded-2xl p-5 hover:bg-slate-700/50 transition-all duration-300 border border-slate-600/30 hover:border-yellow-500/50"
                     >
-                      <div className="flex items-center">
-                        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl w-10 h-10 flex items-center justify-center font-bold mr-4">
-                          {index + 1}
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="relative">
+                            <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                              {index + 1}
+                            </div>
+                            {index === 0 && (
+                              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
+                                <span className="text-xs">👑</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-bold text-white text-base mb-1 group-hover:text-orange-400 transition-colors">
+                              {event.title}
+                            </h4>
+                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                              <Users size={12} />
+                              <span>{event.ticketsSold} tickets sold</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900">
-                            {event.title}
-                          </h4>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-emerald-400">
+                            ₹
+                            {(
+                              event.ticketPrice * event.ticketsSold -
+                              (event.ticketPrice *
+                                event.ticketsSold *
+                                adminPercentage) /
+                                100
+                            ).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-400 font-medium mt-1">
+                            Your earnings
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-semibold text-green-600">
-                          ₹
-                          {(
-                            event.ticketPrice * event.ticketsSold -
-                            (event.ticketPrice *
-                              event.ticketsSold *
-                              adminPercentage) /
-                              100
-                          ).toLocaleString()}
-                        </div>
-                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <TrendingUp size={48} className="mx-auto mb-4 opacity-50" />
-                    <p>No performance data yet</p>
-                    <p className="text-sm">
-                      Host some events to see top performers
-                    </p>
+                  <div className="text-center py-16 text-gray-500">
+                    <div className="w-20 h-20 bg-slate-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <TrendingUp size={40} className="text-gray-600" />
+                    </div>
+                    <p className="font-semibold text-lg text-gray-400">No performance data</p>
+                    <p className="text-sm mt-2 text-gray-500">Host events to see top performers</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Custom Scrollbar Styles */}
+        <style>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb, #7c3aed);
+          }
+        `}</style>
       </div>
+      <OrganiserFooter/>
     </OrganiserLayout>
   );
 };

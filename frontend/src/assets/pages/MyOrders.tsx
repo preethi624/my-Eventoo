@@ -8,17 +8,20 @@ import {
   Filter,
   Download,
   Eye,
-  MoreVertical,
+
   AlertCircle,
-  Loader2,
+  
   XCircle,
+  Bookmark,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  X,
 } from "lucide-react";
 import { paymentRepository } from "../../repositories/paymentRepositories";
-
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/stroe";
 import UserNavbar from "../components/UseNavbar";
-import { Bookmark } from "lucide-react";
 import type { IGetOrdersResponse, IOrder } from "../../interfaces/IOrder";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
@@ -26,6 +29,7 @@ import { jsPDF } from "jspdf";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import targetLogo from "../images/target_3484438 (2).png";
+import Footer from "../components/Footer";
 
 const getBase64FromImage = (imgUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -56,12 +60,14 @@ const MyOrderPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [debounceSearch, setDebounceSearch] = useState(searchTerm);
   const [refundId, setRefundId] = useState("");
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 5;
 
   const user = useSelector((state: RootState) => state.auth.user);
+  console.log(refundId);
+  
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounceSearch(searchTerm);
@@ -82,25 +88,19 @@ const MyOrderPage: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-
       const userId = user?.id;
-
       if (!userId) {
         throw new Error("userId not present");
       }
-
       const response: IGetOrdersResponse = await paymentRepository.getOrders(
         userId,
         currentPage,
         limit,
         params.toString()
       );
-      console.log("response", response);
-
       if (!response.success) {
         throw new Error("Failed to fetch orders");
       }
-
       if (response.order) {
         setOrders(response.order.orders);
         setTotalPages(response.order.totalPages);
@@ -111,6 +111,7 @@ const MyOrderPage: React.FC = () => {
       setLoading(false);
     }
   };
+
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -126,11 +127,13 @@ const MyOrderPage: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
-        return "bg-green-100 text-green-800";
+        return "bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/30";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 border border-yellow-500/30";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-400 border border-red-500/30";
+      default:
+        return "bg-white/5 text-gray-400 border border-white/10";
     }
   };
 
@@ -146,8 +149,7 @@ const MyOrderPage: React.FC = () => {
         return status;
     }
   };
-  console.log(refundId);
-  
+
   const getBookingStatusDisplay = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -155,7 +157,7 @@ const MyOrderPage: React.FC = () => {
       case "pending":
         return "Pending";
       case "cancelled":
-        return "cancelled";
+        return "Cancelled";
       default:
         return status;
     }
@@ -180,22 +182,17 @@ const MyOrderPage: React.FC = () => {
     let imageSrc = "https://via.placeholder.com/300x200";
     if (order && order.eventDetails && order.eventDetails.images.length > 0) {
       const img = order.eventDetails.images[0];
-
       if (typeof img === "string") {
         if (img.startsWith("http")) {
-          return imageSrc=img;
+          return (imageSrc = img);
         } else {
-          return imageSrc=`http://localhost:3000/${img.replace(
-            /\\/g,
-            "/"
-          )}`;
+          return (imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`);
         }
       } else if (typeof img === "object" && img.url) {
-        // Case 2: if Mongo stores { url: "..." }
-        return imageSrc= img.url;
+        return (imageSrc = img.url);
       }
     }
-    return imageSrc
+    return imageSrc;
   };
 
   const handleCancelBooking = async (orderId: string) => {
@@ -216,32 +213,18 @@ const MyOrderPage: React.FC = () => {
         if (response.success) {
           setRefundId(response.refund.response.refundId);
           fetchOrders();
-
-          MySwal.fire(
-            <p>Cancelled!</p>,
-            <p>Your booking has been cancelled.</p>,
-            "success"
-          );
+          MySwal.fire(<p>Cancelled!</p>, <p>Your booking has been cancelled.</p>, "success");
         } else {
           MySwal.fire(<p>Failed</p>, <p>{response.message}</p>, "success");
         }
       } else {
-        MySwal.fire(
-          <p>Safe!</p>,
-          <p>Your booking is not cancelled.</p>,
-          "info"
-        );
+        MySwal.fire(<p>Safe!</p>, <p>Your booking is not cancelled.</p>, "info");
       }
     } catch (error) {
-      console.log(error);
-      MySwal.fire(
-        <p>Error</p>,
-        <p>Something went wrong while cancelling the booking.</p>,
-        "error"
-      );
+      MySwal.fire(<p>Error</p>, <p>Something went wrong while cancelling the booking.</p>, "error");
     }
   };
-  
+
   const handleDownloadTicket = async (orderId: string) => {
     const response = await paymentRepository.getTickets(orderId);
     const tickets = response.result;
@@ -259,16 +242,12 @@ const MyOrderPage: React.FC = () => {
       const logoWidth = 15;
       const logoHeight = 15;
 
-      // Draw logo
       doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
-
-      // Set font for title
       doc.setFontSize(18);
       doc.setTextColor(0);
 
-     
-      const textX = logoX + logoWidth + 5; 
-      const textY = logoY + logoHeight / 2 + 2; 
+      const textX = logoX + logoWidth + 5;
+      const textY = logoY + logoHeight / 2 + 2;
       doc.text(`${order.eventTitle}`, textX, textY);
 
       doc.setDrawColor(0);
@@ -278,11 +257,7 @@ const MyOrderPage: React.FC = () => {
       doc.setTextColor(40, 40, 40);
       doc.setFont("helvetica", "normal");
       doc.text(`Event: ${order.eventTitle}`, 20, 65);
-      doc.text(
-        `Date: ${formatDate(order.eventDetails?.date.toString())}`,
-        20,
-        75
-      );
+      doc.text(`Date: ${formatDate(order.eventDetails?.date.toString())}`, 20, 75);
       doc.text(`Venue: ${order.eventDetails?.venue}`, 20, 85);
       doc.text(`Order ID: ${order.orderId}`, 20, 95);
       doc.text(`Tickets: ${order.ticketCount}`, 20, 105);
@@ -306,10 +281,13 @@ const MyOrderPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Loading your orders...</p>
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto" style={{ animationDirection: "reverse", animationDuration: "1.5s" }}></div>
+          </div>
+          <p className="text-gray-400 text-lg">Loading your orders...</p>
         </div>
       </div>
     );
@@ -317,16 +295,16 @@ const MyOrderPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Error Loading Orders
-          </h3>
-          <p className="text-gray-600 mb-4">{error}</p>
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
+            <AlertCircle className="w-10 h-10 text-red-400" />
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-3">Error Loading Orders</h3>
+          <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={fetchOrders}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/50 transition-all"
           >
             Try Again
           </button>
@@ -336,332 +314,318 @@ const MyOrderPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 ">
+    <div className="min-h-screen bg-black">
       <UserNavbar />
-      <div className="mb-8 pt-20">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
-        <p className="text-gray-600">Track and manage your event bookings</p>
-      </div>
-
-      {/* Search and Filter Bar */}
-      <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search orders by event name or order ID..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-3">
-            <select
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-            >
-              <Filter className="w-5 h-5" />
-              Filter
-            </button>
-          </div>
+      
+      {/* Hero Header */}
+      <div className="relative pt-28 pb-16 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(120,119,198,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(120,119,198,0.03)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          
+          <h1 className="text-5xl md:text-7xl font-black text-white mb-4">
+            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Bookings</span>
+          </h1>
+          <p className="text-xl text-gray-400">Track and manage your event experiences</p>
         </div>
       </div>
 
-      {/* Orders List */}
-      <div className="space-y-4">
-        {orders.map((order) => (
-          <div
-            key={order._id}
-            className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow"
-          >
-            <div className="p-6">
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Event Image */}
-                <div className="flex-shrink-0 relative">
-                  <img
-                    src={getEventImage(order)}
-                    alt={order.eventTitle}
-                    className="w-full lg:w-48 h-32 object-cover rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
-                    }}
-                  />
-                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
-                    {order.bookingNumber}
+      <div className="max-w-7xl mx-auto px-4 pb-16">
+        {/* Search and Filter Bar */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition"></div>
+              <div className="relative flex items-center bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                <Search className="absolute left-4 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search by event name or order ID..."
+                  className="w-full pl-12 pr-4 py-4 bg-transparent text-white placeholder-gray-500 focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <select
+                className="px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none cursor-pointer hover:bg-white/10 transition-all"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all" className="bg-black">All Status</option>
+                <option value="confirmed" className="bg-black">Confirmed</option>
+                <option value="pending" className="bg-black">Pending</option>
+                <option value="cancelled" className="bg-black">Cancelled</option>
+              </select>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="px-6 py-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 flex items-center gap-2 text-white transition-all"
+              >
+                <Filter className="w-5 h-5" />
+                Filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Orders List */}
+        <div className="space-y-6">
+          {orders.map((order, index) => (
+            <div
+              key={order._id}
+              className="group bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 hover:border-purple-500/50 overflow-hidden transition-all duration-500 hover:scale-[1.02]"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="p-6 md:p-8">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Event Image */}
+                  <div className="flex-shrink-0 relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition"></div>
+                    <div className="relative">
+                      <img
+                        src={getEventImage(order)}
+                        alt={order.eventTitle}
+                        className="w-full lg:w-56 h-40 object-cover rounded-2xl"
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop&auto=format";
+                        }}
+                      />
+                      <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg backdrop-blur-xl">
+                        #{order.bookingNumber}
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {/* Order Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                        {order.eventTitle}
-                      </h3>
-                      <p className="text-sm text-gray-500 mb-2">
-                        Order ID: {order.orderId}
-                      </p>
-                      <p className="text-sm text-gray-500 mb-2">
-                        Booking Number: {order.bookingNumber}
-                      </p>
-
-                      <p className="text-sm text-gray-500 mb-2">
-                        Razorpay ID: {order.razorpayOrderId}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                        {order.eventDetails?.date && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            {formatDate(order.eventDetails.date.toString())}
+                  {/* Order Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-6">
+                      <div className="flex-1">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-blue-400 transition-all">
+                          {order.eventTitle}
+                        </h3>
+                        <div className="flex flex-wrap gap-3 text-sm text-gray-400 mb-4">
+                          <span className="flex items-center gap-1">
+                            <span className="text-purple-400">Order ID:</span> {order.orderId}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span className="text-blue-400">Razorpay:</span> {order.razorpayOrderId}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                          {order.eventDetails?.date && (
+                            <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg">
+                              <Calendar className="w-4 h-4 text-purple-400" />
+                              {formatDate(order.eventDetails.date.toString())}
+                            </div>
+                          )}
+                          {order.eventDetails?.venue && (
+                            <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg">
+                              <MapPin className="w-4 h-4 text-pink-400" />
+                              <span className="truncate max-w-[200px]">{order.eventDetails.venue}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg">
+                            <Bookmark className="w-4 h-4 text-blue-400" />
+                            {formatDate(order.createdAt.toString())}
                           </div>
-                        )}
-                        {order.eventDetails?.venue && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
-                            {order.eventDetails.venue}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Bookmark className="w-4 h-4" />
-                          {formatDate(order.createdAt.toString())}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          order.bookingStatus || ""
-                        )}`}
-                      >
-                        {getBookingStatusDisplay(order.bookingStatus || "")}
-                      </span>
-                      <button className="p-2 hover:bg-gray-100 rounded-full">
-                        <MoreVertical className="w-5 h-5 text-gray-400" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Ticket Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Payment Status</p>
-                      <p className="font-medium">
-                        {getStatusDisplay(order.status)}
-                      </p>
-                    </div>
-                    {order.status === "refunded" && (
-                      <p>Refund ID: {order.refundId}</p>
-                    )}
-
-                   {/*} <div>
-                      <p className="text-sm text-gray-500">Tickets</p>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">
-                          {order.ticketCount} ticket
-                          {order.ticketCount > 1 ? "s" : ""}
+                      <div className="flex items-center gap-3 mt-4 md:mt-0">
+                        <span className={`px-4 py-2 rounded-xl text-sm font-bold ${getStatusColor(order.bookingStatus || "")}`}>
+                          {getBookingStatusDisplay(order.bookingStatus || "")}
                         </span>
                       </div>
-                    </div>*/}
-                    <div>
-  <p className="text-sm text-gray-500">Tickets</p>
-  <div className="flex flex-col">
-    {/* Ticket count (existing) */}
-    <div className="flex items-center gap-1">
-      <Users className="w-4 h-4 text-gray-400" />
-      <span className="font-medium">
-        {order.ticketCount} {order.ticketCount > 1 ? "Tickets" : "Ticket"}
-      </span>
-      {order.eventDetails.ticketTypes && (
-      <span
-    className={`inline-block px-3 py-1 text-xs font-bold rounded-full mt-1 self-start shadow-md
-      ${
-        order?.selectedTicket?.type === "VIP"
-          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border border-purple-600"
-          : ""
-      }
-      ${
-        order?.selectedTicket?.type === "Premium"
-          ? "bg-gradient-to-r from-blue-500 to-cyan-400 text-white border border-blue-600"
-          : ""
-      }
-      ${
-        order?.selectedTicket?.type === "Economic"
-          ? "bg-gradient-to-r from-green-500 to-lime-400 text-white border border-green-600"
-          : ""
-      }
-    `}
-  >
-        {order.selectedTicket?.type ?? "No type"}
-      </span>
-    )}
-    </div>
-
-    {/* Ticket type (new, with badge) */}
-    
-  </div>
-</div>
-
-                    <div>
-                    
-                      <p className="text-sm text-gray-500">Total Amount</p>
-                      <p className="font-semibold text-lg text-green-600">
-                        {formatCurrency(order.amount, order.currency)}
-                      </p>
                     </div>
-                  </div>
 
-                  {/* Payment Info */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <CreditCard className="w-4 h-4" />
-                        Razorpay
+                    {/* Ticket Info Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p className="text-xs text-gray-500 mb-1">Payment Status</p>
+                        <p className="font-semibold text-white flex items-center gap-2">
+                          {order.status === "paid" && <CheckCircle className="w-4 h-4 text-green-400" />}
+                          {order.status === "created" && <Clock className="w-4 h-4 text-yellow-400" />}
+                          {order.status === "failed" && <X className="w-4 h-4 text-red-400" />}
+                          {getStatusDisplay(order.status)}
+                        </p>
+                        {order.status === "refunded" && (
+                          <p className="text-xs text-gray-400 mt-1">Refund ID: {order.refundId}</p>
+                        )}
                       </div>
 
-                      {order.razorpayPaymentId && (
-                        <span className="text-xs">
-                          Payment ID: {order.razorpayPaymentId.slice(-8)}
-                        </span>
-                      )}
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p className="text-xs text-gray-500 mb-1">Tickets</p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-purple-400" />
+                            <span className="font-semibold text-white">
+                              {order.ticketCount} {order.ticketCount > 1 ? "Tickets" : "Ticket"}
+                            </span>
+                          </div>
+                          {order.eventDetails.ticketTypes && order.selectedTicket?.type && (
+                            <span
+                              className={`px-3 py-1 text-xs font-bold rounded-full shadow-md
+                                ${order.selectedTicket.type === "VIP" ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white" : ""}
+                                ${order.selectedTicket.type === "Premium" ? "bg-gradient-to-r from-blue-500 to-cyan-400 text-white" : ""}
+                                ${order.selectedTicket.type === "Economic" ? "bg-gradient-to-r from-green-500 to-lime-400 text-white" : ""}
+                              `}
+                            >
+                              {order.selectedTicket.type}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p className="text-xs text-gray-500 mb-1">Total Amount</p>
+                        <p className="font-bold text-2xl bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                          {formatCurrency(order.amount, order.currency)}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2">
-                      {order.status === "paid" && (
-                        <button
-                          onClick={() => handleCancelBooking(order._id)}
-                          className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg flex items-center gap-2 text-sm"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Cancel Booking
-                        </button>
-                      )}
-                      <Link
-                        to={`/order/${order._id}`}
-                        className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2 text-sm"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </Link>
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 text-sm text-gray-400">
+                        <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg">
+                          <CreditCard className="w-4 h-4" />
+                          <span>Razorpay</span>
+                        </div>
+                        {order.razorpayPaymentId && (
+                          <span className="text-xs bg-white/5 px-3 py-2 rounded-lg">
+                            ID: {order.razorpayPaymentId.slice(-8)}
+                          </span>
+                        )}
+                      </div>
 
-                      {order.status === "paid" && (
-                        <button
-                          onClick={() => handleDownloadTicket(order._id)}
-                          className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg flex items-center gap-2 text-sm"
+                      <div className="flex items-center gap-3">
+                        {order.status === "paid" && (
+                          <button
+                            onClick={() => handleCancelBooking(order._id)}
+                            className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-xl font-semibold transition-all flex items-center gap-2"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Cancel
+                          </button>
+                        )}
+                        <Link
+                          to={`/order/${order._id}`}
+                          className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-purple-500/50 rounded-xl font-semibold transition-all flex items-center gap-2"
                         >
-                          <Download className="w-4 h-4" />
-                          Download Ticket
-                        </button>
-                      )}
+                          <Eye className="w-4 h-4" />
+                          Details
+                        </Link>
+                        {order.status === "paid" && (
+                          <button
+                            onClick={() => handleDownloadTicket(order._id)}
+                            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/50 transition-all flex items-center gap-2"
+                          >
+                            <Download className="w-4 h-4" />
+                            Download
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {orders.length === 0 && !loading && (
+          <div className="text-center py-20">
+            <div className="w-32 h-32 mx-auto mb-6 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
+              <Calendar className="w-16 h-16 text-gray-400" />
+            </div>
+            <h3 className="text-3xl font-bold text-white mb-3">No Orders Found</h3>
+            <p className="text-gray-400 mb-8 max-w-md mx-auto">
+              Try adjusting your search criteria or browse events to make your first booking.
+            </p>
+            <Link
+              to="/events"
+              className="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/50 transition-all"
+            >
+              Browse Events
+            </Link>
           </div>
-        ))}
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center mt-12 gap-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                currentPage === 1
+                  ? "bg-white/5 text-gray-600 cursor-not-allowed"
+                  : "bg-white/10 hover:bg-white/20 text-white border border-white/10 hover:border-purple-500/50"
+              }`}
+            >
+              Previous
+            </button>
+            <span className="px-6 py-3 bg-white/5 rounded-xl text-white font-semibold border border-white/10">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                currentPage === totalPages
+                  ? "bg-white/5 text-gray-600 cursor-not-allowed"
+                  : "bg-white/10 hover:bg-white/20 text-white border border-white/10 hover:border-purple-500/50"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Summary Stats */}
+        {orders.length > 0 && (
+          <div className="mt-12 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8">
+            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-purple-400" />
+              Order Summary
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                <p className="text-4xl font-black bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                  {orders.length}
+                </p>
+                <p className="text-sm text-gray-400">Total Orders</p>
+              </div>
+              <div className="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                <p className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-2">
+                  {orders.filter((o) => o.status === "paid").length}
+                </p>
+                <p className="text-sm text-gray-400">Confirmed</p>
+              </div>
+              <div className="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                <p className="text-4xl font-black bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-2">
+                  {orders.filter((o) => o.status === "created").length}
+                </p>
+                <p className="text-sm text-gray-400">Pending</p>
+              </div>
+              <div className="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                <p className="text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                  {formatCurrency(
+                    orders
+                      .filter((o) => o.status === "paid")
+                      .reduce((sum, order) => sum + order.amount, 0)
+                  )}
+                </p>
+                <p className="text-sm text-gray-400">Total Spent</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Empty State */}
-      {orders.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <Calendar className="w-12 h-12 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No orders found
-          </h3>
-          <p className="text-gray-500 mb-6">
-            Try adjusting your search criteria or browse events to make your
-            first booking.
-          </p>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Browse Events
-          </button>
-        </div>
-      )}
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-6 gap-4">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 rounded ${
-              currentPage === 1
-                ? "bg-gray-200 text-gray-400"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            Previous
-          </button>
-
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded ${
-              currentPage === totalPages
-                ? "bg-gray-200 text-gray-400"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {/* Summary Stats */}
-      {orders.length > 0 && (
-        <div className="mt-8 bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">
-                {orders.length}
-              </p>
-              <p className="text-sm text-gray-500">Total Orders</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">
-                {orders.filter((o) => o.status === "paid").length}
-              </p>
-              <p className="text-sm text-gray-500">Confirmed</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-yellow-600">
-                {orders.filter((o) => o.status === "created").length}
-              </p>
-              <p className="text-sm text-gray-500">Pending</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(
-                  orders
-                    .filter((o) => o.status === "paid")
-                    .reduce((sum, order) => sum + order.amount, 0)
-                )}
-              </p>
-              <p className="text-sm text-gray-500">Total Spent</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <Footer/>
     </div>
   );
 };
