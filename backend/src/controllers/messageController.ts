@@ -21,6 +21,32 @@ export class MessageController{
             
         }
     }
+    async postMessages(req:Request,res:Response):Promise<void>{
+        try {
+           
+            const file=req.file
+             if (!file) {
+        res.status(400).json({ success: false, message: "Missing data" });
+        return
+      }
+      const response=await this._messageService.postMessage(file)
+      if(response){
+        const fullUrl = `${req.protocol}://${req.get("host")}${response.fileUrl}`;
+        
+      res.json({ success: true, fileUrl: fullUrl })
+
+      }else{
+        res.json({success:false})
+      }
+
+            
+        } catch (error) {
+            console.log(error);
+            res.json({success:false})
+            
+            
+        }
+    }
 
 
 

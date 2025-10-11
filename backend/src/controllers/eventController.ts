@@ -28,6 +28,10 @@ export class EventController implements IEventController {
           typeof query.selectedCategory === "string"
             ? query.selectedCategory
             : "",
+            selectedVenue:
+          typeof query.selectedVenue=== "string"
+            ? query.selectedVenue
+            : "",
         maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
         selectedDate:
           typeof query.selectedDate === "string" ? query.selectedDate : "",
@@ -160,6 +164,8 @@ if (typeof ticketTypes === "string") {
           public_id:file.filename
         })) || [],
       };
+      
+      
 
       const response = await this._eventService.eventCreate(eventData);
       if (response.success) {
@@ -520,6 +526,7 @@ if (typeof ticketTypes === "string") {
     
 
       const response=await this._eventService.nearFind({lat,lng},filters);
+     
     
       
       if(response){
@@ -537,4 +544,5 @@ if (typeof ticketTypes === "string") {
       
     }
   }
+  
 }

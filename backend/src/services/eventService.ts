@@ -1,6 +1,8 @@
 
 import { IEventService } from "./serviceInterface/IEventService";
 import { IEventRepository } from "../repositories/repositoryInterface/IEventRepository";
+
+
 import {
   CreateEvent,
   DashboardEvents,
@@ -24,6 +26,7 @@ import { cosineSimilarity } from "../utils/cosine";
 import axios from "axios";
 import cloudinary from "../config/cloudinary";
 import { IEvent } from "src/model/event";
+
 const hf = new InferenceClient (process.env.HUGGING_API_KEY);
 export class EventService implements IEventService {
   constructor(private _eventRepository: IEventRepository) {}
@@ -85,7 +88,7 @@ export class EventService implements IEventService {
   
 
 
-async eventCreate(data: IEventDTO): Promise<CreateEvent> {
+/*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
   try {
     const text = `${data.category} ${data.description} ${data.venue}`;
     const output = await hf.featureExtraction({
@@ -94,22 +97,46 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
     });
 
     const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
+  
+   const venueParts = [
+  data.venue, 
+  
+  'India'
+].filter(Boolean)
+ .map(p => p.trim())
+ .filter((v, i, self) => self.indexOf(v) === i);
+ venueParts.push('India'); 
 
-    const geoResponse = await axios.get("https://nominatim.openstreetmap.org/search", {
-      params: {
-        q: data.venue,
-        format: "json",
-        limit: 1
-      },
-      headers: {
-        "User-Agent": "eventManagement/1.0"
-      }
-    });
+const formattedVenue = venueParts.join(', ');
+
+
+    //const formattedVenue = encodeURIComponent(cleanVenue.replace(/,/g, ", ")); // add space after commas
+    console.log("formatted venue",formattedVenue);
+    
+
+
+
+const  geoResponse = await axios.get("https://nominatim.openstreetmap.org/search", {
+  params: {
+    q: formattedVenue,   
+    format: "json",
+    limit: 1
+  },
+  headers: {
+    "User-Agent": "eventManagement/1.0"
+  }
+});
+
+   
+
+
+
+
 
     if (!geoResponse.data || geoResponse.data.length === 0) {
       return { success: false, message: "Could not geocode venue address." };
     }
-
+   
     const { lat, lon } = geoResponse.data[0];
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lon);
@@ -136,7 +163,88 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
     console.error(error);
     return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
   }
+}*/
+
+
+async eventCreate(data: IEventDTO): Promise<CreateEvent> {
+  try {
+    // Step 1: Create the text for embedding
+    const text = `${data.category} ${data.description} ${data.venue}`;
+    const output = await hf.featureExtraction({
+      model: "sentence-transformers/all-MiniLM-L6-v2",
+      inputs: text,
+    });
+
+    const embedding = Array.isArray(output[0])
+      ? (output[0] as number[])
+      : (output as number[]);
+
+    // Step 2: Format the venue for geocoding
+    const venueParts = [data.venue, "India"]
+      .filter(Boolean)
+      .map((p) => p.trim())
+      .filter((v, i, self) => self.indexOf(v) === i);
+    const formattedVenue = venueParts.join(", ");
+    console.log("formatted venue", formattedVenue);
+
+    // Step 3: Use Google Maps Geocoding API
+    /*const geoResponse = await axios.get(
+      "https://maps.googleapis.com/maps/api/geocode/json",
+      {
+        params: {
+          address: formattedVenue,
+          key: process.env.GOOGLE_MAPS_KEY, // 👈 Add your API key in .env
+        },
+      }
+    );*/
+   const geoResponse = await axios.get("https://api.opencagedata.com/geocode/v1/json", {
+  params: {
+    q: formattedVenue,
+    key: process.env.OPENCAGE_API_KEY
+  }
+});
+
+console.log("Geo response:", geoResponse.data);
+
+// ✅ Step 4: Validate response properly
+if (
+  !geoResponse.data ||
+  geoResponse.data.status.code !== 200 ||
+  geoResponse.data.results.length === 0
+) {
+  return { success: false, message: "Could not geocode venue address." };
 }
+
+// ✅ Step 5: Extract correct coordinates
+const locationData = geoResponse.data.results[0].geometry;
+const latitude = locationData.lat;
+const longitude = locationData.lng;
+    // Step 5: Create event payload
+    const eventPayload = {
+      ...data,
+      latitude,
+      longitude,
+      embedding,
+      location: {
+        type: "Point",
+        coordinates: [longitude, latitude],
+      },
+    };
+
+    // Step 6: Save to database
+    const result = await this._eventRepository.createEvent(eventPayload);
+
+    if (result) {
+      return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
+    } else {
+      return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+    }
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+  }
+}
+
 
   async eventDelete(id: string): Promise<CreateEvent> {
     try {
@@ -341,7 +449,7 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
         console.log("scored",scoredEvents);
         
         scoredEvents.sort((a,b)=>b.score-a.score);
-        const filteredEvents = scoredEvents.filter(e => e.score >= 0.6);
+        const filteredEvents = scoredEvents.filter(e => e.score >= 0.2);
         
         
         return {success:true,events:filteredEvents}
@@ -362,10 +470,13 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
   }
   async nearFind({lat,lng}:Location,filters:IEventFilter):Promise<Recommend>{
     const response=await this._eventRepository.findNear({lat,lng},filters);
+    
+    
     if(response){
       return {events:response,success:true}
     }else{
       return{success:false}
     }
   }
+ 
 }

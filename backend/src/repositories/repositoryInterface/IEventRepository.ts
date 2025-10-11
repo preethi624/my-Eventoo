@@ -5,6 +5,7 @@ import { Recommend } from "src/interface/IUser";
 import { IUser } from "src/interface/IUserAuth";
 import { IEvent } from "src/model/event";
 
+
 export interface IEventRepository{
      getEvents(filters:IEventFilter):Promise<GetEvent|null>;
      getEventById(id:string):Promise<IEvent|null>;
@@ -31,6 +32,7 @@ findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]>
 
 getCompleted(filters: IEventFilter): Promise<GetEvent | null>
 findById(id:string):Promise<IEvent|null>
+
 
 
     

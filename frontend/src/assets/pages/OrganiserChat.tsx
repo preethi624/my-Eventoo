@@ -1,24 +1,32 @@
-import  { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Send,
- 
   Paperclip,
   Smile,
   ArrowLeft,
   User,
+  Search,
+  MoreVertical,
+  Phone,
+  Video,
+  File,
+  FileText,
 } from "lucide-react";
 import socket from "../../socket";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/stroe";
 import { organiserRepository } from "../../repositories/organiserRepositories";
 import { messageRepository } from "../../repositories/messageRepositories";
+import EmojiPicker, { Theme } from "emoji-picker-react";
+import OrganiserLayout from "../components/OrganiserLayout";
+import type { IUser } from "../../interfaces/IUser";
 
 const OrganizerChatPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<{
     _id?: string;
     name?: string;
     email?: string;
-    isOnline?:boolean
+    isOnline?: boolean;
   }>({});
   const [users, setUsers] = useState<
     { _id: string; name: string; email: string }[]
@@ -33,21 +41,27 @@ const OrganizerChatPage: React.FC = () => {
       receiverId: string;
     }[]
   >([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
-  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFileurl, setSelectedFileurl] = useState<File | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
+
   const fetchUsers = async () => {
     const response = await organiserRepository.fetchUsers();
     console.log("chatres", response);
-    setUsers(response.response.users);
+    setUsers(response.response.users.sort((a:IUser,b:IUser)=>((a.name??"").localeCompare(b.name??""))));
   };
+
   const orgId = organiser?.id;
   const userId = selectedUser._id;
+
   const fetchMessages = async () => {
     try {
       console.log("org", selectedUser);
-
       if (!orgId || !userId) {
         throw new Error("organiser and user id undefined");
       }
@@ -58,20 +72,33 @@ const OrganizerChatPage: React.FC = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
-  if (organiser?.id) {
-    socket.emit("register-organiser", organiser.id);
-  }
-}, [organiser]);
+    const handleConnect = () => {
+      console.log("Socket connected:", socket.id);
+      if (organiser?.id) {
+        socket.emit("register-organiser", organiser.id);
+        console.log("Organiser registered:", organiser.id);
+      }
+    };
+
+    socket.on("connect", handleConnect);
+
+    return () => {
+      socket.off("connect", handleConnect);
+    };
+  }, [organiser?.id]);
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
   useEffect(() => {
     if (organiser?.id && selectedUser._id) {
       fetchMessages();
     }
   }, [selectedUser, organiser]);
+
   useEffect(() => {
     socket.on("online-users", (userIds: string[]) => {
       setOnlineUsers(userIds);
@@ -81,14 +108,31 @@ const OrganizerChatPage: React.FC = () => {
     };
   }, []);
 
-  const handleSendMessage = () => {
-    if (!message.trim() || !selectedUser || !organiser?.id) return;
-    console.log("seluser", selectedUser);
+  const handleEmojiClick = (emojiData: any) => {
+    setMessage((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleSendMessage = async () => {
+    if ((!message.trim() && !selectedFileurl) || !selectedUser || !organiser?.id) return;
+
+    let fileUrl = "";
+    if (selectedFileurl) {
+      const formData = new FormData();
+      formData.append("file", selectedFileurl);
+      formData.append("senderId", organiser.id);
+      formData.append("receiverId", selectedUser?._id ?? "");
+
+      const response = await messageRepository.sendFile(formData);
+      fileUrl = response?.fileUrl?.fileUrl || response?.fileUrl;
+      console.log("fileurl", fileUrl);
+    }
+
     const newMessage = {
       _id: Math.random().toString(36).substring(2, 15),
       senderId: organiser?.id,
       receiverId: selectedUser._id!,
-      message,
+      message: message || fileUrl,
       timestamp: new Date(),
     };
     setMessages((prevMessage) => [...prevMessage, newMessage]);
@@ -96,12 +140,14 @@ const OrganizerChatPage: React.FC = () => {
     socket.emit("send-message", {
       senderId: organiser?.id,
       receiverId: selectedUser._id,
-      message,
+      message: message || fileUrl,
       isOrganiser: true,
     });
 
     setMessage("");
+    setSelectedFileurl(null);
   };
+
   useEffect(() => {
     socket.on("receive-message", (data) => {
       console.log("New Message", data);
@@ -127,170 +173,298 @@ const OrganizerChatPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setSelectedFileurl(file);
+  };
 
+  const handleAttachClick = () => {
+    fileInputRef.current?.click();
+  };
 
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar - Chat List */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">Users</h1>
-          
+    <OrganiserLayout>
+      <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden -m-6">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 -right-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+          <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-indigo-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        {/* Chat List */}
-        <div className="flex-1 overflow-y-auto">
-          {users.map((user) => (
-            <div
-              key={user._id}
-              onClick={() => setSelectedUser(user)}
-              className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                selectedUser?._id === user._id
-                  ? "bg-blue-50 border-blue-200"
-                  : ""
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-white" />
-                  </div>
-                  {onlineUsers.includes(user._id) && (
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">
-                      {user.name}
-                    </h3>
-                  </div>
-                  <h3 className="text-sm font-medium text-gray-900 truncate">
-                    {user.email}
-                  </h3>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {selectedUser ? (
-          <>
-            {/* Chat Header */}
-            <div className="bg-white border-b border-gray-200 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <button className="lg:hidden">
-                    <ArrowLeft className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
-                    {selectedUser.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {selectedUser.name}
-                    </h2>
-                  </div>
-                </div>
-               
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => (
-                <div
-                  key={msg._id}
-                  className={`flex ${
-                    msg.senderId === organiser?.id
-                      ? "justify-end"
-                      : "justify-start"
-                  } mb-2`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      msg.senderId === organiser?.id
-                        ? "bg-blue-600 text-white"
-                        : "bg-white border border-gray-200 text-gray-900"
-                    }`}
-                  >
-                    <p className="text-sm">{msg.message}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        msg.senderId === organiser?.id
-                          ? "text-blue-100"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {new Date(msg.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Message Input */}
-            <div className="bg-white border-t border-gray-200 p-4">
-              <div className="flex items-end space-x-2">
-                <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
-                  <Paperclip className="w-5 h-5" />
-                </button>
-                <div className="flex-1 relative">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type your message..."
-                    rows={1}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  />
-                </div>
-                <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
-                  <Smile className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!message.trim()}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          /* No Chat Selected */
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Select a conversation
-              </h3>
-              <p className="text-gray-500">
-                Choose a user from the sidebar to start chatting
-              </p>
+        {/* Sidebar - Chat List */}
+        <div className="w-80 bg-slate-900/60 backdrop-blur-2xl border-r border-slate-700/50 flex flex-col shadow-2xl relative z-10">
+          {/* Header */}
+          <div className="p-6 border-b border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-5 tracking-tight">
+              Messages
+            </h1>
+            {/* Search Bar */}
+            <div className="relative group">
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700/50 rounded-2xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+              />
             </div>
           </div>
-        )}
+
+          {/* Chat List */}
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+            {filteredUsers.map((user) => (
+              <div
+                key={user._id}
+                onClick={() => setSelectedUser(user)}
+                className={`p-4 border-b border-slate-800/50 cursor-pointer transition-all duration-300 ${
+                  selectedUser?._id === user._id
+                    ? "bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 border-l-4 border-l-blue-500 shadow-lg shadow-blue-500/10"
+                    : "hover:bg-slate-800/40"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 ring-2 ring-slate-800/50">
+                      <User className="w-6 h-6 text-white" />
+                    </div>
+                    {onlineUsers.includes(user._id) && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 border-2 border-slate-900 rounded-full shadow-lg shadow-green-400/50 animate-pulse"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-slate-200 truncate mb-1">
+                      {user.name}
+                    </h3>
+                    <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col relative z-10">
+          {selectedUser?._id ? (
+            <>
+              {/* Chat Header */}
+              <div className="bg-slate-900/60 backdrop-blur-2xl border-b border-slate-700/50 p-5 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <button className="lg:hidden hover:bg-slate-800/60 p-2 rounded-xl transition-all">
+                      <ArrowLeft className="w-5 h-5 text-slate-300" />
+                    </button>
+                    <div className="relative">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl shadow-purple-500/30 ring-2 ring-slate-800/50">
+                        <User className="w-6 h-6 text-white" />
+                      </div>
+                      {selectedUser.isOnline && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 border-2 border-slate-900 rounded-full shadow-lg shadow-green-400/50"></div>
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-slate-100">
+                        {selectedUser.name}
+                      </h2>
+                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                        {selectedUser.isOnline ? (
+                          <>
+                            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                            Active now
+                          </>
+                        ) : (
+                          "Offline"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button className="p-2.5 hover:bg-slate-800/60 rounded-xl transition-all group">
+                      <Phone className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                    </button>
+                    <button className="p-2.5 hover:bg-slate-800/60 rounded-xl transition-all group">
+                      <Video className="w-5 h-5 text-slate-400 group-hover:text-purple-400 transition-colors" />
+                    </button>
+                    <button className="p-2.5 hover:bg-slate-800/60 rounded-xl transition-all group">
+                      <MoreVertical className="w-5 h-5 text-slate-400 group-hover:text-pink-400 transition-colors" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                {messages.map((msg, index) => (
+                  <div
+                    key={msg._id}
+                    className={`flex ${
+                      msg.senderId === organiser?.id ? "justify-end" : "justify-start"
+                    } mb-3 animate-fadeIn`}
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-5 py-3.5 rounded-3xl shadow-xl transform hover:scale-[1.02] transition-all duration-200 ${
+                        msg.senderId === organiser?.id
+                          ? "bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white shadow-purple-500/30"
+                          : "bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 text-slate-100 shadow-slate-900/50"
+                      }`}
+                    >
+                      {msg.message.startsWith("http") ? (
+                        msg.message.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                          <div className="relative group">
+                            <img
+                              src={msg.message}
+                              alt="Sent file"
+                              className="max-w-xs rounded-2xl cursor-pointer transition-transform hover:scale-105"
+                              onClick={() => window.open(msg.message, "_blank")}
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-2xl transition-colors flex items-center justify-center">
+                              <FileText className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        ) : (
+                          <a
+                            href={msg.message}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`text-sm underline break-all flex items-center gap-2 group ${
+                              msg.senderId === organiser?.id
+                                ? "text-blue-100 hover:text-white"
+                                : "text-blue-400 hover:text-blue-300"
+                            }`}
+                          >
+                            <File className="w-4 h-4" />
+                            <span className="group-hover:underline">{msg.message}</span>
+                          </a>
+                        )
+                      ) : (
+                        <p className="text-sm leading-relaxed">{msg.message}</p>
+                      )}
+                      <p
+                        className={`text-xs mt-2 ${
+                          msg.senderId === organiser?.id
+                            ? "text-blue-100/70"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {new Date(msg.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Message Input */}
+              {selectedUser._id && (
+                <div className="bg-slate-900/60 backdrop-blur-2xl border-t border-slate-700/50 p-5 shadow-2xl">
+                  {selectedFileurl && (
+                    <div className="mb-3 p-3 bg-slate-800/60 rounded-xl border border-slate-700/50 flex items-center gap-2">
+                      <File className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm text-slate-300">{selectedFileurl.name}</span>
+                    </div>
+                  )}
+                  <div className="flex items-end space-x-3">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={handleAttachClick}
+                      className="p-3.5 text-slate-400 hover:text-blue-400 hover:bg-slate-800/60 rounded-2xl transition-all group"
+                    >
+                      <Paperclip className="w-5 h-5 group-hover:rotate-45 transition-transform" />
+                    </button>
+
+                    <div className="flex-1 relative">
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Type your message..."
+                        rows={1}
+                        className="w-full px-5 py-3.5 border border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 resize-none bg-slate-800/60 text-slate-100 placeholder-slate-500 transition-all scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowEmojiPicker((prev) => !prev)}
+                        className="p-3.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-800/60 rounded-2xl transition-all group"
+                      >
+                        <Smile className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      </button>
+                      {showEmojiPicker && (
+                        <div className="absolute bottom-16 right-0 z-50 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-slate-700/50">
+                          <EmojiPicker
+                            onEmojiClick={handleEmojiClick}
+                            theme={Theme.DARK}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!message.trim() && !selectedFileurl}
+                      className="p-3.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white rounded-2xl hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 group disabled:hover:scale-100"
+                    >
+                      <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* No Chat Selected */
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-purple-500/20 ring-1 ring-slate-700/50 backdrop-blur-xl">
+                  <User className="w-12 h-12 text-blue-400" />
+                </div>
+                <h3 className="text-2xl font-semibold text-slate-200 mb-3">
+                  Select a conversation
+                </h3>
+                <p className="text-slate-400 max-w-sm leading-relaxed">
+                  Choose a user from the sidebar to start chatting and connect with your
+                  community
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
+    </OrganiserLayout>
   );
 };
 

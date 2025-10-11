@@ -41,4 +41,5 @@ router.get(
   "/near",authMiddlewarwSet.userOnly,eventController.findNear.bind(eventController)
 )
 
+
 export default router;

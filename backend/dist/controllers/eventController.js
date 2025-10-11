@@ -25,6 +25,9 @@ class EventController {
                     selectedCategory: typeof query.selectedCategory === "string"
                         ? query.selectedCategory
                         : "",
+                    selectedVenue: typeof query.selectedVenue === "string"
+                        ? query.selectedVenue
+                        : "",
                     maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
                     selectedDate: typeof query.selectedDate === "string" ? query.selectedDate : "",
                     page: query.page ? Number(query.page) : undefined,

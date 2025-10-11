@@ -66,6 +66,8 @@ const OrganiserEvents: React.FC = () => {
     _id: string;
     name: string;
     address: string;
+    city:string;
+    state:string
   }
 
   console.log(editEventId);
@@ -290,7 +292,7 @@ const OrganiserEvents: React.FC = () => {
     }
   };
 
-  const handleEdit = async (eventId: string | undefined) => {
+  /*const handleEdit = async (eventId: string | undefined) => {
     setEditModal(true);
     if (!eventId) {
       throw new Error("eventId not present");
@@ -299,6 +301,8 @@ const OrganiserEvents: React.FC = () => {
     setEditEventID(eventId);
     const selectedEvent = events.find((event) => event._id === eventId);
     if (!selectedEvent) return;
+      console.log("Selected event data:", selectedEvent);
+      
 
     setEditForm({
       id: selectedEvent._id,
@@ -310,7 +314,7 @@ const OrganiserEvents: React.FC = () => {
       category: selectedEvent.category,
       ticketTypes: {
         economic: {
-          price: selectedEvent.ticketTypes?.economic?.price?.toString() || "",
+          price: selectedEvent.ticketTypes?.economic.price?.toString() || "",
           capacity: selectedEvent.ticketTypes?.economic?.capacity?.toString() || "",
         },
         premium: {
@@ -326,7 +330,50 @@ const OrganiserEvents: React.FC = () => {
       status: selectedEvent.status,
       images: selectedEvent.images,
     });
+  };*/
+  const handleEdit = async (eventId: string | undefined) => {
+  setEditModal(true);
+  if (!eventId) throw new Error("eventId not present");
+
+  setEditEventID(eventId);
+  const selectedEvent = events.find((event) => event._id === eventId);
+  if (!selectedEvent) return;
+
+  console.log("Selected event data:", selectedEvent);
+  const ticketArray = selectedEvent.ticketTypes as unknown as {
+  type: "economic" | "premium" | "vip";
+  price: number;
+  capacity: number;
+}[];
+
+  // Convert array to object
+  const ticketObj: EventEdit["ticketTypes"] = {
+    economic: { price: "", capacity: "" },
+    premium: { price: "", capacity: "" },
+    vip: { price: "", capacity: "" },
   };
+ticketArray.forEach((t) => {
+  ticketObj[t.type] = {
+    price: t.price.toString(),
+    capacity: t.capacity.toString(),
+  };
+});
+  
+  setEditForm({
+    id: selectedEvent._id,
+    title: selectedEvent.title,
+    description: selectedEvent.description,
+    date: selectedEvent.date.toString().split("T")[0],
+    time: selectedEvent.date.toString().split("T")[1]?.slice(0, 5) || "",
+    venue: selectedEvent.venue,
+    category: selectedEvent.category,
+    ticketTypes: ticketObj,
+    capacity: selectedEvent.capacity,
+    status: selectedEvent.status,
+    images: selectedEvent.images,
+  });
+};
+
 
   const validateEditForm = () => {
     const {
@@ -407,7 +454,7 @@ const OrganiserEvents: React.FC = () => {
     return true;
   };
 
-  const handleEditSubmit = async (id: string) => {
+  /*const handleEditSubmit = async (id: string) => {
     if (!id) {
       return;
     }
@@ -437,7 +484,34 @@ const OrganiserEvents: React.FC = () => {
     } else {
       toast(response.message);
     }
+  };*/
+  const handleEditSubmit = async (id: string) => {
+  if (!id) return;
+
+  const isValid = validateEditForm();
+  if (!isValid) return;
+
+  const ticketTypesArray = Object.keys(editForm.ticketTypes).map((key) => ({
+    type: key,
+    price: Number(editForm.ticketTypes[key as keyof typeof editForm.ticketTypes].price),
+    capacity: Number(editForm.ticketTypes[key as keyof typeof editForm.ticketTypes].capacity),
+  }));
+
+  const payload: EventEdit = {
+    ...editForm,
+    ticketTypes: ticketTypesArray as any, // if backend expects array
   };
+
+  const response = await eventRepository.editEvent(id, payload);
+  if (response.success) {
+    toast(response.message);
+    fetchEvents();
+    setEditModal(false);
+  } else {
+    toast(response.message);
+  }
+};
+
 
   const handleReapply = async () => {
     const orgId = organiser?.id;
@@ -492,7 +566,10 @@ const OrganiserEvents: React.FC = () => {
     setSelectedDate("");
     setCurrentPage(1);
     setStatusFilter("");
+
   };
+
+
 
   return (
     <OrganiserLayout>
@@ -754,7 +831,7 @@ const OrganiserEvents: React.FC = () => {
                   >
                     <option value="">Select a venue</option>
                     {venues.map((venue) => (
-                      <option key={venue._id} value={venue.name}>
+                      <option key={venue._id} value={`${venue.name}, ${venue.city}, ${venue.state}, India`}>
                         {venue.name} - {venue.address}
                       </option>
                     ))}

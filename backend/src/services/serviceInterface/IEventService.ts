@@ -16,6 +16,7 @@ import { IEventDTO } from "src/interface/IEventDTO";
 import { Recommend } from "src/interface/IUser";
 import { IEvent } from "src/model/event";
 
+
 export interface IEventService {
   eventGet(filters: IEventFilter): Promise<EventGet>;
   eventGetById(id: string): Promise<EventById>;
@@ -42,4 +43,5 @@ export interface IEventService {
   getRecommended(userId:string,filters:IEventFilter):Promise<Recommend>
    nearFind({lat,lng}:Location,filters:IEventFilter):Promise<Recommend>
    completedGet(filters: IEventFilter): Promise<EventGet>
+  
 }

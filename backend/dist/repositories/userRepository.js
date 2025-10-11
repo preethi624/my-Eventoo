@@ -16,6 +16,7 @@ exports.UserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
 const organiser_1 = __importDefault(require("../model/organiser"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const venue_1 = __importDefault(require("../model/venue"));
 class UserRepository {
     getUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -61,6 +62,11 @@ class UserRepository {
                 console.log(error);
                 return { success: false };
             }
+        });
+    }
+    fetchVenues() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield venue_1.default.find();
         });
     }
 }

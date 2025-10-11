@@ -8,6 +8,8 @@ export interface IOrganiser {
     status:string
   
 }
+
+
 export interface GetOrganiser{
     message:string;
     success:boolean;

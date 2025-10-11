@@ -86,7 +86,8 @@ export interface IEventFilter {
   limit?: number;
   orgName?: string;
   searchTerm?:string;
-  status?:string
+  status?:string;
+  selectedVenue?:string
 }
 export interface EventCount {
   count?: number;

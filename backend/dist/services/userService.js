@@ -58,7 +58,14 @@ class UserService {
             try {
                 const response = yield this._userRepository.getOrgs();
                 if (response) {
-                    return { organisers: response, success: true };
+                    const organisers = response.map((org) => ({
+                        _id: org._id,
+                        name: org.name,
+                        email: org.email,
+                        isBlocked: org.isBlocked,
+                        status: org.status
+                    }));
+                    return { organisers: organisers, success: true };
                 }
                 else {
                     return { success: false };
@@ -74,8 +81,25 @@ class UserService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._userRepository.changePassword(userId, newPass, currentPass);
-                if (response) {
+                if (response === null || response === void 0 ? void 0 : response.success) {
                     return { success: true };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
+            }
+        });
+    }
+    venuesFetch() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._userRepository.fetchVenues();
+                if (response) {
+                    return { venues: response, success: true };
                 }
                 else {
                     return { success: false };

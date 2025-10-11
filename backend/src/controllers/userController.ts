@@ -94,4 +94,18 @@ export class UserController implements IUserController {
       
     }
   }
+  async fetchVenues(req:Request,res:Response):Promise<void>{
+    try {
+      const response=await this._userService.venuesFetch();
+      if(response.success){
+        res.json(response.venues)
+      }
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+
+  }
 }

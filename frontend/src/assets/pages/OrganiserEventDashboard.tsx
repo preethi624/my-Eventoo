@@ -58,6 +58,8 @@ import { reviewRepository } from "../../repositories/reviewRepositories";
 import ReviewSentimentChart from "../components/ReviewSentimentChart";
 import DataTable from "../components/DataTable";
 import OrganiserFooter from "../components/OrganiserFooter";
+import moment from "moment";
+
 
 const EventDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -171,7 +173,9 @@ const EventDashboard = () => {
     { header: "Tickets", accessor: "ticketCount" },
     { header: "Amount", accessor: "amount" },
     { header: "Payment Status", accessor: "status" },
-    { header: "Order Date", accessor: "createdAt" },
+    { header: "Order Date", accessor: "createdAt" ,
+      render: (row: any) => moment(row.createdAt).format("DD MMM YYYY, hh:mm A"),
+    },
   ];
 
   const ticketTypeData = Object.entries(stats.ticketTypes || {}).map(

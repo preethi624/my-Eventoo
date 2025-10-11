@@ -120,6 +120,7 @@ export const UserProfile: React.FC = () => {
       setPasswordMessage("❌ New passwords do not match");
       return;
     }
+    
     try {
       const response = await userRepository.changePassword(
         currentPassword,

@@ -88,37 +88,136 @@ class EventService {
             }
         });
     }
+    /*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
+      try {
+        const text = `${data.category} ${data.description} ${data.venue}`;
+        const output = await hf.featureExtraction({
+          model: "sentence-transformers/all-MiniLM-L6-v2",
+          inputs: text,
+        });
+    
+        const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
+      
+       const venueParts = [
+      data.venue,
+      
+      'India'
+    ].filter(Boolean)
+     .map(p => p.trim())
+     .filter((v, i, self) => self.indexOf(v) === i);
+     venueParts.push('India');
+    
+    const formattedVenue = venueParts.join(', ');
+    
+    
+        //const formattedVenue = encodeURIComponent(cleanVenue.replace(/,/g, ", ")); // add space after commas
+        console.log("formatted venue",formattedVenue);
+        
+    
+    
+    
+    const  geoResponse = await axios.get("https://nominatim.openstreetmap.org/search", {
+      params: {
+        q: formattedVenue,
+        format: "json",
+        limit: 1
+      },
+      headers: {
+        "User-Agent": "eventManagement/1.0"
+      }
+    });
+    
+       
+    
+    
+    
+    
+    
+        if (!geoResponse.data || geoResponse.data.length === 0) {
+          return { success: false, message: "Could not geocode venue address." };
+        }
+       
+        const { lat, lon } = geoResponse.data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
+    
+        const eventPayload = {
+          ...data,
+          latitude,
+          longitude,
+          embedding,
+          location: {
+            type: "Point",
+            coordinates: [longitude, latitude]
+          }
+        };
+    
+        const result = await this._eventRepository.createEvent(eventPayload);
+    
+        if (result) {
+          return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
+        } else {
+          return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+        }
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
+      }
+    }*/
     eventCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Step 1: Create the text for embedding
                 const text = `${data.category} ${data.description} ${data.venue}`;
                 const output = yield hf.featureExtraction({
                     model: "sentence-transformers/all-MiniLM-L6-v2",
                     inputs: text,
                 });
-                const embedding = Array.isArray(output[0]) ? output[0] : output;
-                const geoResponse = yield axios_1.default.get("https://nominatim.openstreetmap.org/search", {
+                const embedding = Array.isArray(output[0])
+                    ? output[0]
+                    : output;
+                // Step 2: Format the venue for geocoding
+                const venueParts = [data.venue, "India"]
+                    .filter(Boolean)
+                    .map((p) => p.trim())
+                    .filter((v, i, self) => self.indexOf(v) === i);
+                const formattedVenue = venueParts.join(", ");
+                console.log("formatted venue", formattedVenue);
+                // Step 3: Use Google Maps Geocoding API
+                /*const geoResponse = await axios.get(
+                  "https://maps.googleapis.com/maps/api/geocode/json",
+                  {
                     params: {
-                        q: data.venue,
-                        format: "json",
-                        limit: 1
+                      address: formattedVenue,
+                      key: process.env.GOOGLE_MAPS_KEY, // 👈 Add your API key in .env
                     },
-                    headers: {
-                        "User-Agent": "eventManagement/1.0"
+                  }
+                );*/
+                const geoResponse = yield axios_1.default.get("https://api.opencagedata.com/geocode/v1/json", {
+                    params: {
+                        q: formattedVenue,
+                        key: process.env.OPENCAGE_API_KEY
                     }
                 });
-                if (!geoResponse.data || geoResponse.data.length === 0) {
+                console.log("Geo response:", geoResponse.data);
+                // ✅ Step 4: Validate response properly
+                if (!geoResponse.data ||
+                    geoResponse.data.status.code !== 200 ||
+                    geoResponse.data.results.length === 0) {
                     return { success: false, message: "Could not geocode venue address." };
                 }
-                const { lat, lon } = geoResponse.data[0];
-                const latitude = parseFloat(lat);
-                const longitude = parseFloat(lon);
+                // ✅ Step 5: Extract correct coordinates
+                const locationData = geoResponse.data.results[0].geometry;
+                const latitude = locationData.lat;
+                const longitude = locationData.lng;
+                // Step 5: Create event payload
                 const eventPayload = Object.assign(Object.assign({}, data), { latitude,
                     longitude,
                     embedding, location: {
                         type: "Point",
-                        coordinates: [longitude, latitude]
+                        coordinates: [longitude, latitude],
                     } });
+                // Step 6: Save to database
                 const result = yield this._eventRepository.createEvent(eventPayload);
                 if (result) {
                     return { success: true, message: messages_1.MESSAGES.EVENT.SUCCESS_TO_CREATE };
@@ -339,7 +438,7 @@ class EventService {
                     });
                     console.log("scored", scoredEvents);
                     scoredEvents.sort((a, b) => b.score - a.score);
-                    const filteredEvents = scoredEvents.filter(e => e.score >= 0.6);
+                    const filteredEvents = scoredEvents.filter(e => e.score >= 0.2);
                     return { success: true, events: filteredEvents };
                 }
                 if (response.events) {

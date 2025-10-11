@@ -37,6 +37,12 @@ class MessageService {
             }
         });
     }
+    postMessage(file) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const fileUrl = yield this._messageRepository.saveFileToStorage(file);
+            return { fileUrl };
+        });
+    }
 }
 exports.MessageService = MessageService;
 //# sourceMappingURL=messageService.js.map

@@ -5,4 +5,5 @@ export interface IUserController{
     updateUser(req:Request<unknown,unknown,ProfileEdit>,res:Response):Promise<void>;
     getOrgs(req:Request,res:Response):Promise<void>;
     changePassword(req:Request,res:Response):Promise<void>
+      fetchVenues(req:Request,res:Response):Promise<void>
 }

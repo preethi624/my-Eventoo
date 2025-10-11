@@ -17,5 +17,6 @@ router.get("/user", middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.
 router.put("/user", middleware_di_1.authMiddlewarwSet.userOnly, upload.single("image"), userProfiledi_1.userController.updateUser.bind(userProfiledi_1.userController));
 router.get("/orgs", middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.getOrgs.bind(userProfiledi_1.userController));
 router.put('/', middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.changePassword.bind(userProfiledi_1.userController));
+router.get("/venues", middleware_di_1.authMiddlewarwSet.userOnly, userProfiledi_1.userController.fetchVenues.bind(userProfiledi_1.userController));
 exports.default = router;
 //# sourceMappingURL=profileRoutes.js.map

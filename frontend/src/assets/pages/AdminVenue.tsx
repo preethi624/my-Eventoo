@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 import AdminLayout from "../components/AdminLayout";
 import DataTable from "../components/DataTable";
+import LocationPicker from "../components/LocationPicker";
 
 const defaultForm = {
   name: "",
@@ -24,6 +25,13 @@ const defaultForm = {
   status: "active",
   images: [],
 };
+interface VenueForm {
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
 
 const VenueManagement = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -31,6 +39,8 @@ const VenueManagement = () => {
   const [selectedVenue, setSelectedVenue] = useState<any>(null);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [formData, setFormData] = useState<any>(defaultForm);
+ 
+
   const [searchTerm, setSearchTerm] = useState("");
   const [venues, setVenues] = useState<IVenue[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,6 +76,7 @@ const VenueManagement = () => {
         data.append(key, formData[key]);
       }
     });
+    
 
     const response = await adminRepository.createVenue(data);
     if (response.success) {
@@ -198,7 +209,7 @@ const VenueManagement = () => {
         <ToastContainer position="top-right" autoClose={3000} theme="colored" />
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            {/* Header */}
+           
             <div className="flex justify-between items-center mb-8">
               <div className="mb-6">
                 <div className="relative">
@@ -233,7 +244,7 @@ const VenueManagement = () => {
           </div>
         </div>
 
-        {/* CREATE MODAL */}
+       
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
@@ -374,18 +385,27 @@ const VenueManagement = () => {
                   </button>
                 </div>
               </form>
+              <p>Click on the map to autofill the address 👇</p>
+      <LocationPicker
+        onAddressSelect={(addressData) => {
+          setFormData((prev:VenueForm) => ({
+            ...prev,
+            ...addressData,
+          }));
+        }}
+      />
             </div>
           </div>
         )}
 
-        {/* EDIT MODAL */}
+        
         {showEditModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
               <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
                 <h2 className="text-xl font-semibold">Edit Venue</h2>
 
-                {/* same fields without image */}
+                
                 <div className="mb-2">
                   <label>Venue Name</label>
                   <input
@@ -542,7 +562,7 @@ const VenueManagement = () => {
             <div className="flex justify-between items-center mt-4"></div>
           </div>
         )}
-        {/* Pagination Controls */}
+        
         <div className="flex justify-between items-center mt-6">
           <p className="text-sm text-gray-600">
             Showing page {currentPage} of {totalPages}

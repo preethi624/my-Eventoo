@@ -66,10 +66,33 @@ export const changePassword=async(currentPass:string,newPass:string)=>{
   }
 
 }
+export const getVenues = async () => {
+  try {
+    const response = await axiosInstance.get(
+      `${API_BASE_URL}/venues`
+    );
+   
+
+    if (response) {
+      return {
+        result: response.data,
+        success: true,
+        message: "venues fetched success",
+      };
+    } else {
+      return { success: false, message: "failed" };
+    }
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+};
+
 
 export const userRepository = {
   getUserById,
   updateUser,
   fetchOrganisers,
-  changePassword
+  changePassword,
+  getVenues
 };

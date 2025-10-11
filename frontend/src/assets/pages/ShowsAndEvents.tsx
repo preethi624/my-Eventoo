@@ -8,6 +8,13 @@ import EventCard from "../components/EventCardComponent";
 import EventHistorySticker from "../components/EventHistorySticker";
 import Footer from "../components/Footer";
 
+import { userRepository } from "../../repositories/userRepositories";
+import type { IVenue } from "../../interfaces/IVenue";
+
+
+
+
+
 const ShowsAndEvents: React.FC = () => {
   const [events, setEvents] = useState<IEventDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,15 +25,24 @@ const ShowsAndEvents: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [venues,setVenues]=useState<IVenue[]>([]);
+  const[selectedVenue,setSelectedVenue]=useState("")
   const eventsPerPage = 3;
+  useEffect(()=>{
+    fetchLocations()
+    
+
+
+  },[])
 
   useEffect(() => {
     fetchEvents();
-  }, [selectedCategory, maxPrice, selectedDate, currentPage]);
+  }, [selectedCategory, maxPrice, selectedDate, currentPage,selectedVenue]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       fetchEvents();
+      
     }, 500);
     return () => clearTimeout(handler);
   }, [searchTerm]);
@@ -37,11 +53,22 @@ const ShowsAndEvents: React.FC = () => {
   if (selectedCategory) params.append("selectedCategory", selectedCategory);
   if (maxPrice) params.append("maxPrice", maxPrice.toString());
   if (selectedDate) params.append("selectedDate", selectedDate);
+  if(selectedVenue)params.append("selectedVenue",selectedVenue)
   params.append("page", currentPage.toString());
   params.append("limit", eventsPerPage.toString());
+  const fetchLocations=async()=>{
+    const response=await userRepository.getVenues()
+    console.log("venues",response);
+    setVenues(response.result)
+    
+  }
+  
+  
 
   const fetchEvents = async () => {
     try {
+    
+      
       const response: EventFetchResponse =
         await eventRepository.getOrganiserEvents(params.toString());
 
@@ -222,6 +249,44 @@ const ShowsAndEvents: React.FC = () => {
                       <label className="block text-sm font-bold text-gray-300 uppercase tracking-wider">
                         Search Events
                       </label>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition"></div>
+                        <div className="relative">
+                          {/*<input
+                            type="text"
+                            placeholder="Event name, location, artist..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-14 pr-4 py-4 bg-black/40 border-2 border-white/10 rounded-2xl text-white placeholder-gray-500 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all outline-none backdrop-blur-xl text-sm"
+                          />*/}
+                           <select
+                          value={selectedVenue}
+                          onChange={(e) => setSelectedVenue(e.target.value)}
+                          className="w-full pl-14 pr-4 py-4 bg-black/40 border-2 border-white/10 rounded-2xl text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all outline-none appearance-none cursor-pointer backdrop-blur-xl text-sm font-medium"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a855f7' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                            backgroundPosition: "right 1rem center",
+                            backgroundRepeat: "no-repeat",
+                            backgroundSize: "1.5em 1.5em",
+                            paddingRight: "3rem"
+                          }}
+                        >
+                          <option value="" className="bg-slate-900">All Locations</option>
+                          {venues&&venues.map((v)=>(
+                          <option key={v._id} value={v.city}className="bg-slate-900">{v.city}</option>
+                         
+
+                          ))}
+
+                          
+                        </select>
+                          <div className="absolute left-4 top-4 p-1 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>*
                       <div className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition"></div>
                         <div className="relative">

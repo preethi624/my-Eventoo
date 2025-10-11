@@ -11,7 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageRepository = void 0;
 const message_1 = require("../model/message");
+const mongodb_1 = require("mongodb");
 class MessageRepository {
+    constructor(client) {
+        this.db = client.db("eventDB");
+    }
     saveMessage(senderId, receiverId, message, isOrganiser) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield message_1.MessageModel.create({
@@ -31,6 +35,22 @@ class MessageRepository {
                     { senderId: receiverId, receiverId: senderId },
                 ],
             }).sort({ timestamp: 1 });
+        });
+    }
+    saveFileToStorage(file) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const bucket = new mongodb_1.GridFSBucket(this.db, { bucketName: "files" });
+            return new Promise((resolve, reject) => {
+                const uploadStream = bucket.openUploadStream(file.originalname);
+                uploadStream.end(file.buffer);
+                uploadStream.on("finish", () => {
+                    // You can use the file ID as URL reference
+                    resolve(`/files/${uploadStream.id}`);
+                });
+                uploadStream.on("error", (err) => {
+                    reject(err);
+                });
+            });
         });
     }
 }

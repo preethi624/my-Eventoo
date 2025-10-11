@@ -19,7 +19,23 @@ export const getMessages = async (organiserId: string, userId: string) => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+export const sendFile=async(formData:FormData)=>{
+  try {
+    const response=await axiosInstance.post(`${API_BASE_URL}/message`,formData);
+    console.log("rep res",response);
+    
+    if(response){
+      return response.data
+    }
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+}
 
 export const messageRepository = {
   getMessages,
+  sendFile
 };

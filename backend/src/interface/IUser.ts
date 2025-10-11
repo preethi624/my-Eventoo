@@ -1,5 +1,6 @@
 import { IEventDTO } from "./IEventDTO";
-import { IOrganiser } from "./IOrgAuth";
+import {  IOrganiserDTO } from "./IOrgAuth";
+
 import { IUser } from "./IUserAuth";
 
 
@@ -105,7 +106,7 @@ export interface GetUsers{
 }
 
 export interface GetOrgs{
-  organisers?:IOrganiser[];
+  organisers?:IOrganiserDTO[]
   success?:boolean;
 }
 export interface Recommend{

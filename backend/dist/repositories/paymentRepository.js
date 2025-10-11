@@ -126,11 +126,18 @@ class PaymentRepository {
                 });
                 const ticketsToInsert = [];
                 for (let i = 0; i < updateOrder.ticketCount; i++) {
+                    const ticketId = (0, uuid_1.v4)(); // unique ticket identifier
+                    const qrData = {
+                        ticketId,
+                        orderId: updateOrder._id,
+                        eventId: updateOrder.eventId,
+                        userId: updateOrder.userId,
+                    };
                     ticketsToInsert.push({
                         userId: updateOrder.userId,
                         orderId: updateOrder._id,
                         eventId: updateOrder.eventId,
-                        qrToken: (0, uuid_1.v4)(),
+                        qrToken: JSON.stringify(qrData),
                         issuedAt: new Date(),
                         checkedIn: false,
                     });

@@ -15,6 +15,7 @@ export interface IEventController{
         findRecommended(req:Request,res:Response):Promise<void>
         findNear(req:Request,res:Response):Promise<void>
          getCompleted(req: Request, res: Response): Promise<void>
+       
      
         
     

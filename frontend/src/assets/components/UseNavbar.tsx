@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { logout } from "../../redux/slices/authSlices";
 import type { AppDispatch, RootState } from "../../redux/stroe";
 import targetLogo from "../images/target_3484438 (2).png";
+import { useEffect } from "react"
+import axios from "axios";
 
 export interface CustomJwtPayload {
   name?: string;
@@ -14,6 +16,9 @@ const UserNavbar: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [location, setLocation] = useState<string>(""); 
+const [loadingLocation, setLoadingLocation] = useState<boolean>(true);
+
 
   const handleLogout = () => {
     if (intervalRef.current) {
@@ -30,6 +35,96 @@ const UserNavbar: React.FC = () => {
   const username = user?.name || user?.email;
   const isLoggedin = !!user;
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+
+
+const fetchLocationName = async (latitude: number, longitude: number) => {
+  try {
+    const response = await axios.get(
+      "https://api.opencagedata.com/geocode/v1/json",
+      {
+        params: {
+          q: `${latitude},${longitude}`,
+          key: `${import.meta.env.VITE_REACT_APP_OPENCAGE_API_KEY}`,
+          pretty: 1,
+          no_annotations: 1,
+        },
+      }
+    );
+    console.log("respoo",response);
+    
+
+    if (response.data && response.data.results.length > 0) {
+      const components = response.data.results[0].components;
+     const city =
+  components.city ||
+  components.town ||
+  components.village ||
+  components.county ||
+  components.state_district ||
+  "Unknown place";
+      const state = components.state || "";
+      const country = components.country || "";
+
+      console.log("Location:", city, state, country);
+      return { city, state, country };
+    } else {
+      return { city: "", state: "", country: "" };
+    }
+  } catch (error) {
+    console.error("Error fetching location from OpenCage", error);
+    return { city: "", state: "", country: "" };
+  }
+};
+
+useEffect(() => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        
+            const { latitude, longitude } = position.coords;
+        console.log("lat&long",longitude);
+         if (latitude && longitude) {
+    fetchLocationName(latitude, longitude).then((loc) => {
+      setLocation(`${loc.city}, ${loc.state}, ${loc.country}`);
+    })
+    .catch(() => {
+      setLocation("Unknown location");
+    })
+    .finally(() => {
+      setLoadingLocation(false);
+    });
+  }
+        
+          
+        
+      
+        
+
+        
+       
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        setLocation("Location denied");
+        setLoadingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  } else {
+    setLocation("Geolocation not supported");
+    setLoadingLocation(false);
+  }
+
+}, []);
+console.log("location",location);
+
+
+
 
   return (
     <>
@@ -117,6 +212,11 @@ const UserNavbar: React.FC = () => {
                     </div>
                     <span className="text-sm font-semibold text-white group-hover:text-purple-400 transition-colors">
                       {username}
+                      {loadingLocation ? (
+    <span className="text-xs text-gray-300">Loading...</span>
+  ) : (
+    <span className="text-xs text-gray-400 ml-1">({location})</span>
+  )}
                     </span>
                   </Link>
                   <button
@@ -212,7 +312,7 @@ const UserNavbar: React.FC = () => {
                 className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl font-medium transition-all group"
               >
                 <span className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-lg group-hover:bg-purple-500/20 transition-all">
-                  ℹ️
+                 
                 </span>
                 About Us
               </Link>

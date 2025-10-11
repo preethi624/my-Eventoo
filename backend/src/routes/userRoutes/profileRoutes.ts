@@ -26,5 +26,6 @@ router.get(
   userController.getOrgs.bind(userController)
 );
 router.put('/',authMiddlewarwSet.userOnly,userController.changePassword.bind(userController))
+router.get("/venues",authMiddlewarwSet.userOnly,userController.fetchVenues.bind(userController))
 
 export default router;

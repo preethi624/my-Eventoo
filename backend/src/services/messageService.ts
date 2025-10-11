@@ -32,4 +32,9 @@ export class MessageService implements IMessageService {
       return { success: false };
     }
   }
+  async postMessage(file: Express.Multer.File):Promise<{fileUrl:string}> {
+    
+    const fileUrl = await this._messageRepository.saveFileToStorage(file);
+    return { fileUrl };
+  }
 }

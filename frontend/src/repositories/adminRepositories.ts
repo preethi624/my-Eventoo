@@ -264,7 +264,7 @@ export const fetchBookings = async (filters: string) => {
 };
 export const createVenue = async (formData: FormData) => {
   try {
-    console.log("form", formData);
+   
 
     const token = localStorage.getItem("adminToken");
 

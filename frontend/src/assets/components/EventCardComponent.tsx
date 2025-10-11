@@ -9,6 +9,8 @@ import {
 import type { IEventDTO } from "../../interfaces/IEvent";
 import CountdownTimer from "./CountDownTimer";
 
+
+
 type EventCardProps = {
   event: IEventDTO;
   onClick: (id: string) => void;

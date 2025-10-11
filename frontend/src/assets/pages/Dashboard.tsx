@@ -384,7 +384,7 @@ const Dashboard = () => {
 
   return (
     <OrganiserLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ">
         {/* Modern Dark Header */}
         <div className="relative overflow-hidden border-b border-slate-700/50">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>

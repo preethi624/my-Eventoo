@@ -115,6 +115,19 @@ class UserController {
             }
         });
     }
+    fetchVenues(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._userService.venuesFetch();
+                if (response.success) {
+                    res.json(response.venues);
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.UserController = UserController;
 //# sourceMappingURL=userController.js.map

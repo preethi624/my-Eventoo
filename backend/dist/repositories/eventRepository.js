@@ -28,7 +28,8 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     getEvents(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { selectedCategory, maxPrice, selectedDate, searchTerm, page = 1, limit = 6, } = filters;
+            const { selectedVenue, selectedCategory, maxPrice, selectedDate, searchTerm, page = 1, limit = 6, } = filters;
+            console.log("selected venue", selectedVenue);
             const skip = (page - 1) * limit;
             const query = {
                 isBlocked: false,
@@ -42,6 +43,9 @@ class EventRepository extends baseRepository_1.BaseRepository {
             }
             if (selectedCategory) {
                 query.category = { $regex: selectedCategory, $options: "i" };
+            }
+            if (selectedVenue) {
+                query.venue = { $regex: selectedVenue, $options: "i" };
             }
             if (maxPrice != undefined && maxPrice != null) {
                 query.ticketPrice = { $lte: maxPrice };
@@ -113,7 +117,6 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     createEvent(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("data", data);
             const event = yield event_1.default.create(data);
             yield notification_1.default.create({
                 organizerId: event.organiser,
@@ -427,7 +430,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
             return yield event_1.default.find(Object.assign(Object.assign({}, query), { location: {
                     $near: {
                         $geometry: { type: "Point", coordinates: [lng, lat] },
-                        $maxDistance: 50000,
+                        $maxDistance: 200000,
                     },
                 } }));
         });

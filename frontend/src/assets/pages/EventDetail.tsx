@@ -23,6 +23,8 @@ const EventDetail: React.FC = () => {
   const [event, setEvent] = useState<IEventDTO | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  console.log("event",event);
+  
 
   const navigate = useNavigate();
 

@@ -151,11 +151,18 @@ export class PaymentRepository implements IPaymentRepository {
       });
       const ticketsToInsert = [];
       for (let i = 0; i < updateOrder.ticketCount; i++) {
+        const ticketId = uuidv4(); // unique ticket identifier
+  const qrData = {
+    ticketId,
+    orderId: updateOrder._id,
+    eventId: updateOrder.eventId,
+    userId: updateOrder.userId,
+  };
         ticketsToInsert.push({
           userId: updateOrder.userId,
           orderId: updateOrder._id,
           eventId: updateOrder.eventId,
-          qrToken: uuidv4(),
+          qrToken: JSON.stringify(qrData),
           issuedAt: new Date(),
           checkedIn: false,
         });

@@ -27,6 +27,8 @@ interface EventGetById {
 
 export const createEvent = async (data: FormData): Promise<CreateEvent> => {
   try {
+    console.log('data',data);
+    
     
     
     
@@ -62,6 +64,8 @@ export const getOrganiserEvents = async (
   filters: string
 ): Promise<EventFetchResponse> => {
   try {
+    console.log("filters",filters);
+    
    
     
     const response = await axiosInstance.get<EventFetchResponse>(
@@ -106,6 +110,8 @@ export const editEvent = async (
   id: string,
   editForm: EventEdit
 ): Promise<CreateEvent> => {
+  console.log("edit",editForm);
+  
  
   
   try {
@@ -118,6 +124,8 @@ export const editEvent = async (
     formData.append("time",editForm.time);
     formData.append("status",editForm.status);
     formData.append("ticketPrice",String(editForm.ticketPrice));
+    formData.append("ticketTypes", JSON.stringify(editForm.ticketTypes));
+
     formData.append("ticketSold",String(editForm.ticketsSold));
     formData.append("venue",editForm.venue);
     if(editForm.images&&editForm.images[0]){

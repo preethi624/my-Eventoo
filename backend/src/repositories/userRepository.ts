@@ -5,6 +5,7 @@ import { ProfileEdit } from "src/interface/IUser";
 import { IOrganiser } from "src/interface/IOrgAuth";
 import Organiser from "../model/organiser";
 import bcrypt from "bcrypt";
+import Venue, { IVenue } from "../model/venue";
 
 export class UserRepository implements IUserRepository {
   async getUser(userId: string): Promise<IUser | null> {
@@ -50,5 +51,8 @@ export class UserRepository implements IUserRepository {
       console.log(error);
     return { success: false };
     }
+  }
+  async fetchVenues():Promise<IVenue[]>{
+    return await Venue.find()
   }
 }

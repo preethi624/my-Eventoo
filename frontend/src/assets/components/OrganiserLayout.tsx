@@ -15,7 +15,7 @@ const OrganiserLayout: React.FC<LayoutProps> = ({ children }) => {
 
       <div className="ml-[250px] w-[calc(100%-250px)]">
         <OrganiserNavbar />
-        <main className="p-5 mt-[60px]">{children}</main>
+        <main className=" mt-[60px]">{children}</main>
       </div>
     </div>
   );

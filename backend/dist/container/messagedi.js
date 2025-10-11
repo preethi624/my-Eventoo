@@ -4,7 +4,10 @@ exports.messageController = exports.messageService = void 0;
 const messageController_1 = require("../controllers/messageController");
 const messageRepository_1 = require("../repositories/messageRepository");
 const messageService_1 = require("../services/messageService");
-const messageRepository = new messageRepository_1.MessageRepository();
+const mongodb_1 = require("mongodb");
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/eventDB";
+const client = new mongodb_1.MongoClient(MONGO_URI);
+const messageRepository = new messageRepository_1.MessageRepository(client);
 exports.messageService = new messageService_1.MessageService(messageRepository);
 exports.messageController = new messageController_1.MessageController(exports.messageService);
 //# sourceMappingURL=messagedi.js.map

@@ -1,8 +1,13 @@
 
 import { IMessage, MessageModel } from "../model/message";
 import { IMessageRepository } from "./repositoryInterface/IMessageRepository";
+import { MongoClient, GridFSBucket,Db } from "mongodb"
 
 export class MessageRepository implements IMessageRepository {
+    private db: Db;
+    constructor(client: MongoClient) {
+    this.db = client.db("eventDB"); 
+  }
   async saveMessage(
     senderId: string,
     receiverId: string,
@@ -24,6 +29,23 @@ export class MessageRepository implements IMessageRepository {
         { senderId: receiverId, receiverId: senderId },
       ],
     }).sort({ timestamp: 1 });
+  }
+  async saveFileToStorage(file: Express.Multer.File): Promise<string> {
+    const bucket = new GridFSBucket(this.db, { bucketName: "files" });
+
+    return new Promise((resolve, reject) => {
+      const uploadStream = bucket.openUploadStream(file.originalname);
+      uploadStream.end(file.buffer);
+
+      uploadStream.on("finish", () => {
+        // You can use the file ID as URL reference
+        resolve(`/files/${uploadStream.id}`);
+      });
+
+      uploadStream.on("error", (err) => {
+        reject(err);
+      });
+    });
   }
 }
     

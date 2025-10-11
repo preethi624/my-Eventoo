@@ -20,6 +20,7 @@ import Notification from "../model/notification";
 
 
 
+
 export class EventRepository
   extends BaseRepository<IEvent>
   implements IEventRepository
@@ -31,6 +32,7 @@ export class EventRepository
     
 
     const {
+      selectedVenue,
       selectedCategory,
       maxPrice,
       selectedDate,
@@ -39,6 +41,8 @@ export class EventRepository
       limit = 6,
     
     } = filters;
+    console.log("selected venue",selectedVenue);
+    
     
     
 
@@ -59,6 +63,11 @@ export class EventRepository
     if (selectedCategory) {
       query.category = { $regex: selectedCategory, $options: "i" };
     }
+    if (selectedVenue) {
+      query.venue = { $regex: selectedVenue, $options: "i" };
+    }
+   
+
     
     if (maxPrice != undefined && maxPrice != null) {
       query.ticketPrice = { $lte: maxPrice };
@@ -139,7 +148,7 @@ export class EventRepository
     return await this.findById(id);
   }
   async createEvent(data: IEventDTO): Promise<IEvent> {
-    console.log("data",data);
+
     
     const event= await EventModel.create(data);
     await Notification.create({
@@ -507,11 +516,12 @@ async findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]
       location: {
       $near: {
         $geometry: { type: "Point", coordinates: [lng, lat] },
-        $maxDistance: 50000,
+        $maxDistance: 200000,
       },
     },
     });
-   
+    
   }
+  
 
 }
