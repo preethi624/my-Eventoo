@@ -157,7 +157,7 @@ connectDB()
   .then(async () => {
     await updateCompletedEvents();
     cron.schedule("0 0 * * *", updateCompletedEvents);
-    httpServer.listen(PORT, () => {
+    httpServer.listen(Number(PORT), "0.0.0.0", () => {
       logger.info(`Server running at http://localhost:${PORT}`);
     });
   })
