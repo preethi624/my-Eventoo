@@ -43,12 +43,16 @@ function broadcastOnlineUsers() {
 
 
 config();
+const allowedOrigins = [
+  'http://65.0.108.51',     // your EC2 frontend
+  'http://localhost:5173',  // optional for local development
+];
 
 export const app: Application = express();
 const httpServer = createServer(app);
 export const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   },
 });
