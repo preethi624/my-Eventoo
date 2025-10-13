@@ -347,31 +347,7 @@ filter.$or = [
   organiserEarning += ticketRevenue - totalAdminCut;
   totalAttendees += attendees;
 });
-    /*completedEvents.forEach((event) => {
-      //const ticketRevenue = event.ticketPrice * event.ticketsSold;
-      let ticketRevenue = 0;
-
-if (event.ticketTypes && event.ticketTypes.length > 0) {
-  
-  ticketRevenue = event.ticketTypes.reduce(
-    (sum, t) => sum + (t.price ?? 0) * (t.sold ?? 0),
-    0
-  );
-} else {
-  
-  ticketRevenue = (event.ticketPrice ?? 0) * (event.ticketsSold ?? 0);
-}
-      const adminCutPerTicket =
-        (event.ticketPrice * adminCommissionPercentage) / 100;
-      const totalAdminCut = adminCutPerTicket * event.ticketsSold;
-
-      organiserEarning += ticketRevenue - totalAdminCut;
-    });
    
-    const totalAttendees = completedEvents.reduce(
-      (sum, event) => sum + event.ticketsSold,
-      0
-    );*/
      const totalEvents = events.length;
 
     const upcomingEvents = events
