@@ -57,7 +57,7 @@ export const io = new Server(httpServer, {
   },
 });
 
-// Middleware
+// Middlewares
 app.use(
   morgan('combined', {
     stream: {
