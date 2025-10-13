@@ -5,4 +5,4 @@ import { EventService } from "../services/eventService";
 const eventRepository=new EventRepository();
 
 const eventService=new EventService(eventRepository);
-export const eventController=new EventController(eventService)
+export const eventController=new EventController(eventService)//in event di
