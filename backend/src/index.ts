@@ -185,7 +185,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
+// start server
 const PORT = process.env.PORT || 3000;
 
 connectDB()
