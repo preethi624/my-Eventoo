@@ -52,12 +52,27 @@ const allowedOrigins = [
 
 export const app: Application = express();
 const httpServer = createServer(app);
-export const io = new Server(httpServer, {
+/*export const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
     credentials: true,
   },
+});*/
+export const io = new Server(httpServer, {
+  cors: {
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ Socket.IO blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS (Socket.IO)"));
+      }
+    },
+    credentials: true,
+  },
 });
+
 
 // Middlewares
 app.use(
@@ -70,12 +85,26 @@ app.use(
 app.use(express.json());
 
 app.use(cookieParser());
-app.use(
+/*app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
   })
-);
+);*/
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., mobile apps, curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("❌ Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
