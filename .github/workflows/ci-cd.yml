@@ -33,5 +33,6 @@ jobs:
           docker build \
             --build-arg FRONTEND_VITE_REACT_APP_API_BASE_URL=${{ secrets.FRONTEND_VITE_REACT_APP_API_BASE_URL }} \
             --build-arg FRONTEND_VITE_REACT_APP_SOCKET_URL=${{ secrets.FRONTEND_VITE_REACT_APP_SOCKET_URL }} \
+              --build-arg FRONTEND_VITE_REACT_APP_OPENCAGE_API_KEY=${{ secrets.FRONTEND_VITE_REACT_APP_OPENCAGE_API_KEY }} \
             -t ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest ./frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
