@@ -46,8 +46,12 @@ config();
 const allowedOrigins = [
   'http://65.0.108.51',     // your EC2 frontend
   'http://localhost:5173',  // optional for local development
-  'http://eventoo.co.in',      // Your domain (non-www)
-  'http://www.eventoo.co.in',  // Your domain (with www)
+  'https://www.eventoo.co.in',      // Your domain (non-www)
+  'https://eventoo.co.in',  // Your domain (with www)
+  'http://www.eventoo.co.in',
+  'http://eventoo.co.in',
+
+
 ];
 
 export const app: Application = express();
