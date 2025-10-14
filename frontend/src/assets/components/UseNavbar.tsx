@@ -263,7 +263,7 @@ console.log("location",location);
           onClick={() => setMenuOpen(false)}
         ></div>
 
-        {/* Menu Panel */}
+        {/* Menu Panel s*/}
         <div
           className={`absolute top-0 right-0 h-full w-80 bg-gradient-to-br from-slate-950 via-black to-slate-950 border-l border-white/10 shadow-2xl transition-transform duration-300 ${
             menuOpen ? "translate-x-0" : "translate-x-full"
