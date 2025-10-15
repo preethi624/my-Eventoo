@@ -375,6 +375,7 @@ const ShowsAndEvents: React.FC = () => {
                         setMaxPrice(null);
                         setSelectedDate("");
                         setSearchTerm("");
+                        setSelectedVenue("")
                       }}
                       className="w-full py-4 bg-gradient-to-r from-red-500/10 to-pink-500/10 hover:from-red-500/20 hover:to-pink-500/20 text-white font-bold rounded-2xl transition-all duration-300 border-2 border-red-500/20 hover:border-red-500/40 backdrop-blur-xl flex items-center justify-center gap-3 group mt-8"
                     >
