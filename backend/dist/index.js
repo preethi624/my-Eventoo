@@ -52,15 +52,39 @@ function broadcastOnlineUsers() {
     exports.io.emit("online-users", onlineUsers);
 }
 (0, dotenv_1.config)();
+const allowedOrigins = [
+    'http://65.0.108.51', // your EC2 frontend
+    'http://localhost:5173', // optional for local development
+    'https://www.eventoo.co.in', // Your domain (non-www)
+    'https://eventoo.co.in', // Your domain (with www)
+    'http://www.eventoo.co.in',
+    'http://eventoo.co.in',
+];
 exports.app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(exports.app);
+/*export const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});*/
 exports.io = new socket_io_1.Server(httpServer, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: function (origin, callback) {
+            if (!origin)
+                return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                callback(null, true);
+            }
+            else {
+                console.log("❌ Socket.IO blocked by CORS:", origin);
+                callback(new Error("Not allowed by CORS (Socket.IO)"));
+            }
+        },
         credentials: true,
     },
 });
-// Middleware
+// Middlewares
 exports.app.use((0, morgan_1.default)('combined', {
     stream: {
         write: (message) => logger_1.default.http(message.trim()),
@@ -68,8 +92,25 @@ exports.app.use((0, morgan_1.default)('combined', {
 }));
 exports.app.use(express_1.default.json());
 exports.app.use((0, cookie_parser_1.default)());
+/*app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);*/
 exports.app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+        // Allow requests with no origin (e.g., mobile apps, curl)
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            console.log("❌ Blocked by CORS:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
 }));
 exports.app.use((req, res, next) => {
@@ -139,13 +180,13 @@ exports.io.on("connection", (socket) => {
         broadcastOnlineUsers();
     });
 });
-// Start Server
+// start server
 const PORT = process.env.PORT || 3000;
 (0, db_1.default)()
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, updateCompletedEvents_1.updateCompletedEvents)();
     node_cron_1.default.schedule("0 0 * * *", updateCompletedEvents_1.updateCompletedEvents);
-    httpServer.listen(PORT, () => {
+    httpServer.listen(Number(PORT), "0.0.0.0", () => {
         logger_1.default.info(`Server running at http://localhost:${PORT}`);
     });
 }))

@@ -64,13 +64,27 @@ const OrganizerChatPage: React.FC = () => {
 
   const fetchMessages = async () => {
     try {
+    
       console.log("org", selectedUser);
       if (!orgId || !userId) {
         throw new Error("organiser and user id undefined");
       }
       const response = await messageRepository.getMessages(orgId, userId);
       console.log("messres", response);
+      
       setMessages(response.messages);
+      if (response.messages.length > 0) {
+      const lastMsg = response.messages[response.messages.length - 1];
+      setLastMessage((prev) => ({
+        ...prev,
+        [userId]: {
+          message: lastMsg.message,
+          timestamp: lastMsg.timestamp,
+        },
+      }));
+    }
+     
+      
     } catch (error) {
       console.log(error);
     }
@@ -101,35 +115,7 @@ const OrganizerChatPage: React.FC = () => {
       fetchMessages();
     }
   }, [selectedUser, organiser]);
-   useEffect(() => {
-      const lastMsgs: Record<string, { message: string; timestamp: Date }> = {};
-      if (!organiser?.id || users.length === 0) return;
-      const fetch = async () => {
-        for (const org of users) {
-          
-          const response = await messageRepository.getMessages(org._id, userId);
-          const msgs = response.messages;
-          console.log("msgs", msgs);
-  
-          if (msgs.length > 0) {
-            const lastMsg = msgs.reduce(
-              (
-                a: { message: string; timestamp: Date },
-                b: { message: string; timestamp: Date }
-              ) => (new Date(a.timestamp) > new Date(b.timestamp) ? a : b)
-            );
-            lastMsgs[org._id] = {
-              message: lastMsg.message,
-              timestamp: lastMsg.timestamp,
-            };
-          }
-        }
-        setLastMessage(lastMsgs);
-      };
-      fetch();
-    }, [organiser, users]);
-  
-
+   
   useEffect(() => {
     socket.on("online-users", (userIds: string[]) => {
       setOnlineUsers(userIds);
@@ -177,12 +163,29 @@ const OrganizerChatPage: React.FC = () => {
 
     setMessage("");
     setSelectedFileurl(null);
+    setLastMessage((prev) => ({
+  ...prev,
+  [selectedUser._id!]: {
+    message: message || "📎 File sent",
+    timestamp: new Date(),
+  },
+}));
+
+    
   };
 
   useEffect(() => {
     socket.on("receive-message", (data) => {
       console.log("New Message", data);
       setMessages((prevMessage) => [...prevMessage, data]);
+      setLastMessage((prev) => ({
+    ...prev,
+    [data.senderId]: {
+      message: data.message,
+      timestamp: data.timestamp,
+    },
+  }));
+       
     });
     return () => {
       socket.off("receive-message");
