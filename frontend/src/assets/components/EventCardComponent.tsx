@@ -115,7 +115,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
                   <h3 className="text-xs font-bold uppercase tracking-wider">Tickets</h3>
                 </div>
                 <div className="space-y-1.5">
-                  {Object.entries(event.ticketTypes).slice(0, 3).map(([key, value], i) => (
+                  {Object.entries(event.ticketTypes).slice(0, 3).map(([_, value], i) => (
+                     
                     <div
                       key={i}
                       className="flex items-center justify-between bg-black/40 backdrop-blur-sm px-2.5 py-2 rounded-lg border border-white/5 hover:border-purple-500/30 transition-colors"
