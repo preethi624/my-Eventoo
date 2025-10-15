@@ -92,7 +92,7 @@ const NearEventsPage: React.FC = () => {
             
             <h1 className="text-5xl md:text-6xl font-bold">
               <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent">
-                Events Near You
+                Event Near You
               </span>
             </h1>
             

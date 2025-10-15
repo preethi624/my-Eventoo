@@ -50,26 +50,26 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             # Pull latest images
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
             
             # Stop old containers if running
-            docker stop backend || true
-            docker stop frontend || true
+            sudo docker stop backend || true
+            sudo docker stop frontend || true
 
             # Remove old containers
-            docker rm backend || true
-            docker rm frontend || true
+            sudo docker rm backend || true
+            sudo docker rm frontend || true
 
             # Run new containers with network and env file
-            docker run -d \
+            sudo docker run -d \
               --name backend \
               --network webnet \
               --env-file /home/ubuntu/mern-deploy/.env \
               -p 5000:5000 \
               ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-            docker run -d \
+            sudo docker run -d \
               --name frontend \
               --network webnet \
               -p 8080:80 \
