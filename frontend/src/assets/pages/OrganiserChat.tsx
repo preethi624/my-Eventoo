@@ -60,7 +60,7 @@ const OrganizerChatPage: React.FC = () => {
   };
 
   const orgId = organiser?.id;
-  const userId = selectedUser._id;
+  const userId = selectedUser._id ?? "";
 
   const fetchMessages = async () => {
     try {
@@ -106,7 +106,7 @@ const OrganizerChatPage: React.FC = () => {
       if (!organiser?.id || users.length === 0) return;
       const fetch = async () => {
         for (const org of users) {
-          if(!userId)throw new Error("userId is need")
+          
           const response = await messageRepository.getMessages(org._id, userId);
           const msgs = response.messages;
           console.log("msgs", msgs);
