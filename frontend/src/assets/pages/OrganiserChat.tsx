@@ -46,6 +46,9 @@ const OrganizerChatPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileurl, setSelectedFileurl] = useState<File | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [lastMessage, setLastMessage] = useState<
+    Record<string, { timestamp: Date; message: string }>
+  >({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
@@ -98,6 +101,34 @@ const OrganizerChatPage: React.FC = () => {
       fetchMessages();
     }
   }, [selectedUser, organiser]);
+   useEffect(() => {
+      const lastMsgs: Record<string, { message: string; timestamp: Date }> = {};
+      if (!organiser?.id || users.length === 0) return;
+      const fetch = async () => {
+        for (const org of users) {
+          if(!userId)throw new Error("userId is need")
+          const response = await messageRepository.getMessages(org._id, userId);
+          const msgs = response.messages;
+          console.log("msgs", msgs);
+  
+          if (msgs.length > 0) {
+            const lastMsg = msgs.reduce(
+              (
+                a: { message: string; timestamp: Date },
+                b: { message: string; timestamp: Date }
+              ) => (new Date(a.timestamp) > new Date(b.timestamp) ? a : b)
+            );
+            lastMsgs[org._id] = {
+              message: lastMsg.message,
+              timestamp: lastMsg.timestamp,
+            };
+          }
+        }
+        setLastMessage(lastMsgs);
+      };
+      fetch();
+    }, [organiser, users]);
+  
 
   useEffect(() => {
     socket.on("online-users", (userIds: string[]) => {
@@ -245,6 +276,19 @@ const OrganizerChatPage: React.FC = () => {
                       {user.name}
                     </h3>
                     <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                     {lastMessage[user._id]?.message && (
+                        <p className="text-xs text-slate-500 truncate">
+                          {lastMessage[user._id].message}
+                        </p>
+                      )}
+                      {lastMessage[user._id]?.timestamp && (
+                        <p className="text-xs text-slate-600 mt-1">
+                          {new Date(lastMessage[user._id].timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>
