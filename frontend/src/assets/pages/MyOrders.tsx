@@ -325,7 +325,7 @@ const MyOrderPage: React.FC = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           
           <h1 className="text-5xl md:text-7xl font-black text-white mb-4">
-            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Bookings</span>
+            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Booking</span>
           </h1>
           <p className="text-xl text-gray-400">Track and manage your event experiences</p>
         </div>
