@@ -72,7 +72,7 @@ export default function AboutUsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         <UserNavbar/>
-      {/* Hero Section */}
+      {/* Hero Sections*/}
       <div className="relative h-[70vh] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-purple-900/90 z-10"></div>
         <img 
