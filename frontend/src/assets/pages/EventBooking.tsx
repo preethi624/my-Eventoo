@@ -397,7 +397,7 @@ const EventBooking: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
               <FaTicketAlt className="text-white" />
             </div>
-            Select Ticket
+            Select Tickets
           </h2>
 
           <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 mb-6">
