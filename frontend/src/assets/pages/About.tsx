@@ -235,7 +235,7 @@ export default function AboutUsPage() {
         </div>
       </div>
 
-      {/* Team Section */}
+      {/* Team Sections*/}
       <div className="bg-gray-50 py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
