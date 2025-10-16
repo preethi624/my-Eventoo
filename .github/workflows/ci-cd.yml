@@ -3,49 +3,39 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - main  # runs when you push to main branch
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      BACKEND_TAG: ${{ steps.set-tags.outputs.BACKEND_TAG }}
-      FRONTEND_TAG: ${{ steps.set-tags.outputs.FRONTEND_TAG }}
 
     steps:
-      # 1️⃣ Checkout code
+      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Log in to Docker Hub
+      # 2. Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3️⃣ Set commit SHA tags
-      - name: Set tags
-        id: set-tags
-        run: |
-          echo "BACKEND_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          echo "FRONTEND_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-
-      # 4️⃣ Build and push backend image
+      # 3. Build and push backend image
       - name: Build and Push Backend
         run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/my-backend:${GITHUB_SHA::7} ./backend
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:${GITHUB_SHA::7}
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/my-backend:latest ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-      # 5️⃣ Build and push frontend image
+      # 4. Build and push frontend image
       - name: Build and Push Frontend
         run: |
           docker build --no-cache \
             --build-arg FRONTEND_VITE_REACT_APP_API_BASE_URL=${{ secrets.FRONTEND_VITE_REACT_APP_API_BASE_URL }} \
             --build-arg FRONTEND_VITE_REACT_APP_SOCKET_URL=${{ secrets.FRONTEND_VITE_REACT_APP_SOCKET_URL }} \
             --build-arg FRONTEND_VITE_REACT_APP_OPENCAGE_API_KEY=${{ secrets.FRONTEND_VITE_REACT_APP_OPENCAGE_API_KEY }} \
-            -t ${{ secrets.DOCKER_USERNAME }}/my-frontend:${GITHUB_SHA::7} ./frontend
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-frontend:${GITHUB_SHA::7}
+            -t ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
 
   deploy-to-ec2:
     runs-on: ubuntu-latest
@@ -59,29 +49,28 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # ✅ Get the commit SHA tags from the previous job
-            BACKEND_TAG=${{ needs.build-and-push.outputs.BACKEND_TAG }}
-            FRONTEND_TAG=${{ needs.build-and-push.outputs.FRONTEND_TAG }}
+            # Pull latest images
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
+            
+            # Stop old containers if running
+            sudo docker stop backend || true
+            sudo docker stop frontend || true
 
-            # Pull images from Docker Hub
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:$BACKEND_TAG
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-frontend:$FRONTEND_TAG
+            # Remove old containers
+            sudo docker rm backend || true
+            sudo docker rm frontend || true
 
-            # Stop and remove old containers
-            sudo docker rm -f backend || true
-            sudo docker rm -f frontend || true
-
-            # Run new backend container
+            # Run new containers with network and env file
             sudo docker run -d \
               --name backend \
               --network webnet \
               --env-file /home/ubuntu/mern-deploy/.env \
               -p 5000:5000 \
-              ${{ secrets.DOCKER_USERNAME }}/my-backend:$BACKEND_TAG
+              ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-            # Run new frontend container
             sudo docker run -d \
               --name frontend \
               --network webnet \
               -p 8080:80 \
-              ${{ secrets.DOCKER_USERNAME }}/my-frontend:$FRONTEND_TAG
+              ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
