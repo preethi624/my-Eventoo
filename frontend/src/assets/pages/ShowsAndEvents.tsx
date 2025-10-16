@@ -390,7 +390,7 @@ const ShowsAndEvents: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {/* Right - Events Grid */}
+          {/* Right - Events Grids */}
           <div className="flex-1">
             {events.length > 0 ? (
               <>
