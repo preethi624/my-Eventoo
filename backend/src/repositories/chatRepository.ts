@@ -135,7 +135,7 @@ Your task:
 `;
 
 
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = ai.getGenerativeModel({ model: "models/gemini-2.5-flash" });
       const result = await model.generateContent({
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       });

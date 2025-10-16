@@ -123,7 +123,7 @@ Your task:
 - If there is no relevant data, still respond politely with a single bullet point saying "No relevant information found."
 - Keep the tone friendly and helpful.
 `;
-                const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const model = ai.getGenerativeModel({ model: "models/gemini-2.5-flash" });
                 const result = yield model.generateContent({
                     contents: [{ role: "user", parts: [{ text: prompt }] }],
                 });
