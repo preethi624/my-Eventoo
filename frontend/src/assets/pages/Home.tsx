@@ -102,9 +102,10 @@ const HomePage: FC = () => {
               </span>
             </motion.div>
 
-            <h1 className="text-7xl md:text-8xl lg:text-[140px] font-black text-white tracking-tight leading-[0.9]">
+            
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[140px] font-black text-white tracking-tight leading-tight sm:leading-[0.95] md:leading-[0.9]">
               Experience
-              <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-shift">
+              <span className="block mt-2 sm:mt-3 md:mt-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-shift">
                 Unforgettable
               </span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient-shift">

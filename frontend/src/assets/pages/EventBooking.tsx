@@ -340,9 +340,9 @@ const EventBooking: React.FC = () => {
       </div>
     );
 
-  const renderStepIndicator = () => (
-    <div className="flex justify-center mb-12">
-      <div className="flex items-center">
+ const renderStepIndicator = () => (
+    <div className="flex justify-center mb-8 sm:mb-12 px-2">
+      <div className="flex items-center max-w-full overflow-x-auto pb-2 sm:pb-0">
         {[
           { num: 1, label: "Tickets" },
           { num: 2, label: "Details" },
@@ -350,9 +350,9 @@ const EventBooking: React.FC = () => {
           { num: 4, label: "Confirm" },
         ].map((step, index) => (
           <React.Fragment key={step.num}>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-shrink-0">
               <div
-                className={`rounded-full h-14 w-14 flex items-center justify-center font-bold text-lg transition-all duration-300 ${
+                className={`rounded-full h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 flex items-center justify-center font-bold text-sm sm:text-base md:text-lg transition-all duration-300 ${
                   bookingStep >= step.num
                     ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30"
                     : "bg-white/5 border-2 border-white/10 text-gray-400"
@@ -361,7 +361,7 @@ const EventBooking: React.FC = () => {
                 {step.num}
               </div>
               <span
-                className={`text-xs mt-2 font-medium ${
+                className={`text-[10px] sm:text-xs mt-1 sm:mt-2 font-medium whitespace-nowrap ${
                   bookingStep >= step.num ? "text-purple-300" : "text-gray-500"
                 }`}
               >
@@ -370,7 +370,7 @@ const EventBooking: React.FC = () => {
             </div>
             {index < 3 && (
               <div
-                className={`w-20 h-1 mx-2 mt-[-20px] rounded-full transition-all duration-300 ${
+                className={`w-12 sm:w-16 md:w-20 h-0.5 sm:h-1 mx-1 sm:mx-2 mb-5 sm:mb-6 flex-shrink-0 rounded-full transition-all duration-300 ${
                   bookingStep > step.num
                     ? "bg-gradient-to-r from-purple-600 to-blue-600"
                     : "bg-white/10"
@@ -382,7 +382,6 @@ const EventBooking: React.FC = () => {
       </div>
     </div>
   );
-
   const renderTicketSelection = () => {
     const currentTicket = event.ticketTypes.find((t) => t.type === selectedType);
     const availableTickets =
