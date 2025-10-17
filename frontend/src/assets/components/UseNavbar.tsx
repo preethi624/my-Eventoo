@@ -265,11 +265,13 @@ console.log("location",location);
 
         {/* Menu Panel s*/}
         <div
-          className={`absolute top-0 right-0 h-full w-80 bg-gradient-to-br from-slate-950 via-black to-slate-950 border-l border-white/10 shadow-2xl transition-transform duration-300 ${
-            menuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="p-6 space-y-6">
+  className={`absolute top-0 right-0 h-full w-80 bg-gradient-to-br from-slate-950 via-black to-slate-950 border-l border-white/10 shadow-2xl transition-transform duration-300 ${
+    menuOpen ? "translate-x-0" : "translate-x-full"
+  }`}
+>
+  <div className="flex flex-col h-full overflow-y-auto p-6 space-y-6">
+
+       
             {/* Mobile Header */}
             <div className="flex items-center justify-between pb-6 border-b border-white/10">
               <span className="text-xl font-black bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
