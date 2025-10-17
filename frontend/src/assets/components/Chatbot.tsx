@@ -1,4 +1,4 @@
-import  { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaTimes, FaPaperPlane, FaUser } from 'react-icons/fa';
 
@@ -29,9 +29,7 @@ const Chatbot: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-const user = useSelector((state: RootState) => state.auth.user as CustomJwtPayload );
-
-
+  const user = useSelector((state: RootState) => state.auth.user as CustomJwtPayload);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,10 +53,9 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
     setIsTyping(true);
 
     try {
-     
-      const response=await chatbotRepository.createChat(inputMessage,user.id);
-      if(!response||!response.response){
-        throw new Error("Response not get")
+      const response = await chatbotRepository.createChat(inputMessage, user.id);
+      if (!response || !response.response) {
+        throw new Error("Response not get");
       }
 
       setTimeout(() => {
@@ -91,36 +88,45 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
 
   return (
     <>
+      {/* Floating Button - Responsive positioning */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 
-                   rounded-full shadow-lg shadow-purple-500/30 flex items-center justify-center text-white z-50
-                   hover:shadow-xl hover:shadow-purple-500/40 transition-shadow duration-300"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 
+                   bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 
+                   rounded-full shadow-lg shadow-purple-500/30 flex items-center justify-center 
+                   text-white z-50 hover:shadow-xl hover:shadow-purple-500/40 transition-shadow duration-300"
         style={{ display: isOpen ? 'none' : 'flex' }}
       >
-        <FaRobot className="text-2xl" />
+        <FaRobot className="text-xl sm:text-2xl" />
       </motion.button>
 
+      {/* Chatbot Window - Fully responsive */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-6 right-6 w-96 h-[32rem] bg-white rounded-3xl shadow-2xl shadow-purple-500/20 
-                     overflow-hidden z-50 border border-purple-100"
+            className="fixed inset-4 sm:inset-auto sm:bottom-6 sm:right-6 
+                       sm:w-96 sm:h-[32rem] 
+                       bg-white rounded-2xl sm:rounded-3xl 
+                       shadow-2xl shadow-purple-500/20 
+                       overflow-hidden z-50 border border-purple-100
+                       flex flex-col"
           >
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white/10 rounded-xl">
-                  <FaRobot className="text-white text-xl" />
+            {/* Header */}
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 
+                          p-4 sm:p-6 flex justify-between items-center flex-shrink-0">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="p-1.5 sm:p-2 bg-white/10 rounded-lg sm:rounded-xl">
+                  <FaRobot className="text-white text-lg sm:text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold">Event Assistant</h3>
+                  <h3 className="text-white font-semibold text-sm sm:text-base">Event Assistant</h3>
                   <span className="text-xs text-white/70">
                     {isTyping ? 'Typing...' : 'Online'}
                   </span>
@@ -128,22 +134,24 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full 
+                         hover:bg-white/10 transition-colors flex-shrink-0"
               >
-                <FaTimes className="text-white" />
+                <FaTimes className="text-white text-lg sm:text-base" />
               </button>
             </div>
 
-            <div className="p-6 h-[calc(100%-180px)] overflow-y-auto scroll-smooth">
+            {/* Messages Container */}
+            <div className="flex-1 p-4 sm:p-6 overflow-y-auto scroll-smooth">
               {messages.map((message, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} mb-4`}
+                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} mb-3 sm:mb-4`}
                 >
                   <div
-                    className={`max-w-[80%] p-4 rounded-2xl ${
+                    className={`max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-2xl ${
                       message.isBot
                         ? 'bg-gray-50 text-gray-800 rounded-tl-none'
                         : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-tr-none'
@@ -161,13 +169,15 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
                         })}
                       </span>
                     </div>
-                    <p className="text-sm leading-relaxed">{message.text}</p>
+                    <p className="text-sm leading-relaxed break-words">{message.text}</p>
                   </div>
                 </motion.div>
               ))}
+              
+              {/* Typing Indicator */}
               {isTyping && (
                 <div className="flex justify-start mb-4">
-                  <div className="bg-gray-50 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                  <div className="bg-gray-50 rounded-2xl rounded-tl-none p-3 sm:p-4 shadow-sm">
                     <div className="flex space-x-2">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
@@ -179,15 +189,17 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-purple-100">
-              <div className="flex space-x-3">
+            {/* Input Area */}
+            <div className="p-4 sm:p-6 bg-white border-t border-purple-100 flex-shrink-0">
+              <div className="flex space-x-2 sm:space-x-3">
                 <input
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="flex-1 px-6 py-3 bg-gray-50 rounded-full focus:outline-none focus:ring-2 
+                  className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base
+                           bg-gray-50 rounded-full focus:outline-none focus:ring-2 
                            focus:ring-purple-500/20 focus:bg-white transition-all duration-300"
                 />
                 <motion.button
@@ -195,11 +207,13 @@ const user = useSelector((state: RootState) => state.auth.user as CustomJwtPaylo
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isTyping}
-                  className="p-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full text-white
-                           shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 
-                           transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2.5 sm:p-3 bg-gradient-to-r from-indigo-600 to-purple-600 
+                           rounded-full text-white shadow-lg shadow-purple-500/30 
+                           hover:shadow-xl hover:shadow-purple-500/40 
+                           transition-shadow duration-300 disabled:opacity-50 
+                           disabled:cursor-not-allowed flex-shrink-0"
                 >
-                  <FaPaperPlane className="text-lg" />
+                  <FaPaperPlane className="text-base sm:text-lg" />
                 </motion.button>
               </div>
             </div>

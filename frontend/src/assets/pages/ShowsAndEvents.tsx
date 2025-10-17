@@ -158,24 +158,25 @@ const ShowsAndEvents: React.FC = () => {
             </p>
 
             {/* Quick Stats */}
-            <div className="flex items-center justify-center gap-8 text-sm">
-              {[
-                { label: `${events.length} Events Available`, icon: "🎭" },
-                { label: "Multiple Categories", icon: "🎨" },
-                { label: "Live Booking", icon: "⚡" }
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + i * 0.1 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-xl rounded-full border border-white/10"
-                >
-                  <span>{stat.icon}</span>
-                  <span className="text-gray-300 font-medium">{stat.label}</span>
-                </motion.div>
-              ))}
-            </div>
+           {/* Quick Stats */}
+<div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8 text-sm px-4">
+  {[
+    { label: `${events.length} Events Available`, icon: "🎭" },
+    { label: "Multiple Categories", icon: "🎨" },
+    { label: "Live Booking", icon: "⚡" }
+  ].map((stat, i) => (
+    <motion.div
+      key={i}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 + i * 0.1 }}
+      className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-white/5 backdrop-blur-xl rounded-full border border-white/10"
+    >
+      <span className="text-base sm:text-lg">{stat.icon}</span>
+      <span className="text-gray-300 font-medium text-xs sm:text-sm whitespace-nowrap">{stat.label}</span>
+    </motion.div>
+  ))}
+</div>
           </motion.div>
         </div>
       </div>

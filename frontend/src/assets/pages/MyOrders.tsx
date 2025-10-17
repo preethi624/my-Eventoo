@@ -487,47 +487,48 @@ const MyOrderPage: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-400">
-                        <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg">
-                          <CreditCard className="w-4 h-4" />
-                          <span>Razorpay</span>
-                        </div>
-                        {order.razorpayPaymentId && (
-                          <span className="text-xs bg-white/5 px-3 py-2 rounded-lg">
-                            ID: {order.razorpayPaymentId.slice(-8)}
-                          </span>
-                        )}
-                      </div>
+                    {/* Action Buttons */}
+<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400">
+    <div className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg">
+      <CreditCard className="w-4 h-4" />
+      <span>Razorpay</span>
+    </div>
+    {order.razorpayPaymentId && (
+      <span className="text-xs bg-white/5 px-3 py-2 rounded-lg">
+        ID: {order.razorpayPaymentId.slice(-8)}
+      </span>
+    )}
+  </div>
 
-                      <div className="flex items-center gap-3">
-                        {order.status === "paid" && (
-                          <button
-                            onClick={() => handleCancelBooking(order._id)}
-                            className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-xl font-semibold transition-all flex items-center gap-2"
-                          >
-                            <XCircle className="w-4 h-4" />
-                            Cancel
-                          </button>
-                        )}
-                        <Link
-                          to={`/order/${order._id}`}
-                          className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-purple-500/50 rounded-xl font-semibold transition-all flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Details
-                        </Link>
-                        {order.status === "paid" && (
-                          <button
-                            onClick={() => handleDownloadTicket(order._id)}
-                            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/50 transition-all flex items-center gap-2"
-                          >
-                            <Download className="w-4 h-4" />
-                            Download
-                          </button>
-                        )}
-                      </div>
-                    </div>
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+    {order.status === "paid" && (
+      <button
+        onClick={() => handleCancelBooking(order._id)}
+        className="w-full sm:w-auto px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+      >
+        <XCircle className="w-4 h-4" />
+        Cancel
+      </button>
+    )}
+    <Link
+      to={`/order/${order._id}`}
+      className="w-full sm:w-auto px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-purple-500/50 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+    >
+      <Eye className="w-4 h-4" />
+      Details
+    </Link>
+    {order.status === "paid" && (
+      <button
+        onClick={() => handleDownloadTicket(order._id)}
+        className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/50 transition-all flex items-center justify-center gap-2"
+      >
+        <Download className="w-4 h-4" />
+        Download
+      </button>
+    )}
+  </div>
+</div>
                   </div>
                 </div>
               </div>
