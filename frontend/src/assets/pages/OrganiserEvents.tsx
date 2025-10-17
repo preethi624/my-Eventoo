@@ -504,8 +504,9 @@ ticketArray.forEach((t) => {
 
 
   return (
-    <OrganiserLayout>
+    
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-purple-950/30 p-6">
+        <OrganiserLayout>
       {/* Animated Background Elements */}
       <ToastContainer position="top-right" autoClose={3000} theme="dark" />
 
@@ -1390,10 +1391,11 @@ ticketArray.forEach((t) => {
           </div>
         </div>
       )}
+      </OrganiserLayout>
       <OrganiserFooter/>
       </div>
       
-    </OrganiserLayout>
+    
     
   );
 };

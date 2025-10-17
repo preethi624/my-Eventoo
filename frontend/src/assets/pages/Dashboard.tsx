@@ -383,13 +383,24 @@ const Dashboard = () => {
   );
 
   return (
-    <OrganiserLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ">
+    
+      <div className="min-h-screen text-white relative overflow-x-hidden" style={{
+  background: 'linear-gradient(135deg, #1e1e2f 0%, #2c2a42 100%)'
+}}>
+  {/* Animated Background Overlay */}
+  <div className="fixed top-0 left-0 w-full h-full pointer-events-none" style={{
+    background: `
+      radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.3), transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(72, 61, 139, 0.2), transparent 50%)
+    `,
+    animation: 'gradientShift 15s ease infinite'
+  }}></div>
+        <OrganiserLayout>
         {/* Modern Dark Header */}
-        <div className="relative overflow-hidden border-b border-slate-700/50">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>
-          
-          <div className="relative max-w-7xl mx-auto px-6 py-8">
+      <div className="relative overflow-hidden">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl mx-6 mt-6 mb-8 hover:transform hover:-translate-y-1 transition-all duration-300"></div>
+         <div className="relative px-8 py-8">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -424,7 +435,7 @@ const Dashboard = () => {
 
         <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
           {/* Dark Filters Section */}
-          <div className="bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-slate-700/50 hover:border-blue-500/30 transition-all duration-500">
+         <div className="bg-slate-900/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10 hover:border-blue-400/50 transition-all duration-500">
             <div className="flex items-center gap-3 mb-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur opacity-50"></div>
@@ -883,25 +894,32 @@ const Dashboard = () => {
         </div>
 
         {/* Custom Scrollbar Styles */}
-        <style>{`
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1e293b;
-            border-radius: 10px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #3b82f6, #8b5cf6);
-            border-radius: 10px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #2563eb, #7c3aed);
-          }
-        `}</style>
+        {/* Custom Scrollbar Styles */}
+<style>{`
+  @keyframes gradientShift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(10px, 10px) rotate(5deg); }
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8a2be2, #9370db);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #7c3aed, #8b5cf6);
+  }
+`}</style>
+        </OrganiserLayout>
+        <OrganiserFooter/>
       </div>
-      <OrganiserFooter/>
-    </OrganiserLayout>
+     
   );
 };
 

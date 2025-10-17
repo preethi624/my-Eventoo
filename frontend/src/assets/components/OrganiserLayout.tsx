@@ -1,6 +1,5 @@
-import React from "react";
-import type { ReactNode } from "react";
-
+// OrganiserLayout.tsx
+import React, { useState, type ReactNode } from "react";
 import OrganiserNavbar from "./OrganiserNavbar";
 import OrganiserSidebar from "./OrganiserSidebar";
 
@@ -9,13 +8,22 @@ interface LayoutProps {
 }
 
 const OrganiserLayout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div className="flex">
-      <OrganiserSidebar />
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-      <div className="ml-[250px] w-[calc(100%-250px)]">
-        <OrganiserNavbar />
-        <main className=" mt-[60px]">{children}</main>
+  return (
+    <div className="flex h-screen text-white bg-transparent overflow-hidden">
+      {/* Sidebar */}
+      <OrganiserSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col bg-transparent">
+        {/* Navbar */}
+        <OrganiserNavbar setSidebarOpen={setSidebarOpen} />
+
+        {/* Main area */}
+        <main className="mt-16 p-6 flex-1 overflow-auto bg-transparent">
+          {children}
+        </main>
       </div>
     </div>
   );

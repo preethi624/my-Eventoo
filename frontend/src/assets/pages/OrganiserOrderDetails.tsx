@@ -21,6 +21,7 @@ import { organiserRepository } from "../../repositories/organiserRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 const OrgOrderDetailsPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -124,8 +125,9 @@ const OrgOrderDetailsPage: React.FC = () => {
   }
 
   return (
-    <OrganiserLayout>
+    
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <OrganiserLayout>
         {/* Header Section */}
         <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl border-b border-gray-700/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -377,8 +379,10 @@ const OrgOrderDetailsPage: React.FC = () => {
             </div>
           </div>
         </div>
+        </OrganiserLayout>
+        <OrganiserFooter/>
       </div>
-    </OrganiserLayout>
+    
   );
 };
 

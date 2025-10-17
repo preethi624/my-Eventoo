@@ -1,53 +1,52 @@
-import React, { useRef } from "react";
+// OrganiserNavbar.tsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slices/authSlices";
 import targetLogo from "../images/target_3484438 (2).png";
+import { FaBars } from "react-icons/fa";
 
-const OrganiserNavbar: React.FC = () => {
+interface NavbarProps {
+  setSidebarOpen: (open: boolean) => void;
+}
+
+const OrganiserNavbar: React.FC<NavbarProps> = ({ setSidebarOpen }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const organiserName = localStorage.getItem("organiserName");
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   const handleLogout = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
     dispatch(logout());
     navigate("/login");
   };
 
   return (
-    <nav className="fixed top-0 right-0 w-[calc(100%-250px)] bg-white shadow-md px-6 py-3 z-50">
-  <div className="flex justify-between items-center">
-    
-    {/* Logo + EVENTOO */}
-    <div className="flex items-center gap-1"> {/* smaller gap */}
-      <img
-        src={targetLogo}
-        alt="Logo"
-        className="h-6 w-6"
-      />
-      <span className="text-2xl font-bold text-gray-800">EVENTOO</span> {/* larger text */}
-    </div>
-
-    {/* Right side: organiser name + logout */}
-    <div className="flex items-center gap-4">
-      <span className="text-gray-600">{organiserName}</span>
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md px-4 py-3 flex justify-between items-center z-50">
+      {/* Hamburger menu for small screens */}
       <button
-        onClick={handleLogout}
-        className="text-red-500 hover:underline hover:text-red-600"
+        className="md:hidden text-gray-700 mr-2"
+        onClick={() => setSidebarOpen(true)}
       >
-        Logout
+        <FaBars size={24} />
       </button>
-    </div>
-    
-  </div>
-</nav>
 
+      {/* Logo */}
+      <div className="flex items-center gap-2">
+        <img src={targetLogo} alt="Logo" className="h-6 w-6" />
+        <span className="text-xl font-bold text-gray-800">EVENTOO</span>
+      </div>
+
+      {/* Right side */}
+      <div className="flex items-center gap-4">
+        <span className="text-gray-600 hidden sm:inline">{organiserName}</span>
+        <button
+          onClick={handleLogout}
+          className="text-red-500 hover:underline hover:text-red-600"
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
   );
 };
 

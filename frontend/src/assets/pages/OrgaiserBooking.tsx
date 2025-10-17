@@ -135,8 +135,9 @@ const OrganiserBookings: React.FC = () => {
   ];
 
   return (
-    <OrganiserLayout>
+    
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
+        <OrganiserLayout>
         {/* Header */}
         <div className="mb-8">
           <h2 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -248,9 +249,11 @@ const OrganiserBookings: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
-      <OrganiserFooter/>
+        
     </OrganiserLayout>
+    <OrganiserFooter/>
+      </div>
+      
   );
 };
 
