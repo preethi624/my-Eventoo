@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, Search, Calendar, RotateCcw } from "lucide-react";
 import DataTable from "../components/DataTable";
 import type { RootState } from "../../redux/stroe";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 export type EventForm = {
   title: string;
@@ -248,6 +249,7 @@ const OrganiserBookings: React.FC = () => {
           </div>
         </div>
       </div>
+      <OrganiserFooter/>
     </OrganiserLayout>
   );
 };

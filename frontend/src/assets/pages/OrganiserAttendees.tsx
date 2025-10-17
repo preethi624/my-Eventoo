@@ -17,6 +17,7 @@ import { eventRepository } from "../../repositories/eventRepositories";
 
 import { organiserRepository } from "../../repositories/organiserRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 export const AttendeesPage = () => {
   const [attendees, setAttendees] = useState<
@@ -367,6 +368,7 @@ export const AttendeesPage = () => {
             </div>
           </div>
         </div>
+        <OrganiserFooter/>
       </OrganiserLayout>
     </div>
   );

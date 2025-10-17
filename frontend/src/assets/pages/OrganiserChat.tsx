@@ -20,6 +20,7 @@ import { messageRepository } from "../../repositories/messageRepositories";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import OrganiserLayout from "../components/OrganiserLayout";
 import type { IUser } from "../../interfaces/IUser";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 const OrganizerChatPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<{
@@ -511,6 +512,7 @@ const OrganizerChatPage: React.FC = () => {
           animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
+      <OrganiserFooter/>
     </OrganiserLayout>
   );
 };

@@ -207,7 +207,7 @@ export default function OrganiserFooter() {
         {/* Quick Access Button */}
         <div className="mt-8 flex justify-center">
           <a 
-            href="/organiser/create-event"
+            href="/orgEvents"
             className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-3"
           >
             <Calendar size={20} />

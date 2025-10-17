@@ -292,45 +292,7 @@ const OrganiserEvents: React.FC = () => {
     }
   };
 
-  /*const handleEdit = async (eventId: string | undefined) => {
-    setEditModal(true);
-    if (!eventId) {
-      throw new Error("eventId not present");
-    }
-
-    setEditEventID(eventId);
-    const selectedEvent = events.find((event) => event._id === eventId);
-    if (!selectedEvent) return;
-      console.log("Selected event data:", selectedEvent);
-      
-
-    setEditForm({
-      id: selectedEvent._id,
-      title: selectedEvent.title,
-      description: selectedEvent.description,
-      date: selectedEvent.date.toString().split("T")[0],
-      time: selectedEvent.date.toString().split("T")[1]?.slice(0, 5) || "",
-      venue: selectedEvent.venue,
-      category: selectedEvent.category,
-      ticketTypes: {
-        economic: {
-          price: selectedEvent.ticketTypes?.economic.price?.toString() || "",
-          capacity: selectedEvent.ticketTypes?.economic?.capacity?.toString() || "",
-        },
-        premium: {
-          price: selectedEvent.ticketTypes?.premium?.price?.toString() || "",
-          capacity: selectedEvent.ticketTypes?.premium?.capacity?.toString() || "",
-        },
-        vip: {
-          price: selectedEvent.ticketTypes?.vip?.price?.toString() || "",
-          capacity: selectedEvent.ticketTypes?.vip?.capacity?.toString() || "",
-        },
-      },
-      capacity: selectedEvent.capacity,
-      status: selectedEvent.status,
-      images: selectedEvent.images,
-    });
-  };*/
+ 
   const handleEdit = async (eventId: string | undefined) => {
   setEditModal(true);
   if (!eventId) throw new Error("eventId not present");
@@ -454,37 +416,7 @@ ticketArray.forEach((t) => {
     return true;
   };
 
-  /*const handleEditSubmit = async (id: string) => {
-    if (!id) {
-      return;
-    }
-    const isValid = validateEditForm();
-    if (!isValid) return;
-    const formData = new FormData();
-    Object.keys(editForm).forEach((key) => {
-      if (key === "images" && (editForm as any).images instanceof FileList) {
-        const files = (editForm as any).images as FileList;
-        for (let i = 0; i < files.length; i++) {
-          formData.append("images", files[i]);
-        }
-      } else {
-        const typedKey = key as keyof typeof editForm;
-        const value = editForm[typedKey];
-        if (value !== undefined && value !== null) {
-          formData.append(key, value.toString());
-        }
-      }
-    });
-
-    const response = await eventRepository.editEvent(id, editForm);
-    if (response.success) {
-      toast(response.message);
-      fetchEvents();
-      setEditModal(false);
-    } else {
-      toast(response.message);
-    }
-  };*/
+ 
   const handleEditSubmit = async (id: string) => {
   if (!id) return;
 
@@ -573,6 +505,8 @@ ticketArray.forEach((t) => {
 
   return (
     <OrganiserLayout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-purple-950/30 p-6">
+      {/* Animated Background Elements */}
       <ToastContainer position="top-right" autoClose={3000} theme="dark" />
 
       {/* Header Section */}
@@ -1457,6 +1391,7 @@ ticketArray.forEach((t) => {
         </div>
       )}
       <OrganiserFooter/>
+      </div>
       
     </OrganiserLayout>
     

@@ -10,6 +10,7 @@ import {
   Shield,
   Zap
 } from "lucide-react";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 const CheckInPage = () => {
   const [message, setMessage] = useState("");
@@ -184,6 +185,7 @@ const CheckInPage = () => {
           )}
         </div>
       </div>
+      <OrganiserFooter/>
     </OrganiserLayout>
   );
 };

@@ -29,7 +29,7 @@ const AdminSidebar: React.FC = () => {
   ];
 
   return (
-    <div className=" min-h-screen w-64 bg-[#1a2634] text-white">
+    <div className="fixed min-h-screen w-64 bg-[#1a2634] text-white overflow-y-auto">
       <nav className="flex flex-col py-4">
         {menuItems.map((item) => (
           <Link

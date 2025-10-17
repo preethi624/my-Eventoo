@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bell, Clock, User, CheckCheck, Inbox } from "lucide-react";
 import { notificationRepository } from "../../repositories/notificationRepositories";
 import OrganiserLayout from "../components/OrganiserLayout";
+import OrganiserFooter from "../components/OrganiserFooter";
 
 interface Notification {
   _id: string;
@@ -175,6 +176,7 @@ const NotificationPage: React.FC = () => {
             </div>
           )}
         </div>
+        <OrganiserFooter/>
       </OrganiserLayout>
     </div>
   );

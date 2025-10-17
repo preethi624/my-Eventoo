@@ -166,7 +166,7 @@ export const UserProfile: React.FC = () => {
                   <img
                     src={
                       profileImage
-                        ? `http://localhost:3000/uploads/${profileImage}`
+                        ?`http://localhost:3000/uploads/${profileImage}`
                         : "https://dummyimage.com/128x128/cccccc/ffffff&text=User"
                     }
                     alt="Profile"

@@ -6,7 +6,7 @@ interface AdminNavbarProps {
 
 const AdminNavbar: React.FC<AdminNavbarProps> = ({ email, onLogout }) => {
   return (
-    <nav className="bg-[#2c3e50] text-white h-14 flex items-center px-4 shadow-md justify-between">
+    <nav className="fixed top-0 left-0 right-0 bg-[#2c3e50] text-white h-14 flex items-center px-4 shadow-md justify-between z-50">
       <div className="text-lg font-semibold">Admin Panel</div>
       <div className="relative group">
         <button className="text-white font-medium focus:outline-none">

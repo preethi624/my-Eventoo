@@ -22,9 +22,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   return (
     <div>
       <AdminNavbar email="admin@gmail.com" onLogout={handleLogout} />
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen bg-gray-100 pt-14">
         <AdminSidebar />
-        <main className="flex-1 p-5">{children}</main>
+        <main className="flex-1 p-5 ml-64">{children}</main>
       </div>
     </div>
   );
