@@ -1,4 +1,4 @@
-import  { useEffect, useState, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import {
   BarChart,
   Bar,
@@ -55,11 +55,11 @@ const AdminDashboard = () => {
   const [toDate, setToDate] = useState("");
   const [selectedTimeframe, setSelectedTimeframe] = useState("30d");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [availableCategories, setAvailableCategories] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState<any[]>([]);
   const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
 
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   const [recentTransactions, setRecentTransactions] = useState<
     {
@@ -88,12 +88,15 @@ const AdminDashboard = () => {
   const [eventCategories, setEventCategories] = useState<
     { name: string; value: number; color: string }[]
   >([]);
+
   useEffect(() => {
     fetchEvents();
     fetchUsers();
     fetchOrders(selectedTimeframe, fromDate, toDate, selectedCategory);
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTimeframe, selectedCategory, selectedMonth, selectedYear]);
+
   const months = [
     { value: "", label: "All Months" },
     { value: "0", label: "January" },
@@ -316,25 +319,25 @@ const AdminDashboard = () => {
 
   const renderOverview = () => (
     <div className="space-y-6">
-      <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30 mb-12 hover:shadow-3xl transition-all duration-500">
-        <div className="flex items-center gap-3 mb-6">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/30 mb-6 sm:mb-12 hover:shadow-3xl transition-all duration-500">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
             <Calendar className="text-white" size={20} />
           </div>
-          <h3 className="text-xl font-bold text-gray-800">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800">
             Time Period Filters
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Month Filter */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700 tracking-wide uppercase">
               Select Month
             </label>
             <div className="relative group">
               <select
-                className="w-full bg-white/90 backdrop-blur-sm border-2 border-gray-200/60 rounded-2xl px-6 py-4 text-gray-800 font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 appearance-none cursor-pointer hover:border-blue-400 hover:shadow-lg group-hover:bg-white"
+                className="w-full bg-white/90 backdrop-blur-sm border-2 border-gray-200/60 rounded-2xl px-4 py-3 sm:px-6 sm:py-4 text-gray-800 font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 appearance-none cursor-pointer hover:border-blue-400 hover:shadow-lg group-hover:bg-white"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
               >
@@ -344,7 +347,7 @@ const AdminDashboard = () => {
                   </option>
                 ))}
               </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                   <ChevronDown className="text-white" size={14} />
                 </div>
@@ -353,21 +356,21 @@ const AdminDashboard = () => {
           </div>
 
           {/* Year Filter */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700 tracking-wide uppercase">
               Select Year
             </label>
             <div className="relative group">
               <input
                 type="number"
-                className="w-full bg-white/90 backdrop-blur-sm border-2 border-gray-200/60 rounded-2xl px-6 py-4 text-gray-800 font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:border-blue-400 hover:shadow-lg group-hover:bg-white placeholder-gray-400"
+                className="w-full bg-white/90 backdrop-blur-sm border-2 border-gray-200/60 rounded-2xl px-4 py-3 sm:px-6 sm:py-4 text-gray-800 font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:border-blue-400 hover:shadow-lg group-hover:bg-white placeholder-gray-400"
                 placeholder="e.g. 2025"
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
                 min="2000"
                 max="2099"
               />
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center shadow-md opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
                   <Calendar className="text-white" size={12} />
                 </div>
@@ -377,45 +380,45 @@ const AdminDashboard = () => {
         </div>
 
         {/* Decorative gradient line */}
-        <div className="mt-6 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-20"></div>
+        <div className="mt-4 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-20"></div>
       </div>
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 mt-10 ">
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-          <div className="flex gap-3 items-center">
-            <label className="text-sm">From:</label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-12">
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="text-sm">From:</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="border px-2 py-1 rounded text-sm"
+          />
 
-            <label className="text-sm ml-2">To:</label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
+          <label className="text-sm ml-0 sm:ml-2">To:</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="border px-2 py-1 rounded text-sm"
+          />
 
-            <button
-              onClick={() =>
-                fetchOrders(
-                  selectedTimeframe,
-                  fromDate,
-                  toDate,
-                  selectedCategory
-                )
-              }
-              className="bg-blue-500  text-white px-4 py-1 rounded hover:bg-blue-700 text-sm ml-2"
-            >
-              Apply
-            </button>
-          </div>
+          <button
+            onClick={() =>
+              fetchOrders(
+                selectedTimeframe,
+                fromDate,
+                toDate,
+                selectedCategory
+              )
+            }
+            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm ml-0 sm:ml-2"
+          >
+            Apply
+          </button>
+        </div>
 
+        <div className="flex flex-wrap items-center gap-2">
           <select
-            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
             value={selectedTimeframe}
             onChange={(e) => setSelectedTimeframe(e.target.value)}
           >
@@ -426,7 +429,7 @@ const AdminDashboard = () => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
           >
             <option value="">All Categories</option>
             {availableCategories.map((cat: { _id: string; name: string }) => (
@@ -436,23 +439,24 @@ const AdminDashboard = () => {
             ))}
           </select>
           <button
-            className="bg-blue-500 text-white px-6 py-1 rounded-xl hover:bg-blue-700 transition-colors flex items-center"
+            className="bg-blue-500 text-white px-4 py-1 rounded-xl hover:bg-blue-700 transition-colors flex items-center text-sm"
             onClick={() => exportToCSV(orders, "dashboard_report")}
           >
-            <Download size={16} className="mr-2" />
+            <Download size={14} className="mr-2" />
             Export Sales Report
           </button>
           <button
-            className="bg-blue-500 text-white px-6 py-.2 rounded-xl hover:bg-red-700 transition-colors flex items-center"
+            className="bg-blue-500 text-white px-4 py-1 rounded-xl hover:bg-red-700 transition-colors flex items-center text-sm"
             onClick={() => exportToPDF(orders, "dashboard_report")}
           >
-            <Download size={16} className="mr-2" />
+            <Download size={14} className="mr-2" />
             Export PDF Report
           </button>
         </div>
       </div>
+
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-10">
         <StatCard
           title="Total Revenue"
           value={`₹${revenue.toFixed(1)}`}
@@ -467,13 +471,13 @@ const AdminDashboard = () => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
         {/* Revenue Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
             Monthly Revenue & Events
           </h3>
-          <div className="h-80">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyRevenue}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -499,11 +503,11 @@ const AdminDashboard = () => {
         </div>
 
         {/* Event Categories */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
             Event Categories
           </h3>
-          <div className="h-80">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -514,7 +518,7 @@ const AdminDashboard = () => {
                   label={({ name, percent }) =>
                     `${name} ${(percent * 100).toFixed(0)}%`
                   }
-                  outerRadius={80}
+                  outerRadius={60}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -530,11 +534,11 @@ const AdminDashboard = () => {
       </div>
 
       {/* User Growth Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">
           User Growth Trend
         </h3>
-        <div className="h-80">
+        <div className="h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={userGrowth}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -563,39 +567,41 @@ const AdminDashboard = () => {
 
   const renderTransactions = () => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-4 sm:p-6 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900">
           Recent Transactions
         </h3>
       </div>
-      <div className="overflow-x-auto">
+
+      {/* Desktop table (md and up) */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Transaction ID
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 CreatedAt
               </th>
 
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 OrganiserName
               </th>
 
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Event
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 EventDate
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amount
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 PaymentStatus
               </th>
             </tr>
@@ -603,30 +609,30 @@ const AdminDashboard = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {recentTransactions.map((transaction) => (
               <tr key={transaction.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                   #{transaction.id}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                   {transaction.date.toString().split("T")[0]}
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {transaction.user}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {transaction.organiserName}
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {transaction.event}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {transaction.eventDate.toString().split("T")[0]}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   ₹{transaction.amount / 100}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 py-3 whitespace-nowrap">
                   <span
                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       transaction.status === "Completed"
@@ -644,6 +650,60 @@ const AdminDashboard = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile cards (sm and md) */}
+      <div className="md:hidden space-y-3 p-4">
+        {recentTransactions.map((transaction) => (
+          <div
+            key={transaction.id}
+            className="bg-gray-50 rounded-lg p-3 shadow-sm border border-gray-100"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  #{transaction.id}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {transaction.date.toString().split("T")[0]}
+                </p>
+              </div>
+              <div>
+                <span
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    transaction.status === "Completed"
+                      ? "bg-green-100 text-green-800"
+                      : transaction.status === "Pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {transaction.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-2 text-sm text-gray-700 space-y-1">
+              <div>
+                <span className="font-semibold">User: </span>
+                {transaction.user}
+              </div>
+              <div>
+                <span className="font-semibold">Organiser: </span>
+                {transaction.organiserName}
+              </div>
+              <div>
+                <span className="font-semibold">Event: </span>
+                {transaction.event}
+              </div>
+              <div>
+                <span className="font-semibold">Event Date: </span>
+                {transaction.eventDate.toString().split("T")[0]}
+              </div>
+              <div className="mt-2 font-bold">₹{transaction.amount / 100}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -651,17 +711,17 @@ const AdminDashboard = () => {
     <div className="space-y-6">
       {/* Top Events */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-4 sm:p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
             Top Performing Events
           </h3>
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="space-y-4">
             {topEvents.map((event, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
@@ -680,7 +740,7 @@ const AdminDashboard = () => {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="mt-3 sm:mt-0 text-right">
                   <p className="text-sm font-medium text-gray-900">
                     ₹{event.revenue.toLocaleString()}
                   </p>
@@ -693,11 +753,11 @@ const AdminDashboard = () => {
       </div>
 
       {/* Event Performance Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">
           Event Performance Comparison
         </h3>
-        <div className="h-80">
+        <div className="h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topEvents}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -706,7 +766,7 @@ const AdminDashboard = () => {
                 stroke="#6b7280"
                 angle={-45}
                 textAnchor="end"
-                height={80}
+                height={60}
               />
               <YAxis stroke="#6b7280" />
               <Tooltip
@@ -725,19 +785,19 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50  ">
+    <div className="min-h-screen bg-gray-50">
       <AdminLayout>
         {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200 ">
+        <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   Admin Dashboard
                 </h1>
                 <p className="text-sm text-gray-600">Event Management System</p>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 mt-3 sm:mt-0">
                 <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-full">
                   <Activity className="h-4 w-4 text-green-600" />
                   <span className="text-sm font-medium text-green-700">
@@ -752,12 +812,12 @@ const AdminDashboard = () => {
         {/* Navigation Tabs */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200 bg-white rounded-t-xl mt-6">
-            <nav className="-mb-px flex space-x-8 px-6">
+            <nav className="-mb-px flex flex-wrap gap-2 px-4 sm:px-6">
               {["overview", "transactions", "events"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-colors ${
+                  className={`py-3 px-2 sm:px-4 border-b-2 font-medium text-sm capitalize transition-colors ${
                     activeTab === tab
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -771,8 +831,8 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="bg-white rounded-b-xl shadow-sm border border-gray-100 border-t-0 p-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 mt-4">
+          <div className="bg-white rounded-b-xl shadow-sm border border-gray-100 border-t-0 p-4 sm:p-6">
             {activeTab === "overview" && renderOverview()}
             {activeTab === "transactions" && renderTransactions()}
             {activeTab === "events" && renderEvents()}

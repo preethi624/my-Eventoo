@@ -1,13 +1,31 @@
 
+import { FaBars } from "react-icons/fa";
+
 interface AdminNavbarProps {
   email: string;
   onLogout: () => void;
+  onMenuClick: () => void;
 }
 
-const AdminNavbar: React.FC<AdminNavbarProps> = ({ email, onLogout }) => {
+const AdminNavbar: React.FC<AdminNavbarProps> = ({
+  email,
+  onLogout,
+  onMenuClick,
+}) => {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#2c3e50] text-white h-14 flex items-center px-4 shadow-md justify-between z-50">
-      <div className="text-lg font-semibold">Admin Panel</div>
+      <div className="flex items-center gap-3">
+        {/* Hamburger Menu for Mobile */}
+        <button
+          onClick={onMenuClick}
+          className="text-white text-2xl md:hidden focus:outline-none"
+        >
+          <FaBars />
+        </button>
+        <span className="text-lg font-semibold">Admin Panel</span>
+      </div>
+
+      {/* Profile Menu */}
       <div className="relative group">
         <button className="text-white font-medium focus:outline-none">
           {email}

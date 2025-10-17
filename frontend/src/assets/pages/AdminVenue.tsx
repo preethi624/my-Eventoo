@@ -210,33 +210,40 @@ const VenueManagement = () => {
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
            
-            <div className="flex justify-between items-center mb-8">
-              <div className="mb-6">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search by name, city or state..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setCurrentPage(1); // reset to page 1 on search
-                    }}
-                    className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-              </div>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+  {/* Title */}
+  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 text-center sm:text-left">
+    Venue Management
+  </h1>
 
-              <h1 className="text-2xl font-bold text-gray-900">
-                Venue Management
-              </h1>
-              <button
-                onClick={() => setShowCreateModal(true)} // This does nothing now
-                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Add New Venue
-              </button>
-            </div>
+  {/* Search Input */}
+  <div className="w-full sm:w-1/3">
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="Search by name, city or state..."
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setCurrentPage(1);
+        }}
+        className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+      />
+    </div>
+  </div>
+
+  {/* Add Button */}
+  <div className="flex justify-center sm:justify-end">
+    <button
+      onClick={() => setShowCreateModal(true)}
+      className="w-full sm:w-auto px-4 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+    >
+      <Plus className="w-5 h-5 mr-2" />
+      Add New Venue
+    </button>
+  </div>
+</div>
+
 
             <div className="overflow-x-auto bg-white shadow-md rounded-lg">
               <DataTable data={venues} columns={columns} />
