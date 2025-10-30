@@ -25,6 +25,8 @@ import messageRoutes from "./routes/messageRoutes";
 import reviewRoutes from "./routes/reviewRoutes";
 import notificationRoutes from "./routes/notificationRoutes"
 import fileRoutes from './routes/fileRoutes'
+import adminOfferRoutes from './routes/adminRoutes/adminOfferRoutes'
+import offerRoutes from './routes/userRoutes/offerRoutes'
 
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db";
@@ -135,12 +137,14 @@ app.use("/api/v1/admin", adminEventRoutes);
 app.use("/api/v1/admin", adminOrgRoutes);
 app.use("/api/v1/admin", adminOrderRoutes);
 app.use("/api/v1/admin", adminVenueRoutes);
+app.use('/api/v1/admin',adminOfferRoutes)
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/message", messageRoutes);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/review",reviewRoutes);
 app.use("/api/v1/notification",notificationRoutes)
 app.use('/',fileRoutes)
+app.use('/api/v1/offer',offerRoutes);
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Clock, User, Check} from "lucide-react";
 import { notificationRepository } from "../../repositories/notificationRepositories";
 import UserNavbar from "../components/UseNavbar";
-import Footer from "../components/Footer";
+
 
 interface Notification {
   _id: string;
@@ -56,53 +55,37 @@ const UserNotificationPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="relative">
-          <div className="w-20 h-20 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-          <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1s" }}></div>
+          <div className="w-20 h-20 border-4 border-red-500/30 border-t-red-500 rounded-full animate-spin"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
-      </div>
-
-      {/* Floating Orbs */}
-      <div className="fixed top-20 left-10 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" />
-      <div className="fixed bottom-20 right-10 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" style={{ animationDelay: "2s" }} />
-
+    <div className="min-h-screen bg-gray-100">
       <UserNavbar />
 
-      <div className="relative z-10 pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-12"
-          >
+          <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="p-4 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl shadow-2xl shadow-purple-500/50">
-                    <Bell className="w-8 h-8 text-white" />
+                  <div className="p-3 bg-red-500 rounded-2xl shadow-md">
+                    <Bell className="w-7 h-7 text-white" />
                   </div>
                   {unreadCount > 0 && (
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center border-4 border-black shadow-lg">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
                       <span className="text-white text-xs font-bold">{unreadCount}</span>
                     </div>
                   )}
                 </div>
                 <div>
-                  <h1 className="text-5xl font-black text-white">Notifications</h1>
-                  <p className="text-gray-400 text-lg mt-1">
+                  <h1 className="text-4xl font-bold text-gray-900">Notifications</h1>
+                  <p className="text-gray-600 text-sm mt-1">
                     {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
                   </p>
                 </div>
@@ -110,137 +93,110 @@ const UserNotificationPage: React.FC = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               {[
                 { label: "All", value: "all" as const, count: notifications.length },
                 { label: "Unread", value: "unread" as const, count: unreadCount },
                 { label: "Read", value: "read" as const, count: notifications.length - unreadCount }
               ].map((tab) => (
-                <motion.button
+                <button
                   key={tab.value}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                   onClick={() => setFilter(tab.value)}
-                  className={`px-6 py-3 rounded-xl font-bold transition-all ${
+                  className={`px-5 py-2 rounded-2xl font-semibold transition-all ${
                     filter === tab.value
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/50"
-                      : "bg-white/5 backdrop-blur-xl text-gray-400 border border-white/10 hover:bg-white/10"
+                      ? "bg-red-500 text-white shadow-md"
+                      : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                   }`}
                 >
                   {tab.label}
                   {tab.count > 0 && (
                     <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                      filter === tab.value ? "bg-white/20" : "bg-purple-500/20 text-purple-400"
+                      filter === tab.value ? "bg-white/20" : "bg-red-50 text-red-600"
                     }`}>
                       {tab.count}
                     </span>
                   )}
-                </motion.button>
+                </button>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Notifications List */}
           {filteredNotifications.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative group"
-            >
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl blur-xl opacity-20"></div>
-              <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 p-20 text-center shadow-2xl">
-                <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full mb-8 backdrop-blur-xl border-4 border-white/10">
-                  <Bell className="w-16 h-16 text-purple-400" />
-                </div>
-                <h3 className="text-4xl font-black text-white mb-4">All Clear!</h3>
-                <p className="text-gray-400 text-xl">No {filter !== "all" && filter} notifications at the moment</p>
+            <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center shadow-sm">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-red-50 rounded-full mb-6 border border-red-100">
+                <Bell className="w-12 h-12 text-red-500" />
               </div>
-            </motion.div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-3">All Clear!</h3>
+              <p className="text-gray-600 text-lg">No {filter !== "all" && filter} notifications at the moment</p>
+            </div>
           ) : (
-            <div className="space-y-4">
-              <AnimatePresence mode="popLayout">
-                {filteredNotifications.map((notification, index) => (
-                  <motion.div
-                    key={notification._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="group relative"
-                  >
-                    {/* Glow Effect for Unread */}
-                    {!notification.isRead && (
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                    )}
-
-                    <div
-                      className={`relative p-6 rounded-3xl backdrop-blur-2xl border transition-all ${
+            <div className="space-y-3">
+              {filteredNotifications.map((notification) => (
+                <div
+                  key={notification._id}
+                  className={`p-5 rounded-2xl transition-all shadow-sm ${
+                    notification.isRead
+                      ? "bg-white border border-gray-200"
+                      : "bg-red-50 border border-red-200"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-md ${
                         notification.isRead
-                          ? "bg-white/5 border-white/10"
-                          : "bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30"
-                      }`}
-                    >
-                      <div className="flex items-start gap-5">
-                        {/* Avatar */}
-                        <div className="relative flex-shrink-0">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-                            notification.isRead
-                              ? "bg-white/10"
-                              : "bg-gradient-to-br from-purple-500 to-blue-500 shadow-lg shadow-purple-500/50"
-                          }`}>
-                            <User className={`w-7 h-7 ${notification.isRead ? "text-gray-400" : "text-white"}`} />
-                          </div>
-                          {!notification.isRead && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full border-2 border-black animate-pulse"></div>
-                          )}
+                          ? "bg-gray-100"
+                          : "bg-red-500"
+                      }`}>
+                        <User className={`w-6 h-6 ${notification.isRead ? "text-gray-500" : "text-white"}`} />
+                      </div>
+                      {!notification.isRead && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm leading-relaxed mb-2 ${
+                        notification.isRead ? "text-gray-600" : "text-gray-900 font-medium"
+                      }`}>
+                        {notification.message}
+                      </p>
+
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-lg border border-gray-200">
+                          <Clock className="w-3 h-3" />
+                          <span>{new Date(notification.createdAt).toLocaleString()}</span>
                         </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-base leading-relaxed mb-3 ${
-                            notification.isRead ? "text-gray-400" : "text-white font-medium"
-                          }`}>
-                            {notification.message}
-                          </p>
-
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/5 px-3 py-1.5 rounded-lg">
-                              <Clock className="w-4 h-4" />
-                              <span>{new Date(notification.createdAt).toLocaleString()}</span>
-                            </div>
-
-                            {!notification.isRead && (
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => markAsRead(notification._id)}
-                                className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-purple-500/30"
-                              >
-                                <Check className="w-4 h-4" />
-                                Mark as Read
-                              </motion.button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Read Badge */}
-                        {notification.isRead && (
-                          <div className="flex-shrink-0">
-                            <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                              <Check className="w-5 h-5 text-green-400" />
-                            </div>
-                          </div>
+                        {!notification.isRead && (
+                          <button
+                            onClick={() => markAsRead(notification._id)}
+                            className="flex items-center gap-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm"
+                          >
+                            <Check className="w-3 h-3" />
+                            Mark as Read
+                          </button>
                         )}
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+
+                    {/* Read Badge */}
+                    {notification.isRead && (
+                      <div className="flex-shrink-0">
+                        <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center border border-green-200">
+                          <Check className="w-4 h-4 text-green-600" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
-      <Footer/>
     </div>
   );
 };

@@ -26,6 +26,8 @@ import { ITicket } from "src/model/ticket";
 import { IEvent } from "src/model/event";
 import { ITicketDetails } from "src/interface/ITicket";
 
+import { IAdminOfferRepository } from "src/repositories/repositoryInterface/IAdminOfferRepository";
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -88,69 +90,116 @@ async function generateTicketPDF(
 export class PaymentService implements IPaymentService {
   constructor(
     private _paymentRepository: IPaymentRepository,
-    private _eventRepository: IEventRepository
+    private _eventRepository: IEventRepository,
+    private _offerRepository:IAdminOfferRepository
   ) {}
 
   async orderCreate(data: OrderCreateInput): Promise<OrderCreate> {
-    const orderId = generateOrderId();
-    try {
-      const totalPrice = data.totalPrice;
-      const ticketCount = data.ticketCount;
-      const userId = data.userId;
-      const eventId = data.eventId;
-      const eventTitle = data.eventTitle;
-      const email = data.email;
-      const selectedTicket=data.selectedTicket
-      const createdAt = new Date();
+  const orderId = generateOrderId();
+  try {
+    const {
+      totalPrice,
+      ticketCount,
+      userId,
+      eventId,
+      eventTitle,
+      email,
+      selectedTicket,
+      offerCode,
+    } = data;
 
-      const options = {
-        amount: totalPrice * 100,
-        currency: "INR",
-        receipt: "receipt_order_74394",
-      };
-      const order = await razorpay.orders.create(options);
+    const createdAt = new Date();
+    let discountAmount = 0;
+    let finalAmount = totalPrice;
 
-      const response = await this._paymentRepository.createOrder({
-        razorpayOrderId: order.id,
-        amount: Number(order.amount),
-        currency: order.currency,
-        receipt: order.receipt ?? "default_receipt_id",
-        status: order.status,
-        ticketCount,
-        userId,
-        eventId,
-        eventTitle,
-        selectedTicket,
-        createdAt,
-        orderId: orderId,
-        email,
-      });
-      if (response) {
-        return {
-          success: true,
-          message: "order created successfully",
-          order: response,
-        };
-      } else {
-        return { success: false, message: "Not enough tickets to sail" };
+    // 🔹 Offer code handling
+    if (offerCode) {
+      const offer = await this._offerRepository.findOffer(offerCode);
+
+      if (offer) {
+        const now = new Date();
+        const usageLimit=offer.usageLimit??null
+
+        // ✅ Check offer validity
+        if (
+          offer.isActive &&
+          offer.startDate <= now &&
+          offer.endDate >= now &&
+          totalPrice >= (offer.minOrderAmount ?? 0)&&
+    (usageLimit === null || offer.usedCount < usageLimit)
+        ) {
+          // ✅ Calculate discount
+          if (offer.discountType === "percentage") {
+            discountAmount = (totalPrice * offer.discountValue) / 100;
+            if (offer.maxDiscountAmount) {
+              discountAmount = Math.min(discountAmount, offer.maxDiscountAmount);
+            }
+          } else if (offer.discountType === "flat") {
+            discountAmount = offer.discountValue;
+            console.log("discount",discountAmount);
+            
+          }
+
+          // ✅ Final amount after discount
+          finalAmount = totalPrice - discountAmount;
+          if (finalAmount < 0) finalAmount = 0;
+          await this._offerRepository.updateOffer(offer._id.toString())
+        }
       }
-    } catch (error) {
-     if (error instanceof Error) {
-    console.error('MongoDB connection error:', error.message);
-     return {
-        success: false,
-        message: error?.message || "not creating order",
+    }
+
+    // 🔹 Razorpay order creation using finalAmount
+    const options = {
+      amount: finalAmount * 100, // use discounted amount here
+      currency: "INR",
+      receipt: `receipt_${orderId}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    // 🔹 Save in DB
+    const response = await this._paymentRepository.createOrder({
+      razorpayOrderId: order.id,
+      amount:totalPrice*100,
+      currency: order.currency,
+      receipt: order.receipt ?? "default_receipt_id",
+      status: order.status,
+      ticketCount,
+      userId,
+      eventId,
+      eventTitle,
+      selectedTicket,
+      createdAt,
+      orderId,
+      email,
+      offerCode: offerCode ,
+      offerAmount:discountAmount*100, 
+      finalAmount:finalAmount, 
+    });
+
+    if (response) {
+      return {
+        success: true,
+        message: "Order created successfully",
+        order: response,
       };
-  } else {
-    console.error('MongoDB connection error:', error);
-     return {
+    } else {
+      return { success: false, message: "Not enough tickets to sell" };
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("MongoDB connection error:", error.message);
+      return {
         success: false,
-        message:  "not creating order",
+        message: error.message || "Error creating order",
       };
-  }
-     
+    } else {
+      console.error("MongoDB connection error:", error);
+      return { success: false, message: "Error creating order" };
     }
   }
+}
+
   async orderCreateFree(
     data: OrderCreateInput
   ): Promise<{ success?: boolean }> {
@@ -378,7 +427,7 @@ export class PaymentService implements IPaymentService {
 
       if (result) {
         const paymentId = result.razorpayPaymentId;
-        const amount = result.amount;
+        const amount = result.finalAmount;
 
         const payment = await razorpay.payments.fetch(paymentId);
         console.log(payment);

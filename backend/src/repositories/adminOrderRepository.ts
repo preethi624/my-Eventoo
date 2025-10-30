@@ -258,11 +258,12 @@ export class AdminOrderRepository implements IAdminOrderRepository {
       { $match: eventMatchCondition },
       {
         $addFields: {
+          effectiveAmount: { $ifNull: ["$finalAmount", "$amount"] },
           adminEarning: {
             $multiply: [
               {
                 $divide: [
-                  { $multiply: ["$amount", adminCommissionPercentage] },
+                  { $multiply: ["$effectiveAmount", adminCommissionPercentage] },
                   100,
                 ],
               },

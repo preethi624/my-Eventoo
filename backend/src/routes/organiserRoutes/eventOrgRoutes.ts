@@ -42,4 +42,5 @@ router.get(
   authMiddlewarwSet.organiserOnly,
   eventController.getOrgEvents.bind(eventController)
 );
+router.put("/reschedule/:eventId",authMiddlewarwSet.organiserOnly,eventController.rescheduleEvent.bind(eventController))
 export default router;

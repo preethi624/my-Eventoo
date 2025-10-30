@@ -27,5 +27,6 @@ router.get(
 );
 router.put('/',authMiddlewarwSet.userOnly,userController.changePassword.bind(userController))
 router.get("/venues",authMiddlewarwSet.userOnly,userController.fetchVenues.bind(userController))
+router.get("/offer",authMiddlewarwSet.userOnly,userController.fetchOffer.bind(userController))
 
 export default router;

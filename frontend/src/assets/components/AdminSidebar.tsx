@@ -30,6 +30,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
     { path: "/admin/events", icon: <FaCalendarAlt />, label: "Events" },
     { path: "/admin/venues", icon: <FaMapMarkerAlt />, label: "Venues" },
     { path: "/admin/bookings", icon: <FaTicketAlt />, label: "Bookings" },
+    { path: "/admin/offers", icon: <FaTicketAlt />, label: "Offers" },
   ];
 
   return (

@@ -111,6 +111,23 @@ class UserService {
             }
         });
     }
+    offerFetch(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._userRepository.fetchOffer(code);
+                if (response) {
+                    return { offer: response, success: true };
+                }
+                else {
+                    return { success: false };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                return { success: false };
+            }
+        });
+    }
 }
 exports.UserService = UserService;
 //# sourceMappingURL=userService.js.map

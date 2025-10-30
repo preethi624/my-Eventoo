@@ -114,7 +114,8 @@ export interface IEvent extends Document {
   description: string;
   date: Date;
   time: string;
-  venue: string;
+  venue:string;
+
   category: string;
   ticketPrice?: number;  
   capacity?: number;    
@@ -161,6 +162,8 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
     },
     time: { type: String, required: true },
     venue: { type: String, required: true },
+    
+
     category: { type: String, required: true },
 
     ticketTypes: {

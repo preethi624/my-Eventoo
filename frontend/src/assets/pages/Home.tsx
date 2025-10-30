@@ -1,12 +1,29 @@
-import { useState} from "react";
+import { useState,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import type { FC } from "react";
 import { motion } from "framer-motion";
+import { Autoplay, Pagination,Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+
+
+
+
+// @ts-ignore
+import "swiper/css";
+// @ts-ignore
+import "swiper/css/navigation";
+// @ts-ignore
+import "swiper/css/pagination";
+// @ts-ignore
+import "swiper/css/autoplay";
+
+
+
+
 import { 
   FaCalendar, 
   FaSearch, 
   FaMapMarkerAlt, 
- 
   FaArrowRight,
   FaFire,
   FaStar,
@@ -14,30 +31,31 @@ import {
   FaShieldAlt,
   FaHeart,
   FaBolt,
-  
   FaUsers,
   FaCheckCircle,
- 
 } from "react-icons/fa";
 
 import UserNavbar from "../components/UseNavbar";
-
 import { eventRepository } from "../../repositories/eventRepositories";
 import Chatbot from "../components/Chatbot";
-
 import SearchBar from "../components/SearchBar";
 import RecommendationSticker from "../components/Recommendation";
 import Footer from "../components/Footer";
 
 const HomePage: FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [banners, setBanners] = useState<{_id:string,images:(string | { url: string })[],title:string}[]>([]);
+   const [trending, setTrending] = useState<{_id:string,images:(string | { url: string })[],title:string}[]>([]);
+
   
   const navigate = useNavigate();
-  
+  const [swiperInstance, setSwiperInstance] = useState<any>(null);
 
- 
-  
-  
+  useEffect(() => {
+    if (swiperInstance) {
+      swiperInstance.autoplay.start();
+    }
+  }, [banners, swiperInstance]);
 
   const handleSearch = async () => {
     const response = await eventRepository.findEvent(searchTerm);
@@ -48,21 +66,86 @@ const HomePage: FC = () => {
     navigate("/recommended");
   };
 
-  
-
   const handleBrowseAll = () => {
     navigate("/shows");
   };
-
   
+  useEffect(() => {
+    async function fetchBanners() {
+      const res = await eventRepository.getAllEvents()
+      console.log("alleve",res);
+      setBanners(res.events);
+    }
+    fetchBanners();
+    async function fetchTrendings(){
+      const response=await eventRepository.findTrending();
+      console.log("trending",response);
+      setTrending(response.events)
+      
+
+    }
+    fetchTrendings()
+  }, []);
+  
+  useEffect(() => {
+    if (swiperInstance && banners.length > 0) {
+      swiperInstance.autoplay.start();
+    }
+  }, [banners, swiperInstance]);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <UserNavbar />
+      
+      <section className="py-6 bg-gray-50">
+        {banners.length > 0 && (
+          <Swiper
+            onSwiper={setSwiperInstance}
+            slidesPerView={3}
+            spaceBetween={20}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: false }}
+            loop={true}
+            modules={[Navigation, Pagination, Autoplay]}
+            className="mySwiper"
+            breakpoints={{
+              640: { slidesPerView: 1 },
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+          >
+            {banners.map((banner) => {
+              let imageSrc = "https://via.placeholder.com/300x400";
+              if (banner.images?.length) {
+                const img = banner.images[0];
+                if (typeof img === "string") {
+                  imageSrc = img.startsWith("http")
+                    ? img
+                    : `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+                } else if (img.url) {
+                  imageSrc = img.url;
+                }
+              }
+
+              return (
+                <SwiperSlide key={banner._id} className="rounded-xl overflow-hidden">
+                  <img
+                    src={imageSrc}
+                    alt={banner.title}
+                    className="w-full h-64 object-cover rounded-xl shadow-lg"
+                  />
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        )}
+      </section>
+
       <RecommendationSticker onClick={handleRecommendationClick} />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden bg-gray-50">
         <motion.div
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
@@ -102,7 +185,6 @@ const HomePage: FC = () => {
               </span>
             </motion.div>
 
-            
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[140px] font-black text-white tracking-tight leading-tight sm:leading-[0.95] md:leading-[0.9]">
               Experience
               <span className="block mt-2 sm:mt-3 md:mt-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-shift">
@@ -123,7 +205,6 @@ const HomePage: FC = () => {
               transition={{ delay: 0.6 }}
               className="pt-6"
             >
-              
             </motion.div>
 
             <motion.div
@@ -164,7 +245,7 @@ const HomePage: FC = () => {
       </section>
 
       {/* Featured Events */}
-      <section className="py-24 px-4 bg-gradient-to-b from-black via-slate-950 to-black relative overflow-hidden">
+      <section className="py-24 px-4 bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(120,119,198,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(120,119,198,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
@@ -177,35 +258,94 @@ const HomePage: FC = () => {
             <motion.span 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              className="inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 text-sm font-semibold mb-4"
+              className="inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-600 text-sm font-semibold mb-4"
             >
               FEATURED EVENTS
             </motion.span>
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-4">
+            <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-4">
               Don't Miss Out
             </h2>
-            <p className="text-xl text-gray-400">Experience these amazing events happening soon</p>
+            <p className="text-xl text-gray-600">Experience these amazing events happening soon</p>
           </motion.div>
 
-          
+          <div className="mb-12">
+  {trending.length > 0 && (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {trending.map((event, index) => {
+        let imageSrc = "https://via.placeholder.com/300x400";
+        if (event.images?.length) {
+          const img = event.images[0];
+          if (typeof img === "string") {
+            imageSrc = img.startsWith("http")
+              ? img
+              : `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+          } else if (img.url) {
+            imageSrc = img.url;
+          }
+        }
 
-          <div className="text-center">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleBrowseAll}
-              className="px-10 py-5 bg-white/5 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/10 text-white rounded-xl font-bold text-lg transition-all inline-flex items-center gap-3 shadow-2xl"
-            >
-              Browse All  Upcoming Events
-              <FaArrowRight />
-            </motion.button>
-          </div>
+        return (
+          <motion.div
+            key={event._id}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.1 }}
+            onClick={() => navigate(`/events/${event._id}`)}
+            className="group relative bg-white rounded-3xl overflow-hidden border border-gray-200 hover:border-red-500 transition-all duration-300 hover:scale-105 shadow-lg cursor-pointer"
+          >
+            {/* Trending Badge */}
+            <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+              <FaFire className="animate-pulse" />
+              Trending
+            </div>
+
+            {/* Image */}
+            <div className="relative h-64 overflow-hidden">
+              <img
+                src={imageSrc}
+                alt={event.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-red-500 transition-colors">
+                {event.title}
+              </h3>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 text-sm font-medium">View Details</span>
+                <FaArrowRight className="text-red-500 group-hover:translate-x-2 transition-transform" />
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  )}
+</div>
+
+<div className="text-center mt-8">
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={handleBrowseAll}
+    className="px-10 py-5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-lg transition-all inline-flex items-center gap-3 shadow-lg"
+  >
+    Browse All Upcoming Events
+    <FaArrowRight />
+  </motion.button>
+</div>
+          
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-24 px-4 bg-black relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(120,119,198,0.15),transparent_70%)]"></div>
+      <section className="py-24 px-4 bg-gray-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(120,119,198,0.05),transparent_70%)]"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -217,14 +357,14 @@ const HomePage: FC = () => {
             <motion.span 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              className="inline-block px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm font-semibold mb-4"
+              className="inline-block px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-600 text-sm font-semibold mb-4"
             >
               HOW IT WORKS
             </motion.span>
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-4">
+            <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-4">
               Simple. Fast. Amazing.
             </h2>
-            <p className="text-xl text-gray-400">Book your perfect event in just 3 easy steps</p>
+            <p className="text-xl text-gray-600">Book your perfect event in just 3 easy steps</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
@@ -267,15 +407,15 @@ const HomePage: FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 pt-14 border border-white/10 hover:border-purple-500/50 transition-all duration-300 h-full group-hover:scale-105">
+                <div className="bg-white rounded-3xl p-8 pt-14 border border-gray-200 hover:border-red-500 transition-all duration-300 h-full group-hover:scale-105 shadow-lg">
                   <div className="text-center space-y-4">
                     <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${step.color}/20 rounded-2xl mb-4`}>
                       <step.icon className={`text-4xl bg-gradient-to-br ${step.color} bg-clip-text text-transparent`} />
                     </div>
-                    <h3 className="text-2xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-blue-400 transition-all">
+                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-blue-400 transition-all">
                       {step.title}
                     </h3>
-                    <p className="text-gray-400 leading-relaxed">
+                    <p className="text-gray-600 leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -286,11 +426,9 @@ const HomePage: FC = () => {
         </div>
       </section>
 
-     
-
       {/* Testimonials */}
-      <section className="py-24 px-4 bg-black relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(120,119,198,0.1),transparent_50%)]"></div>
+      <section className="py-24 px-4 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(120,119,198,0.05),transparent_50%)]"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -302,14 +440,14 @@ const HomePage: FC = () => {
             <motion.span 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              className="inline-block px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-yellow-400 text-sm font-semibold mb-4"
+              className="inline-block px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-yellow-600 text-sm font-semibold mb-4"
             >
               TESTIMONIALS
             </motion.span>
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-4">
+            <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-4">
               Loved By Millions
             </h2>
-            <p className="text-xl text-gray-400">See what our community has to say</p>
+            <p className="text-xl text-gray-600">See what our community has to say</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -342,17 +480,17 @@ const HomePage: FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
-                className="group bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:scale-105"
+                className="group bg-white rounded-3xl p-8 border border-gray-200 hover:border-red-500 transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 <div className="flex items-center gap-4 mb-6">
                   <img
                     src={testimonial.image}
                     alt={testimonial.name}
-                    className="w-16 h-16 rounded-full border-2 border-purple-500/50"
+                    className="w-16 h-16 rounded-full border-2 border-red-500/50"
                   />
                   <div>
-                    <h4 className="text-white font-bold text-lg">{testimonial.name}</h4>
-                    <p className="text-gray-400 text-sm">{testimonial.role}</p>
+                    <h4 className="text-gray-900 font-bold text-lg">{testimonial.name}</h4>
+                    <p className="text-gray-600 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
 
@@ -362,7 +500,7 @@ const HomePage: FC = () => {
                   ))}
                 </div>
 
-                <p className="text-gray-300 leading-relaxed italic">
+                <p className="text-gray-700 leading-relaxed italic">
                   "{testimonial.text}"
                 </p>
               </motion.div>
@@ -372,7 +510,7 @@ const HomePage: FC = () => {
       </section>
 
       {/* Stats Counter */}
-      <section className="py-24 px-4 bg-gradient-to-b from-black via-slate-950 to-black relative overflow-hidden">
+      <section className="py-24 px-4 bg-gray-50 relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(120,119,198,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(120,119,198,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
@@ -391,12 +529,12 @@ const HomePage: FC = () => {
                 transition={{ delay: index * 0.1 }}
                 className="text-center group"
               >
-                <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:scale-105">
+                <div className="bg-white rounded-3xl p-8 border border-gray-200 hover:border-red-500 transition-all duration-300 hover:scale-105 shadow-lg">
                   <stat.icon className={`text-5xl mx-auto mb-4 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent group-hover:scale-110 transition-transform`} />
                   <div className={`text-5xl font-black mb-2 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
                     {stat.value}
                   </div>
-                  <div className="text-gray-400 font-medium">{stat.label}</div>
+                  <div className="text-gray-600 font-medium">{stat.label}</div>
                 </div>
               </motion.div>
             ))}
@@ -405,8 +543,8 @@ const HomePage: FC = () => {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-24 px-4 bg-black relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.1),transparent_50%)]"></div>
+      <section className="py-24 px-4 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.05),transparent_50%)]"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -418,14 +556,14 @@ const HomePage: FC = () => {
             <motion.span 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              className="inline-block px-4 py-2 bg-pink-500/10 border border-pink-500/20 rounded-full text-pink-400 text-sm font-semibold mb-4"
+              className="inline-block px-4 py-2 bg-pink-500/10 border border-pink-500/20 rounded-full text-pink-600 text-sm font-semibold mb-4"
             >
               WHY CHOOSE US
             </motion.span>
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-4">
+            <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-4">
               Built For You
             </h2>
-            <p className="text-xl text-gray-400">The ultimate platform for event experiences</p>
+            <p className="text-xl text-gray-600">The ultimate platform for event experiences</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -458,15 +596,15 @@ const HomePage: FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
-                className="group bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:scale-105"
+                className="group bg-white rounded-3xl p-8 border border-gray-200 hover:border-red-500 transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${feature.gradient}/20 rounded-2xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-2xl`}>
                   <feature.icon className={`text-4xl bg-gradient-to-br ${feature.iconGradient} bg-clip-text text-transparent`} />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-blue-400 transition-all">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-blue-400 transition-all">
                   {feature.title}
                 </h3>
-                <p className="text-gray-400 leading-relaxed text-lg group-hover:text-gray-300 transition-colors">
+                <p className="text-gray-600 leading-relaxed text-lg group-hover:text-gray-700 transition-colors">
                   {feature.description}
                 </p>
               </motion.div>
@@ -476,7 +614,7 @@ const HomePage: FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4 relative overflow-hidden">
+      <section className="py-24 px-4 relative overflow-hidden bg-gray-50">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-black to-blue-900/50"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4wNSIvPjwvZz48L3N2Zz4=')] opacity-40"></div>
         
@@ -538,7 +676,6 @@ const HomePage: FC = () => {
       `}</style>
       <Footer/>
     </div>
-    
   );
 };
 

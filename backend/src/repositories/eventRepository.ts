@@ -1,4 +1,4 @@
-import { IEventDTO } from "src/interface/IEventDTO";
+import { IEventDTO, IEventImage } from "src/interface/IEventDTO";
 import EventModel, { IEvent } from "../model/event";
 import { IEventRepository } from "./repositoryInterface/IEventRepository";
 import mongoose, { DeleteResult, FilterQuery } from "mongoose";
@@ -14,6 +14,9 @@ dotenv.config()
 import Order from "../model/order";
 import { Recommend } from "src/interface/IUser";
 import Notification from "../model/notification";
+import { IOrderDTO } from "src/interface/IOrder";
+import Organiser from "../model/organiser";
+import { IOrganiser } from "src/interface/IOrgAuth";
 
 
 
@@ -148,6 +151,8 @@ export class EventRepository
     return await this.findById(id);
   }
   async createEvent(data: IEventDTO): Promise<IEvent> {
+    console.log("data",data);
+    
 
     
     const event= await EventModel.create(data);
@@ -497,6 +502,67 @@ async findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]
     },
     });
     
+  }
+  async getAllEvents():Promise<{images:(string | IEventImage)[],title:string}[]>{
+    try {
+     return await EventModel.find({}, { title: 1, images: 1, _id: 1 }).sort({ date: -1 });
+      
+    } catch (error) {
+      console.log(error);
+      return []
+      
+      
+    }
+  }
+  async getTrending():Promise<{images:(string | IEventImage)[],title:string}[]>{
+    try {
+     return await EventModel.find({status:"published"}, { title: 1, images: 1, _id: 1 }).sort({ ticketsSold:-1 }).limit(5);
+      
+    } catch (error) {
+      console.log(error);
+      return []
+      
+      
+    }
+  }
+  async findOrders(eventId:string):Promise<IOrderDTO[]>{
+    return await Order.find({eventId:eventId})
+
+  }
+  async updateEventDate(eventId:string,date:string):Promise<IEvent|null>{
+    try {
+       const updatedEvent=await EventModel.findByIdAndUpdate(eventId,{date},{new:true})
+       return updatedEvent
+      
+    } catch (error) {
+      console.error("Error updating event date:", error);
+    throw error; 
+      
+    }
+   
+
+  }
+  async findOrg(orgId:string):Promise<IOrganiser|null>{
+    try {
+      return await Organiser.findById(orgId)
+      
+    } catch (error) {
+       console.error("Error updating event date:", error);
+    throw error; 
+      
+    }
+
+  }
+  async findUser(userId:string):Promise<IUser|null>{
+    try {
+      return await User.findById(userId)
+      
+    } catch (error) {
+       console.error("Error updating event date:", error);
+    throw error; 
+      
+    }
+
   }
   
 

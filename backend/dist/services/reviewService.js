@@ -57,7 +57,10 @@ class ReviewService {
                 const analysedReviews = yield Promise.all(response.map((review) => __awaiter(this, void 0, void 0, function* () {
                     const plainReview = {
                         _id: review._id.toString(),
-                        userId: review.userId.name,
+                        //userId: (review.userId as any).name, 
+                        userId: typeof review.userId === "object" && "name" in review.userId
+                            ? review.userId.name
+                            : review.userId.toString(),
                         eventId: review.eventId.toString(),
                         rating: review.rating,
                         comment: review.comment,

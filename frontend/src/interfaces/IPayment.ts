@@ -7,7 +7,8 @@ export interface OrderCreateInput{
     eventId:string;
     eventTitle:string;
     email?:string;
-    selectedTicket?:{type:string,capacity:number,price:number,sold?:number}|null
+    selectedTicket?:{type:string,capacity:number,price:number,sold?:number}|null;
+    offerCode?:string
 }
 export interface RazorpayPaymentResponse {
   razorpay_payment_id: string;

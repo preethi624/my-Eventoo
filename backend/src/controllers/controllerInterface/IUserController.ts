@@ -6,4 +6,5 @@ export interface IUserController{
     getOrgs(req:Request,res:Response):Promise<void>;
     changePassword(req:Request,res:Response):Promise<void>
       fetchVenues(req:Request,res:Response):Promise<void>
+      fetchOffer(req:Request,res:Response):Promise<void>
 }

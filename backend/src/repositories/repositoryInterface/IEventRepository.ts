@@ -1,6 +1,8 @@
 import { DeleteResult } from "mongoose";
 import { EventEdit, GetEvent, IEventFilter, Location } from "src/interface/event";
-import { IEventDTO } from "src/interface/IEventDTO";
+import { IEventDTO, IEventImage } from "src/interface/IEventDTO";
+import { IOrderDTO } from "src/interface/IOrder";
+import { IOrganiser } from "src/interface/IOrgAuth";
 import { Recommend } from "src/interface/IUser";
 import { IUser } from "src/interface/IUserAuth";
 import { IEvent } from "src/model/event";
@@ -32,6 +34,12 @@ findNear({ lat, lng }: Location,filters:IEventFilter): Promise<IEventDTO[]>
 
 getCompleted(filters: IEventFilter): Promise<GetEvent | null>
 findById(id:string):Promise<IEvent|null>
+getAllEvents():Promise<{images:(string | IEventImage)[],title:string}[]>
+getTrending():Promise<{images:(string | IEventImage)[],title:string}[]>
+findOrders(eventId:string):Promise<IOrderDTO[]>
+updateEventDate(eventId:string,date:string):Promise<IEvent|null>
+findOrg(orgId:string):Promise<IOrganiser|null>
+findUser(userId:string):Promise<IUser|null>
 
 
 

@@ -15,6 +15,9 @@ export interface IEventController{
         findRecommended(req:Request,res:Response):Promise<void>
         findNear(req:Request,res:Response):Promise<void>
          getCompleted(req: Request, res: Response): Promise<void>
+         getAllEvents(req:Request,res:Response):Promise<void>
+         getTrending(req:Request,res:Response):Promise<void>
+         rescheduleEvent(req:Request,res:Response):Promise<void>
        
      
         

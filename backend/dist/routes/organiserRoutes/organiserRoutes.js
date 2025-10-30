@@ -28,6 +28,6 @@ router.get("/dashboardEvents/:organiserId", middleware_di_1.authMiddlewarwSet.or
 router.put("/checkin", middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.updateTicket.bind(organiser_di_1.organiserController));
 router.get("/users", middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.getUsers.bind(organiser_di_1.organiserController));
 router.post('/order/:orderId', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.cancelOrder.bind(organiser_di_1.organiserController));
-router.get('/venues', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.fetchVenues.bind(organiser_di_1.organiserController));
+router.get('/venue', middleware_di_1.authMiddlewarwSet.organiserOnly, organiser_di_1.organiserController.fetchVenues.bind(organiser_di_1.organiserController));
 exports.default = router;
 //# sourceMappingURL=organiserRoutes.js.map

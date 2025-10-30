@@ -128,6 +128,22 @@ class UserController {
             }
         });
     }
+    fetchOffer(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offerCode = req.query.code;
+                if (!offerCode)
+                    throw new Error("code not exist");
+                const response = yield this._userService.offerFetch(offerCode);
+                if (response.success) {
+                    res.json(response.offer);
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.UserController = UserController;
 //# sourceMappingURL=userController.js.map

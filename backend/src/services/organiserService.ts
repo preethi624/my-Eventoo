@@ -380,6 +380,8 @@ console.log("Razorpay payment:", payment);
   async venuesFetch():Promise<IVenues>{
     try {
       const response=await this._organiserRepository.fetchVenues();
+     
+      
       if(response){
         return{success:true,venues:response}
       }else{

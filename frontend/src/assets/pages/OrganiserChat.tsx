@@ -225,8 +225,10 @@ const OrganizerChatPage: React.FC = () => {
   );
 
   return (
-    <OrganiserLayout>
+     <OrganiserLayout>
+   
       <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden -m-6">
+        
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -495,9 +497,7 @@ const OrganizerChatPage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
-
-      <style>{`
+        <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -512,8 +512,15 @@ const OrganizerChatPage: React.FC = () => {
           animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
-      <OrganiserFooter/>
+     
+     
+   
+      </div>
+       <OrganiserFooter/>
+     
     </OrganiserLayout>
+
+      
   );
 };
 

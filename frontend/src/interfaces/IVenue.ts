@@ -7,6 +7,7 @@ export interface IVenue{
   pincode:string;
   description: string;
   capacity: number;
+  totalCapacity?:number;
   contactPerson:string
   phone:number;
   email:string;
@@ -14,6 +15,7 @@ export interface IVenue{
   website:string;
   facilities:string[];
   status:string;
+  seatTypes:{type:string,seatCount:string}[];
 
 }
 export interface VenueUpdate{

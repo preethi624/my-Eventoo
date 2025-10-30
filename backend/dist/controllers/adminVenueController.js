@@ -20,7 +20,16 @@ class AdminVenueController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const files = req.files;
-                const venueData = Object.assign(Object.assign({}, req.body), { images: (files === null || files === void 0 ? void 0 : files.map((file) => file.path)) || [] });
+                let seatTypes = [];
+                if (req.body.seatTypes) {
+                    try {
+                        seatTypes = JSON.parse(req.body.seatTypes);
+                    }
+                    catch (err) {
+                        console.error("Failed to parse seatTypes:", err);
+                    }
+                }
+                const venueData = Object.assign(Object.assign({}, req.body), { seatTypes, images: (files === null || files === void 0 ? void 0 : files.map((file) => file.path)) || [] });
                 console.log("venue", venueData);
                 const response = yield this._adminVenueService.venueCreate(venueData);
                 if (response.success) {

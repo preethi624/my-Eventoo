@@ -187,33 +187,6 @@ class EventController {
             }
         });
     }
-    /*async editEvent(
-      req: Request<{ id: string }, unknown, EventEdit>,
-      res: Response
-    ): Promise<void> {
-      try {
-       
-        const file = req.file as Express.Multer.File|undefined;
-       
-        
-  
-        const data = req.body;
-        const id = req.params.id;
-       
-        const response = await this._eventService.eventEdit(id, data,file);
-        if (response) {
-          res.json({ success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE });
-        } else {
-          res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE });
-        }
-      } catch (error) {
-        console.error(error);
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: MESSAGES.EVENT.FAILED_TO_UPDATE,
-        });
-      }
-    }*/
     editEvent(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -314,7 +287,6 @@ class EventController {
                 const date = req.query.date;
                 const status = req.query.status;
                 const response = yield this._eventService.getEvent(id, limit, page, searchTerm, date, status);
-                console.log("response", response);
                 if (response) {
                     res.json({ result: response, success: true });
                 }
@@ -522,6 +494,66 @@ class EventController {
                     success: false,
                     message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
                 });
+            }
+        });
+    }
+    getAllEvents(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._eventService.getEventsAll();
+                if (response) {
+                    res.json({ events: response });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
+                });
+            }
+        });
+    }
+    getTrending(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this._eventService.trendingGet();
+                if (response) {
+                    res.json({ events: response });
+                }
+                else {
+                    res.json({ success: false });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(statusCodeEnum_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                    success: false,
+                    message: messages_1.MESSAGES.EVENT.FAILED_TO_FETCH,
+                });
+            }
+        });
+    }
+    rescheduleEvent(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const date = req.body.newDate;
+                const eventId = req.params.eventId;
+                const organiserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!organiserId) {
+                    throw new Error("organiserId not exist");
+                }
+                const response = yield this._eventService.eventReschedule(date, eventId, organiserId);
+                if (response.success) {
+                    res.json({ success: true, message: response.message });
+                }
+            }
+            catch (error) {
+                console.log(error);
             }
         });
     }

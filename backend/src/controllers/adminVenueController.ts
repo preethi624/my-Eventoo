@@ -10,8 +10,17 @@ export class AdminVenueController implements IAdminVenueController {
   async createVenue(req: Request, res: Response): Promise<void> {
     try {
       const files = req.files as Express.Multer.File[];
+      let seatTypes = [];
+    if (req.body.seatTypes) {
+      try {
+        seatTypes = JSON.parse(req.body.seatTypes);
+      } catch (err) {
+        console.error("Failed to parse seatTypes:", err);
+      }
+    }
       const venueData = {
         ...req.body,
+        seatTypes,
         images: files?.map((file: Express.Multer.File) => file.path) || [],
       };
       console.log("venue", venueData);
@@ -66,6 +75,8 @@ export class AdminVenueController implements IAdminVenueController {
   async editVenue(req: Request, res: Response): Promise<void> {
     try {
       const updateData = req.body;
+    
+      
       const response = await this._adminVenueService.venueEdit(updateData);
       if (response.success) {
         res.json({ successs: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE });

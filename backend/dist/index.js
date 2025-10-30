@@ -38,6 +38,8 @@ const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 const notificationRoutes_1 = __importDefault(require("./routes/notificationRoutes"));
 const fileRoutes_1 = __importDefault(require("./routes/fileRoutes"));
+const adminOfferRoutes_1 = __importDefault(require("./routes/adminRoutes/adminOfferRoutes"));
+const offerRoutes_1 = __importDefault(require("./routes/userRoutes/offerRoutes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const db_1 = __importDefault(require("./config/db"));
 const http_1 = require("http");
@@ -134,12 +136,14 @@ exports.app.use("/api/v1/admin", adminEventRoutes_1.default);
 exports.app.use("/api/v1/admin", adminOrganiserRoutes_1.default);
 exports.app.use("/api/v1/admin", adminOrderRoutes_1.default);
 exports.app.use("/api/v1/admin", adminVenueRoutes_1.default);
+exports.app.use('/api/v1/admin', adminOfferRoutes_1.default);
 exports.app.use("/api/v1/payment", paymentRoutes_1.default);
 exports.app.use("/api/v1/message", messageRoutes_1.default);
 exports.app.use("/api/v1/chat", chatRoutes_1.default);
 exports.app.use("/api/v1/review", reviewRoutes_1.default);
 exports.app.use("/api/v1/notification", notificationRoutes_1.default);
 exports.app.use('/', fileRoutes_1.default);
+exports.app.use('/api/v1/offer', offerRoutes_1.default);
 exports.io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
     socket.on("register-user", (userId) => {

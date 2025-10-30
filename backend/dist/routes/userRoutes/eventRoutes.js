@@ -15,5 +15,7 @@ router.get("/event", middleware_di_1.authMiddlewarwSet.userOnly, event_di_1.even
 router.get("/eventsByCat", middleware_di_1.authMiddlewarwSet.userOnly, event_di_1.eventController.findEventsByCat.bind(event_di_1.eventController));
 router.get("/recommended", middleware_di_1.authMiddlewarwSet.userOnly, event_di_1.eventController.findRecommended.bind(event_di_1.eventController));
 router.get("/near", middleware_di_1.authMiddlewarwSet.userOnly, event_di_1.eventController.findNear.bind(event_di_1.eventController));
+router.get("/", middleware_di_1.authMiddlewarwSet.userOnly, event_di_1.eventController.getAllEvents.bind(event_di_1.eventController));
+router.get("/trending", middleware_di_1.authMiddlewarwSet.userOnly, event_di_1.eventController.getTrending.bind(event_di_1.eventController));
 exports.default = router;
 //# sourceMappingURL=eventRoutes.js.map

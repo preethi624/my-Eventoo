@@ -417,7 +417,7 @@ class PaymentRepository {
                 { $skip: skip },
                 { $limit: limitNumber },
             ];
-            const tickets = yield ticket_1.TicketModel.aggregate(dataPipeline);
+            const tickets = yield ticket_1.TicketModel.aggregate(dataPipeline).sort({ issuedAt: -1 });
             return {
                 tickets,
                 totalPages,

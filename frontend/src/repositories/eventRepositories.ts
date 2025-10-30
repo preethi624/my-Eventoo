@@ -27,7 +27,10 @@ interface EventGetById {
 
 export const createEvent = async (data: FormData): Promise<CreateEvent> => {
   try {
-    console.log('data',data);
+    console.log("FormData entries:");
+    for (let [key, value] of data.entries()) {
+      console.log(key, value);
+    }
     
     
     
@@ -293,6 +296,55 @@ export const fetchNearByEvents=async({latitude,longitude}:Location,filters:strin
     
   }
 }
+export const getAllEvents=async()=>{
+  try {
+    const response=await axiosInstance.get(`${API_BASE_URL}`);
+    console.log("all evnets",response);
+    
+    if(response){
+      return response.data
+    }
+    
+  } catch (error) {
+     const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+  
+}
+export const findTrending=async()=>{
+  try {
+    const response=await axiosInstance.get(`${API_BASE_URL}/trending`);
+    console.log("all evnets",response);
+    
+    if(response){
+      return response.data
+    }
+    
+  } catch (error) {
+     const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+  
+}
+export const rescheduleEvent=async(eventId:string,date:string)=>{
+  try {
+     const response=await axiosInstance.put(`${API_BASE_URL}/reschedule/${eventId}`,{newDate:date});
+     console.log("resvchedule",response);
+     
+     return response.data
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+    
+  }
+ 
+
+}
+
 
 export const eventRepository = {
   createEvent,
@@ -309,5 +361,8 @@ export const eventRepository = {
   fetchEventsByCategory,
   findRecommended,
   fetchNearByEvents,
-  getCompletedEvents
+  getCompletedEvents,
+  getAllEvents,
+  findTrending,
+  rescheduleEvent
 };

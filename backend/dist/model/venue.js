@@ -34,6 +34,10 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+const seatTypeSchema = new mongoose_1.Schema({
+    type: { type: String, required: true },
+    seatCount: { type: Number, required: true },
+});
 const venueSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     address: { type: String, required: true },
@@ -41,7 +45,6 @@ const venueSchema = new mongoose_1.Schema({
     state: { type: String, required: true },
     pincode: { type: String, required: true },
     description: { type: String, required: true },
-    capacity: { type: Number, required: true },
     contactPerson: { type: String, required: true },
     phone: { type: Number, required: true },
     email: { type: String, required: true },
@@ -49,6 +52,9 @@ const venueSchema = new mongoose_1.Schema({
     website: { type: String, required: true },
     facilities: { type: [String] },
     status: { type: String, enum: ["active", "inactive"] },
+    seatTypes: { type: [seatTypeSchema], default: [] },
+    totalCapacity: { type: Number, required: true },
+    totalCost: { type: Number, required: true },
 }, { timestamps: true });
 const Venue = mongoose_1.default.model("Venue", venueSchema);
 exports.default = Venue;

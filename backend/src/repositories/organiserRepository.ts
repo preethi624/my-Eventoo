@@ -137,10 +137,10 @@ export class OrganiserRepository implements IOrganiserRepository {
   async getDashboard(eventId: string): Promise<DashboardResponse> {
     const objectId = new mongoose.Types.ObjectId(eventId);
 
-    const event = await EventModel.findById(objectId).lean();
+    const event = await EventModel.findById(objectId).populate("venue").lean();
 
     const orders = await Order.aggregate([
-      { $match: { eventId: objectId } },
+      { $match: { eventId: objectId} },
       {
         $lookup: {
           from: "users",
@@ -174,7 +174,12 @@ export class OrganiserRepository implements IOrganiserRepository {
         }
         acc[type].count+=1;
         acc[type].tickets+=order.ticketCount;
-        acc[type].revenue+=order.amount
+        if(order.bookingStatus==="confirmed"){
+            acc[type].revenue += order.amount;
+
+
+        }
+        
       }
       return acc
 
@@ -874,7 +879,14 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
       }
       async fetchVenues():Promise<IVenue[]|null>{
         try {
-          return await Venue.find()
+          const targetDate = new Date("2025-10-19");
+          const venues=await Venue.find({
+      createdAt: { $gte: targetDate }
+    })
+    console.log("Venues found:", venues.map(v => v.name)); 
+    
+    
+    return venues
           
         } catch (error) {
           console.log(error);

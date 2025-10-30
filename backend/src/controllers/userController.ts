@@ -108,4 +108,20 @@ export class UserController implements IUserController {
     }
 
   }
+  async fetchOffer(req:Request,res:Response):Promise<void>{
+    try {
+      const offerCode=req.query.code as string
+      if(!offerCode) throw new Error("code not exist")
+      const response=await this._userService.offerFetch(offerCode);
+      if(response.success){
+        res.json(response.offer)
+      }
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+
+  }
 }

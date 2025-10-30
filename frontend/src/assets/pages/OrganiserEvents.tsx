@@ -15,22 +15,31 @@ import { categoryRepository } from "../../repositories/categoryRepository";
 import type { RootState } from "../../redux/stroe";
 import OrganiserFooter from "../components/OrganiserFooter";
 
+interface TicketType {
+  price: string;
+  capacity: string;
+}
+interface IVenue {
+    _id: string;
+    name: string;
+    address: string;
+    city:string;
+    state:string;
+    seatTypes:  { type: string; seatCount: number }[]
+  }
+
 export type EventForm = {
   title: string;
   description: string;
   date: string;
   time: string;
-  venue: string;
+  venue:string
   category: string;
   capacity: string;
   images: FileList | [];
   latitude: string;
   longitude: string;
-  ticketTypes: {
-    economic: { price: string; capacity: string };
-    premium: { price: string; capacity: string };
-    vip: { price: string; capacity: string };
-  };
+  ticketTypes:  Record<string, TicketType>;
 };
 
 export type EventEdit = {
@@ -46,11 +55,7 @@ export type EventEdit = {
   category: string;
   time: string;
   images: (string | IEventImage)[];
-  ticketTypes: {
-    economic: { price: string; capacity: string };
-    premium: { price: string; capacity: string };
-    vip: { price: string; capacity: string };
-  };
+  ticketTypes:  Record<string, TicketType>;
 };
 
 const OrganiserEvents: React.FC = () => {
@@ -61,14 +66,17 @@ const OrganiserEvents: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
+  const buttonBase = "px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-1 transition-all";
+const statusButtons: Record<string, string> = {
+  draft: "bg-blue-500 text-white hover:bg-blue-600",
+  published: "bg-yellow-500 text-white hover:bg-yellow-600",
+  completed: "bg-gray-500 text-white hover:bg-gray-600",
+};
 
-  interface IVenue {
-    _id: string;
-    name: string;
-    address: string;
-    city:string;
-    state:string
-  }
+ 
+
+
+  
 
   console.log(editEventId);
 
@@ -83,11 +91,7 @@ const OrganiserEvents: React.FC = () => {
     capacity: 0,
     status: "",
     images: [],
-    ticketTypes: {
-      economic: { price: "", capacity: "" },
-      premium: { price: "", capacity: "" },
-      vip: { price: "", capacity: "" },
-    },
+    ticketTypes: {}
   });
 
   const [eventForm, setEventForm] = useState<EventForm>({
@@ -97,11 +101,7 @@ const OrganiserEvents: React.FC = () => {
     time: "",
     venue: "",
     category: "",
-    ticketTypes: {
-      economic: { price: "", capacity: "" },
-      premium: { price: "", capacity: "" },
-      vip: { price: "", capacity: "" },
-    },
+    ticketTypes: {},
     capacity: "",
     images: [],
     latitude: "",
@@ -110,11 +110,14 @@ const OrganiserEvents: React.FC = () => {
 
   const [organiserDetails, setOrganiserDetails] = useState<any>(null);
   const organiser = useSelector((state: RootState) => state.auth.user);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [venues, setVenues] = useState<IVenue[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [limit, setLimit] = useState(10);
+  const [showPostponeModal, setShowPostponeModal] = useState(false);
+  const [newDate, setNewDate] = useState("");
 
   useEffect(() => {
     fetchEvents();
@@ -202,9 +205,33 @@ const OrganiserEvents: React.FC = () => {
     };
     fetchOrganiserDetails();
   }, [organiser]);
+  
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!eventForm.title.trim()) return toast.error("Event title is required");
+  if (!eventForm.category) return toast.error("Please select a category");
+  if (!eventForm.description.trim()) return toast.error("Description is required");
+  if (!eventForm.date) return toast.error("Please select a date");
+  if (!eventForm.time) return toast.error("Please select a time");
+  if (!eventForm.venue) return toast.error("Please select a venue");
+
+  // Validate ticket types
+  const ticketTypes = Object.entries(eventForm.ticketTypes);
+  if (ticketTypes.length === 0)
+    return toast.error("Add at least one ticket type");
+
+  for (const [type, data] of ticketTypes) {
+    if (!data.price || Number(data.price) <= 0)
+      return toast.error(`${type} ticket price must be greater than 0`);
+    if (!data.capacity || Number(data.capacity) <= 0)
+      return toast.error(`${type} ticket capacity must be greater than 0`);
+  }
+
+  // Validate images
+  if (!eventForm.images || eventForm.images.length === 0)
+    return toast.error("Please upload at least one event image");
+
 
     try {
       if (!organiser || !organiser.id) {
@@ -243,13 +270,9 @@ const OrganiserEvents: React.FC = () => {
           description: "",
           date: "",
           time: "",
-          venue: "",
+          venue:"",
           category: "",
-          ticketTypes: {
-            economic: { price: "", capacity: "" },
-            premium: { price: "", capacity: "" },
-            vip: { price: "", capacity: "" },
-          },
+          ticketTypes: {},
           capacity: "",
           images: [],
           latitude: "",
@@ -293,135 +316,112 @@ const OrganiserEvents: React.FC = () => {
   };
 
  
-  const handleEdit = async (eventId: string | undefined) => {
-  setEditModal(true);
+  
+const handleEdit = async (eventId: string | undefined) => {
   if (!eventId) throw new Error("eventId not present");
 
+  setEditModal(true);
   setEditEventID(eventId);
+
   const selectedEvent = events.find((event) => event._id === eventId);
   if (!selectedEvent) return;
 
-  console.log("Selected event data:", selectedEvent);
-  const ticketArray = selectedEvent.ticketTypes as unknown as {
-  type: "economic" | "premium" | "vip";
-  price: number;
-  capacity: number;
-}[];
 
-  // Convert array to object
-  const ticketObj: EventEdit["ticketTypes"] = {
-    economic: { price: "", capacity: "" },
-    premium: { price: "", capacity: "" },
-    vip: { price: "", capacity: "" },
-  };
-ticketArray.forEach((t) => {
-  ticketObj[t.type] = {
-    price: t.price.toString(),
-    capacity: t.capacity.toString(),
-  };
-});
-  
+
+
+  // Convert ticketTypes array → object dynamically
+  const ticketArray = selectedEvent.ticketTypes as unknown as {
+    type: string;
+    price: number;
+    capacity: number;
+  }[];
+
+  const ticketObj: Record<string, { price: string; capacity: string }> = {};
+
+  ticketArray.forEach((t) => {
+    ticketObj[t.type.toLowerCase()] = {
+      price: t.price.toString(),
+      capacity: t.capacity.toString(),
+    };
+  });
+
+  // ✅ Set the edit form with real event data
   setEditForm({
     id: selectedEvent._id,
     title: selectedEvent.title,
+    category: selectedEvent.category,
     description: selectedEvent.description,
     date: selectedEvent.date.toString().split("T")[0],
     time: selectedEvent.date.toString().split("T")[1]?.slice(0, 5) || "",
     venue: selectedEvent.venue,
-    category: selectedEvent.category,
-    ticketTypes: ticketObj,
     capacity: selectedEvent.capacity,
+    ticketTypes: ticketObj, 
     status: selectedEvent.status,
-    images: selectedEvent.images,
+    images: selectedEvent.images || [],
   });
 };
 
 
-  const validateEditForm = () => {
-    const {
-      title,
-      category,
-      description,
-      date,
-      time,
-      venue,
-      capacity,
-      ticketPrice,
-      status,
-    } = editForm;
-    if (
-      !title ||
-      !category ||
-      !description ||
-      !date ||
-      !time ||
-      !venue ||
-      !status
-    ) {
-      toast.error("All fields are required.");
-      return false;
-    }
 
-    if (!title.trim()) {
-      toast.error("Event title is required");
-      return false;
-    }
 
-    if (!category) {
-      toast.error("Please select a category");
-      return false;
-    }
-
-    if (!description.trim()) {
-      toast.error("Description is required");
-      return false;
-    }
-
-    if (!date) {
-      toast.error("Date is required");
-      return false;
-    }
-
-    const today = new Date().toISOString().split("T")[0];
-    if (date < today) {
-      toast.error("Event date cannot be in the past");
-      return false;
-    }
-
-    if (!time) {
-      toast.error("Time is required");
-      return false;
-    }
-
-    if (!venue.trim()) {
-      toast.error("Venue is required");
-      return false;
-    }
-
-    if (!capacity || capacity < 1) {
-      toast.error("Capacity must be at least 1");
-      return false;
-    }
-
-    if (ticketPrice === null || ticketPrice! < 0) {
-      toast.error("Ticket price must be 0 or greater");
-      return false;
-    }
-
-    if (!status) {
-      toast.error("Please select an event status");
-      return false;
-    }
-
-    return true;
-  };
-
- 
+  
   const handleEditSubmit = async (id: string) => {
   if (!id) return;
 
-  const isValid = validateEditForm();
-  if (!isValid) return;
+ if (!editForm.title.trim())
+    return toast.error("Event title is required");
+
+  if (!editForm.category)
+    return toast.error("Please select a category");
+
+  if (!editForm.description.trim())
+    return toast.error("Description is required");
+
+  if (!editForm.date)
+    return toast.error("Event date is required");
+
+  const eventDate = new Date(editForm.date);
+  const today = new Date();
+  if (eventDate.getTime() < today.setHours(0, 0, 0, 0))
+    return toast.error("Event date cannot be in the past");
+
+  if (!editForm.time)
+    return toast.error("Event time is required");
+
+  if (!editForm.venue.trim())
+    return toast.error("Venue name is required");
+
+  if (!editForm.capacity || Number(editForm.capacity) <= 0)
+    return toast.error("Capacity must be greater than 0");
+
+  // ✅ Ticket type validations
+  const ticketTypes = Object.entries(editForm.ticketTypes);
+  if (ticketTypes.length === 0)
+    return toast.error("Add at least one ticket type");
+
+  for (const [type, data] of ticketTypes) {
+    if (!data.price || Number(data.price) <= 0)
+      return toast.error(`${type} ticket price must be greater than 0`);
+    if (!data.capacity || Number(data.capacity) <= 0)
+      return toast.error(`${type} ticket capacity must be greater than 0`);
+  }
+  const ticketCapacity=ticketTypes.reduce((acc,curr)=>(acc+Number(curr[1].capacity||0)),0);
+  if(editForm.capacity>ticketCapacity)
+    return toast.error("Capacity must be less than or equal to total capacity of venue")
+  
+
+  if (!editForm.status)
+    return toast.error("Please select an event status");
+
+  // ✅ Image validation (optional: only if new image upload is required)
+ const existingImage = !!events.find(
+  (ev) => ev._id === editForm.id
+)?.images?.length;
+
+if (!existingImage && (!editForm.images || editForm.images.length === 0)) {
+  return toast.error("Please upload an event image");
+}
+
 
   const ticketTypesArray = Object.keys(editForm.ticketTypes).map((key) => ({
     type: key,
@@ -443,6 +443,39 @@ ticketArray.forEach((t) => {
     toast(response.message);
   }
 };
+const handlePostpone=async(eventId:string)=>{
+  const event = events.find((e: any) => e._id === eventId);
+  setSelectedEvent(event);
+  setShowPostponeModal(true);
+  
+}
+const handleCloseModal = () => {
+  setShowPostponeModal(false);
+  setSelectedEvent(null);
+  setNewDate("");
+};
+const handleSubmitPostpone = async () => {
+  if (!newDate || !selectedEvent) return toast.error("Please select a new date");
+
+  try {
+    
+    
+    const response = await eventRepository.rescheduleEvent(selectedEvent._id,newDate);
+    if(response.success){
+      toast("Rescheduled successfully")
+    }else{
+      toast("Failed to re-apply")
+    }
+
+    
+      handleCloseModal();
+    
+  } catch (error) {
+    toast.error("Something went wrong");
+    console.error(error);
+  }
+};
+
 
 
   const handleReapply = async () => {
@@ -464,33 +497,48 @@ ticketArray.forEach((t) => {
       accessor: "date",
       render: (event: any) => new Date(event.date).toLocaleDateString(),
     },
-    { header: "Venue", accessor: "venue" },
+    { header: "Venue", accessor: "venue" ,render: (event: any) => {
+    const venue = venues.find(v => v._id === event.venue);
+    return venue ? `${venue.name},${venue.address}` : event.venue;
+  }},
     { header: "Status", accessor: "status" },
+    
     {
-      header: "Actions",
-      accessor: "actions",
-      render: (event: any) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleEdit(event._id)}
-            className="text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            <FaEdit size={18} />
-          </button>
-          <button
-            onClick={() => handleDelete(event._id)}
-            className="text-red-400 hover:text-red-300 transition-colors"
-          >
-            <FaTrash size={18} />
-          </button>
-          <Link to={`/organiserEvent/${event._id}`}>
-            <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-lg text-sm hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-1">
-              <FaChartBar size={14} /> Analytics
-            </button>
-          </Link>
-        </div>
-      ),
-    },
+  header: "Actions",
+  accessor: "actions",
+  render: (event: any) => (
+  <div className="flex gap-2 flex-wrap">
+    {event.status === "draft" && (
+      <>
+        <button className={`${buttonBase} ${statusButtons.draft}`} onClick={() => handleEdit(event._id)}>
+          <FaEdit size={16} />
+        </button>
+        <button className={`${buttonBase} ${statusButtons.draft}`} onClick={() => handleDelete(event._id)}>
+          <FaTrash size={16} />
+        </button>
+      </>
+    )}
+    {event.status === "published" && (
+      <button className={`${buttonBase} ${statusButtons.published}`} onClick={() => handlePostpone(event._id)}>
+        Postpone
+      </button>
+    )}
+    
+    {event.status==='completed'?<Link to={`/organiserEvent/${event._id}`}>
+      <button className={`${buttonBase} bg-purple-600 text-white hover:bg-purple-700`}>
+        <FaChartBar size={14} /> Report And Analytics
+      </button>
+    </Link>:<Link to={`/organiserEvent/${event._id}`}>
+      <button className={`${buttonBase} bg-purple-600 text-white hover:bg-purple-700`}>
+        <FaChartBar size={14} />  Analytics
+      </button>
+    </Link>}
+  </div>
+)
+
+}
+
+    
   ];
 
   const handleResetFilters = () => {
@@ -500,6 +548,36 @@ ticketArray.forEach((t) => {
     setStatusFilter("");
 
   };
+  // place near other handlers
+
+const handleVenueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const selectedVenueId = e.target.value;
+  const selectedVenue = venues.find(v => v._id === selectedVenueId);
+
+  if (!selectedVenue) return;
+
+  // Build descriptive venue string
+  const venueString = `${selectedVenue.name}, ${selectedVenue.city}, ${selectedVenue.state}, India`;
+
+  // Build dynamic ticketTypes
+  const autoTicketTypes: Record<string, TicketType> = {};
+  if (selectedVenue.seatTypes) {
+    selectedVenue.seatTypes.forEach((seat) => {
+      const key = seat.type.toLowerCase();
+      autoTicketTypes[key] = {
+        price: "",
+        capacity: String(seat.seatCount),
+      };
+    });
+  }
+
+  // ✅ Store the full string in eventForm.venue, not the ID
+  setEventForm(prev => ({
+    ...prev,
+    venue: venueString,
+    ticketTypes: autoTicketTypes,
+  }));
+};
 
 
 
@@ -758,210 +836,84 @@ ticketArray.forEach((t) => {
                     Venue
                   </label>
                   <select
-                    value={eventForm.venue}
-                    onChange={(e) =>
-                      setEventForm({ ...eventForm, venue: e.target.value })
-                    }
-                    className="w-full bg-gray-800 border border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  >
-                    <option value="">Select a venue</option>
-                    {venues.map((venue) => (
-                      <option key={venue._id} value={`${venue.name}, ${venue.city}, ${venue.state}, India`}>
-                        {venue.name} - {venue.address}
-                      </option>
-                    ))}
-                  </select>
+  value={venues.find(v => `${v.name}, ${v.city}, ${v.state}, India` === eventForm.venue)?._id || ""}
+  onChange={handleVenueChange}
+  className="w-full bg-gray-800 border border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+>
+  <option value="">Select a venue</option>
+  {venues.map((venue) => (
+    <option key={venue._id} value={venue._id}>
+      {venue.name} - {venue.address}
+    </option>
+  ))}
+</select>
+
                 </div>
 
                 <div>
-                  <label className="block mb-2 text-gray-300 font-medium">
-                    Total Capacity
-                  </label>
-                  <input
-                    type="number"
-                    value={eventForm.capacity}
-                    onChange={(e) =>
-                      setEventForm({ ...eventForm, capacity: e.target.value })
-                    }
-                    className="w-full bg-gray-800 border border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    placeholder="Total capacity"
-                  />
-                </div>
+  <label className="block mb-2 text-gray-300 font-medium">
+    Total Capacity
+  </label>
+  <input
+    type="number"
+    value={Object.values(eventForm.ticketTypes).reduce(
+      (sum, t) => sum + Number(t.capacity || 0),
+      0
+    )} // sum of all capacities
+    readOnly
+    className="w-full bg-gray-800 border border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 cursor-not-allowed"
+    placeholder="Total capacity"
+  />
+</div>
+
               </div>
 
-              {/* Ticket Types */}
-              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-                <h4 className="text-lg font-semibold text-purple-400 mb-4">
-                  Ticket Pricing
-                </h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {Object.entries(eventForm.ticketTypes).map(([type, data]) => (
+    <div key={type} className="space-y-4">
+      <div className="text-center mb-2">
+        <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
+          {type.charAt(0).toUpperCase() + type.slice(1)}
+        </span>
+      </div>
+      <div>
+        <label className="block mb-2 text-gray-400 text-sm">Price</label>
+        <input
+          type="number"
+          min="0"
+          value={data.price} 
+          onChange={(e) =>
+            setEventForm({
+              ...eventForm,
+              ticketTypes: {
+                ...eventForm.ticketTypes,
+                [type]: {
+                  ...data,
+                  price: e.target.value,
+                },
+              },
+            })
+          }
+          className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
+          placeholder="₹0"
+        />
+      </div>
+      <div>
+        <label className="block mb-2 text-gray-400 text-sm">Capacity</label>
+        <input
+          type="number"
+          min="0"
+          value={data.capacity} 
+          
+          readOnly 
+          className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
+        />
+      </div>
+    </div>
+  ))}
+</div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Economic */}
-                  <div className="space-y-4">
-                    <div className="text-center mb-2">
-                      <span className="bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                        Economic
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        value={eventForm.ticketTypes.economic.price}
-                        onChange={(e) =>
-                          setEventForm({
-                            ...eventForm,
-                            ticketTypes: {
-                              ...eventForm.ticketTypes,
-                              economic: {
-                                ...eventForm.ticketTypes.economic,
-                                price: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500"
-                        placeholder="₹0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        value={eventForm.ticketTypes.economic.capacity}
-                        onChange={(e) =>
-                          setEventForm({
-                            ...eventForm,
-                            ticketTypes: {
-                              ...eventForm.ticketTypes,
-                              economic: {
-                                ...eventForm.ticketTypes.economic,
-                                capacity: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500"
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Premium */}
-                  <div className="space-y-4">
-                    <div className="text-center mb-2">
-                      <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
-                        Premium
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        value={eventForm.ticketTypes.premium.price}
-                        onChange={(e) =>
-                          setEventForm({
-                            ...eventForm,
-                            ticketTypes: {
-                              ...eventForm.ticketTypes,
-                              premium: {
-                                ...eventForm.ticketTypes.premium,
-                                price: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="₹0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        value={eventForm.ticketTypes.premium.capacity}
-                        onChange={(e) =>
-                          setEventForm({
-                            ...eventForm,
-                            ticketTypes: {
-                              ...eventForm.ticketTypes,
-                              premium: {
-                                ...eventForm.ticketTypes.premium,
-                                capacity: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
-
-                  {/* VIP */}
-                  <div className="space-y-4">
-                    <div className="text-center mb-2">
-                      <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
-                        VIP
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        value={eventForm.ticketTypes.vip.price}
-                        onChange={(e) =>
-                          setEventForm({
-                            ...eventForm,
-                            ticketTypes: {
-                              ...eventForm.ticketTypes,
-                              vip: {
-                                ...eventForm.ticketTypes.vip,
-                                price: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                        placeholder="₹0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        value={eventForm.ticketTypes.vip.capacity}
-                        onChange={(e) =>
-                          setEventForm({
-                            ...eventForm,
-                            ticketTypes: {
-                              ...eventForm.ticketTypes,
-                              vip: {
-                                ...eventForm.ticketTypes.vip,
-                                capacity: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               <div>
                 <label className="block mb-2 text-gray-300 font-medium">
@@ -1000,6 +952,39 @@ ticketArray.forEach((t) => {
           </div>
         </div>
       )}
+      {showPostponeModal && (
+  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4">
+    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+      <h2 className="text-xl font-semibold text-white mb-4 text-center">
+        {selectedEvent?.title} — Update Event Date
+      </h2>
+      
+      <label className="block text-gray-300 mb-2">Select New Date:</label>
+      <input
+        type="date"
+        value={newDate}
+        onChange={(e) => setNewDate(e.target.value)}
+        className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-600"
+      />
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={handleCloseModal}
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmitPostpone}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Edit Event Modal */}
       {editModal && (
@@ -1020,9 +1005,9 @@ ticketArray.forEach((t) => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (validateEditForm()) {
+                
                   handleEditSubmit(editForm.id);
-                }
+                
               }}
               className="space-y-6"
             >
@@ -1053,7 +1038,7 @@ ticketArray.forEach((t) => {
                     className="w-full bg-gray-800 border border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   >
                     <option value="">Select Category</option>
-                    <option value="music">Music</option>
+                    <option value="Music">Music</option>
                     <option value="sports">Sports</option>
                     <option value="arts">Arts</option>
                     <option value="technology">Technology</option>
@@ -1122,198 +1107,68 @@ ticketArray.forEach((t) => {
                   />
                 </div>
 
+                
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block mb-2 text-gray-300 font-medium">
                     Capacity
                   </label>
                   <input
-                    type="number"
-                    min="1"
+                    type="text"
                     value={editForm.capacity}
                     onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        capacity: Number(e.target.value),
-                      })
+                      setEditForm({ ...editForm, capacity: Number(e.target.value) })
                     }
                     className="w-full bg-gray-800 border border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   />
                 </div>
+
+                
               </div>
-
-              {/* Ticket Types for Edit */}
-              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-                <h4 className="text-lg font-semibold text-purple-400 mb-4">
-                  Ticket Pricing
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Economic */}
-                  <div className="space-y-4">
-                    <div className="text-center mb-2">
-                      <span className="bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                        Economic
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.ticketTypes.economic.price}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            ticketTypes: {
-                              ...editForm.ticketTypes,
-                              economic: {
-                                ...editForm.ticketTypes.economic,
-                                price: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.ticketTypes.economic.capacity}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            ticketTypes: {
-                              ...editForm.ticketTypes,
-                              economic: {
-                                ...editForm.ticketTypes.economic,
-                                capacity: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Premium */}
-                  <div className="space-y-4">
-                    <div className="text-center mb-2">
-                      <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
-                        Premium
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.ticketTypes.premium.price}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            ticketTypes: {
-                              ...editForm.ticketTypes,
-                              premium: {
-                                ...editForm.ticketTypes.premium,
-                                price: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.ticketTypes.premium.capacity}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            ticketTypes: {
-                              ...editForm.ticketTypes,
-                              premium: {
-                                ...editForm.ticketTypes.premium,
-                                capacity: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* VIP */}
-                  <div className="space-y-4">
-                    <div className="text-center mb-2">
-                      <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
-                        VIP
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.ticketTypes.vip.price}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            ticketTypes: {
-                              ...editForm.ticketTypes,
-                              vip: {
-                                ...editForm.ticketTypes.vip,
-                                price: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-gray-400 text-sm">
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.ticketTypes.vip.capacity}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            ticketTypes: {
-                              ...editForm.ticketTypes,
-                              vip: {
-                                ...editForm.ticketTypes.vip,
-                                capacity: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {Object.entries(editForm.ticketTypes).map(([type, data]) => (
+    <div key={type} className="space-y-4">
+      <div className="text-center mb-2">
+        <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm font-medium">
+          {type.charAt(0).toUpperCase() + type.slice(1)}
+        </span>
+      </div>
+      <div>
+        <label className="block mb-2 text-gray-400 text-sm">Price</label>
+        <input
+          type="number"
+          min="0"
+          value={data.price} 
+          onChange={(e) =>
+            setEditForm({
+              ...editForm,
+              ticketTypes: {
+                ...editForm.ticketTypes,
+                [type]: {
+                  ...data,
+                  price: e.target.value,
+                },
+              },
+            })
+          }
+          className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
+          placeholder="₹0"
+        />
+      </div>
+      <div>
+        <label className="block mb-2 text-gray-400 text-sm">Capacity</label>
+        <input
+          type="number"
+          min="0"
+          value={data.capacity} 
+          
+          readOnly 
+          className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500"
+        />
+      </div>
+    </div>
+  ))}
+              
 
               <div>
                 <label className="block mb-2 text-gray-300 font-medium">

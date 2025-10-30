@@ -8,6 +8,7 @@ import type { Organiser } from "../assets/pages/AdminOrganiser";
 import type { LoginResponse } from "../redux/thunk/adminAuthThunk";
 import type { VenueUpdate } from "../interfaces/IVenue";
 import type { AdminDashboard } from "../interfaces/IAdmin";
+import type { FormDataType } from "../assets/pages/AdminOffer";
 
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/admin`;
 
@@ -416,6 +417,100 @@ export const fetchOrderById=async(orderId:string)=>{
     throw axiosError.response?.data || axiosError.message;
   }
 }
+export const createOffer=async(formData:any)=>{
+  try {
+  const data = new FormData();
+
+    // Append text fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "images") {
+        data.append(key, value as string);
+      }
+    });
+
+    // Append images properly
+    if (formData.images && formData.images.length > 0) {
+      for (let i = 0; i < formData.images.length; i++) {
+        data.append("images", formData.images[i]);
+      }
+    }
+   
+   
+
+    const token = localStorage.getItem("adminToken");
+
+    const response = await axios.post(`${API_BASE_URL}/offer`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("respo", response);
+
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+
+}
+export const fetchOffers=async(filters:string)=>{
+  try {
+   const token = localStorage.getItem("adminToken");
+    const response = await axios.get(`${API_BASE_URL}/offers/?${filters}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+    
+  } catch (error) {
+     const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+}
+export const deleteOffer=async(offerId:string)=>{
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    const response = await axios.delete(
+      `${API_BASE_URL}/offer/${offerId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+    
+  }
+}
+export const editOffer=async(formData:FormDataType,offerId:string)=>{
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    const response = await axios.put(
+      `${API_BASE_URL}/offer/${offerId}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+
+
+}
 
 export const adminRepository = {
   adminLogin,
@@ -437,5 +532,9 @@ export const adminRepository = {
   getDashboard,
   fetchUsers,
   getDashboardOrders,
-  fetchOrderById
+  fetchOrderById,
+  createOffer,
+  fetchOffers,
+  deleteOffer,
+  editOffer
 };

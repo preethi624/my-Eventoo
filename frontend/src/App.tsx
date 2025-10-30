@@ -54,6 +54,9 @@ import UserNotificationPage from "./assets/pages/UserNotification";
 import AdminOrderDetails from "./assets/pages/AdminOrderDetails";
 import OrganiserProfile from "./assets/pages/OrganiserProfile";
 import AboutUsPage from "./assets/pages/About";
+import OffersPage from "./assets/pages/AdminOffer";
+import UserOffersPage from "./assets/pages/OfferPage";
+import OfferDetailsPage from "./assets/pages/OfferDetails";
 
 function App() {
   const dispatch = useDispatch();
@@ -139,6 +142,7 @@ function App() {
       <Route path="/adminUser" element={<AdminUser />} />
       <Route path="/admin/events" element={<EventPage />} />
       <Route path="/admin/bookings" element={<AdminBookings />} />
+      <Route path="/admin/offers" element={<OffersPage/>} />
       <Route path="/admin/venues" element={<VenueManagement />} />
       <Route path="/adminOrderDetails/:orderId" element={<AdminOrderDetails />} />
 
@@ -159,8 +163,17 @@ function App() {
         element={<ProtectedRoute element={<UserProfile />} />}
       />
       <Route
+        path="/userOffer"
+        element={<ProtectedRoute element={<UserOffersPage/>} />}
+      />
+
+      <Route
         path="/userChat"
         element={<ProtectedRoute element={<UserChatPage />} />}
+      />
+      <Route
+        path="/offer-details/:offerId"
+        element={<ProtectedRoute element={<OfferDetailsPage />} />}
       />
       <Route
         path="/userTickets"

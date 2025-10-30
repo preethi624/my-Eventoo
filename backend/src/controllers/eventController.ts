@@ -164,6 +164,7 @@ if (typeof ticketTypes === "string") {
           public_id:file.filename
         })) || [],
       };
+     
       
       
 
@@ -200,33 +201,7 @@ if (typeof ticketTypes === "string") {
       });
     }
   }
-  /*async editEvent(
-    req: Request<{ id: string }, unknown, EventEdit>,
-    res: Response
-  ): Promise<void> {
-    try {
-     
-      const file = req.file as Express.Multer.File|undefined;
-     
-      
-
-      const data = req.body;
-      const id = req.params.id;
-     
-      const response = await this._eventService.eventEdit(id, data,file);
-      if (response) {
-        res.json({ success: true, message: MESSAGES.EVENT.SUCCESS_TO_UPDATE });
-      } else {
-        res.json({ success: false, message: MESSAGES.EVENT.FAILED_TO_UPDATE });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: MESSAGES.EVENT.FAILED_TO_UPDATE,
-      });
-    }
-  }*/
+ 
  async editEvent(
   req: Request<{ id: string }, unknown, EventEdit>,
   res: Response
@@ -340,7 +315,7 @@ if (typeof ticketTypes === "string") {
         searchTerm,
         date,status
       );
-      console.log("response", response);
+      
 
       if (response) {
         res.json({ result: response, success: true });
@@ -544,5 +519,77 @@ if (typeof ticketTypes === "string") {
       
     }
   }
+  async getAllEvents(req:Request,res:Response):Promise<void>{
+    try {
+     
+      
+     
+      const response=await this._eventService.getEventsAll();
+     
+    
+      
+      if(response){
+        res.json({events:response})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error(error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: MESSAGES.EVENT.FAILED_TO_FETCH,
+      });
+      
+    }
+  }
+  async getTrending(req:Request,res:Response):Promise<void>{
+    try {
+     
+      
+     
+      const response=await this._eventService.trendingGet();
+     
+    
+      
+      if(response){
+        res.json({events:response})
+      }else{
+        res.json({success:false})
+      }
+      
+    } catch (error) {
+      console.error(error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: MESSAGES.EVENT.FAILED_TO_FETCH,
+      });
+      
+    }
+  }
+  async rescheduleEvent(req:AuthenticatedRequest,res:Response):Promise<void>{
+    try {
+      const date=req.body.newDate;
+      const eventId=req.params.eventId;
+      const organiserId=req.user?.id
+      if (!organiserId) {
+      throw new Error("organiserId not exist")
+    }
+      const response=await this._eventService.eventReschedule(date,eventId,organiserId);
+      if(response.success){
+        res.json({success:true,message:response.message})
+      }
+     
+      
+  
+      
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+
+  }
+  
   
 }

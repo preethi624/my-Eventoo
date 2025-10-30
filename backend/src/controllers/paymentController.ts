@@ -14,7 +14,9 @@ export class PaymentController implements IPaymentController {
   constructor(private _paymentService: IPaymentService) {}
   async createOrder(req: Request, res: Response): Promise<void> {
     try {
-      const data: OrderCreateInput = req.body;
+      const data= req.body;
+      
+      
 
       const response = await this._paymentService.orderCreate(data);
 

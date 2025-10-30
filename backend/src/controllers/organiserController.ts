@@ -170,6 +170,8 @@ export class OrganiserController implements IOrganiserController {
   }
   async getVenues(req: Request, res: Response): Promise<void> {
     try {
+     
+      
       const query = req.query as ParsedQs;
       const filters: OrgVenueFilter = {
        
@@ -418,6 +420,8 @@ export class OrganiserController implements IOrganiserController {
   }
   async fetchVenues(req:Request,res:Response):Promise<void>{
     try {
+    
+      
       const response=await this._organiserService.venuesFetch();
       if(response.success){
         res.json({

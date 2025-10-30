@@ -23,7 +23,7 @@ export class AdminVenueRepository implements IAdminVenueRepository {
     };
     const venues = await Venue.find(query)
       .skip(skip)
-      .limit(Number(filters.limit));
+      .limit(Number(filters.limit)).sort({createdAt:-1});
     const total = await Venue.countDocuments(query);
     return {
       venues,

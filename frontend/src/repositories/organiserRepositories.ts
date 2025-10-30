@@ -316,10 +316,12 @@ export const cancelOrder=async(orderId:string)=>{
 export const fetchVenues=async()=>{
     try {
         const response=await axiosInstance.get(
-            `${API_BASE_URL}/venues`
+            `${API_BASE_URL}/venue`
 
         ) 
         if(response.data.success){
+          
+          
             return response.data
         }
     

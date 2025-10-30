@@ -22,6 +22,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const order_1 = __importDefault(require("../model/order"));
 const notification_1 = __importDefault(require("../model/notification"));
+const organiser_1 = __importDefault(require("../model/organiser"));
 class EventRepository extends baseRepository_1.BaseRepository {
     constructor() {
         super(event_1.default);
@@ -117,6 +118,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     createEvent(data) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("data", data);
             const event = yield event_1.default.create(data);
             yield notification_1.default.create({
                 organizerId: event.organiser,
@@ -408,6 +410,67 @@ class EventRepository extends baseRepository_1.BaseRepository {
                         $maxDistance: 200000,
                     },
                 } }));
+        });
+    }
+    getAllEvents() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield event_1.default.find({}, { title: 1, images: 1, _id: 1 }).sort({ date: -1 });
+            }
+            catch (error) {
+                console.log(error);
+                return [];
+            }
+        });
+    }
+    getTrending() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield event_1.default.find({ status: "published" }, { title: 1, images: 1, _id: 1 }).sort({ ticketsSold: -1 }).limit(5);
+            }
+            catch (error) {
+                console.log(error);
+                return [];
+            }
+        });
+    }
+    findOrders(eventId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield order_1.default.find({ eventId: eventId });
+        });
+    }
+    updateEventDate(eventId, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updatedEvent = yield event_1.default.findByIdAndUpdate(eventId, { date }, { new: true });
+                return updatedEvent;
+            }
+            catch (error) {
+                console.error("Error updating event date:", error);
+                throw error;
+            }
+        });
+    }
+    findOrg(orgId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield organiser_1.default.findById(orgId);
+            }
+            catch (error) {
+                console.error("Error updating event date:", error);
+                throw error;
+            }
+        });
+    }
+    findUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield user_1.default.findById(userId);
+            }
+            catch (error) {
+                console.error("Error updating event date:", error);
+                throw error;
+            }
         });
     }
 }

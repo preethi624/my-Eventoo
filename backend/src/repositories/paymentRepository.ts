@@ -474,7 +474,7 @@ export class PaymentRepository implements IPaymentRepository {
       { $limit: limitNumber },
     ];
 
-    const tickets = await TicketModel.aggregate(dataPipeline);
+    const tickets = await TicketModel.aggregate(dataPipeline).sort({issuedAt:-1});
 
     return {
       tickets,

@@ -67,34 +67,64 @@ function generateTicketPDF(order, tickets) {
     });
 }
 class PaymentService {
-    constructor(_paymentRepository, _eventRepository) {
+    constructor(_paymentRepository, _eventRepository, _offerRepository) {
         this._paymentRepository = _paymentRepository;
         this._eventRepository = _eventRepository;
+        this._offerRepository = _offerRepository;
     }
     orderCreate(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b, _c;
             const orderId = (0, generateOrderId_1.generateOrderId)();
             try {
-                const totalPrice = data.totalPrice;
-                const ticketCount = data.ticketCount;
-                const userId = data.userId;
-                const eventId = data.eventId;
-                const eventTitle = data.eventTitle;
-                const email = data.email;
-                const selectedTicket = data.selectedTicket;
+                const { totalPrice, ticketCount, userId, eventId, eventTitle, email, selectedTicket, offerCode, } = data;
                 const createdAt = new Date();
+                let discountAmount = 0;
+                let finalAmount = totalPrice;
+                // 🔹 Offer code handling
+                if (offerCode) {
+                    const offer = yield this._offerRepository.findOffer(offerCode);
+                    if (offer) {
+                        const now = new Date();
+                        const usageLimit = (_a = offer.usageLimit) !== null && _a !== void 0 ? _a : null;
+                        // ✅ Check offer validity
+                        if (offer.isActive &&
+                            offer.startDate <= now &&
+                            offer.endDate >= now &&
+                            totalPrice >= ((_b = offer.minOrderAmount) !== null && _b !== void 0 ? _b : 0) &&
+                            (usageLimit === null || offer.usedCount < usageLimit)) {
+                            // ✅ Calculate discount
+                            if (offer.discountType === "percentage") {
+                                discountAmount = (totalPrice * offer.discountValue) / 100;
+                                if (offer.maxDiscountAmount) {
+                                    discountAmount = Math.min(discountAmount, offer.maxDiscountAmount);
+                                }
+                            }
+                            else if (offer.discountType === "flat") {
+                                discountAmount = offer.discountValue;
+                                console.log("discount", discountAmount);
+                            }
+                            // ✅ Final amount after discount
+                            finalAmount = totalPrice - discountAmount;
+                            if (finalAmount < 0)
+                                finalAmount = 0;
+                            yield this._offerRepository.updateOffer(offer._id.toString());
+                        }
+                    }
+                }
+                // 🔹 Razorpay order creation using finalAmount
                 const options = {
-                    amount: totalPrice * 100,
+                    amount: finalAmount * 100, // use discounted amount here
                     currency: "INR",
-                    receipt: "receipt_order_74394",
+                    receipt: `receipt_${orderId}`,
                 };
                 const order = yield razorpay.orders.create(options);
+                // 🔹 Save in DB
                 const response = yield this._paymentRepository.createOrder({
                     razorpayOrderId: order.id,
-                    amount: Number(order.amount),
+                    amount: totalPrice * 100,
                     currency: order.currency,
-                    receipt: (_a = order.receipt) !== null && _a !== void 0 ? _a : "default_receipt_id",
+                    receipt: (_c = order.receipt) !== null && _c !== void 0 ? _c : "default_receipt_id",
                     status: order.status,
                     ticketCount,
                     userId,
@@ -102,34 +132,34 @@ class PaymentService {
                     eventTitle,
                     selectedTicket,
                     createdAt,
-                    orderId: orderId,
+                    orderId,
                     email,
+                    offerCode: offerCode,
+                    offerAmount: discountAmount * 100,
+                    finalAmount: finalAmount,
                 });
                 if (response) {
                     return {
                         success: true,
-                        message: "order created successfully",
+                        message: "Order created successfully",
                         order: response,
                     };
                 }
                 else {
-                    return { success: false, message: "Not enough tickets to sail" };
+                    return { success: false, message: "Not enough tickets to sell" };
                 }
             }
             catch (error) {
                 if (error instanceof Error) {
-                    console.error('MongoDB connection error:', error.message);
+                    console.error("MongoDB connection error:", error.message);
                     return {
                         success: false,
-                        message: (error === null || error === void 0 ? void 0 : error.message) || "not creating order",
+                        message: error.message || "Error creating order",
                     };
                 }
                 else {
-                    console.error('MongoDB connection error:', error);
-                    return {
-                        success: false,
-                        message: "not creating order",
-                    };
+                    console.error("MongoDB connection error:", error);
+                    return { success: false, message: "Error creating order" };
                 }
             }
         });
@@ -316,7 +346,7 @@ class PaymentService {
                 const result = yield this._paymentRepository.findOrder(orderId);
                 if (result) {
                     const paymentId = result.razorpayPaymentId;
-                    const amount = result.amount;
+                    const amount = result.finalAmount;
                     const payment = yield razorpay.payments.fetch(paymentId);
                     console.log(payment);
                     const refund = yield razorpay.payments.refund(paymentId, {

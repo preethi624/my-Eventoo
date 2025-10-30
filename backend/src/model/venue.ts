@@ -1,4 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
+export interface ISeatType {
+  type: string;      
+  seatCount: number; 
+}
 
 export interface IVenue extends Document {
   name: string;
@@ -7,7 +11,6 @@ export interface IVenue extends Document {
   state: string;
   pincode: string;
   description: string;
-  capacity: number;
   contactPerson: string;
   phone: number;
   email: string;
@@ -15,7 +18,15 @@ export interface IVenue extends Document {
   website: string;
   facilities: string[];
   status: string;
+  seatTypes: ISeatType[];  // 👈 new field
+  totalCapacity: number;   // 👈 sum of seatCounts
+  totalCost: number;    
+
 }
+const seatTypeSchema = new Schema<ISeatType>({
+  type: { type: String, required: true },
+  seatCount: { type: Number, required: true },
+});
 
 const venueSchema: Schema<IVenue> = new Schema<IVenue>(
   {
@@ -25,7 +36,7 @@ const venueSchema: Schema<IVenue> = new Schema<IVenue>(
     state: { type: String, required: true },
     pincode: { type: String, required: true },
     description: { type: String, required: true },
-    capacity: { type: Number, required: true },
+   
     contactPerson: { type: String, required: true },
     phone: { type: Number, required: true },
     email: { type: String, required: true },
@@ -33,6 +44,9 @@ const venueSchema: Schema<IVenue> = new Schema<IVenue>(
     website: { type: String, required: true },
     facilities: { type: [String] },
     status: { type: String, enum: ["active", "inactive"] },
+    seatTypes: { type: [seatTypeSchema], default: [] },
+    totalCapacity: { type: Number, required: true },
+    totalCost: { type: Number, required: true },
   },
   { timestamps: true }
 );

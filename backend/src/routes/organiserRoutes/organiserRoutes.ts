@@ -81,6 +81,6 @@ router.get(
   organiserController.getUsers.bind(organiserController)
 );
 router.post('/order/:orderId',authMiddlewarwSet.organiserOnly,organiserController.cancelOrder.bind(organiserController))
-router.get('/venues',authMiddlewarwSet.organiserOnly,organiserController.fetchVenues.bind(organiserController))
+router.get('/venue',authMiddlewarwSet.organiserOnly,organiserController.fetchVenues.bind(organiserController))
 
 export default router;

@@ -222,6 +222,7 @@ const Dashboard = () => {
       OrganiserEarning: `₹${totalEarnings.toFixed(2)}`,
     });
 
+
     const csv = unparse(formattedOrders);
 
     const blob = new Blob(["\uFEFF" + csv], {
@@ -347,6 +348,8 @@ const Dashboard = () => {
       ][index % 7],
     })
   );
+  console.log("top events",topEvents);
+  
 
   const StatCard: FC<StatCardProps> = ({
     title,
@@ -834,6 +837,7 @@ const Dashboard = () => {
               <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 {topEvents.length > 0 ? (
                   topEvents.map((event, index) => (
+                    
                     <div
                       key={index}
                       className="group relative bg-slate-700/30 rounded-2xl p-5 hover:bg-slate-700/50 transition-all duration-300 border border-slate-600/30 hover:border-yellow-500/50"
@@ -864,10 +868,10 @@ const Dashboard = () => {
                           <div className="text-2xl font-bold text-emerald-400">
                             ₹
                             {(
-                              event.ticketPrice * event.ticketsSold -
-                              (event.ticketPrice *
-                                event.ticketsSold *
-                                adminPercentage) /
+                              Number(event.ticketPrice) * Number(event.ticketsSold) -
+                              (Number(event.ticketPrice) *
+                                Number(event.ticketsSold) *
+                                Number(adminPercentage)) /
                                 100
                             ).toLocaleString()}
                           </div>

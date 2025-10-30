@@ -129,7 +129,7 @@ class OrganiserRepository {
     getDashboard(eventId) {
         return __awaiter(this, void 0, void 0, function* () {
             const objectId = new mongoose_1.default.Types.ObjectId(eventId);
-            const event = yield event_1.default.findById(objectId).lean();
+            const event = yield event_1.default.findById(objectId).populate("venue").lean();
             const orders = yield order_1.default.aggregate([
                 { $match: { eventId: objectId } },
                 {
@@ -165,7 +165,9 @@ class OrganiserRepository {
                     }
                     acc[type].count += 1;
                     acc[type].tickets += order.ticketCount;
-                    acc[type].revenue += order.amount;
+                    if (order.bookingStatus === "confirmed") {
+                        acc[type].revenue += order.amount;
+                    }
                 }
                 return acc;
             }, {});
@@ -803,7 +805,12 @@ class OrganiserRepository {
     fetchVenues() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield venue_1.default.find();
+                const targetDate = new Date("2025-10-19");
+                const venues = yield venue_1.default.find({
+                    createdAt: { $gte: targetDate }
+                });
+                console.log("Venues found:", venues.map(v => v.name));
+                return venues;
             }
             catch (error) {
                 console.log(error);

@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+
 import {
   Calendar,
   MapPin,
@@ -61,6 +65,7 @@ import OrganiserFooter from "../components/OrganiserFooter";
 import moment from "moment";
 
 
+
 const EventDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const [eventData, setEventData] = useState<{
@@ -79,6 +84,10 @@ const EventDashboard = () => {
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
+  console.log("orders",orders);
+  
+  
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +95,8 @@ const EventDashboard = () => {
 
       try {
         const response = await organiserRepository.getDashboard(id);
+        console.log("eventData",response);
+        
         if (response.success) {
           setEventData(response.event);
           setOrders(response.orders);
@@ -102,7 +113,7 @@ const EventDashboard = () => {
     fetchReviews();
     fetchOrders();
   }, [id]);
-
+  
   const fetchOrders = async () => {
     try {
       if (!id) throw new Error("error in fetching id");
@@ -186,6 +197,51 @@ const EventDashboard = () => {
       revenue: data.revenue / 100,
     })
   );
+  const handleDownloadReport = () => {
+  const doc = new jsPDF();
+  if (!eventData) return;
+  const ticketTypeData = Object.entries(stats.ticketTypes || {}).map(
+    ([type, data]: [string, any]) => ({
+      name: type,
+      orders: data.count,
+      tickets: data.tickets,
+      revenue: data.revenue / 100,
+    })
+  );
+ 
+  
+
+  doc.setFontSize(18);
+  doc.text(eventData?.title + " - Event Report", 14, 22);
+
+  doc.setFontSize(12);
+  doc.text(`Date: ${formatDate(eventData?.date)}`, 14, 32);
+  doc.text(`Venue: ${eventData?.venue}`, 14, 38);
+  doc.text(`Category: ${eventData?.category}`, 14, 44);
+  doc.text(`Status: ${eventData?.status}`, 14, 50);
+
+  doc.text("Ticket Summary:", 14, 65);
+  // @ts-ignore
+  autoTable(doc, {
+  startY: 70,
+  head: [["Type", "Orders", "Tickets", "Revenue (₹)"]],
+  body: ticketTypeData.map((t) => [
+    t.name,
+    t.orders,
+    t.tickets,
+    t.revenue.toFixed(2),
+  ]),
+});
+
+
+  doc.text("Booking Stats:", 14, doc.lastAutoTable.finalY + 10);
+  doc.text(`Confirmed: ${stats?.confirmed}`, 14, doc.lastAutoTable.finalY + 16);
+  doc.text(`Pending: ${stats?.pending}`, 14, doc.lastAutoTable.finalY + 22);
+  doc.text(`Cancelled: ${stats?.cancelled}`, 14, doc.lastAutoTable.finalY + 28);
+
+  doc.save(`${eventData.title}_Report.pdf`);
+};
+
 
   return (
     <OrganiserLayout>
@@ -310,8 +366,19 @@ const EventDashboard = () => {
                           ))}
                         </tbody>
                       </table>
+                      
                     )}
+                    
                   </div>
+                  {eventData.status === "completed" && (
+  <button
+    onClick={handleDownloadReport}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow-md transition-all duration-200"
+  >
+    Download Report
+  </button>
+)}
+
 
                   {/* Stats Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

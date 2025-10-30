@@ -33,7 +33,7 @@ class AdminVenueRepository {
             };
             const venues = yield venue_1.default.find(query)
                 .skip(skip)
-                .limit(Number(filters.limit));
+                .limit(Number(filters.limit)).sort({ createdAt: -1 });
             const total = yield venue_1.default.countDocuments(query);
             return {
                 venues,

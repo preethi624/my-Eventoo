@@ -12,7 +12,7 @@ import {
   Location,
   StatusCheck,
 } from "src/interface/event";
-import { IEventDTO } from "src/interface/IEventDTO";
+import { IEventDTO, IEventImage } from "src/interface/IEventDTO";
 import { Recommend } from "src/interface/IUser";
 import { IEvent } from "src/model/event";
 
@@ -43,5 +43,7 @@ export interface IEventService {
   getRecommended(userId:string,filters:IEventFilter):Promise<Recommend>
    nearFind({lat,lng}:Location,filters:IEventFilter):Promise<Recommend>
    completedGet(filters: IEventFilter): Promise<EventGet>
-  
+    getEventsAll():Promise<{images:(string | IEventImage)[],title:string}[]>
+     trendingGet():Promise<{images:(string | IEventImage)[],title:string}[]>
+  eventReschedule(date: string, eventId: string, organiserId: string):Promise<{success:boolean,message:string}>
 }

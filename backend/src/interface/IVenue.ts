@@ -55,6 +55,17 @@ export interface VenueFilters{
   
 
 }
+export interface OfferFilters{
+ 
+  selectedType?: string;
+  selectedMinAmount:number;
+  
+  page?:number;
+  limit?:number;
+
+  
+
+}
 export interface VenueFetch{
   totalPages?:number;
   currentPage?:number

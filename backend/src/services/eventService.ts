@@ -26,6 +26,15 @@ import { cosineSimilarity } from "../utils/cosine";
 import axios from "axios";
 import cloudinary from "../config/cloudinary";
 import { IEvent } from "src/model/event";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 const hf = new InferenceClient (process.env.HUGGING_API_KEY);
 export class EventService implements IEventService {
@@ -88,83 +97,6 @@ export class EventService implements IEventService {
   
 
 
-/*async eventCreate(data: IEventDTO): Promise<CreateEvent> {
-  try {
-    const text = `${data.category} ${data.description} ${data.venue}`;
-    const output = await hf.featureExtraction({
-      model: "sentence-transformers/all-MiniLM-L6-v2",
-      inputs: text,
-    });
-
-    const embedding = Array.isArray(output[0]) ? output[0] as number[] : output as number[];
-  
-   const venueParts = [
-  data.venue, 
-  
-  'India'
-].filter(Boolean)
- .map(p => p.trim())
- .filter((v, i, self) => self.indexOf(v) === i);
- venueParts.push('India'); 
-
-const formattedVenue = venueParts.join(', ');
-
-
-    //const formattedVenue = encodeURIComponent(cleanVenue.replace(/,/g, ", ")); // add space after commas
-    console.log("formatted venue",formattedVenue);
-    
-
-
-
-const  geoResponse = await axios.get("https://nominatim.openstreetmap.org/search", {
-  params: {
-    q: formattedVenue,   
-    format: "json",
-    limit: 1
-  },
-  headers: {
-    "User-Agent": "eventManagement/1.0"
-  }
-});
-
-   
-
-
-
-
-
-    if (!geoResponse.data || geoResponse.data.length === 0) {
-      return { success: false, message: "Could not geocode venue address." };
-    }
-   
-    const { lat, lon } = geoResponse.data[0];
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lon);
-
-    const eventPayload = {
-      ...data,
-      latitude,
-      longitude,
-      embedding,
-      location: {
-        type: "Point",
-        coordinates: [longitude, latitude]
-      }
-    };
-
-    const result = await this._eventRepository.createEvent(eventPayload);
-
-    if (result) {
-      return { success: true, message: MESSAGES.EVENT.SUCCESS_TO_CREATE };
-    } else {
-      return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-    }
-  } catch (error) {
-    console.error(error);
-    return { success: false, message: MESSAGES.EVENT.FAILED_TO_CREATE };
-  }
-}*/
-
 
 async eventCreate(data: IEventDTO): Promise<CreateEvent> {
   try {
@@ -187,16 +119,7 @@ async eventCreate(data: IEventDTO): Promise<CreateEvent> {
     const formattedVenue = venueParts.join(", ");
     console.log("formatted venue", formattedVenue);
 
-    // Step 3: Use Google Maps Geocoding API
-    /*const geoResponse = await axios.get(
-      "https://maps.googleapis.com/maps/api/geocode/json",
-      {
-        params: {
-          address: formattedVenue,
-          key: process.env.GOOGLE_MAPS_KEY, // 👈 Add your API key in .env
-        },
-      }
-    );*/
+    
    const geoResponse = await axios.get("https://api.opencagedata.com/geocode/v1/json", {
   params: {
     q: formattedVenue,
@@ -230,6 +153,8 @@ const longitude = locationData.lng;
         coordinates: [longitude, latitude],
       },
     };
+   
+    
 
     // Step 6: Save to database
     const result = await this._eventRepository.createEvent(eventPayload);
@@ -478,5 +403,80 @@ async eventEdit(id: string, data: EventEdit, file?: Express.Multer.File): Promis
       return{success:false}
     }
   }
- 
+  async getEventsAll():Promise<{images:(string | IEventImage)[],title:string}[]>{
+    try {
+      const response=await this._eventRepository.getAllEvents();
+    return response
+    
+      
+    } catch (error) {
+      
+      console.error(error);
+    return [];
+    }
+    
+    
+   
+  }
+  async trendingGet():Promise<{images:(string | IEventImage)[],title:string}[]>{
+    try {
+      const response=await this._eventRepository.getTrending();
+    return response
+    
+      
+    } catch (error) {
+      
+      console.error(error);
+    return [];
+    }
+    
+    
+   
+  }
+  async eventReschedule(date: string, eventId: string, organiserId: string):Promise<{success:boolean,message:string}> {
+  try {
+    const orders = await this._eventRepository.findOrders(eventId);
+    const organiser=await this._eventRepository.findOrg(organiserId)
+   
+
+    // Optional: update event date in database
+    await this._eventRepository.updateEventDate(eventId, date);
+
+    for (const order of orders) {
+      const user = await this._eventRepository.findUser(order.userId);
+
+      if (!user?.email) continue;
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: `Event Rescheduled: ${order.eventTitle}`,
+        html: `
+          <h3>Hello ${user.name || ""},</h3>
+          <p>We wanted to let you know that the event <strong>${order.eventTitle}</strong> 
+          organized by <strong>${organiser?.name}</strong> has been rescheduled.</p>
+          
+          <p><b>New Date:</b> ${date}</p>
+          <p>We apologize for any inconvenience. Thank you for your understanding!</p>
+          <br/>
+          <h3>Booking Details</h3>
+          <p>Event: <b>${order.eventTitle}</b></p>
+          <p>Tickets: <b>${order.ticketCount}</b></p>
+          <p>Order ID: ${order.orderId}</p>
+          <br/>
+          <p>– Event Management Team</p>
+        `,
+      };
+      await transporter.sendMail(mailOptions);
+
+  
+    }
+
+    return { success: true, message: "Event rescheduled and users notified." };
+  } catch (error) {
+    console.error("Error in eventReschedule:", error);
+    throw error;
+  }
+}
+
 }

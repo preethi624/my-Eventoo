@@ -6,6 +6,7 @@ import { IOrganiser } from "src/interface/IOrgAuth";
 import Organiser from "../model/organiser";
 import bcrypt from "bcrypt";
 import Venue, { IVenue } from "../model/venue";
+import Offer, { IOffer } from "../model/offer";
 
 export class UserRepository implements IUserRepository {
   async getUser(userId: string): Promise<IUser | null> {
@@ -54,5 +55,8 @@ export class UserRepository implements IUserRepository {
   }
   async fetchVenues():Promise<IVenue[]>{
     return await Venue.find()
+  }
+  async fetchOffer(code:string):Promise<IOffer|null>{
+    return await Offer.findOne({code})
   }
 }

@@ -240,10 +240,9 @@ const OrderDetailsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="relative">
-          <div className="w-20 h-20 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-          <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1s" }}></div>
+          <div className="w-20 h-20 border-4 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -251,7 +250,7 @@ const OrderDetailsPage: React.FC = () => {
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -275,17 +274,8 @@ const OrderDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       <UserNavbar/>
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
-      </div>
-
-      {/* Floating Orbs */}
-      <div className="fixed top-20 left-10 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" />
-      <div className="fixed bottom-20 right-10 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[150px] animate-pulse pointer-events-none" style={{ animationDelay: "2s" }} />
 
       <div className="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
@@ -294,10 +284,10 @@ const OrderDetailsPage: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => navigate("/my-bookings")}
-            className="flex items-center gap-3 text-gray-300 hover:text-white mb-8 transition-colors group px-6 py-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 hover:border-purple-500/50"
+            className="flex items-center gap-3 text-gray-700 hover:text-gray-900 mb-8 transition-colors group px-6 py-3 bg-white/5 backdrop-blur-xl rounded-xl border border-gray-300 hover:border-purple-500/50"
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-semibold">Back to Orders</span>
+            <span className="font-semibold text-gray-900">Back to Orders</span>
           </motion.button>
 
           {/* Main Card */}
@@ -309,7 +299,7 @@ const OrderDetailsPage: React.FC = () => {
             {/* Glow Effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
 
-            <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
+            <div className="relative bg-gradient-to-br from-white/95 to-white/90 backdrop-blur-2xl rounded-3xl border border-gray-200 overflow-hidden shadow-2xl">
               
               {/* Status Banner */}
               <div className={`relative p-8 bg-gradient-to-r ${getStatusColor(order.status)}`}>
@@ -332,7 +322,7 @@ const OrderDetailsPage: React.FC = () => {
               </div>
 
               {/* Event Details Section */}
-              <div className="p-8 border-b border-white/10">
+              <div className="p-8 border-b border-gray-200">
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="relative group/img flex-shrink-0">
                     <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-0 group-hover/img:opacity-40 transition-opacity"></div>
@@ -345,7 +335,7 @@ const OrderDetailsPage: React.FC = () => {
                   
                   <div className="flex-1 space-y-4">
                     <div className="flex items-start justify-between gap-4">
-                      <h3 className="text-3xl font-black text-white">
+                      <h3 className="text-3xl font-black text-gray-900">
                         {typeof order.eventId !== "string" ? order.eventId.title : ""}
                       </h3>
                       {order.selectedTicket?.type && (
@@ -356,47 +346,47 @@ const OrderDetailsPage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 backdrop-blur-xl rounded-xl border border-gray-200">
                         <div className="p-2 bg-purple-500/20 rounded-lg">
                           <Calendar className="w-5 h-5 text-purple-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 font-semibold uppercase">Date</p>
-                          <span className="text-white font-semibold">
+                          <p className="text-xs text-gray-600 font-semibold uppercase">Date</p>
+                          <span className="text-gray-900 font-semibold">
                             {formatDate(typeof order.eventId !== "string" ? order.eventId.date.toString() : "")}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 backdrop-blur-xl rounded-xl border border-gray-200">
                         <div className="p-2 bg-blue-500/20 rounded-lg">
                           <MapPin className="w-5 h-5 text-blue-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 font-semibold uppercase">Venue</p>
-                          <span className="text-white font-semibold line-clamp-1">
+                          <p className="text-xs text-gray-600 font-semibold uppercase">Venue</p>
+                          <span className="text-gray-900 font-semibold line-clamp-1">
                             {typeof order.eventId !== "string" ? order.eventId.venue : ""}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 backdrop-blur-xl rounded-xl border border-gray-200">
                         <div className="p-2 bg-pink-500/20 rounded-lg">
                           <Users className="w-5 h-5 text-pink-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 font-semibold uppercase">Tickets</p>
-                          <span className="text-white font-semibold">{order.ticketCount} tickets</span>
+                          <p className="text-xs text-gray-600 font-semibold uppercase">Tickets</p>
+                          <span className="text-gray-900 font-semibold">{order.ticketCount} tickets</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10">
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 backdrop-blur-xl rounded-xl border border-gray-200">
                         <div className="p-2 bg-green-500/20 rounded-lg">
                           <Ticket className="w-5 h-5 text-green-400" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 font-semibold uppercase">Amount</p>
-                          <span className="text-white font-semibold text-lg">
+                          <p className="text-xs text-gray-600 font-semibold uppercase">Amount</p>
+                          <span className="text-gray-900 font-semibold text-lg">
                             {formatCurrency(order.amount)}
                           </span>
                         </div>
@@ -407,8 +397,8 @@ const OrderDetailsPage: React.FC = () => {
               </div>
 
               {/* Payment Details */}
-              <div className="p-8 border-b border-white/10">
-                <h4 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
+              <div className="p-8 border-b border-gray-200">
+                <h4 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
                   <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl">
                     <CreditCard className="w-6 h-6 text-white" />
                   </div>
@@ -416,28 +406,28 @@ const OrderDetailsPage: React.FC = () => {
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
-                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Payment Method</p>
-                    <p className="font-bold text-white text-lg">Online Payment</p>
+                  <div className="p-5 bg-gray-50 backdrop-blur-xl rounded-2xl border border-gray-200">
+                    <p className="text-sm text-gray-600 font-semibold uppercase mb-2">Payment Method</p>
+                    <p className="font-bold text-gray-900 text-lg">Online Payment</p>
                   </div>
                   
-                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
-                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Transaction ID</p>
-                    <p className="font-mono text-white text-sm break-all">
+                  <div className="p-5 bg-gray-50 backdrop-blur-xl rounded-2xl border border-gray-200">
+                    <p className="text-sm text-gray-600 font-semibold uppercase mb-2">Transaction ID</p>
+                    <p className="font-mono text-gray-900 text-sm break-all">
                       {order.razorpayOrderId || "N/A"}
                     </p>
                   </div>
                   
-                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
-                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Total Amount</p>
+                  <div className="p-5 bg-gray-50 backdrop-blur-xl rounded-2xl border border-gray-200">
+                    <p className="text-sm text-gray-600 font-semibold uppercase mb-2">Total Amount</p>
                     <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 text-2xl">
                       {formatCurrency(order.amount)}
                     </p>
                   </div>
                   
-                  <div className="p-5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
-                    <p className="text-sm text-gray-400 font-semibold uppercase mb-2">Payment Date</p>
-                    <p className="font-semibold text-white">
+                  <div className="p-5 bg-gray-50 backdrop-blur-xl rounded-2xl border border-gray-200">
+                    <p className="text-sm text-gray-600 font-semibold uppercase mb-2">Payment Date</p>
+                    <p className="font-semibold text-gray-900">
                       {formatDate(order.createdAt.toString())}
                     </p>
                   </div>

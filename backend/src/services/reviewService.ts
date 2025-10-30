@@ -55,7 +55,12 @@ export class ReviewService implements IReviewService{
       response.map(async (review) => {
         const plainReview: IReviewWithSentiment = {
           _id: review._id!.toString(),
-          userId: (review.userId as any).name, 
+          //userId: (review.userId as any).name, 
+          userId:
+  typeof review.userId === "object" && "name" in review.userId
+    ? (review.userId as { name: string }).name
+    : review.userId.toString(),
+
           eventId: review.eventId.toString(),
           rating: review.rating,
           comment: review.comment,

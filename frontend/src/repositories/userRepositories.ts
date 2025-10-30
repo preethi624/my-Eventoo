@@ -87,6 +87,28 @@ export const getVenues = async () => {
     throw axiosError.response?.data || axiosError.message;
   }
 };
+export const findOffer=async(offerCode:string)=>{
+  try {
+    
+    
+    const response=await axiosInstance.get(`${API_BASE_URL}/offer?code=${offerCode}`);
+    if(response){
+      return {
+        result: response.data,
+        success: true,
+        message: "offer fetched success",
+      };
+     
+        
+    }else {
+      return { success: false, message: "failed" };
+    }
+    
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+}
 
 
 export const userRepository = {
@@ -94,5 +116,6 @@ export const userRepository = {
   updateUser,
   fetchOrganisers,
   changePassword,
-  getVenues
+  getVenues,
+  findOffer
 };

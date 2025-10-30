@@ -40,6 +40,12 @@ router.get(
 router.get(
   "/near",authMiddlewarwSet.userOnly,eventController.findNear.bind(eventController)
 )
+router.get(
+  "/",authMiddlewarwSet.userOnly,eventController.getAllEvents.bind(eventController)
+)
+router.get(
+  "/trending",authMiddlewarwSet.userOnly,eventController.getTrending.bind(eventController)
+)
 
 
 export default router;

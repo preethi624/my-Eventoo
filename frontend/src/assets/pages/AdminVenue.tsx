@@ -20,10 +20,12 @@ const defaultForm = {
   email: "",
   website: "",
   capacity: "",
+  
   description: "",
   facilities: [],
   status: "active",
   images: [],
+  seatTypes:[{type:"",seatCount:""}]
 };
 interface VenueForm {
   address: string;
@@ -31,6 +33,10 @@ interface VenueForm {
   state: string;
   pincode: string;
 }
+type SeatType = {
+  type: string;
+  seatCount: string;
+};
 
 
 const VenueManagement = () => {
@@ -39,6 +45,8 @@ const VenueManagement = () => {
   const [selectedVenue, setSelectedVenue] = useState<any>(null);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [formData, setFormData] = useState<any>(defaultForm);
+  const [seatTypes, setSeatTypes] = useState([{ type: "", seatCount: "" }]);
+
  
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +55,42 @@ const VenueManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalVenues, setTotalVenues] = useState(0);
   const limit = 6;
+ const handleSeatTypeChange = (
+  index: number,
+  field: keyof SeatType, 
+  value: string
+) => {
+  const updated = [...seatTypes];
+  updated[index][field] = value;
+  setSeatTypes(updated);
+};
+const addSeatType = () => {
+  setSeatTypes([...seatTypes, { type: "", seatCount: "" }]);
+};
+
+const removeSeatType = (index: number) => {
+  const updated = [...seatTypes];
+  updated.splice(index, 1);
+  setSeatTypes(updated);
+};
+useEffect(() => {
+  if (selectedVenue) {
+    setFormData(selectedVenue);
+    setSeatTypes(
+      selectedVenue.seatTypes?.length
+        ? selectedVenue.seatTypes.map((s: any) => ({
+            type: s.type,
+            seatCount: String(s.seatCount),
+          }))
+        : [{ type: "", seatCount: "" }]
+    );
+  }
+}, [selectedVenue]);
+console.log("venues",venues);
+
+
+
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -64,7 +108,7 @@ const VenueManagement = () => {
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
+  /*const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -86,7 +130,89 @@ const VenueManagement = () => {
     setShowCreateModal(false);
     setFormData(defaultForm);
     setPreviewImages([]);
-  };
+  };*/
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+   if (!formData.name.trim()) return toast.error("Venue name is required");
+  if (!formData.address.trim()) return toast.error("Address is required");
+  if (!formData.city.trim()) return toast.error("City is required");
+  if (!formData.state.trim()) return toast.error("State is required");
+
+  if (!formData.pincode.trim())
+    return toast.error("Pincode is required");
+  if (!/^\d{5,6}$/.test(formData.pincode))
+    return toast.error("Pincode must be 5-6 digits");
+
+  if (!formData.contactPerson.trim())
+    return toast.error("Contact person is required");
+
+  if (!formData.phone.trim())
+    return toast.error("Phone number is required");
+  if (!/^\d{10}$/.test(formData.phone))
+    return toast.error("Phone number must be 10 digits");
+
+  if (!formData.email.trim())
+    return toast.error("Email is required");
+  // HTML input type="email" does basic validation
+
+  if (formData.website && !/^https?:\/\/\S+\.\S+$/.test(formData.website))
+    return toast.error("Website must be a valid URL");
+
+  // 2️⃣ Seat Types Validations
+  if (seatTypes.length === 0)
+    return toast.error("Add at least one seat type");
+
+  for (let i = 0; i < seatTypes.length; i++) {
+    const seat = seatTypes[i];
+    if (!seat.type.trim())
+      return toast.error(`Seat type at position ${i + 1} is required`);
+    if (!seat.seatCount || Number(seat.seatCount) <= 0)
+      return toast.error(`Seat count at position ${i + 1} must be greater than 0`);
+  }
+
+  // 3️⃣ Total Cost Validation
+  if (!formData.totalCost || Number(formData.totalCost) <= 0)
+    return toast.error("Total cost must be greater than zero");
+
+  // 4️⃣ Optional: Images
+  if (formData.images && formData.images.length > 10)
+    return toast.error("Maximum 10 images allowed");
+
+  // 5️⃣ Optional: Description length check
+  if (formData.description && formData.description.length > 500)
+    return toast.error("Description cannot exceed 500 characters");
+
+
+  const totalCapacity = seatTypes.reduce(
+    (sum, seat) => sum + Number(seat.seatCount || 0),
+    0
+  );
+
+  const data = new FormData();
+  Object.keys(formData).forEach((key) => {
+    if (key === "images") {
+      formData.images.forEach((file: File) => {
+        data.append("images", file);
+      });
+    } else {
+      data.append(key, formData[key]);
+    }
+  });
+
+  data.append("seatTypes", JSON.stringify(seatTypes));
+  data.append("totalCapacity", String(totalCapacity));
+
+  const response = await adminRepository.createVenue(data);
+  if (response.success) {
+    fetchVenues();
+    toast.success("Venue created successfully!");
+  }
+  setShowCreateModal(false);
+  setFormData(defaultForm);
+  setSeatTypes([{ type: "", seatCount: "" }]);
+  setPreviewImages([]);
+};
+
   const handleDeleteVenue = async (venueId: string) => {
     if (!venueId) return;
 
@@ -118,10 +244,45 @@ const VenueManagement = () => {
       }
     }
   };
+  console.log("formdata",formData);
+  
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const updatedData = { ...formData };
+    if (!formData.name.trim()) return toast.error("Venue name is required");
+  if (!formData.address.trim()) return toast.error("Address is required");
+  if (!formData.city.trim()) return toast.error("City is required");
+  if (!formData.state.trim()) return toast.error("State is required");
+
+  if (!/^\d{5,6}$/.test(formData.pincode))
+    return toast.error("Pincode must be 5–6 digits");
+
+  if (!/^\d{10}$/.test(formData.phone))
+    return toast.error("Phone number must be 10 digits");
+
+  if (!formData.email.trim())
+    return toast.error("Email is required");
+
+  if (formData.website && !/^https?:\/\/\S+\.\S+$/.test(formData.website))
+    return toast.error("Website must be a valid URL");
+
+  // 2️⃣ Seat Types
+  if (seatTypes.length === 0)
+    return toast.error("Add at least one seat type");
+
+  for (let i = 0; i < seatTypes.length; i++) {
+    const seat = seatTypes[i];
+    if (!seat.type.trim())
+      return toast.error(`Seat type at position ${i + 1} is required`);
+    if (Number(seat.seatCount) <= 0)
+      return toast.error(`Seat count at position ${i + 1} must be greater than 0`);
+  }
+
+  // 3️⃣ Total Cost Validation
+  if (Number(formData.totalCost) <= 0)
+    return toast.error("Total cost must be greater than zero");
+
+    const updatedData = { ...formData ,seatTypes};
     delete updatedData.images;
     console.log("update", updatedData);
 
@@ -156,7 +317,7 @@ const VenueManagement = () => {
       accessor: "city",
       render: (venue: IVenue) => `${venue.city}, ${venue.state}`,
     },
-    { header: "Capacity", accessor: "capacity" },
+    { header: "Capacity", accessor: "capacity",  render: (venue: IVenue) => venue.capacity ?? venue.totalCapacity ?? "N/A", },
     { header: "Phone", accessor: "phone" },
     {
       header: "Status",
@@ -182,6 +343,13 @@ const VenueManagement = () => {
             onClick={() => {
               setSelectedVenue(venue);
               setFormData(venue);
+              setSeatTypes(venue.seatTypes && venue.seatTypes.length > 0 
+    ? venue.seatTypes.map((s: any) => ({
+        type: s.type,
+        seatCount: String(s.seatCount),
+      }))
+    : [{ type: "", seatCount: "" }]
+  );
               setShowEditModal(true);
             }}
             className="text-blue-600 hover:text-blue-800 text-sm"
@@ -331,7 +499,7 @@ const VenueManagement = () => {
                   onChange={handleInputChange}
                   className="w-full border p-2 rounded"
                 />
-                <input
+                {/*<input
                   name="capacity"
                   required
                   type="number"
@@ -339,7 +507,54 @@ const VenueManagement = () => {
                   value={formData.capacity}
                   onChange={handleInputChange}
                   className="w-full border p-2 rounded"
-                />
+                />*/}
+                <h3 className="text-lg font-semibold">Seat Types</h3>
+{seatTypes.map((seat, index) => (
+  <div key={index} className="flex gap-2 mb-2">
+    <input
+      type="text"
+      placeholder="Seat Type (e.g. VIP)"
+      value={seat.type}
+      onChange={(e) => handleSeatTypeChange(index, "type", e.target.value)}
+      className="border p-2 rounded w-1/2"
+    />
+    <input
+      type="number"
+      placeholder="Seat Count"
+      value={seat.seatCount}
+      onChange={(e) => handleSeatTypeChange(index, "seatCount", e.target.value)}
+      className="border p-2 rounded w-1/2"
+    />
+    {seatTypes.length > 1 && (
+      <button
+        type="button"
+        onClick={() => removeSeatType(index)}
+        className="bg-red-500 text-white px-3 rounded"
+      >
+        X
+      </button>
+    )}
+  </div>
+))}
+<button
+  type="button"
+  onClick={addSeatType}
+  className="bg-blue-500 text-white px-3 py-1 rounded mb-3"
+>
+  + Add Seat Type
+</button>
+
+{/* totalCost input */}
+<input
+  name="totalCost"
+  type="number"
+  required
+  placeholder="Total Cost of Venue"
+  value={formData.totalCost}
+  onChange={handleInputChange}
+  className="w-full border p-2 rounded"
+/>
+
                 <textarea
                   name="description"
                   placeholder="Description"
@@ -406,7 +621,7 @@ const VenueManagement = () => {
         )}
 
         
-        {showEditModal && (
+        {/*{showEditModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
               <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
@@ -568,7 +783,223 @@ const VenueManagement = () => {
             </div>
             <div className="flex justify-between items-center mt-4"></div>
           </div>
-        )}
+        )}*/}
+        {showEditModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+    <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
+      <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+        <h2 className="text-xl font-semibold">Edit Venue</h2>
+
+        {/* Venue Details */}
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Venue Name</label>
+        <input
+          name="name"
+          required
+          placeholder="Venue Name"
+          value={formData.name}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded "
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Address</label>
+        <textarea
+          name="address"
+          required
+          placeholder="Address"
+          value={formData.address}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">City</label>
+
+        <input
+        
+          name="city"
+          required
+          placeholder="City"
+          value={formData.city}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">State</label>
+        <input
+          name="state"
+          required
+          placeholder="State"
+          value={formData.state}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Pincode</label>
+        <input
+          name="pincode"
+          required
+          placeholder="Pincode"
+          value={formData.pincode}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">ContactPerson</label>
+        <input
+          name="contactPerson"
+          required
+          placeholder="Contact Person"
+          value={formData.contactPerson}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Phone</label>
+        <input
+          name="phone"
+          required
+          placeholder="Phone"
+          value={formData.phone}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Email</label>
+        <input
+          name="email"
+          required
+          type="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Website</label>
+        <input
+          name="website"
+          type="url"
+          placeholder="Website"
+          value={formData.website}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Seat Types */}
+        <h3 className="text-lg font-semibold">Seat Types</h3>
+        {seatTypes.map((seat, index) => (
+          <div key={index} className="flex gap-2 mb-2">
+            <input
+              type="text"
+              placeholder="Seat Type (e.g. VIP)"
+              value={seat.type}
+              onChange={(e) => handleSeatTypeChange(index, "type", e.target.value)}
+              className="border p-2 rounded w-1/2"
+            />
+            <input
+              type="number"
+              placeholder="Seat Count"
+              value={seat.seatCount}
+              onChange={(e) => handleSeatTypeChange(index, "seatCount", e.target.value)}
+              className="border p-2 rounded w-1/2"
+            />
+            {seatTypes.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeSeatType(index)}
+                className="bg-red-500 text-white px-3 rounded"
+              >
+                X
+              </button>
+            )}
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addSeatType}
+          value={formData.seatTypes}
+          className="bg-blue-500 text-white px-3 py-1 rounded mb-3"
+        >
+          + Add Seat Type
+        </button>
+
+        {/* Total Cost */}
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Price</label>
+        <input
+          name="totalCost"
+          type="number"
+          required
+          placeholder="Total Cost of Venue"
+          value={formData.totalCost}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Description</label>
+
+        {/* Description */}
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={formData.description}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Image Upload */}
+        {/*<input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleFileChange}
+          className="w-full"
+        />
+        {previewImages.length > 0 && (
+          <div className="grid grid-cols-3 gap-4">
+            {previewImages.map((url, index) => (
+              <img
+                key={index}
+                src={url}
+                className="h-24 w-full object-cover rounded"
+              />
+            ))}
+          </div>
+        )}*/}
+
+        {/* Status */}
+        <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Status</label>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+        >
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setShowEditModal(false)}
+            className="px-4 py-2 bg-gray-300 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded flex items-center"
+          >
+            <Check className="w-5 h-5 mr-1" /> Update
+          </button>
+        </div>
+      </form>
+
+      {/* Map Picker */}
+      <p>Click on the map to autofill the address 👇</p>
+      <LocationPicker
+        onAddressSelect={(addressData) => {
+          setFormData((prev: VenueForm) => ({
+            ...prev,
+            ...addressData,
+          }));
+        }}
+      />
+    </div>
+  </div>
+)}
+
         
         <div className="flex justify-between items-center mt-6">
           <p className="text-sm text-gray-600">

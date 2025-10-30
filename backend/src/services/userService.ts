@@ -4,6 +4,7 @@ import { IUserService } from "./serviceInterface/IUserService";
 import { IUserRepository } from "src/repositories/repositoryInterface/IUserRepository";
 import { IVenue } from "src/model/venue";
 import { IOrganiserDTO } from "src/interface/IOrgAuth";
+import { IOffer } from "src/model/offer";
 
 export class UserService implements IUserService {
   constructor(private _userRepository: IUserRepository) {}
@@ -84,6 +85,22 @@ export class UserService implements IUserService {
       const response=await this._userRepository.fetchVenues();
       if(response){
         return{venues:response,success:true}
+      }else{
+        return{success:false}
+      }
+      
+    } catch (error) {
+      console.log(error);
+      return {success:false}
+      
+      
+    }
+  }
+  async offerFetch(code:string):Promise<{offer?:IOffer,success:boolean}>{
+    try {
+      const response=await this._userRepository.fetchOffer(code);
+      if(response){
+        return{offer:response,success:true}
       }else{
         return{success:false}
       }

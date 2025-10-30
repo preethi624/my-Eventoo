@@ -17,7 +17,8 @@ export interface OrderCreateInput{
     eventId:string;
     eventTitle:string;
     email?:string;
-    selectedTicket?:{type:string,capacity:number,price:number,sold?:number}
+    selectedTicket?:{type:string,capacity:number,price:number,sold?:number};
+    offerCode:string;
 
 }
 export interface IPaymentDTO{
@@ -35,6 +36,9 @@ export interface IPaymentDTO{
             orderId:string;
             email?:string;
             selectedTicket?:{type:string,capacity:number,price:number,sold?:number}
+            offerCode:string;
+            offerAmount:number;
+            finalAmount:number;
           
 
 }

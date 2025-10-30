@@ -19,6 +19,8 @@ export interface IOrder{
     userId:string|IUser;
     eventId:string|IEventDTO;
     amount:number;
+    offerAmount:number;
+    finalAmount:number;
     currency:string;
     status:string;
     razorpayOrderId:string;
