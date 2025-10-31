@@ -28,6 +28,7 @@ export const AttendeesPage = () => {
       ticketCount: number;
       bookingStatus: string;
       orderId: string;
+      checkedIn:boolean
     }[]
   >([]);
   const [events, setEvents] = useState<{ _id: string; title: string; date: Date }[]>([]);
@@ -64,6 +65,8 @@ export const AttendeesPage = () => {
       currentPage,
       limit
     );
+    console.log("attendees",response);
+    
     setAttendees(response.attendee.attendee || []);
     setTotalPage(response.attendee.totalPages);
     setTotalRevenue(response.attendee.revenue);
@@ -257,7 +260,7 @@ export const AttendeesPage = () => {
             <table className="w-full">
     <thead className="bg-slate-800/80 border-b border-white/10">
       <tr>
-        {["Attendee", "Contact", "Tickets", "Booking Date", "Amount", "Status"].map((th) => (
+        {["Booked Users", "Contact", "Tickets", "Booking Date", "Amount", "Status","IsAttended"].map((th) => (
           <th
             key={th}
             className="text-left py-4 px-4 font-bold text-white text-sm uppercase tracking-wider"
@@ -276,6 +279,10 @@ export const AttendeesPage = () => {
           <td className="py-4 px-4">{new Date(attendee.createdAt).toLocaleDateString()}</td>
           <td className="py-4 px-4">₹{attendee.amount / 100}</td>
           <td className="py-4 px-4">{attendee.bookingStatus}</td>
+          <td className="py-4 px-4">
+  {attendee.checkedIn ? "Yes" : "No"}
+</td>
+
         </tr>
       ))}
     </tbody>

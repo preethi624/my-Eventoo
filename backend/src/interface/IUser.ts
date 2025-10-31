@@ -87,7 +87,9 @@ export interface Attendees{
       createdAt: Date;
       bookingStatus: string;
       orderId: string;
-      amount: number}[];
+      amount: number;
+      checkedIn:boolean;
+    }[];
       success?:boolean;
       message?:string;
       revenue?:number;

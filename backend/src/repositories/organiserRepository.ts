@@ -307,13 +307,54 @@ const ticketTypeStats = await Order.aggregate(ticketTypeStatsPipeline);
     }, 0);
     const actualRevenue = totalRevenue * (1 - adminCommissionPercentage / 100);
     const skip = (page - 1) * limit;
-    const paginatedPipeline = [
+    /*const paginatedPipeline = [
       ...pipeline,
       projectStage,
       { $skip: skip },
       { $limit: limit },
     ];
-    const attendee = await Order.aggregate(paginatedPipeline);
+    const attendee = await Order.aggregate(paginatedPipeline);*/
+    const paginatedPipeline = [
+  ...pipeline,
+
+  // 👇 Join tickets to know check-in status
+  {
+    $lookup: {
+      from: "tickets",
+      localField: "_id", // Order _id
+      foreignField: "orderId",
+      as: "ticketDetails",
+    },
+  },
+  {
+    $unwind: {
+      path: "$ticketDetails",
+      preserveNullAndEmptyArrays: true, // In case ticket not found
+    },
+  },
+
+  // 👇 Add check-in info to projection
+  {
+    $project: {
+      _id: 0,
+      id: "$_id",
+      name: "$userDetails.name",
+      email: "$userDetails.email",
+      ticketCount: 1,
+      createdAt: 1,
+      bookingStatus: 1,
+      orderId: 1,
+      amount: 1,
+      ticketType: "$selectedTicket.type",
+      checkedIn: { $ifNull: ["$ticketDetails.checkedIn", false] }, // 👈 shows true/false
+    },
+  },
+  { $skip: skip },
+  { $limit: limit },
+];
+
+const attendee = await Order.aggregate(paginatedPipeline);
+
    
     
 
