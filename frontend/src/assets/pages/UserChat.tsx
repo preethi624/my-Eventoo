@@ -23,7 +23,21 @@ import { messageRepository } from "../../repositories/messageRepositories";
 import { userRepository } from "../../repositories/userRepositories";
 import UserNavbar from "../components/UseNavbar";
 
-import type { IOrganiser } from "../../interfaces/IOrganiser";
+interface OrganiserWithEvent {
+  _id: string;
+  name: string;
+  email: string;
+  isBlocked?: boolean;
+  status?: string;
+  latestBookedEvent?: {
+    eventId: string;
+    title: string;
+    date: string;
+    venue: string;
+    
+  } | null;
+}
+
 const UserChatPage: React.FC = () => {
   const [onlineOrganisers, setOnlineOrganisers] = useState<string[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -37,7 +51,7 @@ const UserChatPage: React.FC = () => {
     isOnline?: boolean;
   }>({});
   const [organisers, setOrganisers] = useState<
-    { _id: string; name: string; email: string }[]
+    OrganiserWithEvent[]
   >([]);
   const [lastMessage, setLastMessage] = useState<
     Record<string, { timestamp: Date; message: string }>
@@ -59,9 +73,13 @@ const UserChatPage: React.FC = () => {
 
   const fetchOrganisers = async () => {
     const response = await userRepository.fetchOrganisers();
-    console.log("organisers", response);
+    const sorted = response.response.organisers.sort(
+    (a: OrganiserWithEvent, b: OrganiserWithEvent) => (a.name ?? "").localeCompare(b.name ?? "")
+  );
+  setOrganisers(sorted);
+    
 
-    setOrganisers(response.response.organisers.sort((a: IOrganiser, b: IOrganiser) => (a.name ?? "").localeCompare(b.name ?? "")));
+    //setOrganisers(response.response.organisers.sort((a: IOrganiser, b: IOrganiser) => (a.name ?? "").localeCompare(b.name ?? "")));
   };
 
   const userId = user?.id;
@@ -243,7 +261,7 @@ const UserChatPage: React.FC = () => {
           {/* Organisers List */}
           <div className="flex-1 overflow-y-auto">
             <AnimatePresence>
-              {filteredOrganisers.map((org, index) => (
+              {/*{filteredOrganisers.map((org, index) => (
                 <motion.div
                   key={org._id}
                   initial={{ opacity: 0, x: -20 }}
@@ -288,7 +306,72 @@ const UserChatPage: React.FC = () => {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              ))}*/}
+              {filteredOrganisers.map((org, index) => (
+  <motion.div
+    key={org._id}
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay: index * 0.05 }}
+    onClick={() => setSelectedOrganiser(org)}
+    className={`group p-4 border-b border-gray-200 cursor-pointer transition-all duration-300 ${
+      selectedOrganiser?._id === org._id
+        ? "bg-red-50 border-l-4 border-l-red-500"
+        : "hover:bg-gray-50"
+    }`}
+  >
+    <div className="flex items-center gap-3">
+      {/* Organiser avatar */}
+      <div className="relative flex-shrink-0">
+        <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-md">
+          <User className="w-6 h-6 text-white" />
+        </div>
+        {onlineOrganisers.includes(org._id) && (
+          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+        )}
+      </div>
+
+      {/* Organiser info */}
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-semibold text-gray-900 truncate mb-0.5">
+          {org.name}
+        </h3>
+        <p className="text-xs text-gray-500 truncate mb-2">{org.email}</p>
+
+        {/* Latest Booked Event Section */}
+        {org.latestBookedEvent && (
+          <div className="flex items-center gap-2 bg-gray-50 rounded-xl border border-gray-200 p-2 transition-all hover:shadow-sm">
+            
+            <div className="flex-1 min-w-0">
+              <h4 className="text-xs font-medium text-gray-800 truncate">
+                <p>Creator Of:</p>
+                {org.latestBookedEvent.title}
+              </h4>
+              <p className="text-[11px] text-gray-500 truncate">
+                {new Date(org.latestBookedEvent.date).toLocaleDateString()} ·{" "}
+                {org.latestBookedEvent.venue}
+              </p>
+            </div>
+          </div>
+        )}
+        {lastMessage[org._id]?.message && (
+                        <p className="text-xs text-gray-400 truncate">
+                          {lastMessage[org._id].message}
+                        </p>
+                      )}
+                      {lastMessage[org._id]?.timestamp && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          {new Date(lastMessage[org._id].timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      )}
+      </div>
+    </div>
+  </motion.div>
+))}
+
             </AnimatePresence>
           </div>
         </div>

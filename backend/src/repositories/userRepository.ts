@@ -3,10 +3,12 @@ import User from "../model/user";
 import { IUserRepository } from "./repositoryInterface/IUserRepository";
 import { ProfileEdit } from "src/interface/IUser";
 import { IOrganiser } from "src/interface/IOrgAuth";
-import Organiser from "../model/organiser";
+
 import bcrypt from "bcrypt";
 import Venue, { IVenue } from "../model/venue";
 import Offer, { IOffer } from "../model/offer";
+import Order from "../model/order";
+import mongoose from "mongoose";
 
 export class UserRepository implements IUserRepository {
   async getUser(userId: string): Promise<IUser | null> {
@@ -20,13 +22,54 @@ export class UserRepository implements IUserRepository {
       { new: true }
     );
   }
-  async getOrgs(): Promise<IOrganiser[]> {
+  async getOrgs(userId:string): Promise<IOrganiser[]> {
     try {
-      return await Organiser.find();
+      const organisers=await Order.aggregate([
+        {$match:{userId:new mongoose.Types.ObjectId(userId)}},
+        {$lookup:{
+          from:"events",
+          localField:"eventId",
+          foreignField:"_id",
+          as:"eventDetails"
+        }},
+        {$unwind:"$eventDetails"},
+          { $sort: { "eventDetails.createdAt": -1 } },
+        {$lookup:{
+          from:"organisers",
+          localField:"eventDetails.organiser",
+          foreignField:"_id",
+          as:"organiserDetails"
+        }},
+        {$unwind:"$organiserDetails"},
+        {$group: {
+        _id: "$organiserDetails._id",
+        name: { $first: "$organiserDetails.name" },
+        email: { $first: "$organiserDetails.email" },
+        phone: { $first: "$organiserDetails.phone" },
+        aboutMe: { $first: "$organiserDetails.aboutMe" },
+        profileImage: { $first: "$organiserDetails.profileImage" },
+        location: { $first: "$organiserDetails.location" },
+         latestBookedEvent: {
+            $first: {
+              eventId: "$eventDetails._id",
+              title: "$eventDetails.title",
+              date: "$eventDetails.date",
+              venue: "$eventDetails.venue",
+             
+              createdAt: "$eventDetails.createdAt",
+            },
+          },
+      }}
+
+      ])
+      console.log("organisers",organisers);
+      
+      return organisers
     } catch (error) {
       console.log(error);
       throw error;
     }
+
   }
   async changePassword(userId:string,newPass:string,currentPass:string):Promise<{success:boolean}|undefined>{
     try {

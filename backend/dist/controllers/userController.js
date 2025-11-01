@@ -78,8 +78,12 @@ class UserController {
     }
     getOrgs(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const response = yield this._userService.orgsGet();
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!userId)
+                    throw new Error("userId not get");
+                const response = yield this._userService.orgsGet(userId);
                 if (response.success) {
                     res.json({ response });
                 }

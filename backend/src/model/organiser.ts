@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model, ObjectId } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IOrganiser extends Document {
   _id: string;

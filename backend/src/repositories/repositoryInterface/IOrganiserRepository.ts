@@ -69,7 +69,7 @@ export interface IOrganiserRepository {
   }>;
 
   updateTicket(qrToken: string): Promise<{ message: string }>;
-  getUsers(): Promise<IUser[]>;
+  getUsers(orgId:string): Promise<IUser[]>;
    fetchEventOrders(eventId:string):Promise<IOrder[]|null>
    findOrder(orderId:string):Promise<IOrder|null>;
    updateRefund(refundId: string, orderId: string): Promise<Update>

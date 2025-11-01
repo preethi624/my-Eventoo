@@ -14,10 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRepository = void 0;
 const user_1 = __importDefault(require("../model/user"));
-const organiser_1 = __importDefault(require("../model/organiser"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const venue_1 = __importDefault(require("../model/venue"));
 const offer_1 = __importDefault(require("../model/offer"));
+const order_1 = __importDefault(require("../model/order"));
+const mongoose_1 = __importDefault(require("mongoose"));
 class UserRepository {
     getUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,10 +31,47 @@ class UserRepository {
             return yield user_1.default.findByIdAndUpdate(userId, { name, phone, location, aboutMe: aboutMe, profileImage }, { new: true });
         });
     }
-    getOrgs() {
+    getOrgs(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield organiser_1.default.find();
+                const organisers = yield order_1.default.aggregate([
+                    { $match: { userId: new mongoose_1.default.Types.ObjectId(userId) } },
+                    { $lookup: {
+                            from: "events",
+                            localField: "eventId",
+                            foreignField: "_id",
+                            as: "eventDetails"
+                        } },
+                    { $unwind: "$eventDetails" },
+                    { $sort: { "eventDetails.createdAt": -1 } },
+                    { $lookup: {
+                            from: "organisers",
+                            localField: "eventDetails.organiser",
+                            foreignField: "_id",
+                            as: "organiserDetails"
+                        } },
+                    { $unwind: "$organiserDetails" },
+                    { $group: {
+                            _id: "$organiserDetails._id",
+                            name: { $first: "$organiserDetails.name" },
+                            email: { $first: "$organiserDetails.email" },
+                            phone: { $first: "$organiserDetails.phone" },
+                            aboutMe: { $first: "$organiserDetails.aboutMe" },
+                            profileImage: { $first: "$organiserDetails.profileImage" },
+                            location: { $first: "$organiserDetails.location" },
+                            latestBookedEvent: {
+                                $first: {
+                                    eventId: "$eventDetails._id",
+                                    title: "$eventDetails.title",
+                                    date: "$eventDetails.date",
+                                    venue: "$eventDetails.venue",
+                                    createdAt: "$eventDetails.createdAt",
+                                },
+                            },
+                        } }
+                ]);
+                console.log("organisers", organisers);
+                return organisers;
             }
             catch (error) {
                 console.log(error);

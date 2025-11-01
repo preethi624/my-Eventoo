@@ -6,6 +6,7 @@ import { ProfileEdit } from "src/interface/IUser";
 import { ParsedQs } from "qs";
 import { OrgVenueFilter } from "src/interface/IVenue";
 import { MESSAGES } from "../constants/messages";
+import { AuthenticatedRequest } from "src/interface/AuthenticatedRequest";
 
 export class OrganiserController implements IOrganiserController {
   constructor(private _organiserService: IOrganiserService) {}
@@ -371,9 +372,11 @@ export class OrganiserController implements IOrganiserController {
       console.log(error);
     }
   }
-  async getUsers(req: Request, res: Response): Promise<void> {
+  async getUsers(req:AuthenticatedRequest , res: Response): Promise<void> {
     try {
-      const response = await this._organiserService.usersGet();
+      const organiserId=req.user?.id
+      if(!organiserId)throw new Error("not getting organiserId")
+      const response = await this._organiserService.usersGet(organiserId);
       if (response.success) {
         res.json({ response });
       } else {

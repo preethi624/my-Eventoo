@@ -5,7 +5,15 @@ export interface IOrganiser {
     isBlocked: boolean;
     name?:string;
     authMethod?:string;
-    status:string
+    status:string;
+    latestBookedEvent?: {
+    eventId: string;
+    title: string;
+    date: Date;
+    venue: string;
+    
+    createdAt: Date;
+  };
   
 }
 
@@ -32,6 +40,14 @@ export interface OrganiserDTO{
   isBlocked: boolean;
   authMethod?:string;
   status:string;
+  latestBookedEvent?: {
+    eventId: string;
+    title: string;
+    date: Date;
+    venue: string;
+    
+    createdAt: Date;
+  };
 }
 export interface IOrganiserDTO{
   _id:string

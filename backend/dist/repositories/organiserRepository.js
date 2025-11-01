@@ -21,7 +21,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const analyticHelper_1 = require("../utils/analyticHelper");
 const platformSettings_1 = __importDefault(require("../model/platformSettings"));
 const ticket_1 = require("../model/ticket");
-const user_1 = __importDefault(require("../model/user"));
 const notification_1 = __importDefault(require("../model/notification"));
 class OrganiserRepository {
     getOrganiserById(id) {
@@ -781,10 +780,52 @@ class OrganiserRepository {
             };
         });
     }
-    getUsers() {
+    getUsers(orgId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield user_1.default.find();
+                const users = yield order_1.default.aggregate([
+                    {
+                        $lookup: {
+                            from: "events",
+                            localField: "eventId",
+                            foreignField: "_id",
+                            as: "eventDetails",
+                        },
+                    },
+                    { $unwind: "$eventDetails" },
+                    {
+                        $match: {
+                            "eventDetails.organiser": new mongoose_1.default.Types.ObjectId(orgId),
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "userId",
+                            foreignField: "_id",
+                            as: "userDetails",
+                        },
+                    },
+                    { $unwind: "$userDetails" },
+                    {
+                        $group: {
+                            _id: "$userDetails._id",
+                            name: { $first: "$userDetails.name" },
+                            email: { $first: "$userDetails.email" },
+                            phone: { $first: "$userDetails.phone" },
+                            bookedEvents: {
+                                $push: {
+                                    eventId: "$eventDetails._id",
+                                    title: "$eventDetails.title",
+                                    date: "$eventDetails.date",
+                                    venue: "$eventDetails.venue",
+                                },
+                            },
+                        },
+                    },
+                ]);
+                console.log("Users who booked organiser's events:", users);
+                return users;
             }
             catch (error) {
                 console.log(error);

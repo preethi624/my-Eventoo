@@ -61,9 +61,12 @@ export class UserController implements IUserController {
       console.log(error);
     }
   }
-  async getOrgs(req: Request, res: Response): Promise<void> {
+  async getOrgs(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const response = await this._userService.orgsGet();
+      const userId=req.user?.id
+      if(!userId) throw new Error("userId not get")
+      const response = await this._userService.orgsGet(userId);
+    
       if (response.success) {
         res.json({ response });
       } else {

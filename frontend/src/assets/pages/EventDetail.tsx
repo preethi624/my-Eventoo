@@ -59,6 +59,8 @@ const EventDetail: React.FC = () => {
   const fetchEventDetail = async (id: string) => {
     try {
       const response = await eventRepository.getEventById(id);
+      
+      
 
       if (response.success && response.result) {
         setEvent(response.result.result);

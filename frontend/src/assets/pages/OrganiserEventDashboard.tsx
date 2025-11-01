@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-
 import {
   Calendar,
   MapPin,
@@ -17,6 +16,8 @@ import {
   XCircle,
   AlertCircle,
   Sparkles,
+  Ticket,
+  Download,
 } from "lucide-react";
 import {
   LineChart,
@@ -64,8 +65,6 @@ import DataTable from "../components/DataTable";
 import OrganiserFooter from "../components/OrganiserFooter";
 import moment from "moment";
 
-
-
 const EventDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const [eventData, setEventData] = useState<{
@@ -78,16 +77,19 @@ const EventDashboard = () => {
     venue: string;
     ticketsSold: number;
     availableTickets: number;
+    ticketTypes?: {
+      type: string;
+      price: number;
+      capacity: number;
+      sold: number;
+    }[];
   } | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
-  console.log("orders",orders);
-  
-  
-  
+  console.log("orders", orders);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,8 +97,8 @@ const EventDashboard = () => {
 
       try {
         const response = await organiserRepository.getDashboard(id);
-        console.log("eventData",response);
-        
+        console.log("eventData", response);
+
         if (response.success) {
           setEventData(response.event);
           setOrders(response.orders);
@@ -113,7 +115,7 @@ const EventDashboard = () => {
     fetchReviews();
     fetchOrders();
   }, [id]);
-  
+
   const fetchOrders = async () => {
     try {
       if (!id) throw new Error("error in fetching id");
@@ -184,7 +186,9 @@ const EventDashboard = () => {
     { header: "Tickets", accessor: "ticketCount" },
     { header: "Amount", accessor: "amount" },
     { header: "Payment Status", accessor: "status" },
-    { header: "Order Date", accessor: "createdAt" ,
+    {
+      header: "Order Date",
+      accessor: "createdAt",
       render: (row: any) => moment(row.createdAt).format("DD MMM YYYY, hh:mm A"),
     },
   ];
@@ -197,102 +201,97 @@ const EventDashboard = () => {
       revenue: data.revenue / 100,
     })
   );
+
   const handleDownloadReport = () => {
-  const doc = new jsPDF();
-  if (!eventData) return;
-  const ticketTypeData = Object.entries(stats.ticketTypes || {}).map(
-    ([type, data]: [string, any]) => ({
-      name: type,
-      orders: data.count,
-      tickets: data.tickets,
-      revenue: data.revenue / 100,
-    })
-  );
- 
-  
+    const doc = new jsPDF();
+    if (!eventData) return;
+    const ticketTypeData = Object.entries(stats.ticketTypes || {}).map(
+      ([type, data]: [string, any]) => ({
+        name: type,
+        orders: data.count,
+        tickets: data.tickets,
+        revenue: data.revenue / 100,
+      })
+    );
 
-  doc.setFontSize(18);
-  doc.text(eventData?.title + " - Event Report", 14, 22);
+    doc.setFontSize(18);
+    doc.text(eventData?.title + " - Event Report", 14, 22);
 
-  doc.setFontSize(12);
-  doc.text(`Date: ${formatDate(eventData?.date)}`, 14, 32);
-  doc.text(`Venue: ${eventData?.venue}`, 14, 38);
-  doc.text(`Category: ${eventData?.category}`, 14, 44);
-  doc.text(`Status: ${eventData?.status}`, 14, 50);
+    doc.setFontSize(12);
+    doc.text(`Date: ${formatDate(eventData?.date)}`, 14, 32);
+    doc.text(`Venue: ${eventData?.venue}`, 14, 38);
+    doc.text(`Category: ${eventData?.category}`, 14, 44);
+    doc.text(`Status: ${eventData?.status}`, 14, 50);
 
-  doc.text("Ticket Summary:", 14, 65);
-  // @ts-ignore
-  autoTable(doc, {
-  startY: 70,
-  head: [["Type", "Orders", "Tickets", "Revenue (₹)"]],
-  body: ticketTypeData.map((t) => [
-    t.name,
-    t.orders,
-    t.tickets,
-    t.revenue.toFixed(2),
-  ]),
-});
+    doc.text("Ticket Summary:", 14, 65);
+    // @ts-ignore
+    autoTable(doc, {
+      startY: 70,
+      head: [["Type", "Orders", "Tickets", "Revenue (₹)"]],
+      body: ticketTypeData.map((t) => [t.name, t.orders, t.tickets, t.revenue.toFixed(2)]),
+    });
 
+    doc.text("Booking Stats:", 14, doc.lastAutoTable.finalY + 10);
+    doc.text(`Confirmed: ${stats?.confirmed}`, 14, doc.lastAutoTable.finalY + 16);
+    doc.text(`Pending: ${stats?.pending}`, 14, doc.lastAutoTable.finalY + 22);
+    doc.text(`Cancelled: ${stats?.cancelled}`, 14, doc.lastAutoTable.finalY + 28);
 
-  doc.text("Booking Stats:", 14, doc.lastAutoTable.finalY + 10);
-  doc.text(`Confirmed: ${stats?.confirmed}`, 14, doc.lastAutoTable.finalY + 16);
-  doc.text(`Pending: ${stats?.pending}`, 14, doc.lastAutoTable.finalY + 22);
-  doc.text(`Cancelled: ${stats?.cancelled}`, 14, doc.lastAutoTable.finalY + 28);
-
-  doc.save(`${eventData.title}_Report.pdf`);
-};
-
+    doc.save(`${eventData.title}_Report.pdf`);
+  };
 
   return (
     <OrganiserLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-3 sm:p-4 md:p-6">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 p-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-700/50 p-4 sm:p-6 md:p-8">
+            <div className="flex flex-col gap-4">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <h1 className="text-4xl font-bold text-white">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white break-words">
                     {eventData.title}
                   </h1>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                      eventData.status
-                    )}`}
-                  >
-                    {eventData.status.charAt(0).toUpperCase() +
-                      eventData.status.slice(1)}
-                  </span>
-                  {eventData.isBlocked && (
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                      Blocked
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(
+                        eventData.status
+                      )}`}
+                    >
+                      {eventData.status.charAt(0).toUpperCase() + eventData.status.slice(1)}
                     </span>
-                  )}
+                    {eventData.isBlocked && (
+                      <span className="px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-red-100 text-red-800">
+                        Blocked
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="flex items-center gap-3 p-4 bg-slate-700/50 rounded-2xl border border-slate-600/50">
-                    <div className="p-2 bg-blue-600 rounded-xl">
-                      <Calendar className="w-5 h-5 text-white" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-700/50 rounded-xl sm:rounded-2xl border border-slate-600/50">
+                    <div className="p-2 bg-blue-600 rounded-xl flex-shrink-0">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <span className="text-gray-300 text-sm">{formatDate(eventData.date)}</span>
+                    <span className="text-gray-300 text-xs sm:text-sm truncate">
+                      {formatDate(eventData.date)}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-slate-700/50 rounded-2xl border border-slate-600/50">
-                    <div className="p-2 bg-green-600 rounded-xl">
-                      <Clock className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-700/50 rounded-xl sm:rounded-2xl border border-slate-600/50">
+                    <div className="p-2 bg-green-600 rounded-xl flex-shrink-0">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <span className="text-gray-300 text-sm">{eventData.time}</span>
+                    <span className="text-gray-300 text-xs sm:text-sm">{eventData.time}</span>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-slate-700/50 rounded-2xl border border-slate-600/50">
-                    <div className="p-2 bg-red-600 rounded-xl">
-                      <MapPin className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-700/50 rounded-xl sm:rounded-2xl border border-slate-600/50">
+                    <div className="p-2 bg-red-600 rounded-xl flex-shrink-0">
+                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <span className="text-gray-300 text-sm">{eventData.venue}</span>
+                    <span className="text-gray-300 text-xs sm:text-sm truncate">{eventData.venue}</span>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-slate-700/50 rounded-2xl border border-slate-600/50">
-                    <div className="p-2 bg-purple-600 rounded-xl">
-                      <Tag className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-700/50 rounded-xl sm:rounded-2xl border border-slate-600/50">
+                    <div className="p-2 bg-purple-600 rounded-xl flex-shrink-0">
+                      <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <span className="text-gray-300 text-sm">{eventData.category}</span>
+                    <span className="text-gray-300 text-xs sm:text-sm truncate">{eventData.category}</span>
                   </div>
                 </div>
               </div>
@@ -300,132 +299,208 @@ const EventDashboard = () => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50">
-            <div className="border-b border-slate-700/50">
-              <nav className="flex">
+          <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-700/50 overflow-hidden">
+            <div className="border-b border-slate-700/50 overflow-x-auto">
+              <nav className="flex min-w-max">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-6 py-4 font-semibold text-sm transition-colors duration-200 border-b-2 ${
+                  className={`px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-colors duration-200 border-b-2 whitespace-nowrap ${
                     activeTab === "overview"
                       ? "border-blue-500 text-blue-400"
                       : "border-transparent text-gray-400 hover:text-gray-300"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
-                    Overview & Analytics
+                    <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Overview & Analytics</span>
+                    <span className="sm:hidden">Overview</span>
                   </div>
                 </button>
                 <button
                   onClick={() => setActiveTab("orders")}
-                  className={`px-6 py-4 font-semibold text-sm transition-colors duration-200 border-b-2 ${
+                  className={`px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-colors duration-200 border-b-2 whitespace-nowrap ${
                     activeTab === "orders"
                       ? "border-blue-500 text-blue-400"
                       : "border-transparent text-gray-400 hover:text-gray-300"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    Orders & Reviews
+                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Orders & Reviews</span>
+                    <span className="sm:hidden">Orders</span>
                   </div>
                 </button>
               </nav>
             </div>
 
             {/* Tab Content */}
-            <div className="p-6">
+            <div className="p-3 sm:p-4 md:p-6">
               {activeTab === "overview" && (
-                <div className="space-y-6">
-                  <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30 p-6">
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Ticket Type Breakdown */}
+                  <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-4 sm:p-6">
                     {stats.ticketTypes && Object.keys(stats.ticketTypes).length > 0 && (
-                      <h3 className="text-xl font-semibold mb-4 text-white flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                          <Sparkles className="text-white" size={20} />
-                        </div>
-                        Ticket Type Breakdown
-                      </h3>
-                    )}
-                    {stats.ticketTypes && Object.keys(stats.ticketTypes).length > 0 && (
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="border-b border-slate-600/50">
-                            <th className="p-3 text-gray-400 text-sm">Type</th>
-                            <th className="p-3 text-gray-400 text-sm">Orders</th>
-                            <th className="p-3 text-gray-400 text-sm">Tickets</th>
-                            <th className="p-3 text-gray-400 text-sm">Revenue (₹)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ticketTypeData.map((t) => (
-                            <tr key={t.name} className="border-b border-slate-700/30">
-                              <td className="p-3 capitalize text-white">{t.name}</td>
-                              <td className="p-3 text-gray-300">{t.orders}</td>
-                              <td className="p-3 text-gray-300">{t.tickets}</td>
-                              <td className="p-3 text-green-400">₹{t.revenue}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      
-                    )}
-                    
-                  </div>
-                  {eventData.status === "completed" && (
-  <button
-    onClick={handleDownloadReport}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow-md transition-all duration-200"
-  >
-    Download Report
-  </button>
-)}
+                      <>
+                        <h3 className="text-lg sm:text-xl font-semibold mb-4 text-white flex items-center gap-2 sm:gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="text-white" size={16} />
+                          </div>
+                          <span className="text-sm sm:text-xl">Ticket Type Breakdown</span>
+                        </h3>
 
+                        {/* Desktop Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="border-b border-slate-600/50">
+                                <th className="p-3 text-gray-400 text-sm">Type</th>
+                                <th className="p-3 text-gray-400 text-sm">Orders</th>
+                                <th className="p-3 text-gray-400 text-sm">Tickets</th>
+                                <th className="p-3 text-gray-400 text-sm">Revenue (₹)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {ticketTypeData.map((t) => (
+                                <tr key={t.name} className="border-b border-slate-700/30">
+                                  <td className="p-3 capitalize text-white">{t.name}</td>
+                                  <td className="p-3 text-gray-300">{t.orders}</td>
+                                  <td className="p-3 text-gray-300">{t.tickets}</td>
+                                  <td className="p-3 text-green-400">₹{t.revenue}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Mobile Cards */}
+                        <div className="md:hidden space-y-3">
+                          {ticketTypeData.map((t) => (
+                            <div
+                              key={t.name}
+                              className="bg-slate-800/60 rounded-xl p-4 border border-slate-600/30"
+                            >
+                              <div className="flex justify-between items-start mb-3">
+                                <span className="capitalize text-white font-semibold text-base">
+                                  {t.name}
+                                </span>
+                                <span className="text-green-400 font-bold">₹{t.revenue}</span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <p className="text-xs text-gray-400">Orders</p>
+                                  <p className="text-white font-medium">{t.orders}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-400">Tickets</p>
+                                  <p className="text-white font-medium">{t.tickets}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Remaining Tickets by Type */}
+                  <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-white flex items-center gap-2 sm:gap-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Ticket className="text-white" size={16} />
+                      </div>
+                      <span className="text-sm sm:text-xl">Remaining Tickets</span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {eventData?.ticketTypes?.map((t) => {
+                        const remaining = t.capacity - t.sold;
+                        const percentLeft = ((remaining / t.capacity) * 100).toFixed(0);
+                        return (
+                          <div
+                            key={t.type}
+                            className="p-4 sm:p-5 bg-slate-800/60 rounded-xl sm:rounded-2xl border border-slate-600/30 shadow-md flex flex-col gap-2"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="capitalize text-white text-base sm:text-lg font-semibold">
+                                {t.type}
+                              </span>
+                              <span className="text-xs sm:text-sm text-gray-400">₹{t.price}</span>
+                            </div>
+
+                            <div className="h-2 sm:h-3 bg-slate-700 rounded-full overflow-hidden">
+                              <div
+                                className="bg-green-500 h-full rounded-full transition-all duration-300"
+                                style={{ width: `${percentLeft}%` }}
+                              ></div>
+                            </div>
+
+                            <div className="flex justify-between text-xs sm:text-sm text-gray-400">
+                              <span>{remaining} left</span>
+                              <span>{t.capacity} total</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Download Report Button */}
+                  {eventData.status === "completed" && (
+                    <button
+                      onClick={handleDownloadReport}
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-3 rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download Report</span>
+                    </button>
+                  )}
 
                   {/* Stats Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-2xl shadow-lg text-white">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                    <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg text-white">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="text-sm font-medium opacity-90 mb-1">
+                          <h4 className="text-xs sm:text-sm font-medium opacity-90 mb-1">
                             Confirmed Bookings
                           </h4>
-                          <p className="text-3xl font-bold">{stats?.confirmed ?? 0}</p>
+                          <p className="text-2xl sm:text-3xl font-bold">{stats?.confirmed ?? 0}</p>
                         </div>
-                        <CheckCircle className="w-10 h-10 opacity-80" />
+                        <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 opacity-80" />
                       </div>
                     </div>
-                    <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-2xl shadow-lg text-white">
+                    <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg text-white">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="text-sm font-medium opacity-90 mb-1">
+                          <h4 className="text-xs sm:text-sm font-medium opacity-90 mb-1">
                             Pending Bookings
                           </h4>
-                          <p className="text-3xl font-bold">{stats?.pending ?? 0}</p>
+                          <p className="text-2xl sm:text-3xl font-bold">{stats?.pending ?? 0}</p>
                         </div>
-                        <AlertCircle className="w-10 h-10 opacity-80" />
+                        <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 opacity-80" />
                       </div>
                     </div>
-                    <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-2xl shadow-lg text-white">
+                    <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg text-white sm:col-span-2 lg:col-span-1">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="text-sm font-medium opacity-90 mb-1">
+                          <h4 className="text-xs sm:text-sm font-medium opacity-90 mb-1">
                             Cancelled Bookings
                           </h4>
-                          <p className="text-3xl font-bold">{stats?.cancelled ?? 0}</p>
+                          <p className="text-2xl sm:text-3xl font-bold">{stats?.cancelled ?? 0}</p>
                         </div>
-                        <XCircle className="w-10 h-10 opacity-80" />
+                        <XCircle className="w-8 h-8 sm:w-10 sm:h-10 opacity-80" />
                       </div>
                     </div>
                   </div>
 
                   {/* Sales Trend Chart */}
-                  <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30 p-6">
-                    <h3 className="text-xl font-semibold mb-4 text-white flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <TrendingUp className="text-white" size={20} />
+                  <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-semibold mb-4 text-white flex items-center gap-2 sm:gap-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <TrendingUp className="text-white" size={16} />
                       </div>
-                      Sales Trend
+                      <span className="text-sm sm:text-xl">Sales Trend</span>
                     </h3>
-                    <div className="h-80">
+                    <div className="h-64 sm:h-80">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={salesData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
@@ -438,8 +513,9 @@ const EventDashboard = () => {
                               })
                             }
                             stroke="#94a3b8"
+                            tick={{ fontSize: 12 }}
                           />
-                          <YAxis stroke="#94a3b8" />
+                          <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
                           <Tooltip
                             labelFormatter={(value) =>
                               `Date: ${new Date(value).toLocaleDateString("en-IN")}`
@@ -448,15 +524,16 @@ const EventDashboard = () => {
                               backgroundColor: "#1e293b",
                               border: "1px solid #475569",
                               borderRadius: "8px",
+                              fontSize: "12px",
                             }}
                           />
                           <Line
                             type="monotone"
                             dataKey="sales"
                             stroke="#3B82F6"
-                            strokeWidth={3}
-                            dot={{ r: 5, fill: "#3B82F6" }}
-                            activeDot={{ r: 7, fill: "#1D4ED8" }}
+                            strokeWidth={2}
+                            dot={{ r: 4, fill: "#3B82F6" }}
+                            activeDot={{ r: 6, fill: "#1D4ED8" }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
@@ -464,23 +541,24 @@ const EventDashboard = () => {
                   </div>
 
                   {/* Charts Row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     {/* Ticket Category Breakdown */}
-                    <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30 p-6">
-                      <h3 className="text-xl font-semibold mb-4 text-white">
+                    <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-4 sm:p-6">
+                      <h3 className="text-base sm:text-xl font-semibold mb-4 text-white">
                         Ticket Category Breakdown
                       </h3>
-                      <div className="h-72">
+                      <div className="h-64 sm:h-72">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={ticketStatusData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                            <XAxis dataKey="name" stroke="#94a3b8" />
-                            <YAxis stroke="#94a3b8" />
+                            <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                            <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
                             <Tooltip
                               contentStyle={{
                                 backgroundColor: "#1e293b",
                                 border: "1px solid #475569",
                                 borderRadius: "8px",
+                                fontSize: "12px",
                               }}
                             />
                             <Bar dataKey="value" fill="#10B981" radius={[4, 4, 0, 0]} />
@@ -490,22 +568,23 @@ const EventDashboard = () => {
                     </div>
 
                     {/* Pie Chart */}
-                    <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30 p-6">
-                      <h3 className="text-xl font-semibold mb-4 text-white">
+                    <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-4 sm:p-6">
+                      <h3 className="text-base sm:text-xl font-semibold mb-4 text-white">
                         Ticket Distribution
                       </h3>
                       <div className="flex justify-center">
-                        <PieChart width={300} height={280}>
+                        <PieChart width={280} height={260}>
                           <Pie
                             data={ticketStatusData}
                             cx="50%"
                             cy="50%"
-                            outerRadius={100}
+                            outerRadius={90}
                             fill="#8884d8"
                             dataKey="value"
                             label={({ name, percent }) =>
                               `${name} (${(percent * 100).toFixed(0)}%)`
                             }
+                           
                           >
                             {ticketStatusData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
@@ -520,30 +599,30 @@ const EventDashboard = () => {
               )}
 
               {activeTab === "orders" && (
-                <div className="space-y-6">
-                  {/* Orders Table - Only show if orders are available */}
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Orders Table */}
                   {orders && orders.length > 0 && (
-                    <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30">
-                      <div className="p-6 border-b border-slate-600/30">
-                        <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                          <IndianRupee className="w-5 h-5 text-green-400" />
+                    <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30">
+                      <div className="p-4 sm:p-6 border-b border-slate-600/30">
+                        <h3 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-2">
+                          <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                           Order Management
                         </h3>
-                        <p className="text-gray-400 mt-1">
+                        <p className="text-gray-400 mt-1 text-xs sm:text-sm">
                           Track and manage all event orders
                         </p>
                       </div>
-                      <div className="p-6">
+                      <div className="p-3 sm:p-6 overflow-x-auto">
                         <DataTable data={orders} columns={columns} />
                       </div>
                     </div>
                   )}
 
-                  {/* Reviews Chart - Only show if reviews are available */}
+                  {/* Reviews Chart */}
                   {reviews && reviews.length > 0 && (
-                    <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30 p-6">
-                      <h3 className="text-xl font-semibold mb-4 text-white flex items-center gap-2">
-                        <Users className="w-5 h-5 text-purple-400" />
+                    <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-4 sm:p-6">
+                      <h3 className="text-lg sm:text-xl font-semibold mb-4 text-white flex items-center gap-2">
+                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                         Review Sentiment Analysis
                       </h3>
                       <ReviewSentimentChart reviews={reviews} />
@@ -551,66 +630,62 @@ const EventDashboard = () => {
                   )}
 
                   {/* Empty state when no orders and no reviews */}
-                  {(!orders || orders.length === 0) &&
-                    (!reviews || reviews.length === 0) && (
-                      <div className="bg-slate-700/30 rounded-2xl border border-slate-600/30 p-12 text-center">
-                        <div className="flex flex-col items-center gap-4">
-                          <Users className="w-16 h-16 text-gray-500" />
-                          <h3 className="text-xl font-semibold text-white">
-                            No Data Available
-                          </h3>
-                          <p className="text-gray-400 max-w-md">
-                            There are currently no orders or reviews for this event.
-                            Once customers start booking tickets and leaving reviews,
-                            they will appear here.
+                  {(!orders || orders.length === 0) && (!reviews || reviews.length === 0) && (
+                    <div className="bg-slate-700/30 rounded-xl sm:rounded-2xl border border-slate-600/30 p-8 sm:p-12 text-center">
+                      <div className="flex flex-col items-center gap-3 sm:gap-4">
+                        <Users className="w-12 h-12 sm:w-16 sm:h-16 text-gray-500" />
+                        <h3 className="text-lg sm:text-xl font-semibold text-white">
+                          No Data Available
+                        </h3>
+                        <p className="text-gray-400 max-w-md text-sm sm:text-base">
+                          There are currently no orders or reviews for this event. Once
+                          customers start booking tickets and leaving reviews, they will
+                          appear here.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Partial empty states */}
+                  {(!orders || orders.length === 0) && reviews && reviews.length > 0 && (
+                    <div className="bg-blue-500/10 rounded-xl sm:rounded-2xl border border-blue-500/30 p-4 sm:p-6">
+                      <div className="flex items-center gap-3">
+                        <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-blue-300 text-sm sm:text-base">
+                            No Orders Yet
+                          </h4>
+                          <p className="text-blue-400 text-xs sm:text-sm">
+                            Orders will appear here once customers start booking tickets.
                           </p>
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                  {/* Partial empty states */}
-                  {(!orders || orders.length === 0) &&
-                    reviews &&
-                    reviews.length > 0 && (
-                      <div className="bg-blue-500/10 rounded-2xl border border-blue-500/30 p-6">
-                        <div className="flex items-center gap-3">
-                          <IndianRupee className="w-6 h-6 text-blue-400" />
-                          <div>
-                            <h4 className="font-semibold text-blue-300">No Orders Yet</h4>
-                            <p className="text-blue-400 text-sm">
-                              Orders will appear here once customers start booking
-                              tickets.
-                            </p>
-                          </div>
+                  {orders && orders.length > 0 && (!reviews || reviews.length === 0) && (
+                    <div className="bg-purple-500/10 rounded-xl sm:rounded-2xl border border-purple-500/30 p-4 sm:p-6">
+                      <div className="flex items-center gap-3">
+                        <Users className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-purple-300 text-sm sm:text-base">
+                            No Reviews Yet
+                          </h4>
+                          <p className="text-purple-400 text-xs sm:text-sm">
+                            Customer reviews and sentiment analysis will appear here once
+                            reviews are submitted.
+                          </p>
                         </div>
                       </div>
-                    )}
-
-                  {orders &&
-                    orders.length > 0 &&
-                    (!reviews || reviews.length === 0) && (
-                      <div className="bg-purple-500/10 rounded-2xl border border-purple-500/30 p-6">
-                        <div className="flex items-center gap-3">
-                          <Users className="w-6 h-6 text-purple-400" />
-                          <div>
-                            <h4 className="font-semibold text-purple-300">
-                              No Reviews Yet
-                            </h4>
-                            <p className="text-purple-400 text-sm">
-                              Customer reviews and sentiment analysis will appear here
-                              once reviews are submitted.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
-      <OrganiserFooter/>
+      <OrganiserFooter />
     </OrganiserLayout>
   );
 };

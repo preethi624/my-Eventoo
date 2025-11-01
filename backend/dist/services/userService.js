@@ -53,17 +53,26 @@ class UserService {
             }
         });
     }
-    orgsGet() {
+    orgsGet(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this._userRepository.getOrgs();
+                const response = yield this._userRepository.getOrgs(userId);
                 if (response) {
                     const organisers = response.map((org) => ({
                         _id: org._id,
                         name: org.name,
                         email: org.email,
                         isBlocked: org.isBlocked,
-                        status: org.status
+                        status: org.status,
+                        latestBookedEvent: org.latestBookedEvent
+                            ? {
+                                eventId: org.latestBookedEvent.eventId,
+                                title: org.latestBookedEvent.title,
+                                date: org.latestBookedEvent.date,
+                                venue: org.latestBookedEvent.venue,
+                                createdAt: org.latestBookedEvent.createdAt,
+                            }
+                            : null,
                     }));
                     return { organisers: organisers, success: true };
                 }

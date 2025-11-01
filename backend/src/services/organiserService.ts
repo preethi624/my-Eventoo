@@ -298,9 +298,9 @@ export class OrganiserService implements IOrganiserService {
       return { message: MESSAGES.EVENT.FAILED_TO_UPDATE };
     }
   }
-  async usersGet(): Promise<GetUsers> {
+  async usersGet(orgId:string): Promise<GetUsers> {
     try {
-      const response = await this._organiserRepository.getUsers();
+      const response = await this._organiserRepository.getUsers(orgId);
       if (response) {
         return { users: response, success: true };
       } else {

@@ -357,8 +357,12 @@ class OrganiserController {
     }
     getUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const response = yield this._organiserService.usersGet();
+                const organiserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!organiserId)
+                    throw new Error("not getting organiserId");
+                const response = yield this._organiserService.usersGet(organiserId);
                 if (response.success) {
                     res.json({ response });
                 }

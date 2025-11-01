@@ -13,7 +13,7 @@ import { DashboardResponse } from "src/interface/event";
 import PlatformSettings from "../model/platformSettings";
 import { TicketModel } from "../model/ticket";
 
-import User from "../model/user";
+
 import { IUser } from "src/interface/IUserAuth";
 import Notification from "../model/notification";
 
@@ -864,9 +864,58 @@ const attendee = await Order.aggregate(paginatedPipeline);
       message: "Check-in successful",
     };
   }
-  async getUsers(): Promise<IUser[]> {
+  async getUsers(orgId:string): Promise<IUser[]> {
     try {
-      return await User.find();
+    const users = await Order.aggregate([
+      
+      {
+        $lookup: {
+          from: "events",
+          localField: "eventId",
+          foreignField: "_id",
+          as: "eventDetails",
+        },
+      },
+      { $unwind: "$eventDetails" },
+
+      {
+        $match: {
+          "eventDetails.organiser": new mongoose.Types.ObjectId(orgId),
+        },
+      },
+
+      
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      { $unwind: "$userDetails" },
+
+    
+      {
+        $group: {
+          _id: "$userDetails._id",
+          name: { $first: "$userDetails.name" },
+          email: { $first: "$userDetails.email" },
+          phone: { $first: "$userDetails.phone" },
+          bookedEvents: {
+            $push: {
+              eventId: "$eventDetails._id",
+              title: "$eventDetails.title",
+              date: "$eventDetails.date",
+              venue: "$eventDetails.venue",
+            },
+          },
+        },
+      },
+    ]);
+
+    console.log("Users who booked organiser's events:", users);
+    return users;
     } catch (error) {
       console.log(error);
       throw error;

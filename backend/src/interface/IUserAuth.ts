@@ -14,6 +14,12 @@ export interface IUser{
    bio?:string;
    createdAt?: Date;
   updatedAt?: Date;
+   bookedEvents?: {
+    eventId: string;
+    title: string;
+    date: Date;
+    venue: string;
+  }[];
 
 
 

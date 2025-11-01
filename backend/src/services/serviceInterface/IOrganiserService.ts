@@ -20,7 +20,7 @@ export interface IOrganiserService{
       attendeesFetch(eventId:string,organiserId:string,filters:string,filterStatus:string,page:number,limit:number):Promise<Attendees>
        getDashboardEvents(organiserId:string,timeFrame:'7d' | '30d' | '90d',startDate?:string,endDate?:string,category?:string,month?:string,year?:string):Promise<DashboardEvents>
        ticketUpdate(qrToken:string):Promise<{message:string}>
-        usersGet():Promise<GetUsers>
+        usersGet(orgId:string):Promise<GetUsers>
         eventOrders(eventId:string):Promise<{success:boolean,orders?:IOrder[]}>
         orderCancel(orderId:string):Promise<Update>
         venuesFetch():Promise<IVenues>

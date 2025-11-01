@@ -278,10 +278,10 @@ class OrganiserService {
             }
         });
     }
-    usersGet() {
+    usersGet(orgId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this._organiserRepository.getUsers();
+                const response = yield this._organiserRepository.getUsers(orgId);
                 if (response) {
                     return { users: response, success: true };
                 }

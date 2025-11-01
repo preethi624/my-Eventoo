@@ -41,16 +41,28 @@ export class UserService implements IUserService {
       return { success: false, message: "failed to update" };
     }
   }
-  async orgsGet(): Promise<GetOrgs> {
+  async orgsGet(userId:string): Promise<GetOrgs> {
     try {
-      const response = await this._userRepository.getOrgs();
+      const response = await this._userRepository.getOrgs(userId);
+      
+      
       if (response) {
         const organisers:IOrganiserDTO[]=response.map((org)=>({
           _id:org._id,
           name:org.name,
           email:org.email,
           isBlocked:org.isBlocked,
-          status:org.status
+          status:org.status,
+          latestBookedEvent: org.latestBookedEvent
+          ? {
+              eventId: org.latestBookedEvent.eventId,
+              title: org.latestBookedEvent.title,
+              date: org.latestBookedEvent.date,
+              venue: org.latestBookedEvent.venue,
+              
+              createdAt: org.latestBookedEvent.createdAt,
+            }
+          : null,
           
 
         }))
