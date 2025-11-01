@@ -76,6 +76,7 @@ export const TicketsPage: React.FC = () => {
   const [limit, setLimit] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const baseUrl=import.meta.env.VITE_REACT_APP_API_BASE_URL
 
   useEffect(() => {
     fetchTickets();
@@ -236,7 +237,7 @@ export const TicketsPage: React.FC = () => {
         if (img.startsWith("http")) {
           imageSrc = img;
         } else {
-          imageSrc = `http://localhost:3000/${img.replace(/\\/g, "/")}`;
+          imageSrc = `${baseUrl}/${img.replace(/\\/g, "/")}`;
         }
       } else if (typeof img === "object" && img.url) {
         imageSrc = img.url;

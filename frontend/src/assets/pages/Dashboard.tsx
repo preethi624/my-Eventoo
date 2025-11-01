@@ -864,21 +864,7 @@ const Dashboard = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-emerald-400">
-                            ₹
-                            {(
-                              Number(event.ticketPrice) * Number(event.ticketsSold) -
-                              (Number(event.ticketPrice) *
-                                Number(event.ticketsSold) *
-                                Number(adminPercentage)) /
-                                100
-                            ).toLocaleString()}
-                          </div>
-                          <div className="text-xs text-gray-400 font-medium mt-1">
-                            Your earnings
-                          </div>
-                        </div>
+                        
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>

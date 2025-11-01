@@ -8,6 +8,7 @@ import { IEvent } from "src/model/event";
 import { IOrder } from "src/model/order";
 import { IVenue } from "src/model/venue";
 
+
 export interface IOrganiserRepository {
   getOrganiserById(id: string): Promise<IOrganiser | null>;
   statusCheck(emailObj: { email: string }): Promise<IOrganiser | null>;
@@ -37,37 +38,36 @@ export interface IOrganiserRepository {
     limit: number
   ): Promise<Attendees>;
   dashboardEvents(
-    organiserId: string,
-    timeFrame: "7d" | "30d" | "90d",
-    startDate?: string,
-    endDate?: string,
-    category?: string,
-    month?: string,
-    year?: string
-  ): Promise<{
-    events: IEvent[];
-    data: {
-      month: number;
-      revenue: number;
-      events: number;
-    }[];
-    adminCommissionPercentage: number;
-    organiserEarning: number;
-    totalEvents: number;
-    totalAttendees: number;
-    topEvents: IEvent[];
-    upcomingEvents: IEvent[];
-    orderDetails: {
-      name: string;
-      email: string;
-      eventTitle: string;
-      eventDate: Date;
-      orderDate: Date;
-      amount: number;
-      ticketCount: number;
-    }[];
-  }>;
-
+      organiserId: string,
+      timeFrame: "7d" | "30d" | "90d",
+      startDate?: string,
+      endDate?: string,
+      category?: string,
+      month?: string,
+      year?: string
+    ): Promise<{
+      events: IEvent[];
+      data: {
+        month: number;
+        revenue: number;
+        events: number;
+      }[];
+      adminCommissionPercentage: number;
+      organiserEarning: number;
+      totalEvents: number;
+      totalAttendees: number;
+      topEvents: IEvent[];
+      upcomingEvents: IEvent[];
+      orderDetails: {
+        name: string;
+        email: string;
+        eventTitle: string;
+        eventDate: Date;
+        orderDate: Date;
+        amount: number;
+        ticketCount: number;
+      }[];
+    }> 
   updateTicket(qrToken: string): Promise<{ message: string }>;
   getUsers(orgId:string): Promise<IUser[]>;
    fetchEventOrders(eventId:string):Promise<IOrder[]|null>

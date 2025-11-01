@@ -16,6 +16,14 @@ import { TicketModel } from "../model/ticket";
 
 import { IUser } from "src/interface/IUserAuth";
 import Notification from "../model/notification";
+export type IEventPlain = Omit<IEvent, keyof Document>;
+export interface ITopEventWithEarnings extends IEventPlain {
+  totalRevenue: number;
+  organiserEarning: number;
+}
+
+
+
 
 
 
@@ -491,12 +499,14 @@ const attendee = await Order.aggregate(paginatedPipeline);
       revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100,
     }));
 
-    const events = await EventModel.find(eventQuery);
+    const events = await EventModel.find(eventQuery);;
 
     const totalEvents = events.length;
     const topEvents = [...events]
       .sort((a, b) => b.ticketsSold - a.ticketsSold)
       .slice(0, 5);
+      // Collect top event IDs
+
 
     
       const upcomingEvents = await EventModel.find({

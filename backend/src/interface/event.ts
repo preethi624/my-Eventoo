@@ -7,6 +7,7 @@ import { IAdminOrder } from "./IAdmin";
 
 import { IEventImage, ITicketType } from "./IEventDTO";
 
+
 export interface EventGet {
   message: string;
   success: boolean;

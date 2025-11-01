@@ -413,10 +413,12 @@ class OrganiserRepository {
                 revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100,
             }));
             const events = yield event_1.default.find(eventQuery);
+            ;
             const totalEvents = events.length;
             const topEvents = [...events]
                 .sort((a, b) => b.ticketsSold - a.ticketsSold)
                 .slice(0, 5);
+            // Collect top event IDs
             const upcomingEvents = yield event_1.default.find({
                 organiser: organiserId,
                 date: { $gte: new Date() }
