@@ -312,7 +312,9 @@ export class PaymentRepository implements IPaymentRepository {
   }
   async getTickets(orderId: string): Promise<ITicket[]> {
     const tickets = await TicketModel.find({ orderId: orderId })
+    .sort({issuedAt:-1})
       .populate("eventId")
+      
       .exec();
     return tickets as unknown as ITicket[];
   }
@@ -433,11 +435,12 @@ export class PaymentRepository implements IPaymentRepository {
           },
         },
       },
+        { $sort: { issuedAt: -1 } } as PipelineStage.Sort,
       { $skip: skip },
       { $limit: limitNumber },
     ];
 
-    const tickets = await TicketModel.aggregate(dataPipeline).sort({issuedAt:-1});
+    const tickets = await TicketModel.aggregate(dataPipeline);
 
     return {
       tickets,

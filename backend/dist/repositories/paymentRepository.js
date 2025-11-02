@@ -20,44 +20,6 @@ const uuid_1 = require("uuid");
 const ticket_1 = require("../model/ticket");
 const notification_1 = __importDefault(require("../model/notification"));
 class PaymentRepository {
-    /*async createOrder(data: IPaymentDTO): Promise<IOrder> {
-      const session = await mongoose.startSession();
-      session.startTransaction();
-      try {
-        const updatedEvent = await EventModel.findOneAndUpdate(
-          { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
-          //{ $inc: { availableTickets: -data.ticketCount } },
-          {$inc: { "selectedTicket.capacity": -data.ticketCount }},
-          { new: true, session }
-        );
-        if (!updatedEvent) {
-          throw new Error("Not enough tickets available");
-        }
-        const lastOrder = await Order.findOne()
-          .sort({ bookingNumber: -1 })
-          .session(session);
-        let nextBookingNumber = "BK-1000";
-        if (lastOrder?.bookingNumber) {
-          const lastNumber = parseInt(
-            lastOrder.bookingNumber.replace("BK-", ""),
-            10
-          );
-          nextBookingNumber = `BK-${lastNumber + 1}`;
-        }
-        const orderData = {
-          ...data,
-          bookingNumber: nextBookingNumber,
-        };
-        const [order] = await Order.create([orderData], { session });
-        await session.commitTransaction();
-        return order;
-      } catch (error) {
-        await session.abortTransaction();
-        throw error;
-      } finally {
-        session.endSession();
-      }
-    }*/
     createOrder(data) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
@@ -302,6 +264,7 @@ class PaymentRepository {
     getTickets(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             const tickets = yield ticket_1.TicketModel.find({ orderId: orderId })
+                .sort({ issuedAt: -1 })
                 .populate("eventId")
                 .exec();
             return tickets;
@@ -414,10 +377,11 @@ class PaymentRepository {
                         },
                     },
                 },
+                { $sort: { issuedAt: -1 } },
                 { $skip: skip },
                 { $limit: limitNumber },
             ];
-            const tickets = yield ticket_1.TicketModel.aggregate(dataPipeline).sort({ issuedAt: -1 });
+            const tickets = yield ticket_1.TicketModel.aggregate(dataPipeline);
             return {
                 tickets,
                 totalPages,
