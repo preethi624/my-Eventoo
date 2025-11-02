@@ -18,44 +18,7 @@ import Notification from "../model/notification";
 import { ITicketDetails } from "src/interface/ITicket";
 
 export class PaymentRepository implements IPaymentRepository {
-  /*async createOrder(data: IPaymentDTO): Promise<IOrder> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      const updatedEvent = await EventModel.findOneAndUpdate(
-        { _id: data.eventId, availableTickets: { $gte: data.ticketCount } },
-        //{ $inc: { availableTickets: -data.ticketCount } },
-        {$inc: { "selectedTicket.capacity": -data.ticketCount }},
-        { new: true, session }
-      );
-      if (!updatedEvent) {
-        throw new Error("Not enough tickets available");
-      }
-      const lastOrder = await Order.findOne()
-        .sort({ bookingNumber: -1 })
-        .session(session);
-      let nextBookingNumber = "BK-1000";
-      if (lastOrder?.bookingNumber) {
-        const lastNumber = parseInt(
-          lastOrder.bookingNumber.replace("BK-", ""),
-          10
-        );
-        nextBookingNumber = `BK-${lastNumber + 1}`;
-      }
-      const orderData = {
-        ...data,
-        bookingNumber: nextBookingNumber,
-      };
-      const [order] = await Order.create([orderData], { session });
-      await session.commitTransaction();
-      return order;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
-    }
-  }*/
+  
  async createOrder(data: IPaymentDTO): Promise<IOrder> {
   const session = await mongoose.startSession();
   session.startTransaction();
