@@ -22,7 +22,7 @@ import {
 
   ChevronDown,
   ChevronUp,
-  Receipt,
+ 
 } from "lucide-react";
 import { paymentRepository } from "../../repositories/paymentRepositories";
 import { useSelector } from "react-redux";
@@ -399,7 +399,7 @@ const MyOrderPage: React.FC = () => {
                 : "bg-transparent text-gray-600 hover:bg-gray-50"
             }`}
           >
-            <Receipt className="w-5 h-5" />
+            
             Payment History
           </button>
         </div>
