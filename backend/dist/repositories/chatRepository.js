@@ -42,7 +42,6 @@ class ChatRepository {
                         }
                     }
                 }
-                // Events info by city
                 else if (userMessage.toLowerCase().includes("events")) {
                     const match = userMessage.match(/in (.+)/i);
                     let city = match ? match[1].trim() : "";
@@ -57,14 +56,12 @@ class ChatRepository {
                                 .join(", ")}.`
                             : `No events found in ${city}.`;
                 }
-                // User profile
                 else if (userMessage.toLowerCase().includes("profile")) {
                     const user = yield user_1.default.findById(userId);
                     if (user) {
                         relevantData = `Name: ${user.name}, Email: ${user.email}, Location: ${user.location}`;
                     }
                 }
-                // Orders (simplified)
                 else if (userMessage.toLowerCase().includes("orders")) {
                     const orders = yield order_1.default.find({ userId });
                     relevantData = `You have placed ${orders.length} orders.`;

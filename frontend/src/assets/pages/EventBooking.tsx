@@ -271,63 +271,15 @@ console.log("Total:", totalPrice, "Discount:", discountAmount, "Final:", finalAm
       setIsLoading(false);
     }
   };
-  /*const handleOfferApply=async(e:any)=>{
-    try {
-      e.preventDefault()
-    if(!offerCode){
-      setOfferMessage("Please Enter An OfferCode");
-      setIsOfferApplied(false)
-      return
-    }
-    
-    setIsOfferApplied(true)
-     setOfferMessage(`Offer code "${offerCode}" applied!`);
-     const response=await userRepository.findOffer(offerCode);
-     const offerData=response.result
-    
-     
-     setOffer(offerData)
-     let discount = 0;
-    const totalBeforeDiscount = totalPrice;
-
-    if (offerData.discountType === "flat") {
-      if(!offerData.discountValue||!offerData.maxDiscountAmount) throw new Error("something wrong")
-      discount = Math.min(offerData?.discountValue, offerData.maxDiscountAmount);
-    console.log("discount",discount);
-    
-    } else if (offerData.discountType === "percentage") {
-        if(!offerData.discountValue||!offerData.maxDiscountAmount) throw new Error("something wrong")
-      discount = (totalBeforeDiscount * offerData.discountValue) / 100;
-      if (offerData.maxDiscountAmount) {
-        discount = Math.min(discount, offerData.maxDiscountAmount);
-      }
-    }
-
-    // only apply if meets min amount
-    if(!offerData.minOrderAmount)throw new Error("wrong")
-    if (totalBeforeDiscount >= offerData.minOrderAmount) {
-      setDiscountAmount(discount);
-      toast.success(`Offer applied! You saved ₹${discount}`);
-    } else {
-      toast.error(`Minimum order ₹${offer.minOrderAmount} required.`);
-    }
-      
-    } catch (error) {
-      
-    }
-    
-     
-    
-
-  }*/
+ 
  const handleOfferApply = async (e?: React.FormEvent | string) => {
   try {
-    // If it's an event (manual submit), prevent page reload
+    
     if (typeof e !== "string" && e) {
       e.preventDefault();
     }
 
-    // Determine the actual offer code
+  
     const codeToApply = typeof e === "string" ? e : offerCode;
 
     if (!codeToApply) {
@@ -476,7 +428,7 @@ console.log("Total:", totalPrice, "Discount:", discountAmount, "Final:", finalAm
       </div>
     );
 
- // Replace renderStepIndicator function:
+ 
 const renderStepIndicator = () => (
   <div className="flex justify-center mb-8 sm:mb-12 px-2">
     <div className="flex items-center max-w-full overflow-x-auto pb-2 sm:pb-0">
@@ -519,7 +471,7 @@ const renderStepIndicator = () => (
     </div>
   </div>
 );
-  // Replace renderTicketSelection function:
+  
 const renderTicketSelection = () => {
   const currentTicket = event.ticketTypes.find((t) => t.type === selectedType);
   const availableTickets =
@@ -630,13 +582,17 @@ const renderTicketSelection = () => {
               <span className="font-semibold">₹{ticketCount * (currentTicket?.price || 0)}</span>
             </div>
             <div className="flex justify-between text-gray-700">
+              <span>Offer Amount</span>
+              <span className="font-semibold text-green-600">{discountAmount||0}</span>
+            </div>
+            <div className="flex justify-between text-gray-700">
               <span>Booking Fee</span>
               <span className="font-semibold text-green-600">FREE</span>
             </div>
             <div className="flex justify-between font-bold text-xl pt-3 border-t border-purple-200">
               <span className="text-gray-900">Total</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-                ₹{ticketCount * (currentTicket?.price || 0)}
+                ₹{finalAmount}
               </span>
             </div>
           </div>
@@ -717,7 +673,7 @@ const renderUserDetails = () => (
           <div className="flex justify-between font-bold text-xl">
             <span className="text-gray-700">Total</span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-              ₹{totalPrice}
+              ₹{finalAmount}
             </span>
           </div>
           {/* Offer / Promo Code Section */}
@@ -734,6 +690,7 @@ const renderUserDetails = () => (
     />
     <button
      onClick={handleOfferApply}
+     disabled={discountAmount > 0}
       className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
     >
       Apply

@@ -38,7 +38,7 @@ export class MessageRepository implements IMessageRepository {
       uploadStream.end(file.buffer);
 
       uploadStream.on("finish", () => {
-        // You can use the file ID as URL reference
+      
         resolve(`/files/${uploadStream.id}`);
       });
 

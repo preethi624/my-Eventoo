@@ -32,12 +32,12 @@ export class AdminOrderRepository implements IAdminOrderRepository {
 
     const match: FilterQuery<IOrder> = {};
 
-    // Filter by booking status
+    
     if (statusFilter) {
       match.bookingStatus = { $regex: statusFilter, $options: "i" };
     }
 
-    // Filter by createdAt date
+   
     if (selectedDate) {
       const date = new Date(selectedDate);
       date.setHours(0, 0, 0, 0);

@@ -15,11 +15,9 @@ export class AdminEventRepository implements IAdminEventRepository {
       selectedDate,
       searchTitle,
       page = 1,
-      limit=6 ,
-      
+      limit = 6,
     } = filters;
-    console.log("limit",limit);
-    
+    console.log("limit", limit);
 
     const skip = (page - 1) * limit;
 
@@ -87,73 +85,60 @@ export class AdminEventRepository implements IAdminEventRepository {
   }
   async eventEdit(id: string, formData: EditEvent): Promise<IEvent | null> {
     try {
-      const event=await EventModel.findByIdAndUpdate(id, formData, { new: true });
-      if(!event) throw new Error("event not found")
+      const event = await EventModel.findByIdAndUpdate(id, formData, {
+        new: true,
+      });
+      if (!event) throw new Error("event not found");
 
-     await Notification.create({
-      organizerId:event.organiser,
-      type:"general",
-      message:`Your event ${event.title} has been edited by admin!`,
-      isRead:false
-       })
-       return event
-
-      
+      await Notification.create({
+        organizerId: event.organiser,
+        type: "general",
+        message: `Your event ${event.title} has been edited by admin!`,
+        isRead: false,
+      });
+      return event;
     } catch (error) {
       console.log(error);
-      return null
-      
-      
+      return null;
     }
-    
-
-   
-
   }
   async blockEvent(event: IEvent): Promise<IEvent | null> {
     try {
-       const id = event._id;
-    if (!event.isBlocked) {
-      const event=await EventModel.findByIdAndUpdate(
-        id,
-        { isBlocked: true },
-        { new: true }
-      );
-      if(!event) throw new Error("event not found")
-      
-     await Notification.create({
-      organizerId:event.organiser,
-      type:"general",
-      message:`Your event ${event.title} has been blocked by admin!`,
-      isRead:false
-       })
-       return event
+      const id = event._id;
+      if (!event.isBlocked) {
+        const event = await EventModel.findByIdAndUpdate(
+          id,
+          { isBlocked: true },
+          { new: true }
+        );
+        if (!event) throw new Error("event not found");
 
-    } else {
-      const event=await EventModel.findByIdAndUpdate(
-        id,
-        { isBlocked: false },
-        { new: true }
-      );
-      if(!event) throw new Error("event not found")
-      await Notification.create({
-      organizerId:event.organiser,
-      type:"general",
-      message:`Your event ${event.title} has been unblocked admin!`,
-      isRead:false
-       })
-       return event
-    }
-    
-      
+        await Notification.create({
+          organizerId: event.organiser,
+          type: "general",
+          message: `Your event ${event.title} has been blocked by admin!`,
+          isRead: false,
+        });
+        return event;
+      } else {
+        const event = await EventModel.findByIdAndUpdate(
+          id,
+          { isBlocked: false },
+          { new: true }
+        );
+        if (!event) throw new Error("event not found");
+        await Notification.create({
+          organizerId: event.organiser,
+          type: "general",
+          message: `Your event ${event.title} has been unblocked admin!`,
+          isRead: false,
+        });
+        return event;
+      }
     } catch (error) {
       console.log(error);
-      return null
-      
-      
+      return null;
     }
-   
-     
   }
   async getDashboard(): Promise<AdminDashboard> {
     const categoryColors: Record<string, string> = {
@@ -219,35 +204,25 @@ export class AdminEventRepository implements IAdminEventRepository {
       ...cat,
       color: categoryColors[cat.name] || "#9CA3AF",
     }));
-   /* const completedEvents = await EventModel.find({ status: "completed" });
-    let adminEarning = 0;
-    completedEvents.forEach((event) => {
-      const totalTickets = event.ticketsSold;
-      const adminPerTicket = event.ticketPrice * commissionRate;
-      const totalAdmin = adminPerTicket * totalTickets;
 
-      adminEarning += totalAdmin;
-    });*/
     const completedEvents = await EventModel.find({ status: "completed" });
-let adminEarning = 0;
+    let adminEarning = 0;
 
-completedEvents.forEach((event) => {
-  if (event.ticketTypes && event.ticketTypes.length > 0) {
-    // ✅ New model: multiple ticket types
-    event.ticketTypes.forEach((t) => {
-      const revenue = (t.price ?? 0) * (t.sold ?? 0);
-      const adminCut = revenue * commissionRate;
-      adminEarning += adminCut;
+    completedEvents.forEach((event) => {
+      if (event.ticketTypes && event.ticketTypes.length > 0) {
+        event.ticketTypes.forEach((t) => {
+          const revenue = (t.price ?? 0) * (t.sold ?? 0);
+          const adminCut = revenue * commissionRate;
+          adminEarning += adminCut;
+        });
+      } else {
+        const totalTickets = event.ticketsSold ?? 0;
+        const ticketPrice = event.ticketPrice ?? 0;
+        const revenue = ticketPrice * totalTickets;
+        const adminCut = revenue * commissionRate;
+        adminEarning += adminCut;
+      }
     });
-  } else {
-    // ✅ Old model: single ticket price
-    const totalTickets = event.ticketsSold ?? 0;
-    const ticketPrice = event.ticketPrice ?? 0;
-    const revenue = ticketPrice * totalTickets;
-    const adminCut = revenue * commissionRate;
-    adminEarning += adminCut;
-  }
-});
 
     const activeEvents = await EventModel.find({
       status: "published",

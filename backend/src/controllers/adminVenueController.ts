@@ -13,7 +13,11 @@ export class AdminVenueController implements IAdminVenueController {
       let seatTypes = [];
     if (req.body.seatTypes) {
       try {
-        seatTypes = JSON.parse(req.body.seatTypes);
+       if (typeof req.body.seatTypes === "string") {
+      seatTypes = JSON.parse(req.body.seatTypes);
+    } else {
+      seatTypes = req.body.seatTypes;
+    }
       } catch (err) {
         console.error("Failed to parse seatTypes:", err);
       }

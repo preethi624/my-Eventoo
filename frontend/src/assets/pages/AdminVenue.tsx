@@ -108,29 +108,7 @@ console.log("venues",venues);
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  /*const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (key === "images") {
-        formData.images.forEach((file: File) => {
-          data.append("images", file);
-        });
-      } else {
-        data.append(key, formData[key]);
-      }
-    });
-    
-
-    const response = await adminRepository.createVenue(data);
-    if (response.success) {
-      fetchVenues();
-    }
-
-    setShowCreateModal(false);
-    setFormData(defaultForm);
-    setPreviewImages([]);
-  };*/
+ 
   const handleCreateSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
    if (!formData.name.trim()) return toast.error("Venue name is required");
@@ -190,6 +168,7 @@ console.log("venues",venues);
 
   const data = new FormData();
   Object.keys(formData).forEach((key) => {
+    if(key==="seatTypes"||key==="totalCapacity") return
     if (key === "images") {
       formData.images.forEach((file: File) => {
         data.append("images", file);
@@ -499,15 +478,7 @@ console.log("venues",venues);
                   onChange={handleInputChange}
                   className="w-full border p-2 rounded"
                 />
-                {/*<input
-                  name="capacity"
-                  required
-                  type="number"
-                  placeholder="Capacity"
-                  value={formData.capacity}
-                  onChange={handleInputChange}
-                  className="w-full border p-2 rounded"
-                />*/}
+                
                 <h3 className="text-lg font-semibold">Seat Types</h3>
 {seatTypes.map((seat, index) => (
   <div key={index} className="flex gap-2 mb-2">
@@ -621,169 +592,7 @@ console.log("venues",venues);
         )}
 
         
-        {/*{showEditModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
-              <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
-                <h2 className="text-xl font-semibold">Edit Venue</h2>
-
-                
-                <div className="mb-2">
-                  <label>Venue Name</label>
-                  <input
-                    name="name"
-                    required
-                    placeholder="Venue Name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Address</label>
-                  <textarea
-                    name="address"
-                    required
-                    placeholder="Address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label>City</label>
-                  <input
-                    name="city"
-                    required
-                    placeholder="City"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">State</label>
-                  <input
-                    name="state"
-                    required
-                    placeholder="State"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Pincode</label>
-                  <input
-                    name="pincode"
-                    required
-                    placeholder="Pincode"
-                    value={formData.pincode}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Contact Person</label>
-                  <input
-                    name="contactPerson"
-                    required
-                    placeholder="Contact Person"
-                    value={formData.contactPerson}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Phone</label>
-                  <input
-                    name="phone"
-                    required
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Email</label>
-                  <input
-                    name="email"
-                    required
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Website</label>
-                  <input
-                    name="website"
-                    type="url"
-                    placeholder="Website"
-                    value={formData.website}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Capacity</label>
-                  <input
-                    name="capacity"
-                    required
-                    type="number"
-                    placeholder="Capacity"
-                    value={formData.capacity}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Description</label>
-                  <textarea
-                    name="description"
-                    placeholder="Description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="">Status</label>
-
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full border p-2 rounded"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="px-4 py-2 bg-gray-300 rounded"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded flex items-center"
-                  >
-                    <Check className="w-5 h-5 mr-1" /> Update
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div className="flex justify-between items-center mt-4"></div>
-          </div>
-        )}*/}
+        
         {showEditModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
     <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
@@ -936,25 +745,6 @@ console.log("venues",venues);
           className="w-full border p-2 rounded"
         />
 
-        {/* Image Upload */}
-        {/*<input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleFileChange}
-          className="w-full"
-        />
-        {previewImages.length > 0 && (
-          <div className="grid grid-cols-3 gap-4">
-            {previewImages.map((url, index) => (
-              <img
-                key={index}
-                src={url}
-                className="h-24 w-full object-cover rounded"
-              />
-            ))}
-          </div>
-        )}*/}
 
         {/* Status */}
         <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">Status</label>

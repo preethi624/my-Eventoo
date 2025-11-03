@@ -44,7 +44,6 @@ class MessageRepository {
                 const uploadStream = bucket.openUploadStream(file.originalname);
                 uploadStream.end(file.buffer);
                 uploadStream.on("finish", () => {
-                    // You can use the file ID as URL reference
                     resolve(`/files/${uploadStream.id}`);
                 });
                 uploadStream.on("error", (err) => {

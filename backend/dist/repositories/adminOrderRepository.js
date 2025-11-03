@@ -23,11 +23,9 @@ class AdminOrderRepository {
             console.log("limit", limit);
             const skip = (page - 1) * limit;
             const match = {};
-            // Filter by booking status
             if (statusFilter) {
                 match.bookingStatus = { $regex: statusFilter, $options: "i" };
             }
-            // Filter by createdAt date
             if (selectedDate) {
                 const date = new Date(selectedDate);
                 date.setHours(0, 0, 0, 0);

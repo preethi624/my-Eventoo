@@ -37,7 +37,7 @@ export class ChatRepository implements IChatRepository {
         }
       }
 
-      // Events info by city
+      
       else if (userMessage.toLowerCase().includes("events")) {
         const match = userMessage.match(/in (.+)/i);
 
@@ -55,7 +55,7 @@ export class ChatRepository implements IChatRepository {
             : `No events found in ${city}.`;
       }
 
-      // User profile
+     
       else if (userMessage.toLowerCase().includes("profile")) {
         const user = await User.findById(userId);
         if (user) {
@@ -63,7 +63,7 @@ export class ChatRepository implements IChatRepository {
         }
       }
 
-      // Orders (simplified)
+     
       else if (userMessage.toLowerCase().includes("orders")) {
         const orders = await Order.find({ userId });
         relevantData = `You have placed ${orders.length} orders.`;

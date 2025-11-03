@@ -15,7 +15,7 @@ function LocationMarker({ onAddressSelect }: LocationPickerProps) {
 
       // Fetch address from OpenStreetMap
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`
       );
       const data = await response.json();
 

@@ -348,7 +348,6 @@ class PaymentRepository {
             const countResult = yield ticket_1.TicketModel.aggregate(countPipeline);
             const totalItems = ((_a = countResult[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
             const totalPages = Math.ceil(totalItems / limitNumber);
-            // ✅ Get paginated tickets
             const dataPipeline = [
                 ...basePipeline,
                 {

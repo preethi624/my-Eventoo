@@ -106,7 +106,7 @@ class OrganiserRepository {
             if (filters.searchTerm) {
                 query.$or = [
                     { name: { $regex: filters.searchTerm, $options: "i" } },
-                    { city: { $regex: filters.searchTerm, $options: "i" } }
+                    { city: { $regex: filters.searchTerm, $options: "i" } },
                 ];
             }
             const venues = yield venue_1.default.find(query)
@@ -152,7 +152,7 @@ class OrganiserRepository {
                             name: "$user.name",
                             email: "$user.email",
                         },
-                        ticketType: "$selectedTicket.type"
+                        ticketType: "$selectedTicket.type",
                     },
                 },
             ]);
@@ -176,7 +176,7 @@ class OrganiserRepository {
                 pending: orders.filter((o) => o.bookingStatus === "pending").length,
                 cancelled: orders.filter((o) => o.bookingStatus === "cancelled").length,
                 salesTrend: (0, analyticHelper_1.generateSalesTrend)(orders),
-                ticketTypes: ticketTypeStats
+                ticketTypes: ticketTypeStats,
             };
             return { event, orders, stats };
         });
@@ -242,7 +242,7 @@ class OrganiserRepository {
                     bookingStatus: 1,
                     orderId: 1,
                     amount: 1,
-                    ticketType: "$selectedTicket.type"
+                    ticketType: "$selectedTicket.type",
                 },
             };
             const ticketTypeStatsPipeline = [
@@ -254,8 +254,8 @@ class OrganiserRepository {
                         count: { $sum: 1 },
                         tickets: { $sum: "$ticketCount" },
                         revenue: { $sum: "$amount" },
-                    }
-                }
+                    },
+                },
             ];
             const ticketTypeStats = yield order_1.default.aggregate(ticketTypeStatsPipeline);
             const countRevenuePipeline = [...pipeline, projectStage];
@@ -269,13 +269,6 @@ class OrganiserRepository {
             }, 0);
             const actualRevenue = totalRevenue * (1 - adminCommissionPercentage / 100);
             const skip = (page - 1) * limit;
-            /*const paginatedPipeline = [
-              ...pipeline,
-              projectStage,
-              { $skip: skip },
-              { $limit: limit },
-            ];
-            const attendee = await Order.aggregate(paginatedPipeline);*/
             const paginatedPipeline = [
                 ...pipeline,
                 // 👇 Join tickets to know check-in status
@@ -319,7 +312,7 @@ class OrganiserRepository {
                 currentPage: page,
                 totalPages: Math.ceil(totalAttendees / limit),
                 totalAttendees: totalAttendees,
-                ticketTypeStats
+                ticketTypeStats,
             };
         });
     }
@@ -413,7 +406,6 @@ class OrganiserRepository {
                 revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100,
             }));
             const events = yield event_1.default.find(eventQuery);
-            ;
             const totalEvents = events.length;
             const topEvents = [...events]
                 .sort((a, b) => b.ticketsSold - a.ticketsSold)
@@ -421,7 +413,7 @@ class OrganiserRepository {
             // Collect top event IDs
             const upcomingEvents = yield event_1.default.find({
                 organiser: organiserId,
-                date: { $gte: new Date() }
+                date: { $gte: new Date() },
             })
                 .sort({ date: 1 })
                 .limit(5);
@@ -442,7 +434,7 @@ class OrganiserRepository {
                 {
                     $addFields: {
                         ticketPrice: {
-                            $ifNull: ["$selectedTicket.price", "$EventDetails.ticketPrice"]
+                            $ifNull: ["$selectedTicket.price", "$EventDetails.ticketPrice"],
                         },
                         quantity: "$ticketCount",
                         commissionRate: adminCommissionPercentage,
@@ -528,244 +520,6 @@ class OrganiserRepository {
             };
         });
     }
-    /*async dashboardEvents(
-       organiserId: string,
-       timeFrame: "7d" | "30d" | "90d",
-       startDate?: string,
-       endDate?: string,
-       category?: string,
-       month?: string,
-       year?: string
-     ): Promise<{
-       events: IEvent[];
-       data: {
-         month: number;
-         revenue: number;
-         events: number;
-       }[];
-       adminCommissionPercentage: number;
-       organiserEarning: number;
-       totalEvents: number;
-       totalAttendees: number;
-       topEvents: IEvent[];
-       upcomingEvents: IEvent[];
-       orderDetails: {
-         name: string;
-         email: string;
-         eventTitle: string;
-         eventDate: Date;
-         orderDate: Date;
-         amount: number;
-         ticketCount: number;
-       }[];
-     }> {
-       let stDate: Date;
-       let enDate: Date | undefined;
-   
-       if (startDate && endDate) {
-         stDate = new Date(startDate);
-         enDate = new Date(endDate);
-       } else if (month || year) {
-         const targetYear = parseInt(year ?? new Date().getFullYear().toString());
-   
-         const targetMonth = month ? parseInt(month) : 0;
-   
-         stDate = new Date(targetYear, targetMonth, 1);
-   
-         if (month) {
-           enDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
-         } else {
-           enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-         }
-       } else if (!month && !year) {
-         const targetYear = parseInt(new Date().getFullYear().toString());
-         stDate = new Date(targetYear, 0, 1);
-         enDate = new Date(targetYear, 11, 31, 23, 59, 59, 999);
-       } else {
-         const days = timeFrame === "7d" ? 7 : timeFrame === "30d" ? 30 : 90;
-         stDate = new Date();
-         stDate.setDate(stDate.getDate() - days);
-       }
-   
-       const eventMatchCondition: Record<string, unknown> = {
-         "EventDetails.organiser": new mongoose.Types.ObjectId(organiserId),
-         "EventDetails.status": "completed",
-         createdAt: enDate ? { $gte: stDate, $lte: enDate } : { $gte: stDate },
-       };
-   
-       if (category) {
-         eventMatchCondition["EventDetails.category"] = category;
-       }
-       const eventQuery: Record<string, unknown> = {
-         organiser: organiserId,
-         date: enDate ? { $gte: stDate, $lte: enDate } : { $gte: stDate },
-       };
-   
-       if (category) {
-         eventQuery.category = category;
-       }
-   
-       const data = await Order.aggregate([
-         {
-           $lookup: {
-             from: "events",
-             localField: "eventId",
-             foreignField: "_id",
-             as: "EventDetails",
-           },
-         },
-         {
-           $unwind: "$EventDetails",
-         },
-         { $match: eventMatchCondition },
-         {
-           $project: {
-             month: { $month: "$createdAt" },
-             revenue: "$amount",
-           },
-         },
-         {
-           $group: {
-             _id: "$month",
-             totalRevenue: { $sum: "$revenue" },
-             totalEvents: { $sum: 1 },
-           },
-         },
-         {
-           $project: {
-             month: "$_id",
-             revenue: "$totalRevenue",
-             events: "$totalEvents",
-             _id: 0,
-           },
-         },
-         {
-           $sort: { month: 1 },
-         },
-       ]);
-   
-       const settings = await PlatformSettings.findOne();
-       const adminCommissionPercentage = settings?.adminCommissionPercentage ?? 10;
-       const adjustedData = data.map((item) => ({
-         month: item.month,
-         events: item.events,
-         revenue: item.revenue - (item.revenue * adminCommissionPercentage) / 100,
-       }));
-   
-       const events = await EventModel.find(eventQuery);
-   
-       const totalEvents = events.length;
-       const topEvents = [...events]
-         .sort((a, b) => b.ticketsSold - a.ticketsSold)
-         .slice(0, 5);
-   
-       const upcomingEvents = events
-         .filter((event) => new Date(event.date) >= new Date())
-         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-         .slice(0, 5);
-       const earningAggregation = await Order.aggregate([
-         {
-           $lookup: {
-             from: "events",
-             localField: "eventId",
-             foreignField: "_id",
-             as: "EventDetails",
-           },
-         },
-         { $unwind: "$EventDetails" },
-         {
-           $match: eventMatchCondition,
-         },
-         {
-           $addFields: {
-             ticketPrice: "$EventDetails.ticketPrice",
-             quantity: "$ticketCount",
-             commissionRate: adminCommissionPercentage,
-           },
-         },
-         {
-           $addFields: {
-             organiserEarning: {
-               $subtract: [
-                 { $multiply: ["$ticketPrice", "$quantity"] },
-                 {
-                   $multiply: [
-                     {
-                       $divide: [
-                         {
-                           $multiply: ["$ticketPrice", adminCommissionPercentage],
-                         },
-                         100,
-                       ],
-                     },
-                     "$quantity",
-                   ],
-                 },
-               ],
-             },
-           },
-         },
-         {
-           $group: {
-             _id: null,
-             totalEarning: { $sum: "$organiserEarning" },
-             totalAttendees: { $sum: "$ticketCount" },
-           },
-         },
-       ]);
-       const organiserEarning = earningAggregation[0]?.totalEarning ?? 0;
-       const totalAttendees = earningAggregation[0]?.totalAttendees ?? 0;
-       const orderDetails = await Order.aggregate([
-         {
-           $lookup: {
-             from: "events",
-             localField: "eventId",
-             foreignField: "_id",
-             as: "EventDetails",
-           },
-         },
-         { $unwind: "$EventDetails" },
-         {
-           $lookup: {
-             from: "users",
-             localField: "userId",
-             foreignField: "_id",
-             as: "user",
-           },
-         },
-         { $unwind: "$user" },
-         {
-           $match: eventMatchCondition,
-         },
-         {
-           $project: {
-             username: "$user.name",
-             email: "$user.email",
-             eventTitle: "$EventDetails.title",
-             eventDate: "$EventDetails.date",
-             orderDate: "$createdAt",
-   
-             amount: 1,
-             ticketCount: 1,
-           },
-         },
-         { $sort: { createdAt: -1 } },
-       ]);
-       console.log("organiser earning",organiserEarning);
-       
-   
-       return {
-         events,
-         data: adjustedData,
-         adminCommissionPercentage,
-         organiserEarning,
-         totalEvents,
-         totalAttendees,
-         topEvents,
-         upcomingEvents,
-         orderDetails,
-       };
-     }*/
     updateTicket(qrToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const ticket = yield ticket_1.TicketModel.findOne({ qrToken: qrToken });
@@ -838,7 +592,9 @@ class OrganiserRepository {
     fetchEventOrders(eventId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield order_1.default.find({ eventId: eventId }).lean().populate("userId", "name email");
+                return yield order_1.default.find({ eventId: eventId })
+                    .lean()
+                    .populate("userId", "name email");
             }
             catch (error) {
                 console.log(error);
@@ -887,9 +643,9 @@ class OrganiserRepository {
             try {
                 const targetDate = new Date("2025-10-19");
                 const venues = yield venue_1.default.find({
-                    createdAt: { $gte: targetDate }
+                    createdAt: { $gte: targetDate },
                 });
-                console.log("Venues found:", venues.map(v => v.name));
+                console.log("Venues found:", venues.map((v) => v.name));
                 return venues;
             }
             catch (error) {

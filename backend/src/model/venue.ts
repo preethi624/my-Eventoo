@@ -18,8 +18,8 @@ export interface IVenue extends Document {
   website: string;
   facilities: string[];
   status: string;
-  seatTypes: ISeatType[];  // 👈 new field
-  totalCapacity: number;   // 👈 sum of seatCounts
+  seatTypes: ISeatType[];  
+  totalCapacity: number;   
   totalCost: number;    
 
 }

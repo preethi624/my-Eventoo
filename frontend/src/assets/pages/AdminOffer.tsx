@@ -123,14 +123,14 @@ export default function OffersPage() {
     e.preventDefault();
     try {
       if (editingOffer) {
-        //await axios.put(`${API_BASE_URL}/admin/offers/${editingOffer._id}`, formData, { withCredentials: true });
+        
         const response=await adminRepository.editOffer(formData,editingOffer._id);
         console.log("repoon",response);
         
         toast.success("✅ Offer updated successfully!");
       } else {
        
-        //await axios.post(`${API_BASE_URL}/admin/offers`, formData, { withCredentials: true });
+       
         await adminRepository.createOffer(formData)
         toast.success("🎉 Offer created successfully!");
       }

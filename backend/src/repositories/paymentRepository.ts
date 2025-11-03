@@ -406,7 +406,7 @@ export class PaymentRepository implements IPaymentRepository {
     const totalItems = countResult[0]?.total || 0;
     const totalPages = Math.ceil(totalItems / limitNumber);
 
-    // ✅ Get paginated tickets
+   
     const dataPipeline = [
       ...basePipeline,
       {

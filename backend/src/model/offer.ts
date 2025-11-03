@@ -6,19 +6,19 @@ export interface IOfferImage {
 
 export interface IOffer extends Document {
    _id: Types.ObjectId;
-  title: string; // offer name, e.g. "Diwali Special"
-  code: string; // code users enter, e.g. "DIWALI50"
-  description?: string; // optional description
-  discountType: "percentage" | "flat"; // 2 types of offers
-  discountValue: number; // e.g. 20 for 20% or 100 for ₹100 flat
-  minOrderAmount?: number; // optional, only apply if order >= X
-  maxDiscountAmount?: number; // optional, limit discount amount
+  title: string; 
+  code: string; 
+  description?: string; 
+  discountType: "percentage" | "flat"; 
+  discountValue: number; 
+  minOrderAmount?: number; 
+  maxDiscountAmount?: number; 
   startDate: Date;
   endDate: Date;
-  usageLimit?: number; // how many times offer can be used overall
-  usedCount: number; // track how many times used
-  isActive: boolean; // admin can activate/deactivate
-  createdBy: mongoose.Types.ObjectId; // admin reference
+  usageLimit?: number; 
+  usedCount: number;
+  isActive: boolean; 
+  createdBy: mongoose.Types.ObjectId; 
   createdAt: Date;
   updatedAt: Date;
     images: (string | IOfferImage)[];

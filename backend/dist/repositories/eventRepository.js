@@ -34,7 +34,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
             const skip = (page - 1) * limit;
             const query = {
                 isBlocked: false,
-                status: "published"
+                status: "published",
             };
             if (searchTerm) {
                 query.$or = [
@@ -77,7 +77,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
             const skip = (page - 1) * limit;
             const query = {
                 isBlocked: false,
-                status: "completed"
+                status: "completed",
             };
             if (searchTerm) {
                 query.$or = [
@@ -124,7 +124,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
                 organizerId: event.organiser,
                 type: "event_created",
                 message: `Your event ${event.title} has been created successfully!`,
-                isRead: false
+                isRead: false,
             });
             return event;
         });
@@ -175,7 +175,7 @@ class EventRepository extends baseRepository_1.BaseRepository {
             if (searchTerm) {
                 filter.$or = [
                     { title: { $regex: searchTerm, $options: "i" } },
-                    { venue: { $regex: searchTerm, $options: "i" } }
+                    { venue: { $regex: searchTerm, $options: "i" } },
                 ];
             }
             if (status && status != "all") {
@@ -281,7 +281,6 @@ class EventRepository extends baseRepository_1.BaseRepository {
                     });
                 }
                 else {
-                    // ✅ Old model (single ticket price)
                     const revenue = ((_a = event.ticketPrice) !== null && _a !== void 0 ? _a : 0) * ((_b = event.ticketsSold) !== null && _b !== void 0 ? _b : 0);
                     const adminCut = revenue * (adminCommissionPercentage / 100);
                     ticketRevenue += revenue;
@@ -310,7 +309,10 @@ class EventRepository extends baseRepository_1.BaseRepository {
     }
     getOrgEvents(organiserId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield event_1.default.find({ organiser: organiserId });
+            return yield event_1.default.find({
+                organiser: organiserId,
+                status: "completed",
+            });
         });
     }
     findEvent(eventName) {
@@ -415,7 +417,9 @@ class EventRepository extends baseRepository_1.BaseRepository {
     getAllEvents() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield event_1.default.find({}, { title: 1, images: 1, _id: 1 }).sort({ date: -1 });
+                return yield event_1.default.find({}, { title: 1, images: 1, _id: 1 }).sort({
+                    date: -1,
+                });
             }
             catch (error) {
                 console.log(error);
@@ -426,7 +430,9 @@ class EventRepository extends baseRepository_1.BaseRepository {
     getTrending() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield event_1.default.find({ status: "published" }, { title: 1, images: 1, _id: 1 }).sort({ ticketsSold: -1 }).limit(5);
+                return yield event_1.default.find({ status: "published" }, { title: 1, images: 1, _id: 1 })
+                    .sort({ ticketsSold: -1 })
+                    .limit(5);
             }
             catch (error) {
                 console.log(error);
