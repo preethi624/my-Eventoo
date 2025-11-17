@@ -79,7 +79,7 @@ const UserChatPage: React.FC = () => {
   setOrganisers(sorted);
     
 
-    //setOrganisers(response.response.organisers.sort((a: IOrganiser, b: IOrganiser) => (a.name ?? "").localeCompare(b.name ?? "")));
+ 
   };
 
   const userId = user?.id;
@@ -171,6 +171,8 @@ const UserChatPage: React.FC = () => {
       formData.append("receiverId", selectedOrganiser?._id ?? "");
 
       const response = await messageRepository.sendFile(formData);
+      console.log("response file",response);
+      
       fileUrl = response?.fileUrl?.fileUrl || response?.fileUrl;
     }
 

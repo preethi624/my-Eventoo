@@ -58,12 +58,7 @@ const allowedOrigins = [
 
 export const app: Application = express();
 const httpServer = createServer(app);
-/*export const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true,
-  },
-});*/
+
 export const io = new Server(httpServer, {
   cors: {
     origin: function (origin, callback) {
