@@ -672,7 +672,7 @@ export default function OffersPage() {
                       
                     </div>
 
-                    {/* Actions */}
+                    {/* Action */}
                     <div className="flex gap-2 pt-4 border-t border-gray-700">
                       <button
                         onClick={() => handleEdit(offer)}
