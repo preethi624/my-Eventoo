@@ -52,6 +52,7 @@ const allowedOrigins = [
   'https://eventoo.co.in',  // Your domain (with www)
   'http://www.eventoo.co.in',
   'http://eventoo.co.in',
+  'https://my-eventoo-1.onrender.com'
 
 
 ];
