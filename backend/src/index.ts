@@ -48,7 +48,7 @@ config();
 const allowedOrigins = [
   'http://65.0.108.51',     // your EC2 frontend
   'http://localhost:5173',  // optional for local development
-  'https://www.eventoo.co.in',      // Your domain (non-www)
+  'https://www.eventoo.co.in',      
   'https://eventoo.co.in',  // Your domain (with www)
   'http://www.eventoo.co.in',
   'http://eventoo.co.in',
@@ -74,6 +74,8 @@ export const io = new Server(httpServer, {
     credentials: true,
   },
 });
+app.set("trust proxy", 1);
+
 
 
 // Middlewares
@@ -87,15 +89,10 @@ app.use(
 app.use(express.json());
 
 app.use(cookieParser());
-/*app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-);*/
+
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (e.g., mobile apps, curl)
+   
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin)) {

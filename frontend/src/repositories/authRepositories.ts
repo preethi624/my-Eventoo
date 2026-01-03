@@ -69,7 +69,10 @@ const registerUser = async (credentials: SignupCred): Promise<ApiResponse> => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/user/register`,
-      credentials
+      credentials,
+       {
+        withCredentials: true, 
+      }
     );
     console.log("resee", response);
 
