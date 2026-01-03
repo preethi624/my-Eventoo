@@ -72,8 +72,14 @@ export class UserAuthService implements IUserAuthService {
         subject: "Password Reset OTP",
         text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
       };
+      try {
+          await this._mailService.sendMail(mailOptions);
+      } catch (error) {
+         console.error("Email failed, but signup continues:", error);
+        
+      }
 
-      await this._mailService.sendMail(mailOptions);
+    
 
       return { success: true, message: "OTP sent to your email" };
     } catch (error) {
