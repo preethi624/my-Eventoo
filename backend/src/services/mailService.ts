@@ -1,4 +1,4 @@
-import { IMailService } from "./serviceInterface/IMailService";
+/*import { IMailService } from "./serviceInterface/IMailService";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
@@ -31,4 +31,36 @@ export class MailService implements IMailService {
       html,
     });
   }
+}*/
+import { IMailService } from "./serviceInterface/IMailService";
+import sgMail from "@sendgrid/mail";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+export class MailService implements IMailService {
+  constructor() {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+  }
+
+  async sendMail({
+    to,
+    subject,
+    text,
+    html,
+  }: {
+    to: string;
+    subject: string;
+    text: string;
+    html?: string;
+  }): Promise<void> {
+    await sgMail.send({
+      to,
+      from: process.env.SENDGRID_FROM_EMAIL!, 
+      subject,
+      text,
+      html,
+    });
+  }
 }
+

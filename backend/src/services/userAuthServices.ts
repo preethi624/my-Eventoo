@@ -66,12 +66,17 @@ export class UserAuthService implements IUserAuthService {
       const otp = this._otpService.generateOTP();
       await this._authRepository.createOTP(otp, email);
 
-      const mailOptions = {
+      /*const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Password Reset OTP",
         text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
-      };
+      };*/
+      const mailOptions = {
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for password reset is: ${otp}\nThis OTP will expire in 10 minutes.`,
+    };
       try {
           await this._mailService.sendMail(mailOptions);
       } catch (error) {
