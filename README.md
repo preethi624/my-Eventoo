@@ -67,6 +67,18 @@ Eventoo is a full-stack event management platform that enables users to discover
 | Deployment     | Docker, AWS                                       |
 
 ---
+⚙️ Environment Variables
+
+Create a `.env` file in the backend directory and add the following:
+
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+
+# Optional (based on your features)
+CLIENT_URL=http://localhost:3000
+OPENCAGE_API_KEY=your_opencage_api_key
+SOCKET_PORT=5000
 
 ## 📂 Project Structure
 
